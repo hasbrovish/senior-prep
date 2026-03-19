@@ -6,7 +6,35 @@
     }
   ],
   "applications": [],
-  "daily_logs": {},
+  "daily_logs": {
+    "2026-03-19": [
+      "[LeetCode sync] 154 new problem(s) solved (total: 154)"
+    ]
+  },
   "topics_done": [],
-  "offers": []
+  "offers": [],
+  "lc_sync": {
+    "username": "hasbrovish95",
+    "total": 154,
+    "easy": 61,
+    "medium": 77,
+    "hard": 16,
+    "streak": 2,
+    "total_active_days": 7,
+    "today_submissions": 7,
+    "beats_easy": 81.1,
+    "beats_medium": 81.4,
+    "beats_hard": 73.1,
+    "java_problems": 3,
+    "cpp_problems": 151,
+    "python_problems": 3,
+    "go_problems": 1,
+    "languages": {
+      "C++": 151,
+      "Java": 3,
+      "Go": 1,
+      "Python3": 3
+    },
+    "last_sync": "2026-03-19"
+  }
 }
