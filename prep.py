@@ -579,20 +579,81 @@ def cmd_plan():
 
     section(f"WEEK {wk}: {w['theme']}")
 
-    print(f"\n  MORNING (6–7 AM) — DSA: {w['dsa']} [{w['diff']}]")
-    print(f"  Weekly target: {progress_bar(lc_wk, w['lc_target'])}")
+    # ── Day-of-week context ────────────────────────────────────────────────────
+    day_name = date.today().strftime("%A")
+    day_focus = {
+        "Monday":    ("New topic — first read + code examples",       "Gaurav Sen / ByteByteGo — 1 SD video"),
+        "Tuesday":   ("Deep dive — internals + source code",          "PP Java Springboot — 1 module lesson"),
+        "Wednesday": ("Q&A — question bank practice (prep question)", "LLD: Techie Content video + 1 design"),
+        "Thursday":  ("System Design — draw + explain aloud",         "Hello Interview — SD mock round"),
+        "Friday":    ("Weak area review — prep bugs",                 "Arpit Bhayani microservices deep dive"),
+        "Saturday":  ("Mock interview — full timed round (prep mock)","PP DSA track — 3-5 problems"),
+        "Sunday":    ("prep retro — reflect + plan next week",        "prep sr — review queue + plan"),
+    }
+    eve_focus, aft_topic = day_focus.get(day_name, ("Deep study", "Video resource"))
 
+    # ── Problems checklist ─────────────────────────────────────────────────────
     done_names = {e["name"].lower() for e in p.get("lc_done", [])}
-    print("\n  Problems to do (this week's list):")
+    probs_todo  = [p_ for p_ in w.get("lc_problems", []) if p_.lower() not in done_names]
+    probs_done  = [p_ for p_ in w.get("lc_problems", []) if p_.lower() in done_names]
+
+    # ── SR due today ───────────────────────────────────────────────────────────
+    due_today = sr_due(p)
+
+    print(f"\n  {'─'*58}")
+    print(f"  ⏰  YOUR 13-HOUR PLAN TODAY — {day_name.upper()}")
+    print(f"  {'─'*58}")
+
+    # Window 1: 5AM–8AM
+    print(f"\n  🌅  5:00 AM – 8:00 AM │ MORNING POWER BLOCK (3 hours)")
+    sr_note = f"  ← {len(due_today)} topic(s) DUE TODAY" if due_today else ""
+    print(f"  ├─ 5:00  prep sr                 → SR review queue{sr_note}")
+    lc_prob = probs_todo[0] if probs_todo else (probs_done[0] if probs_done else w['dsa'])
+    print(f"  ├─ 5:15  LeetCode: \"{lc_prob}\"")
+    print(f"  │         [{w['diff']}]  ⚠️  Code in JAVA on LeetCode  (45 min)")
+    print(f"  ├─ 6:00  prep quiz {list(TOPICS.keys())[wk % len(TOPICS)]}    → active recall (30 min)")
+    print(f"  └─ 6:30  PP Java Springboot: Module 11 — 1 lesson   (90 min)")
+
+    # Window 2: 2PM–4PM
+    print(f"\n  ☀️   2:00 PM – 4:00 PM │ AFTERNOON DEEP WORK (2 hours)")
+    section_file = w.get("tasks", [""])[0][:50] if w.get("tasks") else ""
+    print(f"  ├─ 2:00  Read: {section_file}")
+    print(f"  │         (Interview_Answers section for Week {wk})")
+    print(f"  ├─ 3:15  prep study <topic> <1-5>  → log confidence")
+    print(f"  └─ 3:30  {aft_topic}  (30 min)")
+
+    # Window 3: 6PM–2AM
+    lc_prob2 = probs_todo[1] if len(probs_todo) > 1 else f"{w['dsa']} — medium/hard"
+    print(f"\n  🌙  6:00 PM – 2:00 AM │ EVENING MARATHON (8 hours)")
+    print(f"  ├─  6:00  LeetCode: \"{lc_prob2}\"  (Java, 60 min)")
+    print(f"  ├─  7:00  LLD: Techie Content — 1 video + problem  (60 min)")
+    print(f"  ├─  8:00  Hello Interview: System Design mock         (60 min)")
+    print(f"  ├─  9:00  {eve_focus}")
+    print(f"  │         (90 min — tonight's tasks below)")
+    print(f"  ├─ 10:30  prep mock java       → Java mock round     (45 min)")
+    print(f"  ├─ 11:15  prep apply [company] → 2 applications      (30 min)")
+    print(f"  ├─ 12:00  prep bugs + prep sr  → review failures     (30 min)")
+    print(f"  ├─  1:00  Arpit Bhayani / blog reading               (45 min)")
+    print(f"  └─  1:45  prep log             → log today           (15 min)")
+
+    # ── Tonight's tasks ────────────────────────────────────────────────────────
+    print(f"\n  📚  TONIGHT'S STUDY TASKS:")
+    for i, task in enumerate(w["tasks"], 1):
+        print(f"  {i}. {task}")
+
+    # ── LC checklist ───────────────────────────────────────────────────────────
+    print(f"\n  💻  THIS WEEK'S LC PROBLEMS  [{w['dsa']}]  {progress_bar(lc_wk, w['lc_target'])}")
     for prob in w.get("lc_problems", []):
         marker = "✓" if prob.lower() in done_names else "□"
         print(f"    {marker} {prob}")
 
-    print(f"\n  EVENING (8–9 PM) — Study Tasks:")
-    for i, task in enumerate(w["tasks"], 1):
-        print(f"  {i}. {task}")
+    if due_today:
+        print(f"\n  🔴  SR DUE TODAY:")
+        for key, meta, data in due_today:
+            print(f"    • {meta['label']}  (confidence was {data['confidence']}/5 on {data['last']})")
+        print(f"    → prep quiz <topic>  then  prep study <topic> <1-5>")
 
-    print(f"\n  ⚡ TIP: {w['tip']}")
+    print(f"\n  ⚡  TIP: {w['tip']}")
 
     section("QUICK STATS")
     total_lc   = lc_total(p)
@@ -1855,6 +1916,349 @@ def cmd_retro():
 """)
 
 
+def _parse_question_bank():
+    """Parse GSTN_Interview_QuestionBank_296Q.md into a list of (num, section, text)."""
+    qfile = BASE / "GSTN_Interview_QuestionBank_296Q.md"
+    if not qfile.exists():
+        return []
+    import re
+    questions = []
+    current_section = "General"
+    for line in qfile.read_text(encoding="utf-8").splitlines():
+        sec_m = re.match(r"^##\s+SECTION\s+\d+[:\s]+(.+)", line, re.I)
+        if sec_m:
+            current_section = sec_m.group(1).strip().rstrip(".")
+            continue
+        q_m = re.match(r"^Q(\d+)\.\s+(.+)", line)
+        if q_m:
+            questions.append({
+                "num":     int(q_m.group(1)),
+                "section": current_section,
+                "text":    q_m.group(2).strip(),
+            })
+    return questions
+
+
+def cmd_question(topic_raw=None):
+    """Random question from the 296-question bank — verbal practice mode."""
+    import random, time
+
+    questions = _parse_question_bank()
+    if not questions:
+        print("\n  ❌ Could not read GSTN_Interview_QuestionBank_296Q.md\n")
+        return
+
+    # Filter by topic if given
+    if topic_raw:
+        key = resolve_topic(topic_raw)
+        # Map topic keys to section keywords
+        section_map = {
+            "java-core":     ["java core", "java"],
+            "spring-boot":   ["spring boot", "spring"],
+            "hibernate":     ["hibernate", "jpa"],
+            "microservices": ["microservice"],
+            "kafka":         ["kafka"],
+            "redis":         ["redis", "caching"],
+            "database":      ["database", "sql"],
+            "distributed":   ["distributed"],
+            "patterns":      ["pattern", "design pattern"],
+            "cloud":         ["cloud", "aws", "docker"],
+            "golang":        ["golang", "go"],
+            "testing":       ["testing", "behavioral"],
+            "system-design": ["system design"],
+            "lld":           ["low-level", "lld"],
+            "behavioral":    ["behavioral", "testing"],
+        }
+        kws = section_map.get(key, [topic_raw.lower()]) if key else [topic_raw.lower()]
+        filtered = [q for q in questions if any(kw in q["section"].lower() for kw in kws)]
+        pool = filtered if filtered else questions
+    else:
+        pool = questions
+
+    q = random.choice(pool)
+
+    print(f"""
+  ╔══════════════════════════════════════════════════════════╗
+  ║  QUESTION BANK — Verbal Practice Mode                   ║
+  ╚══════════════════════════════════════════════════════════╝
+
+  Q{q['num']}.  [{q['section']}]
+
+  {q['text']}
+
+  ── Answer out loud. 90 seconds. No notes. ───────────────""")
+
+    try:
+        input("\n  [Press Enter when done answering]")
+    except EOFError:
+        pass
+
+    # Confidence check
+    try:
+        conf = input("\n  How did you answer? (1=blanked  3=partial  5=nailed): ").strip()
+        if conf.isdigit() and 1 <= int(conf) <= 5:
+            p = load_progress()
+            p.setdefault("question_scores", []).append({
+                "date": str(date.today()), "q_num": q["num"],
+                "section": q["section"], "confidence": int(conf),
+            })
+            save_progress(p)
+            labels = {1: "Blank → add to prep bug + re-read section",
+                      2: "Weak → re-read section tonight",
+                      3: "Partial → prep teach the gap",
+                      4: "Good → review in 4 days",
+                      5: "Nailed → review in 16 days"}
+            print(f"\n  {labels.get(int(conf), '')}")
+            if int(conf) <= 2:
+                p2 = load_progress()
+                p2.setdefault("bug_journal", []).append({
+                    "date": str(date.today()), "week": week_num(),
+                    "description": f"Q{q['num']}: {q['text'][:80]}",
+                    "topic": None,
+                })
+                save_progress(p2)
+                print(f"  Auto-logged to bug journal.")
+    except EOFError:
+        pass
+
+    print(f"\n  prep question               → another random question")
+    print(f"  prep question <topic>       → topic-specific question")
+    print(f"  prep question {q['num'] + 1}         → next question (Q{q['num'] + 1})\n")
+
+
+def cmd_week_summary():
+    """Export this week's progress as a shareable text snapshot."""
+    p    = load_progress()
+    wk   = week_num()
+    dn   = day_num()
+    w    = WEEKS[min(wk, 26)]
+    today = str(date.today())
+
+    lc_sync  = p.get("lc_sync", {})
+    total    = lc_sync.get("total", lc_total(p))
+    streak   = lc_sync.get("streak", 0)
+    java_cnt = lc_sync.get("java_problems", 0)
+    lc_wk    = lc_done_this_week(p, wk)
+    target   = w["lc_target"]
+    apps     = apps_total(p)
+
+    # This week's LC problems done
+    done_this_week = [
+        e for e in p.get("lc_done", [])
+        if e.get("week") == wk or (
+            e.get("date") and e["date"] >= str(date.today() - timedelta(days=date.today().weekday()))
+        )
+    ]
+
+    # This week's SR
+    sr = p.get("spaced_repetition", {})
+    sr_studied = [(k, v) for k, v in sr.items() if v.get("last", "") >= str(date.today() - timedelta(days=7))]
+
+    # Bugs this week
+    bugs_wk = [b for b in p.get("bug_journal", []) if b.get("week") == wk]
+
+    # Interviews this week
+    ivs_wk = [i for i in p.get("interviews", []) if i.get("week") == wk]
+
+    summary = f"""
+╔══════════════════════════════════════════════════════════╗
+║         WEEK {wk}/26 SUMMARY — {today}                  ║
+╚══════════════════════════════════════════════════════════╝
+
+PROGRAMME:  Day {dn}/184  │  Phase {w['phase']}  │  Month {w['month']}
+THEME:      {w['theme']}
+
+── DSA ──────────────────────────────────────────────────
+  This week:  {lc_wk}/{target}  {'✅' if lc_wk >= target else '⚠️'}
+  All time:   {total} problems  (Java: {java_cnt}  ← must be 30+)
+  Streak:     {streak} days  {'🔥' if streak >= 3 else '✅' if streak >= 1 else '❌'}
+"""
+    if done_this_week:
+        summary += "  Problems done this week:\n"
+        for e in done_this_week[-7:]:
+            summary += f"    ✓ {e.get('name', '?')}\n"
+
+    summary += f"""
+── SPACED REPETITION ────────────────────────────────────
+  Topics studied this week:  {len(sr_studied)}
+"""
+    for key, data in sr_studied[:5]:
+        label = TOPICS.get(key, {}).get("label", key)
+        summary += f"    • {label:<26} confidence {data['confidence']}/5\n"
+
+    summary += f"""
+── BUG JOURNAL ──────────────────────────────────────────
+  Bugs logged this week:  {len(bugs_wk)}
+"""
+    for b in bugs_wk[-3:]:
+        summary += f"    • {b['description'][:60]}\n"
+
+    summary += f"""
+── APPLICATIONS ─────────────────────────────────────────
+  Total sent:  {apps}
+"""
+    recent_apps = [a for a in p.get("applications", []) if a.get("week") == wk]
+    for a in recent_apps[-3:]:
+        summary += f"    • {a['company']} ({a.get('date', '?')})\n"
+
+    summary += f"""
+── INTERVIEWS ───────────────────────────────────────────
+  This week: {len(ivs_wk)}
+"""
+    for iv in ivs_wk:
+        icon = "✅" if "clear" in iv.get("outcome","").lower() else ("❌" if "reject" in iv.get("outcome","").lower() else "⏳")
+        summary += f"  {icon} {iv['company']} — {iv['round']} [{iv['outcome']}]\n"
+
+    summary += f"""
+── NEXT WEEK ────────────────────────────────────────────
+  Week {min(wk+1, 26)}: {WEEKS[min(wk+1, 26)]['theme']}
+  DSA:  {WEEKS[min(wk+1, 26)]['dsa']}  [{WEEKS[min(wk+1, 26)]['diff']}]  │  Target: {WEEKS[min(wk+1, 26)]['lc_target']} problems
+
+  Paste this in Notion / WhatsApp / journal.
+  It becomes your weekly accountability record.
+"""
+    print(summary)
+
+    # Save to file
+    summary_path = BASE / "logs" / f"week_{wk:02d}_summary.txt"
+    LOGS_DIR.mkdir(exist_ok=True)
+    summary_path.write_text(summary)
+    print(f"  Also saved to: {summary_path}\n")
+
+
+def cmd_mock(round_type_raw=None):
+    """Timed mock interview round — simulates a real 45-minute interview."""
+    import time, random
+
+    round_map = {
+        "java":      ("Java Deep Dive",       45, "java-core"),
+        "dsa":       ("DSA / Problem Solving", 45, None),
+        "sd":        ("System Design",         45, "system-design"),
+        "lld":       ("Low-Level Design",      45, "lld"),
+        "behavioral":("Behavioral / STAR",     30, "behavioral"),
+        "kafka":     ("Kafka / Messaging",     30, "kafka"),
+        "full":      ("Full Interview Loop",   90, None),
+    }
+
+    rt_key = (round_type_raw or "java").lower().replace("-", "")
+    if rt_key not in round_map:
+        print(f"\n  Available round types: {', '.join(round_map.keys())}")
+        rt_key = "java"
+
+    round_label, duration, topic_key = round_map[rt_key]
+    wk = week_num()
+    w  = WEEKS.get(wk, WEEKS[1])
+
+    # Pick questions
+    if rt_key == "dsa":
+        # Pull from this week's LC problems
+        problems = w.get("lc_problems", [])
+        q_list = [{"q": f"Solve: {p}", "hint": f"Topic: {w['dsa']} [{w['diff']}]. Code in Java."} for p in problems[:3]]
+    elif rt_key == "full":
+        q_list = []
+        for tk in ["java-core", "system-design", "behavioral"]:
+            if QUIZ.get(tk):
+                q_list.append(random.choice(QUIZ[tk]))
+    elif topic_key and QUIZ.get(topic_key):
+        all_q = QUIZ[topic_key]
+        q_list = random.sample(all_q, min(3, len(all_q)))
+    else:
+        q_list = [random.choice(q) for tk, qs in QUIZ.items() for q in [qs] if qs][:3]
+
+    print(f"""
+  ╔══════════════════════════════════════════════════════════╗
+  ║  MOCK INTERVIEW — {round_label:<38}║
+  ║  Duration: {duration} minutes  │  Week {wk}/26                     ║
+  ╚══════════════════════════════════════════════════════════╝
+
+  RULES (simulate the real thing):
+  • No notes, no IDE, no Google
+  • Think out loud — interviewers want to hear your reasoning
+  • If stuck: state your approach, ask a clarifying question
+  • Code in Java if it's a coding round
+
+  Starting in 3 seconds...
+""")
+
+    try:
+        for i in [3, 2, 1]:
+            print(f"  {i}...", end=" ", flush=True)
+            time.sleep(1)
+        print("\n\n  🎯 BEGIN\n")
+    except KeyboardInterrupt:
+        print("\n  Cancelled.")
+        return
+
+    session_start = time.time()
+    results = []
+
+    time_per_q = (duration * 60) // max(len(q_list), 1)
+
+    for i, q in enumerate(q_list, 1):
+        q_start = time.time()
+        q_mins  = time_per_q // 60
+
+        print(f"  ── QUESTION {i}/{len(q_list)} ({'~' + str(q_mins) + ' min'}) ────────────────────────────────")
+        print(f"\n  {q['q']}\n")
+
+        try:
+            input(f"  [Working... Press Enter when done or when time is up]")
+        except EOFError:
+            pass
+
+        elapsed = int(time.time() - q_start)
+        print(f"\n  HINT / IDEAL ANSWER KEY:\n  {q['hint']}\n")
+
+        try:
+            score = input(f"  Self-score (1=didn't get it  3=partial  5=nailed): ").strip()
+            score = int(score) if score.isdigit() and 1 <= int(score) <= 5 else 3
+        except (EOFError, ValueError):
+            score = 3
+
+        results.append({"q": q["q"][:60], "score": score, "time_secs": elapsed})
+        print(f"  Time on this question: {elapsed // 60}m {elapsed % 60}s\n")
+
+    # ── Session summary ────────────────────────────────────────────────────────
+    total_elapsed = int(time.time() - session_start)
+    avg_score     = sum(r["score"] for r in results) / max(len(results), 1)
+
+    print(f"""
+  ╔══════════════════════════════════════════════════════════╗
+  ║  MOCK COMPLETE — {round_label:<39}║
+  ╚══════════════════════════════════════════════════════════╝
+
+  Total time:   {total_elapsed // 60}m {total_elapsed % 60}s
+  Avg score:    {avg_score:.1f}/5  {'✅' if avg_score >= 4 else '⚠️' if avg_score >= 3 else '❌'}
+  Questions:    {len(results)}
+
+  ── PER-QUESTION BREAKDOWN:""")
+
+    for i, r in enumerate(results, 1):
+        icon = "✅" if r["score"] >= 4 else ("⚠️" if r["score"] == 3 else "❌")
+        print(f"  {i}. {icon} Score {r['score']}/5  │  {r['time_secs']//60}m {r['time_secs']%60}s  │  {r['q']}")
+
+    print(f"""
+  ── WHAT TO DO NOW:""")
+    if avg_score < 3:
+        print(f"  ❌ Score below 3 — re-read the section, do prep teach <topic>, retry tomorrow")
+    elif avg_score < 4:
+        print(f"  ⚠️  Score {avg_score:.1f} — identify which question dragged you down. Add to prep bug.")
+    else:
+        print(f"  ✅ Score {avg_score:.1f} — solid round! Try a harder mock next time: prep mock full")
+
+    # Log to interviews
+    p = load_progress()
+    p.setdefault("interviews", []).append({
+        "date": str(date.today()), "week": wk,
+        "company": "MOCK", "round": round_label,
+        "outcome": f"score {avg_score:.1f}/5",
+        "questions": " | ".join(r["q"] for r in results),
+        "went_well": "", "struggled": "", "todo": "",
+    })
+    save_progress(p)
+    print(f"\n  Logged to interview history.\n  Run: prep mock {rt_key}   → do it again tomorrow\n")
+
+
 def cmd_help():
     print("""
   Jayanti's SDE Prep Tracker — All Commands
@@ -1890,15 +2294,41 @@ def cmd_help():
   prep apply "Razorpay"          → log job application
   prep offer "Razorpay" 25LPA    → log an offer received
 
-  PROGRESS:
+  QUESTION BANK (296 questions):
+  prep question                  → random question from 296-question bank
+  prep question <topic>          → topic-specific question (verbal practice)
+
+  MOCK INTERVIEW:
+  prep mock java                 → Java deep dive (45 min)
+  prep mock dsa                  → DSA / problem solving (45 min)
+  prep mock sd                   → System Design (45 min)
+  prep mock lld                  → Low-Level Design (45 min)
+  prep mock behavioral           → Behavioral / STAR (30 min)
+  prep mock kafka                → Kafka / messaging (30 min)
+  prep mock full                 → Full interview loop (90 min)
+
+  PROGRESS & REVIEW:
   prep status                    → full progress dashboard
   prep review                    → weekly feedback + next steps
   prep retro                     → weekly retrospective
+  prep week-summary              → export week summary (paste to Notion / journal)
 
-  TOPICS for study/quiz/teach/sr:
+  COMPANY RESEARCH:
+  cat DEEP_RESEARCH_INTERVIEW_PATTERNS_2025_2026.md  → 54-company research report
+  cat COMPANY_ANALYSIS.md                             → company tiers + salary
+
+  RESOURCES:
+  cat RESOURCES.md               → week-by-week playlist + PP module mapping
+
+  TOPICS for study/quiz/teach/sr/question:
     java-core  spring-boot  hibernate  microservices  kafka  redis
     database   distributed  patterns   cloud  golang  testing
     system-design  lld  behavioral
+
+  YOUR SCHEDULE (13 hours/day):
+    5:00–8:00 AM   → Morning power block  (DSA + SR + PP Java)
+    2:00–4:00 PM   → Afternoon deep work  (study section + SD video)
+    6:00 PM–2:00AM → Evening marathon     (LC #2, LLD, Hello Interview, mock, apply)
 
   SETUP (one time):
     echo 'alias prep="python3 /Users/jayanti/Documents/dev/senior-prep/prep.py"' >> ~/.zshrc
@@ -1976,6 +2406,14 @@ if __name__ == "__main__":
         cmd_focus(mins)
     elif cmd in ("retro", "retrospective", "weekly-retro"):
         cmd_retro()
+    elif cmd in ("question", "qbank", "qb", "q296"):
+        topic = args[1] if len(args) > 1 else None
+        cmd_question(topic)
+    elif cmd in ("week-summary", "weeksummary", "summary", "weekly"):
+        cmd_week_summary()
+    elif cmd in ("mock", "mockinterview", "simulate"):
+        rt = args[1] if len(args) > 1 else "java"
+        cmd_mock(rt)
     elif cmd in ("help", "h", "--help"):
         cmd_help()
     else:

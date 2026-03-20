@@ -21,7 +21,7 @@
     "hard": 16,
     "streak": 2,
     "total_active_days": 7,
-    "today_submissions": 7,
+    "today_submissions": 0,
     "beats_easy": 81.1,
     "beats_medium": 81.4,
     "beats_hard": 73.1,
@@ -35,6 +35,6 @@
       "Go": 1,
       "Python3": 3
     },
-    "last_sync": "2026-03-19"
+    "last_sync": "2026-03-20"
   }
 }

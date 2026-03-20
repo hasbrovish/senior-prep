@@ -1,0 +1,33 @@
+
+╔══════════════════════════════════════════════════════════╗
+║         WEEK 1/26 SUMMARY — 2026-03-20                  ║
+╚══════════════════════════════════════════════════════════╝
+
+PROGRAMME:  Day 2/184  │  Phase 1  │  Month 1
+THEME:      Resume + Profile Setup
+
+── DSA ──────────────────────────────────────────────────
+  This week:  1/7  ⚠️
+  All time:   154 problems  (Java: 3  ← must be 30+)
+  Streak:     2 days  ✅
+  Problems done this week:
+    ✓ Two Sum
+
+── SPACED REPETITION ────────────────────────────────────
+  Topics studied this week:  0
+
+── BUG JOURNAL ──────────────────────────────────────────
+  Bugs logged this week:  0
+
+── APPLICATIONS ─────────────────────────────────────────
+  Total sent:  0
+
+── INTERVIEWS ───────────────────────────────────────────
+  This week: 0
+
+── NEXT WEEK ────────────────────────────────────────────
+  Week 2: Java Core Internals
+  DSA:  Two Pointers, Sliding Window  [Easy]  │  Target: 7 problems
+
+  Paste this in Notion / WhatsApp / journal.
+  It becomes your weekly accountability record.
