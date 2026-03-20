@@ -1,0 +1,122 @@
+Interview Expiriences 
+Alex xu Book1 - 
+https://drive.google.com/file/d/1FkCUDskYKHVVN7vsq4T9bdP0-68bRt5-/view?usp=sharing 
+
+Alex xu Book2 - https://drive.google.com/file/d/1rH5hCxhjf0UMmAq6FBSRO-hSOl5BZ8H3/view?usp=sharing 
+
+System Design - How to Answer an Interview Problem: https://newsletter.ashishps.com/p/how-to-answer-a-system-design-interview-problem
+
+HLD concepts:
+http://youtube.com/watch?v=rliSgjoOFTs&list=PL6W8uoQQ2c63W58rpNFDwdrBnq5G3EfT7&ab_channel=Concept%26%26Coding-byShrayansh 
+
+LLD:
+https://www.youtube.com/watch?v=rliSgjoOFTs&list=PL6W8uoQQ2c61X_9e6Net0WdYZidm7zooW&ab_channel=Concept%26%26Coding-byShrayansh 
+
+Apple
+Screening 1: DSA
+LRU Cache: https://leetcode.com/problems/lru-cache/
+Spring boot questions
+Monolithic vs Microservices
+CQRS, SAGA pattern
+Screening 2: System Design
+Design Apple music app
+Bitrate discussion
+DB discussion
+Functional & Non functional requirement 
+Round 1: 
+Bean annotation in Spring
+Can you have 2 beans in a class? How to explicitly inject either one of them?
+Singleton design pattern, Singleton Logger, Lazy eager initialization
+Spring boot questions
+1 DSA question - https://leetcode.com/problems/longest-common-prefix/ 
+Various SQL questions
+Multithreading 
+Double locking mechanism
+
+Round 2: 
+Distributed system
+Eventual consistency
+How to detect failures
+Detect deadlock & resolve
+Race condition & how to resolve it sync
+Monitor & assess performance of java application & which Metric analysis
+Optimize java application on large scale system
+How to fix API low performance
+Types of LB
+Sticky & stateless sessions
+Design url shortner
+Design Amazon Order management system
+Round 3: Managerial & Technical
+
+Oracle 
+Screening - 2 DSA running code
+Question1: 
+Determine the maximum area of equal segments that can be cut from a set of circles. Return this maximum area as a string rounded to four decimal places. You will be given an integer variable named segments which specifies how many equal segments are required.
+Notes:
+•⁠  ⁠Each segment must come from a single circle.
+•⁠  ⁠The area of a circle with radius r is pi * ,* r.
+•⁠  ⁠Use 3.14159265359 for the value of pi.
+•⁠  ⁠The answer is accepted if the absolute error is within 10-4.
+Example:
+n = 6
+radius = [1, 1, 1, 2, 2, 3J
+segments = 6
+To cut 6 segments of equal area, calculate the areas of circles with radii 1, 2, and 3. The largest circle (radius 3) can be cut into 4 segments of equal area, and two circles with radius 2 can each contribute one segment of similar area. Circles with radius 1 are not used, The maximum segment area, rounded to four decimal places, is 7.0686.
+Question 2: https://leetcode.com/problems/container-with-most-water/description/ 
+Round 2: https://leetcode.com/problems/task-scheduler/ 
+Round 3: System design: Design distributed caching
+Alex xu - Consistent hashing
+Design key-value pair
+Different types of caching strategies
+Quorum: read, write
+Bloom filter
+Round 4: Managerial & technical
+Round 5: Bar tender: Managerial & Technical
+
+Amazon
+Online OA
+Each round had 2 Leadership principle questions
+Round1: Bar Riaser
+Round2: System Design
+Design a Multi broker portfolio management platform, where you can see the various broker accounts of your’s
+Needed design, database discussion, json
+Schema discussion
+Round3: DSA
+Ques1: https://leetcode.com/problems/evaluate-reverse-polish-notation/description/ 
+Ques2: https://leetcode.com/problems/first-missing-positive/description/ 
+Round4: DSA
+Ques1: https://leetcode.com/problems/trapping-rain-water/description/ 
+Ques2: finding the shortest path between files.
+Condition: Each directory can contain a maximum of 2 subdirectories or files.
+Eg: Documents/prem/test1-java
+Documents/prem/test2.java
+Documents/kushal/test3.java
+Documents/kushal/test4.java
+Note: To be solved using bfs. Create graph of HashMap<String, List<String>>
+Doordash
+Screening - 1 DSA
+A number of cities are arranged on a graph that has been divided up like an ordinary Cartesian plane. Each city is located at an integral (x, y) coordinate intersection. City names and locations are given in the form of three arrays: c, x, and y, which are aligned by the index to provide the city name (c[i]), and its coordinates, (x[i], y[i]). Determine the name of the nearest city that shares either an x or a y coordinate with the queried city. If no other cities share an x or y coordinate, return 'NONE'. If two cities have the same distance to the queried city, q[i], consider the one with an lexographically shorter name (i.e. 'ab' ‹ 'aba' < 'abb') as the closest choice. The distance is the Manhattan distance, the absolute difference in x plus the absolute difference in y.
+Example: Input: n = 3; c = ['cl', 'с2', 'с3']; x = [3, 2, 1] ; y = [3, 2, 31; q = ['с1", c2', 'c3'] Expected Answer: ['c3', 'NONE', 'cl']
+Explanation: The three points at (x[i], y[i]) are (3, 3), (2, 2) and (1, 3) represent the coordinates of the cities on the graph. The nearest city to cl is c3, which shares a y value (distance = (3-1) + (3-3) = 2). City c2 does not have Inearest city as none share an x or y with c2, so this query returns 'NONE'. A query of c3 returns cl based on the first calculation. The return array after all queries are complete is ['C3', 'NONE', 'cl'].
+Function Description
+ closest_straight_ city has the following parameter (s):
+string c[n]: an array of strings that represent the names of each city[i] int [n]: the x coordinates of each city[i] int y[n]: the y coordinates of each city[i] string q[m]: the names of each city to query
+Returns:string[m]: an array of m strings where the index of i element denotes the return value of the index of i query
+Round2: System Design
+Design a system that enables services and clients to track application status and capture various application events. The system should integrate seamlessly with existing monitoring and alerting tools to promptly detect anomalies. Clients may submit diverse event types, on which teams can independently define custom processing logic based on their specific requirements. Additionally, the system must reliably meet defined SLAs critical to operational stability.
+Round3: DSA
+DashMart is a warehouse run by DoorDash that houses items found in convenience stores, grocery stores, and restaurants. We have a city with open roads, blocked-off roads, and DashMarts. City planners want you to identify how far a location is from its closest DashMart. You can only travel over open roads (up, down, left, right). Locations are given in [row, col] format.
+https://leetcode.com/discuss/post/1522955/doordash-onsite-by-anonymous_user-qmn9/ 
+Round4: DSA
+Given a binary tree, find the maximum path sum from any two "alive nodes" within the tree. We can assume a node is an alive node if and only if it is a leaf node, indicated by an asterisk below.
+Follow up - What if the tree we are given can have "alive nodes" at non-leaf nodes as well? Find the maximum path between any two alive nodes within the tree. A maximum path may only have the two alive nodes without any other alive nodes in between. For example the alive nodes are highlighted with asterisks. 
+Round5: Managerial
+
+esigning Data-Intensive Applications: https://unidel.edu.ng/focelibrary/books/Designing%20Data-Intensive%20Applications%20The%20Big%20Ideas%20Behind%20Reliable,%20Scalable,%20and%20Maintainable%20Systems%20by%20Martin%20Kleppmann%20(z-lib.org).pdf
+
+System Design Time estimation: https://docs.google.com/document/u/0/d/13-UETIIK7YzXNec9j_0cQaO5H9L32MRx2BLl7YqHLjo/mobilebasic
+
+
+https://www.hellointerview.com/learn/system-design/in-a-hurry/introduction -- system design interviews
+
+https://www.instahyre.com/candidate/opportunities/?matching=true  --  jobs

@@ -80,6 +80,20 @@ Even a skeleton with good README is fine this week.
 - LeetCode target: 7 Easy problems
 - Topics: Arrays, Strings (Two Sum, Valid Anagram, Contains Duplicate, etc.)
 - Platform tip: NeetCode.io — follow their roadmap
+- ⚠️ **SWITCH TO JAVA NOW**: You have 155 problems done but 151 in C++, only 4 in Java.
+  Apple/Oracle/Amazon/DoorDash all ask Java-specific questions in the same rounds.
+  From Week 1 onwards — solve ALL LeetCode problems in Java only.
+
+### Priority P0 Problems (from Real Interview Data — do these first)
+These appeared in actual Apple/Oracle/Amazon/DoorDash interviews:
+- LRU Cache (LC #146) — Apple Screening. Must know by heart.
+- Trapping Rain Water (LC #42) — Amazon Round 4
+- Task Scheduler (LC #621) — Oracle Round 2
+- First Missing Positive (LC #41) — Amazon Round 3
+- Evaluate Reverse Polish Notation (LC #150) — Amazon Round 3
+- Container With Most Water (LC #11) — Oracle Screening
+- Longest Common Prefix (LC #14) — Apple Round 1
+- BFS grid problems (multi-source BFS) — DoorDash Round 3
 
 ---
 
@@ -155,6 +169,8 @@ Even a skeleton with good README is fine this week.
 - Service discovery (Eureka), API Gateway patterns
 - Circuit breaker (Resilience4j) — states: CLOSED/OPEN/HALF-OPEN
 - Saga pattern (Choreography vs Orchestration) — how GSTN appeal flow maps to this
+- **CQRS pattern** — Command Query Responsibility Segregation, read/write model separation
+  → Apple screening asked this directly. Frame using GSTN GSTR-2A query optimization as example.
 - Distributed tracing (Sleuth + Zipkin)
 - Idempotency — why it matters, how you implemented it
 
@@ -501,11 +517,13 @@ System Design at FAANG level. Behavioral: 10 STAR stories ready.
 ## WEEK 21–22 (Aug 3–19): Company-Specific Prep
 
 ### Amazon
-→ `GSTN_Complete guide Part 5.1` — Leadership Principles Mapping
-- 14 LPs — have a STAR story for each (focus on: Customer Obsession, Ownership,
-  Deliver Results, Dive Deep, Invent & Simplify)
-- DSA: Amazon likes arrays, trees, DP. Check Glassdoor + Blind for recent questions.
-- System Design: Design a package delivery tracking system (OMS + notifications)
+→ `Interview_Answers/Amazon_LP_STAR_Bank.md` — **USE THIS** (22 GSTN STAR stories, all 14 LPs covered)
+- ⚠️ EVERY Amazon round has 2 LP questions. Bar Raiser = dedicated behavioral round.
+- Practice: 2 stories per LP out loud with a timer (2 min each)
+- Focus LPs: Customer Obsession, Ownership, Deliver Results, Dive Deep, Invent & Simplify
+- Real DSA asked: Trapping Rain Water, First Missing Positive, Evaluate RPN, BFS file path
+- Real System Design asked: Multi-broker portfolio platform (schema + JSON design)
+- Each round ends with 2 LP questions — prepare them as warmup, not afterthought
 
 ### Flipkart
 - Java heavy — they will go very deep on concurrency, GC tuning
