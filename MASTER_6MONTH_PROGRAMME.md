@@ -119,10 +119,12 @@ These appeared in actual Apple/Oracle/Amazon/DoorDash interviews:
 ### DSA — Week 2
 - LeetCode target: 7 Easy problems
 - Topics: Two Pointers, Sliding Window basics
+- ⚠️ **Read first**: `Interview_Answers/Section_DSA_Java_Patterns.md` — Section 1 (C++ → Java translation) + Section 2 (Pattern Templates for Two Pointers + Sliding Window)
+- Reference this every time you start a new problem pattern in Java
 
 ---
 
-## WEEK 3 (Apr 2–8): Spring Boot + Hibernate Deep Dive
+## WEEK 3 (Apr 2–8): Spring Boot + Hibernate + LLD Introduction
 
 ### Study Material
 → `Interview_Answers/Section_02_Spring_Boot.md` — Full read
@@ -150,6 +152,14 @@ These appeared in actual Apple/Oracle/Amazon/DoorDash interviews:
 → Reference `GSTN_Complete guide Part 1` — AppealTranCaseCustomizer, WFServiceImpl
 → Be able to explain: "In GSTN we used @Transactional(propagation=REQUIRES_NEW) for
    ledger operations because..." — this is gold in interviews
+
+### LLD — Week 3 (Introduction — DO NOT SKIP)
+⚠️ Phase 1 companies (Razorpay, CRED, Juspay) have LLD in Round 1 or 2. Starting now, not Week 6.
+
+→ `Interview_Answers/Section_LLD_Complete.md` — Read Section 1 (45-min framework) + Section 2 (SOLID with code)
+- Learn the LLD interview framework: Requirements → Entities → Interfaces → Core Classes → Edge Cases
+- Do 1 SOLID principle per day (5 days, one each)
+- **LLD Problem 1 this week**: Design a Parking Lot — full solution with Java code (Section_LLD_Complete.md Problem 1)
 
 ### DSA — Week 3
 - LeetCode target: 7 Easy problems
@@ -193,6 +203,19 @@ These appeared in actual Apple/Oracle/Amazon/DoorDash interviews:
 - Use LinkedIn Easy Apply + company career pages
 - Target: roles with Java + Spring Boot + Microservices
 
+### LLD — Week 4
+→ `Interview_Answers/Section_LLD_Complete.md`
+- **LLD Problem 2**: Design a Vending Machine (State pattern — Section_LLD_Complete.md Problem 2)
+- **LLD Problem 3**: Design Elevator System (Section_LLD_Complete.md Problem 3)
+- Practice: code both from memory after reading solution once
+
+### DP — Week 4 (Moved EARLY — Phase 1 companies ask DP)
+⚠️ DP was in Week 7/Phase 2 before — that was too late. CRED, Meesho, Swiggy ask DP in Phase 1.
+→ `Interview_Answers/Section_DSA_Java_Patterns.md` — Section 3 (DP Complete Guide)
+- Read: DP Recognition Framework + "4 questions before writing any DP"
+- Solve: Climbing Stairs, Coin Change (minimum), House Robber — all in Java
+- Template to internalize: top-down memoization skeleton in Java
+
 ### DSA — Week 4
 - LeetCode target: 7 Easy problems
 - Topics: Stack, Queue, Binary Search
@@ -226,29 +249,29 @@ LLD basics solid. System Design: can handle mid-tier company problems.
 
 ---
 
-## WEEK 6 (Apr 19–25): Low-Level Design (LLD)
+## WEEK 6 (Apr 19–25): LLD Deep Practice + Design Patterns
 
-### What LLD Rounds Look For
-Design a class hierarchy for a real-world problem. OOP, SOLID, Design Patterns.
-Mid-tier companies ask this. FAANG asks this heavily.
+### You've Already Done
+- Parking Lot (Week 3), Vending Machine + Elevator (Week 4)
+- SOLID principles (Week 3)
+This week is about fluency — doing problems from scratch without looking at solutions.
 
-### Must-Master This Week
-- SOLID principles — one code example each
-- Design patterns to know cold:
-  - Strategy (you used this in CaseCustomizerFactory — your best example)
-  - Factory / Abstract Factory
-  - Observer / Event-Driven (your Kafka consumers)
-  - Builder (constructing complex request objects)
-  - Singleton (Spring beans)
-  - Decorator (adding behavior to existing classes)
-  - Template Method (your Consumer.java base class)
+### LLD Practice (Do 2 this week — blind, no reference)
+1. **BookMyShow Ticket Booking** — concurrency, seat locking, race conditions (Section_LLD_Complete.md Problem 4)
+2. **LRU Cache** — LinkedHashMap approach + doubly linked list approach, thread-safe version (Section_LLD_Complete.md Problem 5)
 
-### Study Material
-→ `trackers-docs/LLD_Master_Interview_Sheet_v2.xlsx`
+### Design Patterns Deep Dive
+→ `Interview_Answers/Section_LLD_Complete.md` — Section 4 (Patterns Quick Reference)
+- Strategy (your GSTN CaseCustomizerFactory — your best story)
+- Factory / Abstract Factory
+- Observer / Event-Driven (your Kafka consumers)
+- Builder, Singleton, Decorator, Template Method, Command, Proxy
+- For each: know the trigger phrase ("When interviewer says X, I use Y pattern")
 
-### LLD Practice Problems (Do 2 this week)
-1. Design a Parking Lot
-2. Design a Vending Machine
+### SDE-3 LLD Bar
+→ `Interview_Answers/Section_LLD_Complete.md` — Section 5
+- What extra is expected at SDE-3: extensibility reasoning, SOLID violation detection, trade-off discussion
+- Practice: explain *why* you chose each pattern, not just what you chose
 
 ### DSA — Week 6
 - LeetCode: 7 problems (mix Easy/Medium)
@@ -283,26 +306,35 @@ Mid-tier companies ask this. FAANG asks this heavily.
 4. Job/Task Scheduler (distributed, retry, DLQ)
 5. Key-Value Store (consistent hashing, replication)
 
+### Consumer Product System Designs (NEW — Phase 2 gap closed early)
+→ `Interview_Answers/Section_SD_Consumer_Products.md`
+- Read: Twitter/Instagram Feed design (fan-out on write vs read, celebrity problem)
+- Read: The "Which DB?" and "Which messaging system?" decision trees — memorize these
+- Practice: draw Twitter Feed design end-to-end on paper, explain aloud in 45 min
+
 ### DSA — Week 7
 - LeetCode: 7 problems (Medium)
-- Topics: Dynamic Programming Easy (climbing stairs, coin change)
+- Topics: DP Medium — LCS, 0/1 Knapsack, Word Break
+- → `Interview_Answers/Section_DSA_Java_Patterns.md` Section 3 — follow the DP problem list
 
 ---
 
-## WEEK 8 (May 3–9): Databases + Distributed Systems
+## WEEK 8 (May 3–9): Databases + Distributed Systems (Deep)
 
 ### Study Material
 → `Interview_Answers/Section_07_08_Database_DistributedSystems.md` — Full read
+→ `Interview_Answers/Section_Behavioral_DB_Golang.md` — Part 2 (DB Deep Dive — NEW)
 → `GSTN_Interview_QuestionBank_296Q.md` — Q136–Q200
 
 ### Must-Master This Week
 
-**Database:**
-- Indexes: B-tree, Hash, Composite, Covering — you have great GSTN examples
-- Query optimization: EXPLAIN plan, index selection, avoid full table scan
-- Transactions: ACID, isolation levels (READ COMMITTED vs REPEATABLE READ)
-- Sharding vs Partitioning vs Replication
-- CAP Theorem — real-world trade-offs
+**Database (SDE-3 depth — from Section_Behavioral_DB_Golang.md Part 2):**
+- EXPLAIN / EXPLAIN ANALYZE — how to read query execution plans
+- Index design: B-tree internals, composite index leftmost prefix rule, covering index
+- Isolation levels deep: what each prevents (dirty read, non-repeatable read, phantom read)
+- MySQL MVCC — how InnoDB achieves non-blocking reads
+- Window functions: ROW_NUMBER, RANK, LAG, LEAD — practical examples
+- Deadlock detection and how to resolve
 
 **Distributed Systems:**
 - Consistency models: Strong, Eventual, Causal
@@ -314,19 +346,33 @@ Mid-tier companies ask this. FAANG asks this heavily.
 **Your GSTN Angle:**
 - HBase row key design (GSTIN|Period|ReturnType) — this is a great example
 - MySQL for ACID ledger vs HBase for petabyte-scale filing data — trade-off explained
+- XA transactions with Atomikos — how distributed transactions work (you built this)
+
+### Modern Java + Observability (NEW — 2025-2026 Hiring Trend)
+→ `Interview_Answers/Section_Modern_Java_Observability_CQRS.md` — Part 1 + Part 2
+- Java 17-21: Records, Sealed Classes, Pattern Matching, Virtual Threads (Project Loom)
+- Spring Boot 3.x: Micrometer, Observability, Security 6
+- These questions are now asked at Flipkart, Swiggy, Stripe even at SDE-2 level
+
+### CQRS + Event Sourcing (Apple asked this — still open gap)
+→ `Interview_Answers/Section_Modern_Java_Observability_CQRS.md` — Part 4
+- Read CQRS section + Event Sourcing section
+- Map to GSTN: "GSTR-2A query optimization as CQRS read model"
 
 ### DSA — Week 8
 - LeetCode: 7 problems (Medium)
 - Topics: Graphs (BFS/DFS), basic traversal
+- → `Interview_Answers/Section_DSA_Java_Patterns.md` Section 4 — Graph algorithms in Java
 
 ---
 
-## WEEK 9 (May 10–16): Cloud + Docker/K8s + Testing
+## WEEK 9 (May 10–16): Cloud + Docker/K8s + Testing + Observability
 
 ### Study Material
 → `Interview_Answers/Section_09_10_11_Patterns_Docker_CICD.md`
 → `Interview_Answers/Section_12_13_14_15_Cloud_Network_Design_Go.md`
 → `Interview_Answers/Section_16_17_18_19_Testing_Behavioral_Scenarios.md`
+→ `Interview_Answers/Section_Modern_Java_Observability_CQRS.md` — Part 3 (Observability)
 
 ### Must-Master This Week
 - Docker: image vs container, layers, multi-stage builds
@@ -334,7 +380,11 @@ Mid-tier companies ask this. FAANG asks this heavily.
 - CI/CD pipeline stages: build → test → dockerize → deploy
 - AWS core: EC2, S3, RDS, ElasticCache, SQS/SNS, Lambda
 - Testing: Unit (JUnit + Mockito), Integration, Contract (Pact)
-- Golang basics (you have 5.5 YOE with it at GSTN — brush up goroutines, channels)
+- **Observability (NEW — asked at SDE-3)**: SLIs/SLOs/SLAs, RED method, distributed tracing, OpenTelemetry
+  - Must be able to answer: "Your API is slow. Walk me through how you'd diagnose it."
+  - Structured answer: Metrics → Traces → Logs → EXPLAIN query → Thread dump
+- Golang basics: goroutines, channels, context package
+  → `Interview_Answers/Section_Behavioral_DB_Golang.md` — Part 3 (Go section)
 
 ### DSA — Week 9
 - LeetCode: 7 problems (Medium)
@@ -346,15 +396,27 @@ Mid-tier companies ask this. FAANG asks this heavily.
 
 ### Behavioral Prep
 → `Interview_Answers/Section_16_17_18_19_Testing_Behavioral_Scenarios.md`
-→ `GSTN_Complete guide Part 5` — Amazon Leadership Principles mapping
+→ `Interview_Answers/Section_Behavioral_DB_Golang.md` — Part 1 (Non-Amazon behavioral)
+→ `Interview_Answers/Amazon_LP_STAR_Bank.md` — Amazon LP format
 
-### Must-Have STAR Stories (prepare all of these)
+### Must-Have STAR Stories (prepare all of these — use STARL format)
 1. **Most complex problem you solved** → XA transaction / ledger consistency at GSTN
 2. **Disagreed with team/manager** → technical decision you pushed back on
 3. **Worked under pressure** → deadline during GST peak filing season
 4. **Led without authority** → drove adoption of a new pattern across teams
 5. **Failed and learned** → a production incident, what you did
 6. **Mentored someone** → even if informal
+
+### SDE-3 Behavioral Questions (Prepare These Too)
+→ `Interview_Answers/Section_Behavioral_DB_Golang.md` — Section: SDE-3 Behavioral Questions
+- "How have you mentored junior engineers?"
+- "Describe a system you designed that influenced the whole org"
+- "When did you push back on a leadership/product decision?"
+- "How do you handle tech debt vs feature velocity?"
+
+### Company-Specific "Why this company?" Answers
+→ `Interview_Answers/Section_Behavioral_DB_Golang.md` — Section: Company-Specific Angles
+- Prepare one genuine answer per company you're interviewing at this week
 
 ### Applications Push
 - By end of Week 10: 25+ applications out
@@ -459,32 +521,41 @@ By end of Phase 2 you must have done all 75 + NeetCode 150 additions.
 → `Interview_Answers/Section_21_SystemDesign_DeepDive_With_Answers.md`
 → `Interview_Answers/Section_20_FAANG_SDE2_SDE3_Advanced.md`
 
-FAANG-level designs to master:
-1. Design Twitter / Instagram Feed (fan-out, CDN, ranking)
-2. Design Google Drive / Dropbox (chunked upload, sync, conflict resolution)
-3. Design Uber / OLA (geospatial indexing, matching, surge)
-4. Design WhatsApp (WebSocket, message queue, read receipts)
-5. Design your own: GST Return Filing System (you can nail this)
+FAANG-level designs to master (all 4 are now fully written out):
+→ `Interview_Answers/Section_SD_Consumer_Products.md` — full answers for all 4
+1. Design Twitter / Instagram Feed (fan-out on write vs read, celebrity problem, ranking)
+2. Design Google Drive / Dropbox (chunked upload, deduplication, sync conflict)
+3. Design WhatsApp (WebSocket, message delivery guarantees, group chat, E2E encryption)
+4. Design Uber / OLA (geospatial indexing — QuadTree vs Geohash, driver matching, surge)
+5. Design your own: GST Return Filing System (you can nail this — already in Section_21)
+
+Also reference the decision trees in Section_SD_Consumer_Products.md:
+- "Which DB?" decision tree (SQL vs NoSQL, Cassandra vs MongoDB vs Redis)
+- "Which messaging system?" (Kafka vs RabbitMQ vs SQS vs Redis Pub/Sub)
+- "Which cache strategy?" (read-through vs write-through vs cache-aside)
 
 ---
 
 ## WEEK 17–18 (Jul 3–19): LLD Serious Mode + Golang
 
-### LLD Practice (Do 1 per day on weekdays)
-1. Design an Elevator System
-2. Design a Chess Game
-3. Design Hotel Booking (Booking.com LLD)
-4. Design a Library Management System
-5. Design Food Delivery App (Swiggy/Zomato LLD)
-6. Design a Cache (LRU, LFU — implement in code)
-7. Design Pub-Sub system (your Kafka knowledge shines here)
+### LLD Practice (By now you've done 5 problems in Phase 1 — these are Phase 2 additions)
+→ `Interview_Answers/Section_LLD_Complete.md` for reference if needed
+1. Design a Chess Game (from scratch, 45-min timer)
+2. Design Food Delivery App — Swiggy/Zomato LLD
+3. Design Pub-Sub system (your Kafka knowledge shines here)
+4. Design a Rate Limiter (token bucket implementation in Java)
+5. Design Hotel Booking (Booking.com LLD — concurrency + availability)
 
-### Golang Brush-Up (Important for Google/Uber/Swiggy)
-- Goroutines, channels, select
-- Context package (cancellation, timeout)
-- Interfaces and duck typing
-- Error handling patterns (errors.Is, errors.As, custom errors)
-- Basic Go web service with net/http or Gin
+### Golang Deep Dive (Important for Google/Uber/Swiggy/Zerodha)
+→ `Interview_Answers/Section_Behavioral_DB_Golang.md` — Part 3 (Golang full section)
+- Goroutines vs OS threads — the fundamental difference
+- Channels: buffered vs unbuffered, select multiplexing
+- Context package: WithCancel, WithTimeout, WithDeadline — propagation pattern
+- sync package: Mutex, RWMutex, WaitGroup, Once, atomic
+- Error handling: errors.Is, errors.As, %w wrapping, custom error types
+- HTTP service in Go — middleware pattern, simple CRUD API
+- Goroutine leak prevention — the most common Go interview trap
+- Go Memory Model + race detector (-race flag)
 
 ---
 
@@ -758,20 +829,26 @@ What to fix next week: ___
 # QUICK REFERENCE: STUDY MATERIAL MAP
 # ═══════════════════════════════════════════════════════════════
 
-| Topic | Primary File | Questions |
+| Topic | Primary File | When to Use |
 |---|---|---|
-| Java Core | Section_01_Java_Core.md | Q1–Q25 |
-| Spring Boot | Section_02_Spring_Boot.md | Q26–Q60 |
-| Hibernate/JPA | Section_03_Hibernate_JPA.md | Q61–Q90 |
-| Microservices | Section_04_05_06_Microservices_Kafka_Redis.md | Q91–Q135 |
-| Database + Distributed | Section_07_08_Database_DistributedSystems.md | Q136–Q200 |
-| Patterns + Docker + CI/CD | Section_09_10_11_Patterns_Docker_CICD.md | Q201–Q240 |
-| Cloud + Network + Go | Section_12_13_14_15_Cloud_Network_Design_Go.md | Q241–Q270 |
-| Testing + Behavioral | Section_16_17_18_19_Testing_Behavioral_Scenarios.md | Q271–Q296 |
-| FAANG Advanced | Section_20_FAANG_SDE2_SDE3_Advanced.md | Extra |
-| System Design Deep Dive | Section_21_SystemDesign_DeepDive_With_Answers.md | Extra |
-| GSTN Architecture | GSTN_Architecture_Reference.md | Extra |
-| Your Code Walkthroughs | GSTN_Complete_SDE2_SDE3_InterviewPrep.md Part 1 | — |
+| Java Core | Section_01_Java_Core.md | Week 2 |
+| Spring Boot | Section_02_Spring_Boot.md | Week 3 |
+| Hibernate/JPA | Section_03_Hibernate_JPA.md | Week 3 |
+| Microservices + Kafka + Redis | Section_04_05_06_Microservices_Kafka_Redis.md | Week 4 |
+| Database + Distributed | Section_07_08_Database_DistributedSystems.md | Week 8 |
+| Patterns + Docker + CI/CD | Section_09_10_11_Patterns_Docker_CICD.md | Week 9 |
+| Cloud + Network + Go | Section_12_13_14_15_Cloud_Network_Design_Go.md | Week 9 |
+| Testing + Behavioral | Section_16_17_18_19_Testing_Behavioral_Scenarios.md | Week 10 |
+| FAANG Advanced Java | Section_20_FAANG_SDE2_SDE3_Advanced.md | Week 2 onwards |
+| System Design (GSTN) | Section_21_SystemDesign_DeepDive_With_Answers.md | Week 7 |
+| GSTN Architecture | GSTN_Architecture_Reference.md | All rounds |
+| GSTN Code Walkthroughs | GSTN_Complete_SDE2_SDE3_InterviewPrep.md | All rounds |
+| **[NEW] LLD Complete** | **Section_LLD_Complete.md** | **Week 3 onwards** |
+| **[NEW] DSA Java Patterns** | **Section_DSA_Java_Patterns.md** | **Week 1 onwards** |
+| **[NEW] Consumer Product SD** | **Section_SD_Consumer_Products.md** | **Week 7, Phase 2** |
+| **[NEW] Modern Java + CQRS** | **Section_Modern_Java_Observability_CQRS.md** | **Week 8 onwards** |
+| **[NEW] Behavioral + DB + Go** | **Section_Behavioral_DB_Golang.md** | **Week 8 onwards** |
+| Amazon LP Stories | Amazon_LP_STAR_Bank.md | Week 10, Phase 2 |
 
 ---
 
@@ -784,43 +861,52 @@ What to fix next week: ___
 - [ ] LinkedIn optimized + Open to Work
 - [ ] GitHub project started
 - [ ] Java Core + Spring Boot + Hibernate studied
-- [ ] 28 LeetCode Easy problems done
+- [ ] **LLD framework learned + Parking Lot + Vending Machine done in Java** (NEW)
+- [ ] **DP basics: Climbing Stairs, Coin Change, House Robber done in Java** (NEW)
+- [ ] DSA Java Patterns cheat sheet read — Two Pointers, Sliding Window templates (NEW)
+- [ ] 28 LeetCode Easy problems done (ALL in Java)
 - [ ] 10+ applications out
 
 ## Month 2 (May 19)
-- [ ] LLD patterns solid (Strategy, Factory, Observer, Builder, Template)
-- [ ] System Design framework internalized
-- [ ] 3 system designs practiced end-to-end
+- [ ] **LLD: 5 full problems done with Java code** (Parking Lot, Vending Machine, Elevator, BookMyShow, LRU Cache)
+- [ ] **All design patterns memorized with trigger phrases** (Section_LLD_Complete.md Section 4)
+- [ ] System Design framework internalized — 3 designs practiced end-to-end
+- [ ] **Consumer product SD: Twitter Feed design practiced** (Section_SD_Consumer_Products.md)
+- [ ] **Modern Java: Records, Sealed Classes, Virtual Threads — can explain all** (NEW)
+- [ ] **CQRS + Event Sourcing: can explain with GSTN example** (NEW)
+- [ ] **DB deep dive: EXPLAIN plans, isolation levels, index design** (NEW)
 - [ ] Microservices + Kafka + Redis deep dive done
-- [ ] 30+ LeetCode (mix Easy/Medium) done
+- [ ] 30+ LeetCode (mix Easy/Medium) done — all Java
 - [ ] 25+ applications out
 - [ ] 3+ real interviews completed
 
 ## Month 3 — Phase 1 Target (June 19)
 - [ ] **FIRST OFFER IN HAND**
-- [ ] 50 LeetCode total done
-- [ ] Behavioral: 6 STAR stories ready
+- [ ] 50 LeetCode total done — all Java
+- [ ] **Behavioral: STARL format for 6+ stories; SDE-3 questions ready** (NEW)
 - [ ] All 5 mock interview rounds done at least once
-- [ ] Offer negotiated (even partially)
+- [ ] Offer negotiated
+- [ ] **Observability: can answer "API is slow — diagnose it" with full structure** (NEW)
 
 ## Month 4 (July 19)
 - [ ] Phase 1 offer accepted
 - [ ] NeetCode Blind 75: 50% done
-- [ ] FAANG-level system designs: 3 practiced
-- [ ] LLD: 7 practice problems done
+- [ ] **FAANG-level consumer product SDs: all 4 practiced** (Twitter, Drive, WhatsApp, Uber)
+- [ ] **LLD: 5 more problems (Chess, Food Delivery, Pub-Sub, Rate Limiter, Hotel Booking)**
 - [ ] Applications to dream companies started
 
 ## Month 5 (August 19)
 - [ ] NeetCode Blind 75: 100% done
 - [ ] NeetCode 150 additions: started (25+ done)
 - [ ] Company-specific prep: Amazon LPs, Goldman Java depth
-- [ ] Golang brushed up
+- [ ] **Golang deep dive done: goroutines, channels, context, sync, HTTP service** (NEW)
+- [ ] **DDD concepts: Bounded Context, Aggregates, Value Objects — for Stripe/Goldman** (NEW)
 - [ ] 3+ dream company interviews in pipeline
 
 ## Month 6 — Phase 2 Target (September 19)
 - [ ] **DREAM OFFER IN HAND**
-- [ ] 150+ LeetCode total done
-- [ ] Offer negotiated to maximum
+- [ ] 150+ LeetCode total done — all Java
+- [ ] Offer negotiated to maximum (use Section_Behavioral_DB_Golang.md Negotiation Playbook)
 - [ ] Start date + onboarding planned
 
 ---

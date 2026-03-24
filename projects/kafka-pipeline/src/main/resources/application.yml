@@ -1,0 +1,109 @@
+spring:
+  application:
+    name: kafka-pipeline
+
+  # MySQL
+  datasource:
+    url: jdbc:mysql://localhost:3306/pipeline_db?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+    username: pipeline_user
+    password: pipeline_pass
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    hikari:
+      maximum-pool-size: 10
+      minimum-idle: 5
+      connection-timeout: 30000
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: false
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQLDialect
+        format_sql: true
+
+  # Redis
+  data:
+    redis:
+      host: localhost
+      port: 6379
+      timeout: 2000ms
+      lettuce:
+        pool:
+          max-active: 10
+          max-idle: 5
+          min-idle: 2
+
+  # Kafka
+  kafka:
+    bootstrap-servers: localhost:9092
+
+    # Producer configuration
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+      acks: all                          # Wait for all replicas to acknowledge
+      retries: 3
+      properties:
+        enable.idempotence: true          # Exactly-once at the producer level
+        max.in.flight.requests.per.connection: 5
+        spring.json.add.type.headers: false
+
+    # Consumer configuration
+    consumer:
+      group-id: order-processing-group
+      auto-offset-reset: earliest
+      enable-auto-commit: false           # We commit manually (AckMode.MANUAL)
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      properties:
+        spring.json.trusted.packages: "com.jayanti.pipeline.model"
+        spring.json.value.default.type: "com.jayanti.pipeline.model.OrderEvent"
+        max.poll.records: 50
+        max.poll.interval.ms: 300000
+
+    listener:
+      ack-mode: MANUAL                    # Manual offset commit on success
+      concurrency: 3                      # 3 concurrent consumer threads (one per partition)
+      missing-topics-fatal: false
+
+# Topic names (used in @Value injection)
+app:
+  kafka:
+    topics:
+      order-events: order-events
+      order-events-dlq: order-events-dlq
+  processing:
+    max-retries: 3
+  idempotency:
+    ttl-seconds: 86400                    # 24-hour Redis TTL for idempotency keys
+
+# Actuator + Prometheus
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus,metrics
+  endpoint:
+    health:
+      show-details: always
+    prometheus:
+      enabled: true
+  metrics:
+    tags:
+      application: ${spring.application.name}
+    export:
+      prometheus:
+        enabled: true
+
+# Logging
+logging:
+  level:
+    com.jayanti.pipeline: DEBUG
+    org.springframework.kafka: INFO
+    org.apache.kafka: WARN
+  pattern:
+    console: "%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n"
+
+server:
+  port: 8080

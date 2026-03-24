@@ -29,6 +29,17 @@ START            = date(2026, 3, 19)
 LEETCODE_USER    = "hasbrovish95"
 LC_API           = "https://leetcode.com/graphql"
 
+# ─── ANSI Colors ──────────────────────────────────────────────────────────────
+RED    = "\033[91m"
+GREEN  = "\033[92m"
+YELLOW = "\033[93m"
+BLUE   = "\033[94m"
+CYAN   = "\033[96m"
+GREY   = "\033[90m"
+BOLD   = "\033[1m"
+DIM    = "\033[2m"
+RESET  = "\033[0m"
+
 # ─── 26-Week Plan Data ────────────────────────────────────────────────────────
 WEEKS = {
   1:  {"theme":"Resume + Profile Setup",
@@ -383,14 +394,24 @@ def day_num():
 
 def progress_bar(done, total, width=20):
     if total == 0:
-        return "[" + "░" * width + "] 0/0"
-    filled = round(done / total * width)
-    return "[" + "█" * filled + "░" * (width - filled) + f"] {done}/{total}"
+        return GREY + "[" + "░" * width + "] 0/0" + RESET
+    pct = done / total
+    filled = round(pct * width)
+    # Color based on completion %
+    if pct >= 1.0:
+        color = GREEN
+    elif pct >= 0.5:
+        color = YELLOW
+    else:
+        color = RED
+    bar = color + "█" * filled + GREY + "░" * (width - filled) + RESET
+    pct_str = f"{pct:.0%}" if pct < 1.0 else f"{GREEN}done!{RESET}"
+    return f"[{bar}] {done}/{total} ({pct_str})"
 
 def section(title):
-    print(f"\n{'─' * 60}")
-    print(f"  {title}")
-    print("─" * 60)
+    print(f"\n{GREY}{'─' * 60}{RESET}")
+    print(f"  {BOLD}{CYAN}{title}{RESET}")
+    print(f"{GREY}{'─' * 60}{RESET}")
 
 def lc_done_this_week(p, wk):
     wk_start = START + timedelta(days=(wk - 1) * 7)
@@ -562,24 +583,115 @@ def sr_upcoming(p, days=7):
     return sorted(upcoming, key=lambda x: x[3])
 
 # ─── Commands ─────────────────────────────────────────────────────────────────
+def _current_block():
+    """Returns which time block we're in: 'morning', 'afternoon', 'evening', or 'off'."""
+    hour = datetime.now().hour
+    if 5 <= hour < 8:
+        return "morning"
+    elif 14 <= hour < 16:
+        return "afternoon"
+    elif 18 <= hour or hour < 2:
+        return "evening"
+    else:
+        return "off"
+
+def _print_header(p, wk, dn, w):
+    """Print the coloured header bar."""
+    today_str = date.today().strftime("%A, %B %d, %Y")
+    pct = dn / 184
+    phase_color = YELLOW if w['phase'] == 1 else CYAN
+    print()
+    print(f"{BOLD}{CYAN}╔══════════════════════════════════════════════════════════╗{RESET}")
+    print(f"{BOLD}{CYAN}║{RESET}  {BOLD}JAYANTI — SDE-2/SDE-3 PREP TRACKER{RESET}                    {BOLD}{CYAN}║{RESET}")
+    print(f"{BOLD}{CYAN}║{RESET}  Day {BOLD}{dn}{RESET}/184  {GREY}│{RESET}  Week {BOLD}{wk}{RESET}/26  {GREY}│{RESET}  {phase_color}Phase {w['phase']}{RESET}  {GREY}│{RESET}  Month {w['month']}       {BOLD}{CYAN}║{RESET}")
+    print(f"{BOLD}{CYAN}║{RESET}  {today_str:<56}{BOLD}{CYAN}║{RESET}")
+    print(f"{BOLD}{CYAN}║{RESET}  {progress_bar(dn, 184, 50)}  {BOLD}{CYAN}║{RESET}")
+    print(f"{BOLD}{CYAN}╚══════════════════════════════════════════════════════════╝{RESET}")
+
+def _print_block(block_name, items, is_active=False):
+    """Print a single time block. Active block is bright, others are dim."""
+    labels = {
+        "morning":   ("5:00 AM – 8:00 AM", "MORNING POWER BLOCK",  "3h"),
+        "afternoon": ("2:00 PM – 4:00 PM", "AFTERNOON DEEP WORK",  "2h"),
+        "evening":   ("6:00 PM – 2:00 AM", "EVENING MARATHON",     "8h"),
+    }
+    time_range, label, hrs = labels[block_name]
+    if is_active:
+        header_color = BOLD + GREEN
+        item_color = ""
+        marker = f" {GREEN}◀ NOW{RESET}"
+    else:
+        header_color = DIM
+        item_color = DIM
+        marker = ""
+    print(f"\n  {header_color}{time_range} │ {label} ({hrs}){RESET}{marker}")
+    for i, (time_str, desc) in enumerate(items):
+        connector = "└─" if i == len(items) - 1 else "├─"
+        print(f"  {item_color}{connector} {time_str}  {desc}{RESET}")
+
+def _build_blocks(p, w, wk, probs_todo, probs_done, due_today, day_name, eve_focus, aft_topic):
+    """Build the three time blocks with their items."""
+    sr_note = f"  {RED}← {len(due_today)} DUE{RESET}" if due_today else ""
+    lc_prob = probs_todo[0] if probs_todo else (probs_done[0] if probs_done else w['dsa'])
+    lc_prob2 = probs_todo[1] if len(probs_todo) > 1 else f"{w['dsa']} — medium/hard"
+    section_file = w.get("tasks", [""])[0][:50] if w.get("tasks") else ""
+
+    morning = [
+        ("5:00", f"prep sr → SR review queue{sr_note}"),
+        ("5:15", f"LeetCode: {BOLD}\"{lc_prob}\"{RESET}  [{w['diff']}] — Java (45m)"),
+        ("6:00", f"prep quiz {list(TOPICS.keys())[wk % len(TOPICS)]} → active recall (30m)"),
+        ("6:30", "PP Java Springboot — 1 lesson (90m)"),
+    ]
+    afternoon = [
+        ("2:00", f"Read: {section_file}"),
+        ("3:15", "prep study <topic> <1-5> → log confidence"),
+        ("3:30", f"{aft_topic} (30m)"),
+    ]
+    evening = [
+        (" 6:00", f"LeetCode: {BOLD}\"{lc_prob2}\"{RESET}  (Java, 60m)"),
+        (" 7:00", "LLD: Techie Content — 1 video + problem (60m)"),
+        (" 8:00", "Hello Interview: System Design mock (60m)"),
+        (" 9:00", f"{eve_focus} (90m)"),
+        ("10:30", "prep mock java → Java mock round (45m)"),
+        ("11:15", "prep apply [company] → 2 applications (30m)"),
+        ("12:00", "prep bugs + prep sr → review failures (30m)"),
+        (" 1:00", "Arpit Bhayani / blog reading (45m)"),
+        (" 1:45", "prep log → log today (15m)"),
+    ]
+    return {"morning": morning, "afternoon": afternoon, "evening": evening}
+
+def _print_scoreline(p, wk, w, lc_wk):
+    """One-line scoreboard."""
+    total_lc = lc_total(p)
+    total_apps = apps_total(p)
+    lc_sync = p.get("lc_sync", {})
+    streak = lc_sync.get("streak", 0)
+    streak_icon = f"{RED}0{RESET}" if streak == 0 else (f"{GREEN}{streak}🔥{RESET}" if streak >= 3 else f"{YELLOW}{streak}{RESET}")
+
+    wk_color = GREEN if lc_wk >= w['lc_target'] else (YELLOW if lc_wk > 0 else RED)
+    app_color = GREEN if total_apps >= 5 else (YELLOW if total_apps > 0 else RED)
+    today_subs = lc_sync.get("today_submissions", 0)
+    today_color = GREEN if today_subs > 0 else RED
+
+    print(f"\n  {GREY}──────────────────────────────────────────────────────────{RESET}")
+    print(f"  {BOLD}SCORE{RESET}  "
+          f"LC week: {wk_color}{BOLD}{lc_wk}{RESET}/{w['lc_target']}  {GREY}│{RESET}  "
+          f"LC total: {BOLD}{total_lc}{RESET}  {GREY}│{RESET}  "
+          f"Today: {today_color}{today_subs}{RESET}  {GREY}│{RESET}  "
+          f"Streak: {streak_icon}  {GREY}│{RESET}  "
+          f"Apps: {app_color}{total_apps}{RESET}")
+    print(f"  {GREY}──────────────────────────────────────────────────────────{RESET}")
+
 def cmd_plan():
+    """Time-aware plan — shows current block prominently, others dimmed."""
     p    = load_progress()
     wk   = week_num()
     dn   = day_num()
     w    = WEEKS.get(wk, WEEKS[26])
-    today_str = date.today().strftime("%A, %B %d, %Y")
     lc_wk = lc_done_this_week(p, wk)
 
-    print()
-    print("╔══════════════════════════════════════════════════════════╗")
-    print("║         JAYANTI — SDE-2/SDE-3 PREP TRACKER             ║")
-    print(f"║  Day {dn:<4} of 184 │ Week {wk:<2} │ Phase {w['phase']} │ Month {w['month']}           ║")
-    print(f"║  {today_str:<56}║")
-    print("╚══════════════════════════════════════════════════════════╝")
+    _print_header(p, wk, dn, w)
 
-    section(f"WEEK {wk}: {w['theme']}")
-
-    # ── Day-of-week context ────────────────────────────────────────────────────
     day_name = date.today().strftime("%A")
     day_focus = {
         "Monday":    ("New topic — first read + code examples",       "Gaurav Sen / ByteByteGo — 1 SD video"),
@@ -592,96 +704,164 @@ def cmd_plan():
     }
     eve_focus, aft_topic = day_focus.get(day_name, ("Deep study", "Video resource"))
 
-    # ── Problems checklist ─────────────────────────────────────────────────────
     done_names = {e["name"].lower() for e in p.get("lc_done", [])}
     probs_todo  = [p_ for p_ in w.get("lc_problems", []) if p_.lower() not in done_names]
     probs_done  = [p_ for p_ in w.get("lc_problems", []) if p_.lower() in done_names]
-
-    # ── SR due today ───────────────────────────────────────────────────────────
     due_today = sr_due(p)
 
-    print(f"\n  {'─'*58}")
-    print(f"  ⏰  YOUR 13-HOUR PLAN TODAY — {day_name.upper()}")
-    print(f"  {'─'*58}")
+    current = _current_block()
+    blocks = _build_blocks(p, w, wk, probs_todo, probs_done, due_today, day_name, eve_focus, aft_topic)
 
-    # Window 1: 5AM–8AM
-    print(f"\n  🌅  5:00 AM – 8:00 AM │ MORNING POWER BLOCK (3 hours)")
-    sr_note = f"  ← {len(due_today)} topic(s) DUE TODAY" if due_today else ""
-    print(f"  ├─ 5:00  prep sr                 → SR review queue{sr_note}")
-    lc_prob = probs_todo[0] if probs_todo else (probs_done[0] if probs_done else w['dsa'])
-    print(f"  ├─ 5:15  LeetCode: \"{lc_prob}\"")
-    print(f"  │         [{w['diff']}]  ⚠️  Code in JAVA on LeetCode  (45 min)")
-    print(f"  ├─ 6:00  prep quiz {list(TOPICS.keys())[wk % len(TOPICS)]}    → active recall (30 min)")
-    print(f"  └─ 6:30  PP Java Springboot: Module 11 — 1 lesson   (90 min)")
+    section(f"WEEK {wk}: {w['theme']}  —  {day_name}")
 
-    # Window 2: 2PM–4PM
-    print(f"\n  ☀️   2:00 PM – 4:00 PM │ AFTERNOON DEEP WORK (2 hours)")
-    section_file = w.get("tasks", [""])[0][:50] if w.get("tasks") else ""
-    print(f"  ├─ 2:00  Read: {section_file}")
-    print(f"  │         (Interview_Answers section for Week {wk})")
-    print(f"  ├─ 3:15  prep study <topic> <1-5>  → log confidence")
-    print(f"  └─ 3:30  {aft_topic}  (30 min)")
+    # Show current block expanded, others collapsed
+    for bname in ["morning", "afternoon", "evening"]:
+        is_active = (bname == current)
+        if is_active or current == "off":
+            _print_block(bname, blocks[bname], is_active=(bname == current))
+        else:
+            # Collapsed: just show header
+            labels = {
+                "morning":   ("5:00 AM – 8:00 AM", "MORNING",   "3h"),
+                "afternoon": ("2:00 PM – 4:00 PM", "AFTERNOON", "2h"),
+                "evening":   ("6:00 PM – 2:00 AM", "EVENING",   "8h"),
+            }
+            time_range, label, hrs = labels[bname]
+            print(f"\n  {DIM}{time_range} │ {label} ({hrs})  — {len(blocks[bname])} tasks{RESET}")
 
-    # Window 3: 6PM–2AM
-    lc_prob2 = probs_todo[1] if len(probs_todo) > 1 else f"{w['dsa']} — medium/hard"
-    print(f"\n  🌙  6:00 PM – 2:00 AM │ EVENING MARATHON (8 hours)")
-    print(f"  ├─  6:00  LeetCode: \"{lc_prob2}\"  (Java, 60 min)")
-    print(f"  ├─  7:00  LLD: Techie Content — 1 video + problem  (60 min)")
-    print(f"  ├─  8:00  Hello Interview: System Design mock         (60 min)")
-    print(f"  ├─  9:00  {eve_focus}")
-    print(f"  │         (90 min — tonight's tasks below)")
-    print(f"  ├─ 10:30  prep mock java       → Java mock round     (45 min)")
-    print(f"  ├─ 11:15  prep apply [company] → 2 applications      (30 min)")
-    print(f"  ├─ 12:00  prep bugs + prep sr  → review failures     (30 min)")
-    print(f"  ├─  1:00  Arpit Bhayani / blog reading               (45 min)")
-    print(f"  └─  1:45  prep log             → log today           (15 min)")
+    # ── LC remaining only (hide completed) ──────────────────────────────────
+    if probs_todo:
+        print(f"\n  {BOLD}LC REMAINING{RESET}  [{w['dsa']}]  {progress_bar(lc_wk, w['lc_target'])}")
+        for prob in probs_todo:
+            print(f"    {RED}□{RESET} {prob}")
+        if probs_done:
+            print(f"    {GREEN}{DIM}+ {len(probs_done)} done{RESET}")
+    else:
+        print(f"\n  {GREEN}{BOLD}ALL LC PROBLEMS DONE THIS WEEK!{RESET}  {progress_bar(lc_wk, w['lc_target'])}")
 
-    # ── Tonight's tasks ────────────────────────────────────────────────────────
-    print(f"\n  📚  TONIGHT'S STUDY TASKS:")
+    # ── SR due ──────────────────────────────────────────────────────────────
+    if due_today:
+        print(f"\n  {RED}{BOLD}SR DUE TODAY ({len(due_today)}):{RESET}")
+        for key, meta, data in due_today:
+            print(f"    {RED}•{RESET} {meta['label']}  {GREY}(was {data['confidence']}/5 on {data['last']}){RESET}")
+
+    # ── Tip ─────────────────────────────────────────────────────────────────
+    print(f"\n  {YELLOW}TIP:{RESET} {w['tip']}")
+
+    # ── Scoreline ───────────────────────────────────────────────────────────
+    _print_scoreline(p, wk, w, lc_wk)
+
+    print(f"\n  {GREY}prep full → all blocks  │  prep score → one-liner  │  prep log │ prep lc \"Problem\"{RESET}")
+
+
+def cmd_plan_full():
+    """Full day view — all blocks expanded with tasks."""
+    p    = load_progress()
+    wk   = week_num()
+    dn   = day_num()
+    w    = WEEKS.get(wk, WEEKS[26])
+    lc_wk = lc_done_this_week(p, wk)
+
+    _print_header(p, wk, dn, w)
+
+    day_name = date.today().strftime("%A")
+    day_focus = {
+        "Monday":    ("New topic — first read + code examples",       "Gaurav Sen / ByteByteGo — 1 SD video"),
+        "Tuesday":   ("Deep dive — internals + source code",          "PP Java Springboot — 1 module lesson"),
+        "Wednesday": ("Q&A — question bank practice (prep question)", "LLD: Techie Content video + 1 design"),
+        "Thursday":  ("System Design — draw + explain aloud",         "Hello Interview — SD mock round"),
+        "Friday":    ("Weak area review — prep bugs",                 "Arpit Bhayani microservices deep dive"),
+        "Saturday":  ("Mock interview — full timed round (prep mock)","PP DSA track — 3-5 problems"),
+        "Sunday":    ("prep retro — reflect + plan next week",        "prep sr — review queue + plan"),
+    }
+    eve_focus, aft_topic = day_focus.get(day_name, ("Deep study", "Video resource"))
+
+    done_names = {e["name"].lower() for e in p.get("lc_done", [])}
+    probs_todo  = [p_ for p_ in w.get("lc_problems", []) if p_.lower() not in done_names]
+    probs_done  = [p_ for p_ in w.get("lc_problems", []) if p_.lower() in done_names]
+    due_today = sr_due(p)
+
+    current = _current_block()
+    blocks = _build_blocks(p, w, wk, probs_todo, probs_done, due_today, day_name, eve_focus, aft_topic)
+
+    section(f"WEEK {wk}: {w['theme']}  —  {day_name}  (FULL VIEW)")
+
+    for bname in ["morning", "afternoon", "evening"]:
+        _print_block(bname, blocks[bname], is_active=(bname == current))
+
+    # ── Tonight's tasks ─────────────────────────────────────────────────────
+    print(f"\n  {BOLD}STUDY TASKS:{RESET}")
     for i, task in enumerate(w["tasks"], 1):
-        print(f"  {i}. {task}")
+        print(f"  {CYAN}{i}.{RESET} {task}")
 
-    # ── LC checklist ───────────────────────────────────────────────────────────
-    print(f"\n  💻  THIS WEEK'S LC PROBLEMS  [{w['dsa']}]  {progress_bar(lc_wk, w['lc_target'])}")
+    # ── Full LC checklist ────────────────────────────────────────────────────
+    print(f"\n  {BOLD}LC PROBLEMS{RESET}  [{w['dsa']}]  {progress_bar(lc_wk, w['lc_target'])}")
     for prob in w.get("lc_problems", []):
-        marker = "✓" if prob.lower() in done_names else "□"
-        print(f"    {marker} {prob}")
+        if prob.lower() in done_names:
+            print(f"    {GREEN}✓ {prob}{RESET}")
+        else:
+            print(f"    {RED}□{RESET} {prob}")
 
     if due_today:
-        print(f"\n  🔴  SR DUE TODAY:")
+        print(f"\n  {RED}{BOLD}SR DUE TODAY ({len(due_today)}):{RESET}")
         for key, meta, data in due_today:
-            print(f"    • {meta['label']}  (confidence was {data['confidence']}/5 on {data['last']})")
-        print(f"    → prep quiz <topic>  then  prep study <topic> <1-5>")
+            print(f"    {RED}•{RESET} {meta['label']}  {GREY}(was {data['confidence']}/5 on {data['last']}){RESET}")
 
-    print(f"\n  ⚡  TIP: {w['tip']}")
+    print(f"\n  {YELLOW}TIP:{RESET} {w['tip']}")
 
+    _print_scoreline(p, wk, w, lc_wk)
+
+    # ── Quick stats ─────────────────────────────────────────────────────────
     section("QUICK STATS")
     total_lc   = lc_total(p)
     total_apps = apps_total(p)
-    phase1_lc  = 50
-    phase2_lc  = 150
-    # If already past Phase 1 target, always show against Phase 2 target
-    lc_target  = phase2_lc if (w["phase"] == 2 or total_lc >= phase1_lc) else phase1_lc
+    lc_target  = 150 if (w["phase"] == 2 or total_lc >= 50) else 50
     app_target = 60 if w["phase"] == 2 else 30
 
     print(f"  LeetCode this week:  {progress_bar(lc_wk, w['lc_target'])}")
     print(f"  LeetCode total:      {progress_bar(total_lc, lc_target)}")
-    print(f"  Applications sent:   {progress_bar(total_apps, app_target)}  ({total_apps} total)")
+    print(f"  Applications sent:   {progress_bar(total_apps, app_target)}")
     if p.get("offers"):
-        print(f"  Offers in hand:      {len(p['offers'])} 🎉 ({', '.join(o['company'] for o in p['offers'])})")
+        print(f"  {GREEN}{BOLD}Offers: {len(p['offers'])} ({', '.join(o['company'] for o in p['offers'])}){RESET}")
 
-    # Show synced LC badge if available
     lc_sync = p.get("lc_sync", {})
     if lc_sync:
         streak = lc_sync.get("streak", 0)
         streak_icon = "🔥" if streak >= 3 else ("✅" if streak >= 1 else "❌")
         today_subs = lc_sync.get("today_submissions", 0)
         last_sync = lc_sync.get("last_sync", "never")
-        print(f"\n  LeetCode streak:     {streak} day(s) {streak_icon}   |   Today's submissions: {today_subs}   |   Last sync: {last_sync}")
-    else:
-        print(f"\n  💡 Run: prep sync  — to connect your LeetCode profile (hasbrovish95)")
+        print(f"\n  LeetCode streak: {streak} day(s) {streak_icon}  │  Today: {today_subs}  │  Synced: {last_sync}")
 
-    print(f"\n  Commands: prep log | prep lc \"Problem\" | prep apply \"Company\" | prep sync | prep review")
+
+def cmd_score():
+    """One-line scoreboard — glanceable status."""
+    p     = load_progress()
+    wk    = week_num()
+    dn    = day_num()
+    w     = WEEKS.get(wk, WEEKS[26])
+    lc_wk = lc_done_this_week(p, wk)
+
+    total_lc   = lc_total(p)
+    total_apps = apps_total(p)
+    lc_sync    = p.get("lc_sync", {})
+    streak     = lc_sync.get("streak", 0)
+    today_subs = lc_sync.get("today_submissions", 0)
+    offers     = len(p.get("offers", []))
+
+    # Color code each metric
+    streak_s = f"{GREEN}{streak}🔥{RESET}" if streak >= 3 else (f"{YELLOW}{streak}{RESET}" if streak >= 1 else f"{RED}0{RESET}")
+    wk_s     = f"{GREEN}{lc_wk}{RESET}" if lc_wk >= w['lc_target'] else (f"{YELLOW}{lc_wk}{RESET}" if lc_wk > 0 else f"{RED}0{RESET}")
+    today_s  = f"{GREEN}{today_subs}{RESET}" if today_subs > 0 else f"{RED}0{RESET}"
+    app_s    = f"{GREEN}{total_apps}{RESET}" if total_apps >= 10 else (f"{YELLOW}{total_apps}{RESET}" if total_apps > 0 else f"{RED}0{RESET}")
+    offer_s  = f"  {GREEN}Offers: {offers}{RESET}" if offers > 0 else ""
+
+    phase_s  = f"{YELLOW}P1{RESET}" if w['phase'] == 1 else f"{CYAN}P2{RESET}"
+
+    print()
+    print(f"  {BOLD}Day {dn}/184{RESET} │ W{wk} {phase_s} │ "
+          f"LC: {wk_s}/{w['lc_target']} wk, {BOLD}{total_lc}{RESET} total │ "
+          f"Today: {today_s} │ Streak: {streak_s} │ Apps: {app_s}{offer_s}")
+    print()
     print()
 
 def cmd_log():
@@ -723,23 +903,100 @@ def cmd_log():
         print(f"\n  📊 LeetCode this week: {progress_bar(done, target)}")
     print()
 
-def cmd_lc(problem_name):
+LC_PATTERNS = [
+    "sliding-window", "two-pointer", "binary-search", "bfs", "dfs-backtracking",
+    "dynamic-programming", "monotonic-stack", "prefix-sum", "union-find",
+    "top-k-heap", "trie", "graph-algo",
+]
+
+def cmd_lc(args_list):
+    """Mark a LeetCode problem done. Supports --time, --pattern, --hard flags."""
+    # Parse flags from args_list (everything after "lc")
+    # args_list may contain: problem name parts, --time N, --pattern X, --hard
+    time_mins = None
+    pattern   = None
+    struggled = False
+    name_parts = []
+
+    i = 0
+    while i < len(args_list):
+        a = args_list[i]
+        if a == "--time" and i + 1 < len(args_list):
+            try:
+                time_mins = int(args_list[i + 1])
+            except ValueError:
+                pass
+            i += 2
+        elif a == "--pattern" and i + 1 < len(args_list):
+            pattern = args_list[i + 1].lower()
+            i += 2
+        elif a == "--hard":
+            struggled = True
+            i += 1
+        else:
+            name_parts.append(a)
+            i += 1
+
+    problem_name = " ".join(name_parts).strip()
+    if not problem_name:
+        print("  Usage: prep lc \"Problem Name\" [--time N] [--pattern <pattern>] [--hard]")
+        return
+
     p = load_progress()
     done_names = {e["name"].lower() for e in p.get("lc_done", [])}
     if problem_name.lower() in done_names:
-        print(f"\n  ℹ️  '{problem_name}' already marked done.\n")
+        print(f"\n  Already marked done: '{problem_name}'\n")
         return
-    p["lc_done"].append({"name": problem_name, "date": str(date.today())})
+
+    # Interactive prompts when flags not provided
+    if time_mins is None:
+        try:
+            raw = input("  How long did it take? (minutes, press Enter to skip): ").strip()
+            if raw.isdigit():
+                time_mins = int(raw)
+        except (EOFError, KeyboardInterrupt):
+            pass
+
+    if pattern is None:
+        try:
+            raw = input(f"  Pattern used? ({'/'.join(LC_PATTERNS[:4])}/.., Enter to skip): ").strip().lower()
+            if raw:
+                pattern = raw
+        except (EOFError, KeyboardInterrupt):
+            pass
+
+    if not struggled:
+        try:
+            raw = input("  Did you struggle? (y/N): ").strip().lower()
+            struggled = raw in ("y", "yes")
+        except (EOFError, KeyboardInterrupt):
+            pass
+
+    entry = {"name": problem_name, "date": str(date.today())}
+    if time_mins is not None:
+        entry["time_mins"] = time_mins
+    if pattern:
+        entry["pattern"] = pattern
+    if struggled:
+        entry["struggled"] = True
+
+    p["lc_done"].append(entry)
     save_progress(p)
+
     wk      = week_num()
     done_wk = lc_done_this_week(p, wk)
     target  = WEEKS[wk]["lc_target"]
     total   = lc_total(p)
-    print(f"\n  ✅ LeetCode: {problem_name}")
-    print(f"  This week:  {progress_bar(done_wk, target)}")
-    print(f"  All time:   {total} problems solved")
+
+    print(f"\n  LeetCode done: {problem_name}")
+    if time_mins is not None:
+        print(f"  Time taken:  {time_mins} min{'  (struggled)' if struggled else ''}")
+    if pattern:
+        print(f"  Pattern:     {pattern}")
+    print(f"  This week:   {progress_bar(done_wk, target)}")
+    print(f"  All time:    {total} problems solved")
     if done_wk >= target:
-        print(f"\n  🔥 Week {wk} DSA target hit! Do 1 bonus problem this weekend.")
+        print(f"\n  Week {wk} DSA target hit! Do 1 bonus problem this weekend.")
     print()
 
 def cmd_apply(company):
@@ -828,6 +1085,19 @@ def cmd_status():
         print(f"  Streak: {streak} day(s) {streak_icon}  │  Active days: {lc_sync.get('total_active_days',0)}")
         print(f"  Beats: Easy {lc_sync.get('beats_easy','?')}%  Medium {lc_sync.get('beats_medium','?')}%  Hard {lc_sync.get('beats_hard','?')}%")
         print(f"  Last sync: {lc_sync.get('last_sync','never')}  │  Run: prep sync  to refresh")
+
+    # DSA Pattern Health summary
+    weakest, strongest = _heatmap_summary(p)
+    if weakest or strongest:
+        RED    = "\033[91m"
+        GREEN  = "\033[92m"
+        RESET  = "\033[0m"
+        section("DSA PATTERN HEALTH")
+        if weakest:
+            print(f"  {RED}Weakest  (focus): {', '.join(weakest)}{RESET}")
+        if strongest:
+            print(f"  {GREEN}Strongest:        {', '.join(strongest)}{RESET}")
+        print(f"  Run: prep heatmap  for full breakdown")
 
     section("RECENT APPLICATIONS")
     apps = sorted(p.get("applications", []), key=lambda x: x["date"], reverse=True)
@@ -2259,6 +2529,577 @@ def cmd_mock(round_type_raw=None):
     print(f"\n  Logged to interview history.\n  Run: prep mock {rt_key}   → do it again tomorrow\n")
 
 
+def cmd_heatmap():
+    """Display a colored pattern heatmap based on lc_done entries with pattern data."""
+    p = load_progress()
+    entries = [e for e in p.get("lc_done", []) if e.get("pattern")]
+
+    # ANSI colors
+    RED    = "\033[91m"
+    YELLOW = "\033[93m"
+    GREEN  = "\033[92m"
+    GREY   = "\033[90m"
+    RESET  = "\033[0m"
+    BOLD   = "\033[1m"
+
+    # Aggregate per pattern
+    stats = {}
+    for pat in LC_PATTERNS:
+        matches = [e for e in entries if e.get("pattern", "").lower() == pat]
+        if not matches:
+            stats[pat] = None
+            continue
+        count        = len(matches)
+        avg_time     = sum(e.get("time_mins", 0) for e in matches) / count
+        struggle_cnt = sum(1 for e in matches if e.get("struggled", False))
+        struggle_rate = struggle_cnt / count * 100
+        stats[pat] = {"count": count, "avg_time": avg_time, "struggle_rate": struggle_rate}
+
+    section("DSA PATTERN HEATMAP")
+    print()
+    print(f"  {'PATTERN':<22}  {'COUNT':>5}  {'AVG TIME':>9}  {'STRUGGLE':>9}  STATUS")
+    print(f"  {'─'*66}")
+
+    scored = []
+    for pat in LC_PATTERNS:
+        data = stats[pat]
+        if data is None:
+            color  = GREY
+            status = "not attempted"
+            row    = f"  {GREY}{pat:<22}  {'─':>5}  {'─':>9}  {'─':>9}  {status}{RESET}"
+        else:
+            c  = data["count"]
+            at = data["avg_time"]
+            sr = data["struggle_rate"]
+            if sr > 50 or at > 35:
+                color  = RED
+                status = "WEAK (focus here)"
+            elif sr >= 25 or (at >= 25 and at <= 35):
+                color  = YELLOW
+                status = "needs work"
+            else:
+                color  = GREEN
+                status = "good"
+            row = (f"  {color}{pat:<22}  {c:>5}  {at:>7.0f}min"
+                   f"  {sr:>7.0f}%  {status}{RESET}")
+            scored.append((pat, sr, at, color))
+        print(row)
+
+    # Weakness / strength analysis
+    weak_pats = sorted(
+        [(pat_, d_) for pat_, d_ in stats.items() if d_ and (d_["struggle_rate"] > 25 or d_["avg_time"] > 25)],
+        key=lambda x: -(x[1]["struggle_rate"] + x[1]["avg_time"] / 5)
+    )
+    strong_pats = sorted(
+        [(pat_, d_) for pat_, d_ in stats.items() if d_ and d_["struggle_rate"] <= 25 and d_["avg_time"] <= 25],
+        key=lambda x: x[1]["avg_time"]
+    )
+    not_attempted = [pat_ for pat_, d_ in stats.items() if d_ is None]
+
+    print()
+    if weak_pats:
+        print(f"  {RED}{BOLD}FOCUS THIS WEEK — 3 weakest patterns:{RESET}")
+        for pat, d in weak_pats[:3]:
+            print(f"  {RED}  • {pat:<22} struggle {d['struggle_rate']:.0f}%  avg {d['avg_time']:.0f}min{RESET}")
+    else:
+        print(f"  {GREEN}No critically weak patterns yet.{RESET}")
+
+    if not_attempted:
+        print(f"\n  {GREY}Not yet attempted ({len(not_attempted)}): {', '.join(not_attempted)}{RESET}")
+
+    print()
+    print("  Legend:  RED = struggle>50% or avg>35min  "
+          "YELLOW = struggle 25-50% or avg 25-35min  "
+          "GREEN = solid  GREY = not tried")
+    print()
+
+
+def _heatmap_summary(p):
+    """Return (weakest_3, strongest_3) pattern name lists for use in status."""
+    entries = [e for e in p.get("lc_done", []) if e.get("pattern")]
+    stats = {}
+    for pat in LC_PATTERNS:
+        matches = [e for e in entries if e.get("pattern", "").lower() == pat]
+        if not matches:
+            continue
+        count        = len(matches)
+        avg_time     = sum(e.get("time_mins", 0) for e in matches) / count
+        struggle_cnt = sum(1 for e in matches if e.get("struggled", False))
+        struggle_rate = struggle_cnt / count * 100
+        stats[pat]   = {"count": count, "avg_time": avg_time, "struggle_rate": struggle_rate}
+
+    if not stats:
+        return [], []
+
+    def weakness_score(d):
+        return d["struggle_rate"] + d["avg_time"] / 5
+
+    sorted_pats = sorted(stats.items(), key=lambda x: -weakness_score(x[1]))
+    weakest    = [pat_ for pat_, _ in sorted_pats[:3]]
+    strongest  = [pat_ for pat_, _ in reversed(sorted_pats[-3:])]
+    return weakest, strongest
+
+
+def cmd_sr_init():
+    """Pre-populate spaced repetition queue by rating confidence for all topics."""
+    p  = load_progress()
+    sr = p.setdefault("spaced_repetition", {})
+
+    # Use the intervals defined in the spec (different from the dynamic SR_INTERVALS)
+    INIT_INTERVALS = {1: 1, 2: 3, 3: 7, 4: 14, 5: 30}
+
+    section("SPACED REPETITION INIT — Rate Your Confidence")
+    print()
+    print("  For each topic, enter your current confidence (1-5):")
+    print("    1 = never studied / no idea")
+    print("    2 = familiar, seen it before")
+    print("    3 = okay, understand basics")
+    print("    4 = solid, can explain it")
+    print("    5 = expert, could teach it")
+    print()
+    print("  Press Enter to skip a topic (keeps existing data).")
+    print()
+
+    today = str(date.today())
+    seeded = 0
+
+    for key, meta in TOPICS.items():
+        existing = sr.get(key)
+        existing_note = f"  [current: {existing['confidence']}/5, next: {existing['next']}]" if existing else ""
+        try:
+            raw = input(f"  {meta['label']:<26}{existing_note}  confidence (1-5): ").strip()
+        except (EOFError, KeyboardInterrupt):
+            print()
+            break
+
+        if not raw:
+            continue
+
+        if not raw.isdigit() or not (1 <= int(raw) <= 5):
+            print(f"    Invalid — skipping {meta['label']}")
+            continue
+
+        confidence  = int(raw)
+        days_ahead  = INIT_INTERVALS[confidence]
+        next_review = str(date.today() + timedelta(days=days_ahead))
+
+        sr[key] = {
+            "confidence":  confidence,
+            "last":        today,
+            "next":        next_review,
+            "study_count": sr.get(key, {}).get("study_count", 0) + 1,
+        }
+        seeded += 1
+        print(f"    Scheduled: next review in {days_ahead}d  ({next_review})")
+
+    save_progress(p)
+    print()
+    print(f"  {seeded} topic(s) seeded into SR queue.")
+    print(f"  Run: prep sr    to see your full review schedule")
+    print()
+
+
+def cmd_recover():
+    """Interactive recovery protocol after a failed interview round."""
+    p     = load_progress()
+    today = str(date.today())
+
+    ROUND_TYPES = ["DSA", "LLD", "System Design", "Java", "Behavioral"]
+    RECOVERY_PLANS = {
+        "DSA":           "Do 3 problems of the pattern you struggled with today. Use prep heatmap to find it.",
+        "LLD":           "Redo the relevant LLD problem from scratch without looking at notes. Timer: 45 min.",
+        "System Design": "Draw the failed design on paper. Then read the relevant section. Redo tomorrow.",
+        "Java":          "Go to Section_20_FAANG and Section_Modern_Java. Find the topic. Teach it aloud.",
+        "Behavioral":    "Rewrite the STAR story. Record yourself saying it. Identify what felt weak.",
+    }
+
+    section("RECOVERY PROTOCOL")
+    print()
+    print("  Which round did you fail?")
+    for i, rt in enumerate(ROUND_TYPES, 1):
+        print(f"    {i}. {rt}")
+    print()
+
+    try:
+        raw = input("  Enter number (1-5): ").strip()
+    except (EOFError, KeyboardInterrupt):
+        print()
+        return
+
+    if not raw.isdigit() or not (1 <= int(raw) <= len(ROUND_TYPES)):
+        print("  Invalid choice — exiting.")
+        return
+
+    round_type = ROUND_TYPES[int(raw) - 1]
+
+    print(f"\n  Round: {round_type}")
+    try:
+        description = input("  What specifically went wrong? (free text): ").strip()
+    except (EOFError, KeyboardInterrupt):
+        description = ""
+
+    # Log the failure
+    failure = {
+        "date":        today,
+        "round":       round_type,
+        "description": description,
+        "week":        week_num(),
+    }
+    p.setdefault("failures", []).append(failure)
+    save_progress(p)
+
+    # Show recovery plan
+    plan = RECOVERY_PLANS.get(round_type, "Review the relevant section and redo a mock round tomorrow.")
+    print(f"\n  RECOVERY PLAN — {round_type}")
+    print(f"  {'─'*54}")
+    print(f"  {plan}")
+
+    # Stats
+    failures    = p.get("failures", [])
+    total_fails = len(failures)
+    round_counts = {}
+    for f in failures:
+        round_counts[f["round"]] = round_counts.get(f["round"], 0) + 1
+    most_common = max(round_counts, key=round_counts.get) if round_counts else round_type
+
+    # Recovery rate: % failures that have a subsequent interview-log "cleared"
+    interviews   = p.get("interviews", [])
+    cleared_after = 0
+    for f in failures:
+        fail_date = f["date"]
+        # Any cleared interview after this failure date counts as "recovered"
+        if any(iv.get("date", "") > fail_date and "clear" in iv.get("outcome", "").lower()
+               for iv in interviews):
+            cleared_after += 1
+    recovery_rate = (cleared_after / total_fails * 100) if total_fails > 0 else 0
+
+    print()
+    print(f"  Failures logged: {total_fails}.  "
+          f"Most common failure: {most_common}.  "
+          f"Recovery rate: {recovery_rate:.0f}%")
+    print()
+    print(f"  Run: prep failures    to see full failure analysis")
+    print(f"  Run: prep heatmap     to find your weakest DSA patterns")
+    print()
+
+
+def cmd_failures():
+    """Show all logged failures grouped by round type, with analysis."""
+    p        = load_progress()
+    failures = p.get("failures", [])
+
+    section("FAILURE ANALYSIS")
+    print()
+
+    if not failures:
+        print("  No failures logged yet.")
+        print("  After a failed round, run: prep recover")
+        print("  It helps you build a systematic recovery habit.\n")
+        return
+
+    # Group by round
+    by_round = {}
+    for f in failures:
+        by_round.setdefault(f["round"], []).append(f)
+
+    print(f"  Total failures logged: {len(failures)}")
+    print()
+
+    most_common = max(by_round, key=lambda k: len(by_round[k]))
+    print(f"  PATTERN: {most_common} is your most common failure area ({len(by_round[most_common])}x)")
+    print()
+
+    for round_type, entries in sorted(by_round.items(), key=lambda x: -len(x[1])):
+        bar = "█" * len(entries) + "░" * max(0, 5 - len(entries))
+        print(f"  {round_type:<18} {bar} ({len(entries)}x)")
+        for f in entries[-3:]:
+            desc = f.get("description", "")[:70]
+            print(f"    {f['date']}  {desc}" if desc else f"    {f['date']}  (no description)")
+
+    # Last 3 interviews
+    interviews = p.get("interviews", [])
+    if interviews:
+        print()
+        print("  LAST 3 INTERVIEWS:")
+        for iv in sorted(interviews, key=lambda x: x.get("date", ""))[-3:][::-1]:
+            icon = ("✅" if "clear" in iv.get("outcome", "").lower()
+                    else ("❌" if "reject" in iv.get("outcome", "").lower() else "⏳"))
+            print(f"    {icon} {iv.get('date','')}  {iv.get('company','')} — "
+                  f"{iv.get('round','')} [{iv.get('outcome','')}]")
+
+    # Recovery rate
+    total_fails = len(failures)
+    cleared_after = 0
+    for f in failures:
+        fail_date = f["date"]
+        if any(iv.get("date", "") > fail_date and "clear" in iv.get("outcome", "").lower()
+               for iv in interviews):
+            cleared_after += 1
+    recovery_rate = (cleared_after / total_fails * 100) if total_fails > 0 else 0
+
+    print()
+    print(f"  Recovery rate: {recovery_rate:.0f}%  "
+          f"({'solid' if recovery_rate >= 50 else 'keep pushing'})")
+    print()
+    print("  Run: prep recover    to log a new failure + get recovery plan")
+    print("  Run: prep heatmap    to see your DSA pattern weaknesses")
+    print()
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# CLAUDE AI COACHING INTEGRATION
+# ═══════════════════════════════════════════════════════════════════════════════
+
+def _ai_available():
+    """Check if anthropic is installed and ANTHROPIC_API_KEY is set."""
+    try:
+        import anthropic as _a  # noqa
+    except ImportError:
+        print("\n  ❌ anthropic package not installed. Run: pip3 install anthropic\n")
+        return False
+    import os
+    if not os.environ.get("ANTHROPIC_API_KEY"):
+        print("\n  ❌ ANTHROPIC_API_KEY not set.")
+        print("  Add to ~/.zshrc:  export ANTHROPIC_API_KEY=\"sk-ant-...\"")
+        print("  Then run:         source ~/.zshrc\n")
+        return False
+    return True
+
+
+def _build_ai_context():
+    """Compile full prep state into a context string for Claude."""
+    p  = load_progress()
+    wk = week_num()
+    dn = day_num()
+    w  = WEEKS.get(wk, WEEKS[26])
+
+    lc_sync    = p.get("lc_sync", {})
+    total_lc   = lc_sync.get("total", lc_total(p))
+    easy       = lc_sync.get("easy", 0)
+    medium     = lc_sync.get("medium", 0)
+    hard       = lc_sync.get("hard", 0)
+    streak     = lc_sync.get("streak", 0)
+    java_cnt   = lc_sync.get("java_problems", 0)
+    cpp_cnt    = lc_sync.get("cpp_problems", 0)
+    total_apps = apps_total(p)
+    lc_wk      = lc_done_this_week(p, wk)
+    target_wk  = w["lc_target"]
+    logs_count = len(p.get("daily_logs", {}))
+
+    # Recent logs (last 7 days)
+    daily = p.get("daily_logs", {})
+    recent_log_lines = []
+    for d in sorted(daily.keys(), reverse=True)[:7]:
+        for entry in daily[d][:3]:
+            recent_log_lines.append(f"  {d}: {entry}")
+
+    # Bug journal
+    bugs = p.get("bug_journal", [])
+    bug_lines = [f"  [{b.get('date','')}] {b['description']}" for b in bugs[-5:]]
+
+    # Interview history
+    interviews = p.get("interviews", [])
+    iv_lines = []
+    for iv in interviews[-5:]:
+        icon = "✅" if "clear" in iv.get("outcome","").lower() else ("❌" if "reject" in iv.get("outcome","").lower() else "⏳")
+        iv_lines.append(f"  {icon} {iv.get('date','')} {iv.get('company','')} — {iv.get('round','')} [{iv.get('outcome','')}]")
+        if iv.get("struggled"):
+            iv_lines.append(f"    Struggled: {iv['struggled'][:100]}")
+
+    # SR queue
+    due_sr  = sr_due(p)
+    sr_data = p.get("spaced_repetition", {})
+    sr_due_str = ", ".join(TOPICS[k]["label"] for k,_,_ in due_sr[:5]) if due_sr else "none"
+
+    # Weak DSA patterns
+    weakest, strongest = _heatmap_summary(p)
+    weakest_str   = ", ".join(weakest)   if weakest   else "not enough data yet"
+    strongest_str = ", ".join(strongest) if strongest else "not enough data yet"
+
+    # Offers
+    offers = p.get("offers", [])
+    offers_str = ", ".join(f"{o['company']} ({o.get('ctc','')})" for o in offers) if offers else "none"
+
+    # Cumulative pace
+    expected_lc = sum(WEEKS[w_]["lc_target"] for w_ in range(1, wk))
+
+    ctx = f"""=== PREP TRACKER — LIVE STATE ===
+Date: {date.today().strftime('%A, %B %d, %Y')}
+Programme Day: {dn}/184  |  Week: {wk}/26  |  Phase: {w['phase']}
+Current Week Theme: {w['theme']}
+DSA Focus: {w['dsa']}  [{w['diff']}]  |  Weekly target: {target_wk} problems
+
+=== CANDIDATE PROFILE ===
+Name: Jayanti Vishnoi
+Experience: 5.5 YOE at GSTN (Goods & Services Tax Network), Specialist Programmer L2
+Stack: Java, Spring Boot, Hibernate, Kafka, Redis, MySQL, MongoDB, Golang, Angular, Docker, K8s, AWS
+Goal: SDE-2/SDE-3 at product company
+Phase 1 target: First offer at mid-tier (Razorpay, CRED, Juspay, etc.)
+Phase 2 target: FAANG/top-product (Amazon, Flipkart, Goldman, PhonePe, Swiggy)
+Strongest GSTN areas: Distributed caching (JBoss DataGrid), Kafka consumer with DLQ, XA transactions (Atomikos), Strategy+Factory pattern (CaseCustomizerFactory), 14M taxpayers/3B invoices/year scale
+
+=== LEETCODE STATS ===
+Total solved: {total_lc}  (Easy: {easy}  Medium: {medium}  Hard: {hard})
+Java: {java_cnt} problems  |  C++: {cpp_cnt} problems
+Note: Java is CRITICAL — interviews require live Java coding
+Streak: {streak} day(s)
+This week: {lc_wk}/{target_wk} problems
+Cumulative pace: {total_lc} solved vs {expected_lc} programme expected by Week {wk}
+Weakest DSA patterns: {weakest_str}
+Strongest DSA patterns: {strongest_str}
+
+=== APPLICATIONS ===
+Total sent: {total_apps}
+Offers in hand: {offers_str}
+
+=== CONSISTENCY ===
+Days logged: {logs_count}/{dn}  ({logs_count/max(dn,1):.0%} logging rate)
+
+=== RECENT ACTIVITY (last 7 days) ===
+{chr(10).join(recent_log_lines) if recent_log_lines else "  (no logs yet)"}
+
+=== BUG JOURNAL — recent stumbling blocks ===
+{chr(10).join(bug_lines) if bug_lines else "  (none logged)"}
+
+=== INTERVIEW HISTORY ===
+{chr(10).join(iv_lines) if iv_lines else "  (no interviews logged yet)"}
+
+=== SPACED REPETITION ===
+Topics due for review: {sr_due_str}
+Total topics tracked: {len(sr_data)}
+
+=== THIS WEEK'S PLAN ===
+Tasks:
+{chr(10).join('  - ' + t for t in w['tasks'])}
+Weekly tip: {w['tip']}
+"""
+    return ctx, p
+
+
+_AI_SYSTEM_PROMPT = """You are Jayanti's personal SDE-2/SDE-3 interview prep coach. You have real-time access to her complete prep tracker data.
+
+Your coaching style:
+- SPECIFIC: always reference her actual numbers — LeetCode count, streak, application count, interview history
+- PRIORITISED: identify the single most important gap. She cannot fix everything at once.
+- DIRECT: no preamble. Lead with the most important thing.
+- ACTIONABLE: every response ends with 1-3 concrete actions she can do TODAY
+- HONEST: if she is behind, say so clearly. If she is on track, validate it specifically.
+
+What you know about her:
+- 5.5 YOE at GSTN — strong distributed systems, Kafka, Java, XA transactions, HBase — REAL production experience
+- Biggest known gap: LeetCode was in C++, needs Java. DSA consistency. Applications volume.
+- Strong system design intuition — needs to learn to present it in product company language
+- 13-hour prep days — time is not the constraint, direction and prioritisation are
+
+DO NOT:
+- Give generic "keep studying hard" advice
+- Be vague about what to do next
+- Give more than 4 paragraphs unless depth is asked for
+- Ignore her actual numbers"""
+
+
+def _claude_stream(context, question):
+    """Call Claude with full context, stream and print the response."""
+    import anthropic as _anthropic
+    import os
+
+    client = _anthropic.Anthropic(api_key=os.environ["ANTHROPIC_API_KEY"])
+
+    with client.messages.stream(
+        model="claude-opus-4-6",
+        max_tokens=2048,
+        thinking={"type": "adaptive"},
+        system=_AI_SYSTEM_PROMPT,
+        messages=[{"role": "user", "content": f"{context}\n\n=== QUESTION ===\n{question}"}],
+    ) as stream:
+        for text in stream.text_stream:
+            print(text, end="", flush=True)
+    print("\n")
+
+
+def cmd_ask(question):
+    """Free-form coaching question answered by Claude with your full prep context."""
+    if not _ai_available():
+        return
+    cmd_sync(silent=True)
+    print(f"\n  🤖 Asking Claude: {question[:70]}{'...' if len(question) > 70 else ''}")
+    print(f"  {'─'*58}\n")
+    context, _ = _build_ai_context()
+    _claude_stream(context, question)
+
+
+def cmd_ai_review():
+    """Claude-powered deep weekly review — reads actual data, gives personalized analysis."""
+    if not _ai_available():
+        return
+    cmd_sync(silent=True)
+
+    # Show the quick stats header first
+    cmd_review()
+
+    print()
+    print("╔══════════════════════════════════════════════════════════╗")
+    print("║         AI COACH — INTELLIGENT WEEKLY ANALYSIS         ║")
+    print("╚══════════════════════════════════════════════════════════╝\n")
+
+    context, p = _build_ai_context()
+    wk = week_num()
+
+    question = f"""Give me my full Week {wk} coaching review.
+
+Cover:
+1. Am I on track vs where I should be at Week {wk}? Be specific with my numbers.
+2. What is my SINGLE most important gap right now — the one thing that will hurt me most in interviews?
+3. Top 3 high-impact actions I should take THIS week (in priority order).
+4. What should I focus on TODAY specifically?
+5. What does my interview pipeline look like — am I applying enough?
+
+Reference my actual data. Be direct."""
+
+    _claude_stream(context, question)
+
+
+def cmd_ai_check():
+    """Claude-powered health check — smarter than the rule-based version."""
+    if not _ai_available():
+        return
+    cmd_sync(silent=True)
+
+    print()
+    print("╔══════════════════════════════════════════════════════════╗")
+    print("║          AI COACH — DAILY HEALTH CHECK                 ║")
+    print("╚══════════════════════════════════════════════════════════╝\n")
+
+    context, _ = _build_ai_context()
+    question = """Do a quick daily health check. In 3-4 paragraphs:
+1. What is today's single most important thing I should do for my prep?
+2. Any red flags in my current trajectory?
+3. One specific encouraging observation from my data.
+4. Today's top 2 action items (be very specific — times, topics, problem names if relevant).
+
+Keep it tight — I need to read this and immediately know what to do."""
+
+    _claude_stream(context, question)
+
+
+def cmd_ai_mock_debrief(round_type, questions_scores):
+    """After a mock, get Claude's personalised debrief and recovery plan."""
+    if not _ai_available():
+        return
+    context, _ = _build_ai_context()
+    q_str = "\n".join(f"Q{i+1}: {q}  →  Score: {s}/5" for i, (q, s) in enumerate(questions_scores))
+    question = f"""I just completed a {round_type} mock interview. Results:
+{q_str}
+
+Give me:
+1. What these scores tell you about my interview readiness for {round_type} rounds
+2. The specific gap I need to fix most urgently
+3. Exact next steps for the next 48 hours to address the weakness"""
+    print("\n  🤖 AI Mock Debrief")
+    print(f"  {'─'*58}\n")
+    _claude_stream(context, question)
+
+
 def cmd_help():
     print("""
   Jayanti's SDE Prep Tracker — All Commands
@@ -2272,19 +3113,26 @@ def cmd_help():
   prep sync                      → sync LeetCode stats (hasbrovish95)
 
   DSA / LEETCODE:
-  prep lc "Two Sum"              → mark LeetCode problem done
+  prep lc "Two Sum"              → mark LeetCode problem done (prompts for time/pattern/struggled)
+  prep lc "Two Sum" --time 28 --pattern sliding-window --hard  → with flags
+  prep heatmap                   → colored heatmap of pattern strengths/weaknesses
   prep java                      → Java language gap tracker
   prep quiz <topic>              → active recall quiz (random if no topic)
   prep focus [mins]              → Pomodoro timer (default: 25 min)
 
   SPACED REPETITION:
   prep sr                        → show review queue (due today + upcoming)
+  prep sr-init                   → seed SR queue by rating confidence for all topics
   prep study <topic> <1-5>       → log topic studied + schedule next review
   prep teach <topic>             → Feynman teach-it protocol
 
   BUG JOURNAL:
   prep bug "description"         → log a stumbling block / failure pattern
   prep bugs                      → view bug journal + weak area analysis
+
+  FAILURE RECOVERY:
+  prep recover                   → log a failed round + get recovery plan
+  prep failures                  → view all failures grouped by round type
 
   INTERVIEWS:
   prep interview-log "Company"   → structured interview logging
@@ -2306,6 +3154,11 @@ def cmd_help():
   prep mock behavioral           → Behavioral / STAR (30 min)
   prep mock kafka                → Kafka / messaging (30 min)
   prep mock full                 → Full interview loop (90 min)
+
+  AI COACHING (Claude-powered — needs ANTHROPIC_API_KEY):
+  prep ask "question"            → ask Claude anything about your prep (reads real data)
+  prep ai-review                 → intelligent weekly review (replaces rule-based review)
+  prep ai-check                  → smart daily health check with personalized advice
 
   PROGRESS & REVIEW:
   prep status                    → full progress dashboard
@@ -2350,9 +3203,9 @@ if __name__ == "__main__":
         cmd_review()
     elif cmd == "lc":
         if len(args) < 2:
-            print("  Usage: prep lc \"Problem Name\"")
+            print("  Usage: prep lc \"Problem Name\" [--time N] [--pattern <pattern>] [--hard]")
         else:
-            cmd_lc(" ".join(args[1:]))
+            cmd_lc(args[1:])
     elif cmd == "apply":
         if len(args) < 2:
             print("  Usage: prep apply \"Company Name\"")
@@ -2414,6 +3267,23 @@ if __name__ == "__main__":
     elif cmd in ("mock", "mockinterview", "simulate"):
         rt = args[1] if len(args) > 1 else "java"
         cmd_mock(rt)
+    elif cmd in ("heatmap", "heat", "patterns"):
+        cmd_heatmap()
+    elif cmd in ("sr-init", "srinit", "init-sr"):
+        cmd_sr_init()
+    elif cmd in ("recover", "recovery"):
+        cmd_recover()
+    elif cmd in ("failures", "failure-log", "failurelog"):
+        cmd_failures()
+    elif cmd in ("ask", "ai", "coach"):
+        if len(args) < 2:
+            print("  Usage: prep ask \"your question here\"")
+        else:
+            cmd_ask(" ".join(args[1:]))
+    elif cmd in ("ai-review", "aireview", "smart-review"):
+        cmd_ai_review()
+    elif cmd in ("ai-check", "aicheck", "smart-check"):
+        cmd_ai_check()
     elif cmd in ("help", "h", "--help"):
         cmd_help()
     else:

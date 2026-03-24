@@ -24,8 +24,8 @@
     "hard": 16,
     "streak": 2,
     "total_active_days": 8,
-    "today_submissions": 1,
-    "beats_easy": 81.5,
+    "today_submissions": 0,
+    "beats_easy": 81.4,
     "beats_medium": 81.4,
     "beats_hard": 73.1,
     "java_problems": 4,
@@ -38,6 +38,14 @@
       "Go": 1,
       "Python3": 3
     },
-    "last_sync": "2026-03-20"
-  }
+    "last_sync": "2026-03-24"
+  },
+  "failures": [
+    {
+      "date": "2026-03-20",
+      "round": "DSA",
+      "description": "dew",
+      "week": 1
+    }
+  ]
 }
