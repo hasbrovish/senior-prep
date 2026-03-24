@@ -1,3 +1,61 @@
 Interview_Answers/
 Interview_Answers.zip
 encoded.txt
+
+# Intelligence Engine
+data/                          # SQLite DB + cache (auto-generated, personal data)
+intel/config_local.py          # API keys — NEVER commit this
+
+# SQLite WAL files (auto-generated, never commit)
+*.db-shm
+*.db-wal
+*.db-journal
+
+# Deployment secrets
+.env
+.env.local
+.env.production
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+venv/
+
+# macOS
+.DS_Store
+.DS_Store?
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Copyrighted materials (keep locally, don't push)
+# Alex_Xu_SystemDesign_Vol1.pdf
+# Alex_Xu_SystemDesign_Vol2.pdf
+
+# Staging/source folders (already integrated — kept locally, not in git)
+prepforge-full-integration/
+prepforge-full-integration.zip
+prepforge-portal.jsx
+files/
+files.zip
+
+# Misc
+encoded.txt
+1.md
+2.md
+3.md
+interview_qs.md
+generate_calendar.py
+*.ics
+*.zip
+*.pdf
+*.docx
+*.xlsx
+springpdf.pdf
+setup_reminders.sh
+GUIDE.md

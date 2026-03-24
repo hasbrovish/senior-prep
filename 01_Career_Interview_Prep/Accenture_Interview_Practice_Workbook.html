@@ -1,0 +1,1603 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Accenture Java Full Stack - Interview Practice Workbook</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@700;800&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+--bg:#0a0a0f;--surface:#12121a;--surface2:#1a1a26;--surface3:#222233;
+--accent:#6c5ce7;--accent2:#a29bfe;--green:#00b894;--orange:#fdcb6e;
+--red:#e17055;--blue:#74b9ff;--pink:#fd79a8;--text:#e8e8f0;
+--text2:#9898b0;--border:#2a2a3e;--code-bg:#161625;
+}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);line-height:1.7;overflow-x:hidden}
+.hero{background:linear-gradient(135deg,#0a0a1a 0%,#1a0a2e 50%,#0a1a2e 100%);padding:60px 24px 40px;text-align:center;border-bottom:1px solid var(--border);position:relative;overflow:hidden}
+.hero::before{content:'';position:absolute;top:-50%;left:-50%;width:200%;height:200%;background:radial-gradient(circle at 30% 50%,rgba(108,92,231,0.08) 0%,transparent 50%),radial-gradient(circle at 70% 50%,rgba(116,185,255,0.06) 0%,transparent 50%);animation:float 20s ease-in-out infinite}
+@keyframes float{0%,100%{transform:translate(0,0)}50%{transform:translate(-2%,2%)}}
+.hero h1{font-family:'Playfair Display',serif;font-size:clamp(28px,5vw,48px);font-weight:800;background:linear-gradient(135deg,#a29bfe,#74b9ff,#fd79a8);-webkit-background-clip:text;-webkit-text-fill-color:transparent;position:relative;margin-bottom:8px}
+.hero p{color:var(--text2);font-size:15px;position:relative}
+.hero .badge{display:inline-block;background:var(--surface2);border:1px solid var(--accent);color:var(--accent2);padding:4px 14px;border-radius:20px;font-size:12px;font-weight:600;margin-top:12px;position:relative}
+
+.stats-bar{display:flex;justify-content:center;gap:24px;flex-wrap:wrap;padding:20px;background:var(--surface);border-bottom:1px solid var(--border)}
+.stat{text-align:center}
+.stat .num{font-size:24px;font-weight:700;color:var(--accent2);font-family:'JetBrains Mono',monospace}
+.stat .label{font-size:11px;color:var(--text2);text-transform:uppercase;letter-spacing:1px}
+
+.container{max-width:900px;margin:0 auto;padding:20px 16px 80px}
+
+.progress-card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:20px;margin:20px 0}
+.progress-bar-bg{background:var(--surface3);border-radius:8px;height:12px;overflow:hidden;margin-top:10px}
+.progress-bar-fill{height:100%;border-radius:8px;background:linear-gradient(90deg,var(--accent),var(--blue));transition:width 0.6s ease;width:0%}
+.progress-text{display:flex;justify-content:space-between;font-size:13px;color:var(--text2);margin-top:6px}
+
+.nav-tabs{display:flex;gap:6px;overflow-x:auto;padding:16px 0;position:sticky;top:0;z-index:100;background:var(--bg);border-bottom:1px solid var(--border);-webkit-overflow-scrolling:touch}
+.nav-tabs::-webkit-scrollbar{display:none}
+.tab{padding:8px 16px;border-radius:10px;border:1px solid var(--border);background:var(--surface);color:var(--text2);cursor:pointer;font-size:13px;font-weight:500;white-space:nowrap;transition:all 0.2s}
+.tab:hover{border-color:var(--accent);color:var(--text)}
+.tab.active{background:var(--accent);border-color:var(--accent);color:#fff}
+.tab .count{font-size:11px;opacity:0.7;margin-left:4px}
+
+.section{display:none}
+.section.active{display:block}
+.section-header{margin:24px 0 16px;padding-bottom:12px;border-bottom:1px solid var(--border)}
+.section-header h2{font-family:'Playfair Display',serif;font-size:24px;font-weight:700}
+.section-header p{color:var(--text2);font-size:14px;margin-top:4px}
+
+.difficulty{display:inline-block;padding:2px 10px;border-radius:12px;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.5px}
+.diff-easy{background:rgba(0,184,148,0.15);color:var(--green)}
+.diff-medium{background:rgba(253,203,110,0.15);color:var(--orange)}
+.diff-hard{background:rgba(225,112,85,0.15);color:var(--red)}
+.freq{display:inline-block;padding:2px 8px;border-radius:12px;font-size:11px;background:rgba(108,92,231,0.15);color:var(--accent2);margin-left:6px}
+
+.q-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;margin:12px 0;overflow:hidden;transition:border-color 0.2s}
+.q-card:hover{border-color:var(--surface3)}
+.q-card.answered-correct{border-left:3px solid var(--green)}
+.q-card.answered-wrong{border-left:3px solid var(--red)}
+.q-card.answered-partial{border-left:3px solid var(--orange)}
+.q-header{display:flex;justify-content:space-between;align-items:flex-start;padding:16px 16px 0;gap:10px;flex-wrap:wrap}
+.q-number{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--accent2);font-weight:600}
+.q-meta{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.q-body{padding:8px 16px 16px}
+.q-body h3{font-size:15px;font-weight:600;margin-bottom:10px;line-height:1.5}
+
+.toggle-btn{background:var(--surface2);border:1px solid var(--border);color:var(--accent2);padding:8px 16px;border-radius:10px;cursor:pointer;font-size:13px;font-weight:500;transition:all 0.2s;display:inline-flex;align-items:center;gap:6px}
+.toggle-btn:hover{background:var(--surface3);border-color:var(--accent)}
+
+.answer{display:none;background:var(--code-bg);border-top:1px solid var(--border);padding:16px;margin-top:12px;border-radius:0 0 14px 14px}
+.answer.show{display:block;animation:slideDown 0.3s ease}
+@keyframes slideDown{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:translateY(0)}}
+.answer h4{color:var(--green);font-size:13px;text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;display:flex;align-items:center;gap:6px}
+.answer h4::before{content:'✓';display:inline-flex;width:18px;height:18px;border-radius:50%;background:rgba(0,184,148,0.2);align-items:center;justify-content:center;font-size:10px}
+.answer p,.answer li{font-size:14px;color:var(--text);line-height:1.8}
+.answer ul{padding-left:20px;margin:8px 0}
+.answer li{margin:4px 0}
+
+pre{background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:14px;overflow-x:auto;margin:10px 0;font-family:'JetBrains Mono',monospace;font-size:13px;line-height:1.6;color:#c8c8e0}
+pre .kw{color:#c792ea}pre .str{color:#c3e88d}pre .cm{color:#546e7a}pre .num{color:#f78c6c}pre .fn{color:#82aaff}pre .ann{color:#ffcb6b}
+
+.self-rate{display:flex;gap:6px;margin-top:12px;padding-top:12px;border-top:1px solid var(--border)}
+.rate-btn{padding:6px 12px;border-radius:8px;border:1px solid var(--border);background:var(--surface2);cursor:pointer;font-size:12px;font-weight:500;transition:all 0.2s}
+.rate-btn:hover{transform:scale(1.05)}
+.rate-btn.r-good{color:var(--green);border-color:rgba(0,184,148,0.3)}
+.rate-btn.r-good:hover,.rate-btn.r-good.selected{background:rgba(0,184,148,0.2);border-color:var(--green)}
+.rate-btn.r-partial{color:var(--orange);border-color:rgba(253,203,110,0.3)}
+.rate-btn.r-partial:hover,.rate-btn.r-partial.selected{background:rgba(253,203,110,0.2);border-color:var(--orange)}
+.rate-btn.r-bad{color:var(--red);border-color:rgba(225,112,85,0.3)}
+.rate-btn.r-bad:hover,.rate-btn.r-bad.selected{background:rgba(225,112,85,0.2);border-color:var(--red)}
+
+.coding-section pre{position:relative}
+.copy-btn{position:absolute;top:8px;right:8px;background:var(--surface2);border:1px solid var(--border);color:var(--text2);padding:4px 10px;border-radius:6px;cursor:pointer;font-size:11px;font-family:'JetBrains Mono',monospace}
+.copy-btn:hover{background:var(--surface3);color:var(--text)}
+
+.tip-box{background:linear-gradient(135deg,rgba(108,92,231,0.1),rgba(116,185,255,0.1));border:1px solid rgba(108,92,231,0.3);border-radius:12px;padding:14px 16px;margin:12px 0;font-size:13px}
+.tip-box strong{color:var(--accent2)}
+
+.score-summary{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:24px;margin:20px 0;text-align:center}
+.score-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:12px;margin-top:16px}
+.score-item{background:var(--surface2);border-radius:12px;padding:16px}
+.score-item .score-val{font-size:28px;font-weight:700;font-family:'JetBrains Mono',monospace}
+.score-item .score-label{font-size:11px;color:var(--text2);text-transform:uppercase;letter-spacing:0.5px;margin-top:4px}
+
+.checklist{list-style:none;padding:0}
+.checklist li{display:flex;align-items:flex-start;gap:10px;padding:10px 14px;background:var(--surface);border:1px solid var(--border);border-radius:10px;margin:6px 0;font-size:14px;cursor:pointer;transition:all 0.2s}
+.checklist li:hover{border-color:var(--accent)}
+.checklist li.checked{border-color:var(--green);background:rgba(0,184,148,0.05)}
+.checklist li .check{width:20px;height:20px;border:2px solid var(--border);border-radius:6px;flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:all 0.2s;margin-top:2px}
+.checklist li.checked .check{background:var(--green);border-color:var(--green);color:#fff;font-size:12px}
+
+.strategy-card{background:linear-gradient(135deg,var(--surface),var(--surface2));border:1px solid var(--border);border-radius:14px;padding:20px;margin:12px 0}
+.strategy-card h3{font-size:16px;margin-bottom:8px;display:flex;align-items:center;gap:8px}
+.strategy-card p{font-size:14px;color:var(--text2);line-height:1.7}
+
+@media(max-width:600px){
+.hero{padding:40px 16px 24px}
+.stats-bar{gap:16px}
+.q-header{flex-direction:column}
+.self-rate{flex-wrap:wrap}
+.nav-tabs{padding:10px 0}
+}
+</style>
+</head>
+<body>
+
+<div class="hero">
+<h1>Accenture Interview Practice Workbook</h1>
+<p>Java Full Stack &bull; 5 Years Experience &bull; 100+ Questions with Answers</p>
+<div class="badge">📅 Interview: Feb 28, 2026 &bull; 4 Days to Go!</div>
+</div>
+
+<div class="stats-bar">
+<div class="stat"><div class="num" id="totalQ">0</div><div class="label">Questions</div></div>
+<div class="stat"><div class="num" id="attempted">0</div><div class="label">Attempted</div></div>
+<div class="stat"><div class="num" id="confident">0</div><div class="label">Confident</div></div>
+<div class="stat"><div class="num" id="needWork">0</div><div class="label">Need Work</div></div>
+</div>
+
+<div class="container">
+
+<div class="progress-card">
+<strong>Overall Readiness</strong>
+<div class="progress-bar-bg"><div class="progress-bar-fill" id="progressFill"></div></div>
+<div class="progress-text"><span id="progressLabel">0% complete</span><span>Target: 80%+</span></div>
+</div>
+
+<div class="nav-tabs" id="navTabs">
+<div class="tab active" data-section="core-java">Core Java <span class="count">(20)</span></div>
+<div class="tab" data-section="java8">Java 8 <span class="count">(15)</span></div>
+<div class="tab" data-section="spring">Spring Boot <span class="count">(18)</span></div>
+<div class="tab" data-section="microservices">Microservices <span class="count">(10)</span></div>
+<div class="tab" data-section="sql">SQL <span class="count">(10)</span></div>
+<div class="tab" data-section="angular">Angular/JS <span class="count">(12)</span></div>
+<div class="tab" data-section="coding">Coding <span class="count">(15)</span></div>
+<div class="tab" data-section="behavioral">Behavioral <span class="count">(8)</span></div>
+<div class="tab" data-section="strategy">Strategy</div>
+</div>
+
+<!-- ==================== CORE JAVA ==================== -->
+<div class="section active" id="core-java">
+<div class="section-header">
+<h2>Core Java — Foundation Questions</h2>
+<p>These are asked in almost every Accenture Java interview. Master the output-based questions!</p>
+</div>
+
+<div class="q-card" data-id="cj1">
+<div class="q-header"><span class="q-number">Q1</span><div class="q-meta"><span class="difficulty diff-easy">Easy</span><span class="freq">🔥 Very Frequent</span></div></div>
+<div class="q-body">
+<h3>What are the 4 pillars of OOPs? Explain each with a real-world example from your project.</h3>
+<button class="toggle-btn" onclick="toggleAnswer(this)">▼ Show Answer</button>
+<div class="answer">
+<h4>Expected Answer</h4>
+<p><strong>Encapsulation:</strong> Wrapping data + methods together, restricting direct access. Example: In GSTN, taxpayer details are encapsulated with private fields and accessed via getters/setters. Sensitive data like PAN is never directly exposed.</p>
+<p><strong>Abstraction:</strong> Hiding implementation complexity. Example: A TaxCalculationService interface exposes calculateGST() — the caller doesn't know if it uses CGST+SGST or IGST logic internally.</p>
+<p><strong>Inheritance:</strong> Child class inherits parent properties. Example: BaseAuditEntity has createdDate, modifiedDate — all entities like Invoice, Return extend it.</p>
+<p><strong>Polymorphism:</strong> Same method behaves differently. Example: PaymentProcessor.process() — UPIPayment, CardPayment, NetBanking each override differently.</p>
+<div class="self-rate">
+<span style="font-size:12px;color:var(--text2);margin-right:6px">How did you do?</span>
+<button class="rate-btn r-good" onclick="rate(this,'good')">✓ Nailed it</button>
+<button class="rate-btn r-partial" onclick="rate(this,'partial')">~ Partial</button>
+<button class="rate-btn r-bad" onclick="rate(this,'bad')">✗ Need to study</button>
+</div>
+</div>
+</div>
+</div>
+
+<div class="q-card" data-id="cj2">
+<div class="q-header"><span class="q-number">Q2</span><div class="q-meta"><span class="difficulty diff-medium">Medium</span><span class="freq">🔥 Very Frequent</span></div></div>
+<div class="q-body">
+<h3>What is the output of this code? Explain why.</h3>
+<pre><code>class Animal {
+    void sound() { System.out.println("Animal sound"); }
+}
+class Dog extends Animal {
+    void sound() { System.out.println("Bark"); }
+    void fetch() { System.out.println("Fetching..."); }
+}
+public class Main {
+    public static void main(String[] args) {
+        Animal a = new Dog();
+        a.sound();     // Line 1
+        // a.fetch();  // Line 2 — What happens if uncommented?
+    }
+}</code></pre>
+<button class="toggle-btn" onclick="toggleAnswer(this)">▼ Show Answer</button>
+<div class="answer">
+<h4>Expected Answer</h4>
+<p><strong>Line 1 Output:</strong> <code>Bark</code></p>
+<p>This is <strong>runtime polymorphism</strong> (dynamic method dispatch). The reference type is Animal, but the actual object is Dog. At runtime, JVM calls Dog's sound() method.</p>
+<p><strong>Line 2:</strong> <code>Compilation error!</code> — The reference type is Animal which doesn't have fetch(). Compiler checks the reference type, not the object type. You'd need to cast: <code>((Dog)a).fetch();</code></p>
+<div class="tip-box"><strong>💡 Interview Tip:</strong> Accenture Round 2 commonly gives 3-4 such code snippets. The trick is always: <em>compiler checks reference type, JVM checks object type at runtime</em>.</div>
+<div class="self-rate">
+<span style="font-size:12px;color:var(--text2);margin-right:6px">How did you do?</span>
+<button class="rate-btn r-good" onclick="rate(this,'good')">✓ Nailed it</button>
+<button class="rate-btn r-partial" onclick="rate(this,'partial')">~ Partial</button>
+<button class="rate-btn r-bad" onclick="rate(this,'bad')">✗ Need to study</button>
+</div>
+</div>
+</div>
+</div>
+
+<div class="q-card" data-id="cj3">
+<div class="q-header"><span class="q-number">Q3</span><div class="q-meta"><span class="difficulty diff-medium">Medium</span><span class="freq">🔥 Very Frequent</span></div></div>
+<div class="q-body">
+<h3>Explain HashMap internal working. What happens when two keys have the same hashCode?</h3>
+<button class="toggle-btn" onclick="toggleAnswer(this)">▼ Show Answer</button>
+<div class="answer">
+<h4>Expected Answer</h4>
+<p><strong>Internal structure:</strong> HashMap uses an array of Node (bucket array). Each Node has: key, value, hash, next.</p>
+<p><strong>put() process:</strong></p>
+<ul>
+<li>Calculate hash of key → determine bucket index via <code>hash & (n-1)</code></li>
+<li>If bucket is empty → place new Node</li>
+<li>If bucket occupied (collision) → compare hash and equals()</li>
+<li>If same key → update value; if different key → add to linked list</li>
+</ul>
+<p><strong>Java 8 optimization:</strong> When linked list in a bucket exceeds <strong>8 nodes</strong> (and array size ≥ 64), it converts to a <strong>Red-Black Tree</strong> (O(log n) instead of O(n)).</p>
+<p><strong>Hash collision:</strong> Two different keys with same hashCode go to same bucket. They're stored as linked list nodes, distinguished by <code>equals()</code> method.</p>
+<p><strong>Load factor (0.75):</strong> When 75% of array is filled, HashMap doubles in size (rehashing).</p>
+<div class="self-rate">
+<span style="font-size:12px;color:var(--text2);margin-right:6px">How did you do?</span>
+<button class="rate-btn r-good" onclick="rate(this,'good')">✓ Nailed it</button>
+<button class="rate-btn r-partial" onclick="rate(this,'partial')">~ Partial</button>
+<button class="rate-btn r-bad" onclick="rate(this,'bad')">✗ Need to study</button>
+</div>
+</div>
+</div>
+</div>
+
+<div class="q-card" data-id="cj4">
+<div class="q-header"><span class="q-number">Q4</span><div class="q-meta"><span class="difficulty diff-medium">Medium</span><span class="freq">🔥 Very Frequent</span></div></div>
+<div class="q-body">
+<h3>HashMap vs ConcurrentHashMap — What are the key differences?</h3>
+<button class="toggle-btn" onclick="toggleAnswer(this)">▼ Show Answer</button>
+<div class="answer">
+<h4>Expected Answer</h4>
+<p><strong>Thread Safety:</strong> HashMap is NOT thread-safe. ConcurrentHashMap IS thread-safe.</p>
+<p><strong>Null keys/values:</strong> HashMap allows 1 null key + multiple null values. ConcurrentHashMap allows NEITHER null keys nor null values.</p>
+<p><strong>Locking mechanism:</strong> ConcurrentHashMap uses <strong>segment-level locking</strong> (Java 7) / <strong>CAS + synchronized on individual bucket</strong> (Java 8). Only the specific bucket is locked, not the entire map.</p>
+<p><strong>Performance:</strong> ConcurrentHashMap is slightly slower for single-threaded use but much faster in multi-threaded scenarios compared to Collections.synchronizedMap().</p>
+<p><strong>Iterator:</strong> HashMap's iterator is fail-fast (throws ConcurrentModificationException). ConcurrentHashMap's is fail-safe (works on a snapshot).</p>
+<p><strong>When to use:</strong> Use ConcurrentHashMap in multi-threaded applications like GSTN where multiple threads process tax filings simultaneously.</p>
+<div class="self-rate">
+<span style="font-size:12px;color:var(--text2);margin-right:6px">How did you do?</span>
+<button class="rate-btn r-good" onclick="rate(this,'good')">✓ Nailed it</button>
+<button class="rate-btn r-partial" onclick="rate(this,'partial')">~ Partial</button>
+<button class="rate-btn r-bad" onclick="rate(this,'bad')">✗ Need to study</button>
+</div>
+</div>
+</div>
+</div>
+
+<div class="q-card" data-id="cj5">
+<div class="q-header"><span class="q-number">Q5</span><div class="q-meta"><span class="difficulty diff-easy">Easy</span><span class="freq">🔥 Very Frequent</span></div></div>
+<div class="q-body">
+<h3>What is the difference between == and .equals() in Java? What is the output?</h3>
+<pre><code>String a = new String("Hello");
+String b = new String("Hello");
+String c = "Hello";
+String d = "Hello";
+
+System.out.println(a == b);       // ?
+System.out.println(a.equals(b));  // ?
+System.out.println(c == d);       // ?
+System.out.println(a == c);       // ?</code></pre>
+<button class="toggle-btn" onclick="toggleAnswer(this)">▼ Show Answer</button>
+<div class="answer">
+<h4>Expected Answer</h4>
+<p><code>a == b</code> → <strong>false</strong> — Two different objects on heap</p>
+<p><code>a.equals(b)</code> → <strong>true</strong> — Content comparison</p>
+<p><code>c == d</code> → <strong>true</strong> — Both point to same String Pool reference</p>
+<p><code>a == c</code> → <strong>false</strong> — 'a' is on heap, 'c' is in String Pool</p>
+<p><strong>Key concept:</strong> <code>==</code> compares references (memory addresses). <code>.equals()</code> compares content. String literals go to String Pool (shared). <code>new String()</code> creates a new heap object.</p>
+<div class="self-rate">
+<span style="font-size:12px;color:var(--text2);margin-right:6px">How did you do?</span>
+<button class="rate-btn r-good" onclick="rate(this,'good')">✓ Nailed it</button>
+<button class="rate-btn r-partial" onclick="rate(this,'partial')">~ Partial</button>
+<button class="rate-btn r-bad" onclick="rate(this,'bad')">✗ Need to study</button>
+</div>
+</div>
+</div>
+</div>
+
+<div class="q-card" data-id="cj6">
+<div class="q-header"><span class="q-number">Q6</span><div class="q-meta"><span class="difficulty diff-easy">Easy</span><span class="freq">Frequent</span></div></div>
+<div class="q-body">
+<h3>What is the Object class? Name its important methods.</h3>
+<button class="toggle-btn" onclick="toggleAnswer(this)">▼ Show Answer</button>
+<div class="answer">
+<h4>Expected Answer</h4>
+<p><code>java.lang.Object</code> is the root class of all Java classes. Every class implicitly extends Object.</p>
+<p><strong>Key methods:</strong></p>
+<ul>
+<li><code>toString()</code> — String representation of object</li>
+<li><code>equals(Object o)</code> — Content equality check</li>
+<li><code>hashCode()</code> — Returns hash code (contract with equals)</li>
+<li><code>getClass()</code> — Returns runtime class</li>
+<li><code>clone()</code> — Creates a copy (needs Cloneable interface)</li>
+<li><code>finalize()</code> — Called by GC before cleanup (deprecated in Java 9)</li>
+<li><code>wait(), notify(), notifyAll()</code> — Thread communication</li>
+</ul>
+<p><strong>equals-hashCode contract:</strong> If two objects are equal via equals(), they MUST have the same hashCode. Violating this breaks HashMap!</p>
+<div class="self-rate">
+<span style="font-size:12px;color:var(--text2);margin-right:6px">How did you do?</span>
+<button class="rate-btn r-good" onclick="rate(this,'good')">✓ Nailed it</button>
+<button class="rate-btn r-partial" onclick="rate(this,'partial')">~ Partial</button>
+<button class="rate-btn r-bad" onclick="rate(this,'bad')">✗ Need to study</button>
+</div>
+</div>
+</div>
+</div>
+
+<div class="q-card" data-id="cj7">
+<div class="q-header"><span class="q-number">Q7</span><div class="q-meta"><span class="difficulty diff-medium">Medium</span><span class="freq">Frequent</span></div></div>
+<div class="q-body">
+<h3>Explain Deep Copy vs Shallow Copy with examples.</h3>
+<button class="toggle-btn" onclick="toggleAnswer(this)">▼ Show Answer</button>
+<div class="answer">
+<h4>Expected Answer</h4>
+<p><strong>Shallow Copy:</strong> Creates a new object but copies references to the same internal objects. Changes to nested objects affect both copies.</p>
+<p><strong>Deep Copy:</strong> Creates a new object AND recursively copies all nested objects. Completely independent copies.</p>
+<pre><code>// Shallow copy — both point to same Address object
+Employee e1 = new Employee("Hasbrovish", new Address("Pune"));
+Employee e2 = e1.clone(); // shallow
+e2.getAddress().setCity("Mumbai");
+// e1.address is also "Mumbai" now! ❌
+
+// Deep copy — independent Address objects
+Employee e2 = new Employee(e1.getName(), 
+    new Address(e1.getAddress().getCity())); // deep
+e2.getAddress().setCity("Mumbai");
+// e1.address is still "Pune" ✅</code></pre>
+<p><strong>Ways to deep copy:</strong> Copy constructor, Serialization/Deserialization, using libraries like Apache Commons BeanUtils, or manually cloning nested objects.</p>
+<div class="self-rate">
+<span style="font-size:12px;color:var(--text2);margin-right:6px">How did you do?</span>
+<button class="rate-btn r-good" onclick="rate(this,'good')">✓ Nailed it</button>
+<button class="rate-btn r-partial" onclick="rate(this,'partial')">~ Partial</button>
+<button class="rate-btn r-bad" onclick="rate(this,'bad')">✗ Need to study</button>
+</div>
+</div>
+</div>
+</div>
+
+<div class="q-card" data-id="cj8">
+<div class="q-header"><span class="q-number">Q8</span><div class="q-meta"><span class="difficulty diff-easy">Easy</span></div></div>
+<div class="q-body">
+<h3>What are access modifiers in Java? Can a subclass in a different package access a protected member?</h3>
+<button class="toggle-btn" onclick="toggleAnswer(this)">▼ Show Answer</button>
+<div class="answer">
+<h4>Expected Answer</h4>
+<p><strong>private:</strong> Only within the same class</p>
+<p><strong>default (no keyword):</strong> Same class + same package</p>
+<p><strong>protected:</strong> Same class + same package + subclasses (even in different packages)</p>
+<p><strong>public:</strong> Accessible everywhere</p>
+<p><strong>Yes</strong>, a subclass in a different package CAN access protected members — but only through inheritance, not through an instance of the parent class.</p>
+<pre><code>// package A
+public class Parent { protected int x = 10; }
+
+// package B
+public class Child extends Parent {
+    void test() {
+        System.out.println(this.x);    // ✅ Works via inheritance
+        Parent p = new Parent();
+        // System.out.println(p.x);    // ❌ Compile error!
+    }
+}</code></pre>
+<div class="self-rate">
+<span style="font-size:12px;color:var(--text2);margin-right:6px">How did you do?</span>
+<button class="rate-btn r-good" onclick="rate(this,'good')">✓ Nailed it</button>
+<button class="rate-btn r-partial" onclick="rate(this,'partial')">~ Partial</button>
+<button class="rate-btn r-bad" onclick="rate(this,'bad')">✗ Need to study</button>
+</div>
+</div>
+</div>
+</div>
+
+<div class="q-card" data-id="cj9">
+<div class="q-header"><span class="q-number">Q9</span><div class="q-meta"><span class="difficulty diff-medium">Medium</span></div></div>
+<div class="q-body">
+<h3>What is the difference between final, finally, and finalize?</h3>
+<button class="toggle-btn" onclick="toggleAnswer(this)">▼ Show Answer</button>
+<div class="answer">
+<h4>Expected Answer</h4>
+<p><strong>final:</strong> A keyword — final variable (constant), final method (can't override), final class (can't extend). Example: String class is final.</p>
+<p><strong>finally:</strong> A block in exception handling — always executes whether exception occurs or not. Used for cleanup (closing DB connections, streams).</p>
+<p><strong>finalize():</strong> A method in Object class — called by GC before destroying object. Deprecated since Java 9. Use try-with-resources or Cleaner instead.</p>
+<div class="self-rate">
+<span style="font-size:12px;color:var(--text2);margin-right:6px">How did you do?</span>
+<button class="rate-btn r-good" onclick="rate(this,'good')">✓ Nailed it</button>
+<button class="rate-btn r-partial" onclick="rate(this,'partial')">~ Partial</button>
+<button class="rate-btn r-bad" onclick="rate(this,'bad')">✗ Need to study</button>
+</div>
+</div>
+</div>
+</div>
+
+<div class="q-card" data-id="cj10">
+<div class="q-header"><span class="q-number">Q10</span><div class="q-meta"><span class="difficulty diff-medium">Medium</span></div></div>
+<div class="q-body">
+<h3>Explain Exception Hierarchy. What is the difference between checked and unchecked exceptions?</h3>
+<button class="toggle-btn" onclick="toggleAnswer(this)">▼ Show Answer</button>
+<div class="answer">
+<h4>Expected Answer</h4>
+<p><strong>Hierarchy:</strong> Throwable → Error (JVM issues like OutOfMemoryError) | Exception → RuntimeException (unchecked) | Other Exceptions (checked)</p>
+<p><strong>Checked exceptions:</strong> Compiler forces handling (try-catch or throws). Examples: IOException, SQLException, FileNotFoundException. These represent recoverable conditions.</p>
+<p><strong>Unchecked exceptions:</strong> Extend RuntimeException. Compiler doesn't force handling. Examples: NullPointerException, ArrayIndexOutOfBoundsException, ClassCastException. These represent programming errors.</p>
+<p><strong>Best practice:</strong> Use checked exceptions for recoverable situations, unchecked for programming bugs. In Spring Boot, use @ControllerAdvice for global exception handling.</p>
+<div class="self-rate">
+<span style="font-size:12px;color:var(--text2);margin-right:6px">How did you do?</span>
+<button class="rate-btn r-good" onclick="rate(this,'good')">✓ Nailed it</button>
+<button class="rate-btn r-partial" onclick="rate(this,'partial')">~ Partial</button>
+<button class="rate-btn r-bad" onclick="rate(this,'bad')">✗ Need to study</button>
+</div>
+</div>
+</div>
+</div>
+
+<div class="q-card" data-id="cj11">
+<div class="q-header"><span class="q-number">Q11</span><div class="q-meta"><span class="difficulty diff-medium">Medium</span></div></div>
+<div class="q-body">
+<h3>What is immutability? How do you create an immutable class in Java?</h3>
+<button class="toggle-btn" onclick="toggleAnswer(this)">▼ Show Answer</button>
+<div class="answer">
+<h4>Expected Answer</h4>
+<p>An <strong>immutable</strong> object cannot be modified after creation. String is the classic example.</p>
+<p><strong>Rules to create immutable class:</strong></p>
+<ul>
+<li>Declare class as <code>final</code> (prevent subclassing)</li>
+<li>Make all fields <code>private final</code></li>
+<li>No setter methods</li>
+<li>Initialize all fields via constructor</li>
+<li>Return deep copies of mutable fields (like Date, List) in getters</li>
+</ul>
+<pre><code>public final class Employee {
+    private final String name;
+    private final List&lt;String&gt; skills;
+    
+    public Employee(String name, List&lt;String&gt; skills) {
+        this.name = name;
+        this.skills = new ArrayList&lt;&gt;(skills); // defensive copy
+    }
+    public String getName() { return name; }
+    public List&lt;String&gt; getSkills() { 
+        return Collections.unmodifiableList(skills); // protect
+    }
+}</code></pre>
+<div class="self-rate">
+<span style="font-size:12px;color:var(--text2);margin-right:6px">How did you do?</span>
+<button class="rate-btn r-good" onclick="rate(this,'good')">✓ Nailed it</button>
+<button class="rate-btn r-partial" onclick="rate(this,'partial')">~ Partial</button>
+<button class="rate-btn r-bad" onclick="rate(this,'bad')">✗ Need to study</button>
+</div>
+</div>
+</div>
+</div>
+
+<div class="q-card" data-id="cj12">
+<div class="q-header"><span class="q-number">Q12</span><div class="q-meta"><span class="difficulty diff-medium">Medium</span></div></div>
+<div class="q-body">
+<h3>Explain Thread lifecycle. What is Deadlock and how do you prevent it?</h3>
+<button class="toggle-btn" onclick="toggleAnswer(this)">▼ Show Answer</button>
+<div class="answer">
+<h4>Expected Answer</h4>
+<p><strong>Thread states:</strong> NEW → RUNNABLE → RUNNING → (BLOCKED/WAITING/TIMED_WAITING) → TERMINATED</p>
+<p><strong>Deadlock:</strong> Two or more threads waiting forever for each other's locks.</p>
+<pre><code>// Thread 1: locks A, then tries to lock B
+// Thread 2: locks B, then tries to lock A
+// Both stuck forever!</code></pre>
+<p><strong>Prevention:</strong></p>
+<ul>
+<li>Lock ordering — Always acquire locks in the same order</li>
+<li>Lock timeout — Use tryLock() with timeout</li>
+<li>Avoid nested locks — Minimize lock scope</li>
+<li>Use java.util.concurrent classes — ReentrantLock, Semaphore</li>
+</ul>
+<div class="self-rate">
+<span style="font-size:12px;color:var(--text2);margin-right:6px">How did you do?</span>
+<button class="rate-btn r-good" onclick="rate(this,'good')">✓ Nailed it</button>
+<button class="rate-btn r-partial" onclick="rate(this,'partial')">~ Partial</button>
+<button class="rate-btn r-bad" onclick="rate(this,'bad')">✗ Need to study</button>
+</div>
+</div>
+</div>
+</div>
+
+<div class="q-card" data-id="cj13">
+<div class="q-header"><span class="q-number">Q13-20</span><div class="q-meta"><span class="difficulty diff-medium">Mixed</span></div></div>
+<div class="q-body">
+<h3>Quick-fire Core Java Questions (practice answering in 30 seconds each):</h3>
+<button class="toggle-btn" onclick="toggleAnswer(this)">▼ Show All Answers</button>
+<div class="answer">
+<h4>Quick Answers</h4>
+<p><strong>Q13. Abstract class vs Interface?</strong><br>Abstract: partial abstraction, has constructors, can have state. Interface: full abstraction (Java 8+ has default methods), no constructors, no state. Use interface for "can-do" (Serializable), abstract for "is-a" (Vehicle).</p>
+<p><strong>Q14. ArrayList vs LinkedList?</strong><br>ArrayList: O(1) random access, O(n) insert/delete middle. LinkedList: O(n) access, O(1) insert/delete. Use ArrayList 95% of the time (cache-friendly).</p>
+<p><strong>Q15. String vs StringBuilder vs StringBuffer?</strong><br>String: immutable. StringBuilder: mutable, NOT thread-safe (faster). StringBuffer: mutable, thread-safe (slower). Use StringBuilder in single-threaded code.</p>
+<p><strong>Q16. What is Singleton pattern? How to make it thread-safe?</strong><br>Only one instance of a class. Use: private constructor + static method. Thread-safe: Bill Pugh (inner static class), enum Singleton, or double-checked locking with volatile.</p>
+<p><strong>Q17. What is volatile keyword?</strong><br>Ensures variable is read from main memory, not thread's cache. Provides visibility guarantee but NOT atomicity. Use for flags/booleans shared between threads.</p>
+<p><strong>Q18. Comparable vs Comparator?</strong><br>Comparable: natural ordering, class implements it, single sort. Comparator: external, multiple sort criteria, used with Collections.sort() or stream.sorted().</p>
+<p><strong>Q19. What are Generics? Why use them?</strong><br>Type safety at compile time. Eliminates ClassCastException. Example: List&lt;String&gt; vs raw List. Type erasure: generics exist only at compile time.</p>
+<p><strong>Q20. What is try-with-resources?</strong><br>Auto-closes resources implementing AutoCloseable. No need for finally block. Example: try (Connection conn = getConnection()) { ... } — conn auto-closed.</p>
+<div class="self-rate">
+<span style="font-size:12px;color:var(--text2);margin-right:6px">How did you do?</span>
+<button class="rate-btn r-good" onclick="rate(this,'good')">✓ Nailed it</button>
+<button class="rate-btn r-partial" onclick="rate(this,'partial')">~ Partial</button>
+<button class="rate-btn r-bad" onclick="rate(this,'bad')">✗ Need to study</button>
+</div>
+</div>
+</div>
+</div>
+
+</div>
+
+<!-- ==================== JAVA 8 ==================== -->
+<div class="section" id="java8">
+<div class="section-header">
+<h2>Java 8 Features — Most Asked Topic!</h2>
+<p>Every Accenture interview asks 3-5 Java 8 questions. Streams API is non-negotiable.</p>
+</div>
+
+<div class="tip-box"><strong>🎯 Key insight:</strong> Interviewers don't just want definitions — they want you to write Stream API code on the spot. Practice the coding patterns below until they're muscle memory.</div>
+
+<div class="q-card" data-id="j8-1">
+<div class="q-header"><span class="q-number">Q1</span><div class="q-meta"><span class="difficulty diff-easy">Easy</span><span class="freq">🔥 Asked Every Time</span></div></div>
+<div class="q-body">
+<h3>What are the key features introduced in Java 8?</h3>
+<button class="toggle-btn" onclick="toggleAnswer(this)">▼ Show Answer</button>
+<div class="answer">
+<h4>Expected Answer (mention ALL of these)</h4>
+<ul>
+<li><strong>Lambda Expressions</strong> — Anonymous functions: <code>(a, b) -> a + b</code></li>
+<li><strong>Functional Interfaces</strong> — @FunctionalInterface with single abstract method</li>
+<li><strong>Stream API</strong> — Process collections declaratively</li>
+<li><strong>Optional</strong> — Handle null safely</li>
+<li><strong>Default & Static methods in Interfaces</strong></li>
+<li><strong>Method References</strong> — <code>String::toUpperCase</code></li>
+<li><strong>New Date/Time API</strong> — LocalDate, LocalDateTime, ZonedDateTime</li>
+<li><strong>forEach()</strong> — Iterable.forEach(Consumer)</li>
+<li><strong>Collectors</strong> — toList(), groupingBy(), partitioningBy()</li>
+</ul>
+<div class="self-rate">
+<span style="font-size:12px;color:var(--text2);margin-right:6px">How did you do?</span>
+<button class="rate-btn r-good" onclick="rate(this,'good')">✓ Nailed it</button>
+<button class="rate-btn r-partial" onclick="rate(this,'partial')">~ Partial</button>
+<button class="rate-btn r-bad" onclick="rate(this,'bad')">✗ Need to study</button>
+</div>
+</div>
+</div>
+</div>
+
+<div class="q-card" data-id="j8-2">
+<div class="q-header"><span class="q-number">Q2</span><div class="q-meta"><span class="difficulty diff-medium">Medium</span><span class="freq">🔥 Asked Every Time</span></div></div>
+<div class="q-body">
+<h3>What are the 4 built-in Functional Interfaces? Give examples.</h3>
+<button class="toggle-btn" onclick="toggleAnswer(this)">▼ Show Answer</button>
+<div class="answer">
+<h4>Expected Answer</h4>
+<pre><code>// 1. Predicate&lt;T&gt; — Takes T, returns boolean (testing)
+Predicate&lt;Integer&gt; isEven = n -> n % 2 == 0;
+list.stream().filter(isEven);
+
+// 2. Function&lt;T, R&gt; — Takes T, returns R (transformation)
+Function&lt;String, Integer&gt; len = s -> s.length();
+list.stream().map(len);
+
+// 3. Consumer&lt;T&gt; — Takes T, returns void (side effects)
+Consumer&lt;String&gt; printer = s -> System.out.println(s);
+list.forEach(printer);
+
+// 4. Supplier&lt;T&gt; — Takes nothing, returns T (factory)
+Supplier&lt;List&lt;String&gt;&gt; listFactory = ArrayList::new;
+Optional.orElseGet(listFactory);</code></pre>
+<p>Also know: <strong>BiFunction, BiConsumer, UnaryOperator, BinaryOperator</strong></p>
+<div class="self-rate">
+<span style="font-size:12px;color:var(--text2);margin-right:6px">How did you do?</span>
+<button class="rate-btn r-good" onclick="rate(this,'good')">✓ Nailed it</button>
+<button class="rate-btn r-partial" onclick="rate(this,'partial')">~ Partial</button>
+<button class="rate-btn r-bad" onclick="rate(this,'bad')">✗ Need to study</button>
+</div>
+</div>
+</div>
+</div>
+
+<div class="q-card" data-id="j8-3">
+<div class="q-header"><span class="q-number">Q3</span><div class="q-meta"><span class="difficulty diff-easy">Easy</span><span class="freq">🔥 Asked Every Time</span></div></div>
+<div class="q-body">
+<h3>Explain Stream API. What is the difference between intermediate and terminal operations?</h3>
+<button class="toggle-btn" onclick="toggleAnswer(this)">▼ Show Answer</button>
+<div class="answer">
+<h4>Expected Answer</h4>
+<p><strong>Stream:</strong> A sequence of elements processed in a pipeline. Does NOT modify the source. Lazy evaluation — intermediate ops execute only when terminal op is called.</p>
+<p><strong>Intermediate operations (return Stream, lazy):</strong> filter(), map(), flatMap(), distinct(), sorted(), peek(), limit(), skip()</p>
+<p><strong>Terminal operations (produce result, trigger execution):</strong> collect(), forEach(), reduce(), count(), findFirst(), findAny(), anyMatch(), allMatch(), noneMatch(), toArray()</p>
+<pre><code>// Pipeline example
+List&lt;String&gt; result = employees.stream()     // source
+    .filter(e -> e.getSalary() > 50000)       // intermediate
+    .map(Employee::getName)                    // intermediate
+    .sorted()                                  // intermediate
+    .collect(Collectors.toList());             // terminal (triggers all)</code></pre>
+<p><strong>Stream vs Collection:</strong> Collection stores data (eager). Stream processes data (lazy). Stream can only be consumed once!</p>
+<div class="self-rate">
+<span style="font-size:12px;color:var(--text2);margin-right:6px">How did you do?</span>
+<button class="rate-btn r-good" onclick="rate(this,'good')">✓ Nailed it</button>
+<button class="rate-btn r-partial" onclick="rate(this,'partial')">~ Partial</button>
+<button class="rate-btn r-bad" onclick="rate(this,'bad')">✗ Need to study</button>
+</div>
+</div>
+</div>
+</div>
+
+<div class="q-card" data-id="j8-4">
+<div class="q-header"><span class="q-number">Q4-8</span><div class="q-meta"><span class="difficulty diff-medium">Medium</span><span class="freq">🔥 Coding Round Favorites</span></div></div>
+<div class="q-body">
+<h3>Stream API Coding Problems — Practice writing these from memory!</h3>
+<button class="toggle-btn" onclick="toggleAnswer(this)">▼ Show All Solutions</button>
+<div class="answer">
+<h4>Problem 4: Find distinct elements sorted in descending order</h4>
+<pre><code>List&lt;Integer&gt; nums = Arrays.asList(5, 3, 8, 3, 5, 1, 8, 9);
+List&lt;Integer&gt; result = nums.stream()
+    .distinct()
+    .sorted(Comparator.reverseOrder())
+    .collect(Collectors.toList());
+// Output: [9, 8, 5, 3, 1]</code></pre>
+
+<h4>Problem 5: Group employees by department</h4>
+<pre><code>Map&lt;String, List&lt;Employee&gt;&gt; byDept = employees.stream()
+    .collect(Collectors.groupingBy(Employee::getDepartment));
+
+// Count per department
+Map&lt;String, Long&gt; countByDept = employees.stream()
+    .collect(Collectors.groupingBy(
+        Employee::getDepartment, Collectors.counting()));</code></pre>
+
+<h4>Problem 6: Find second highest salary</h4>
+<pre><code>Optional&lt;Integer&gt; secondHighest = employees.stream()
+    .map(Employee::getSalary)
+    .distinct()
+    .sorted(Comparator.reverseOrder())
+    .skip(1)
+    .findFirst();</code></pre>
+
+<h4>Problem 7: Convert List of Strings to comma-separated String</h4>
+<pre><code>String result = list.stream()
+    .collect(Collectors.joining(", "));
+// "Java, Spring, Angular"</code></pre>
+
+<h4>Problem 8: Flatten nested lists</h4>
+<pre><code>List&lt;List&lt;String&gt;&gt; nested = Arrays.asList(
+    Arrays.asList("a", "b"), Arrays.asList("c", "d"));
+List&lt;String&gt; flat = nested.stream()
+    .flatMap(Collection::stream)
+    .collect(Collectors.toList());
+// ["a", "b", "c", "d"]</code></pre>
+<div class="self-rate">
+<span style="font-size:12px;color:var(--text2);margin-right:6px">How did you do?</span>
+<button class="rate-btn r-good" onclick="rate(this,'good')">✓ Nailed it</button>
+<button class="rate-btn r-partial" onclick="rate(this,'partial')">~ Partial</button>
+<button class="rate-btn r-bad" onclick="rate(this,'bad')">✗ Need to study</button>
+</div>
+</div>
+</div>
+</div>
+
+<div class="q-card" data-id="j8-5">
+<div class="q-header"><span class="q-number">Q9</span><div class="q-meta"><span class="difficulty diff-medium">Medium</span><span class="freq">Frequent</span></div></div>
+<div class="q-body">
+<h3>What is Optional? How do you use it properly?</h3>
+<button class="toggle-btn" onclick="toggleAnswer(this)">▼ Show Answer</button>
+<div class="answer">
+<h4>Expected Answer</h4>
+<p>Optional is a container that may or may not contain a value. Designed to prevent NullPointerException.</p>
+<pre><code>// Creating
+Optional&lt;String&gt; empty = Optional.empty();
+Optional&lt;String&gt; name = Optional.of("Hasbrovish");  // throws if null
+Optional&lt;String&gt; maybe = Optional.ofNullable(null);  // safe
+
+// Using (NEVER do optional.get() directly!)
+String result = maybe.orElse("default");
+String result2 = maybe.orElseGet(() -> computeDefault());
+maybe.orElseThrow(() -> new RuntimeException("Not found"));
+
+// Chaining
+String city = employee
+    .map(Employee::getAddress)
+    .map(Address::getCity)
+    .orElse("Unknown");
+
+// ❌ BAD: optional.isPresent() + optional.get()
+// ✅ GOOD: optional.orElse() or optional.map()</code></pre>
+<div class="self-rate">
+<span style="font-size:12px;color:var(--text2);margin-right:6px">How did you do?</span>
+<button class="rate-btn r-good" onclick="rate(this,'good')">✓ Nailed it</button>
+<button class="rate-btn r-partial" onclick="rate(this,'partial')">~ Partial</button>
+<button class="rate-btn r-bad" onclick="rate(this,'bad')">✗ Need to study</button>
+</div>
+</div>
+</div>
+</div>
+
+<div class="q-card" data-id="j8-6">
+<div class="q-header"><span class="q-number">Q10-15</span><div class="q-meta"><span class="difficulty diff-medium">Mixed</span></div></div>
+<div class="q-body">
+<h3>Quick-fire Java 8 Questions:</h3>
+<button class="toggle-btn" onclick="toggleAnswer(this)">▼ Show All Answers</button>
+<div class="answer">
+<h4>Quick Answers</h4>
+<p><strong>Q10. map() vs flatMap()?</strong><br>map(): 1-to-1 transformation. flatMap(): 1-to-many, then flattens. Use flatMap when each element produces a stream.</p>
+<p><strong>Q11. What is method reference? Types?</strong><br>Shorthand for lambda. Types: Static (Math::abs), Instance (String::length), Constructor (ArrayList::new), Particular object (System.out::println)</p>
+<p><strong>Q12. Default methods in interfaces — what if two interfaces have same default method?</strong><br>Compile error! Class must override and specify which: <code>InterfaceA.super.method()</code></p>
+<p><strong>Q13. What is parallelStream()?</strong><br>Splits work across ForkJoinPool threads. Use for large datasets, CPU-intensive operations. Avoid for I/O ops or when order matters. Not always faster!</p>
+<p><strong>Q14. peek() vs forEach()?</strong><br>peek() is intermediate (for debugging), forEach() is terminal. peek() is lazy, forEach() triggers execution.</p>
+<p><strong>Q15. reduce() example?</strong><br><code>int sum = list.stream().reduce(0, Integer::sum);</code> Takes identity + accumulator. Optional version: <code>list.stream().reduce(Integer::sum)</code></p>
+<div class="self-rate">
+<span style="font-size:12px;color:var(--text2);margin-right:6px">How did you do?</span>
+<button class="rate-btn r-good" onclick="rate(this,'good')">✓ Nailed it</button>
+<button class="rate-btn r-partial" onclick="rate(this,'partial')">~ Partial</button>
+<button class="rate-btn r-bad" onclick="rate(this,'bad')">✗ Need to study</button>
+</div>
+</div>
+</div>
+</div>
+
+</div>
+
+<!-- ==================== SPRING BOOT ==================== -->
+<div class="section" id="spring">
+<div class="section-header">
+<h2>Spring Boot — The Heart of Full Stack Java</h2>
+<p>Expect 5-8 Spring Boot questions. Annotations and project-based questions dominate.</p>
+</div>
+
+<div class="q-card" data-id="sb1">
+<div class="q-header"><span class="q-number">Q1</span><div class="q-meta"><span class="difficulty diff-easy">Easy</span><span class="freq">🔥 Asked Every Time</span></div></div>
+<div class="q-body">
+<h3>What is @SpringBootApplication? What does it combine?</h3>
+<button class="toggle-btn" onclick="toggleAnswer(this)">▼ Show Answer</button>
+<div class="answer">
+<h4>Expected Answer</h4>
+<p>@SpringBootApplication = three annotations combined:</p>
+<ul>
+<li><strong>@Configuration</strong> — Marks class as a source of bean definitions</li>
+<li><strong>@EnableAutoConfiguration</strong> — Auto-configures beans based on classpath (e.g., adds DataSource if JDBC driver found)</li>
+<li><strong>@ComponentScan</strong> — Scans for @Component, @Service, @Repository, @Controller in current package and sub-packages</li>
+</ul>
+<div class="self-rate">
+<span style="font-size:12px;color:var(--text2);margin-right:6px">How did you do?</span>
+<button class="rate-btn r-good" onclick="rate(this,'good')">✓ Nailed it</button>
+<button class="rate-btn r-partial" onclick="rate(this,'partial')">~ Partial</button>
+<button class="rate-btn r-bad" onclick="rate(this,'bad')">✗ Need to study</button>
+</div>
+</div>
+</div>
+</div>
+
+<div class="q-card" data-id="sb2">
+<div class="q-header"><span class="q-number">Q2</span><div class="q-meta"><span class="difficulty diff-easy">Easy</span><span class="freq">🔥 Very Frequent</span></div></div>
+<div class="q-body">
+<h3>Difference between @Controller and @RestController?</h3>
+<button class="toggle-btn" onclick="toggleAnswer(this)">▼ Show Answer</button>
+<div class="answer">
+<h4>Expected Answer</h4>
+<p><strong>@Controller:</strong> Returns a VIEW (HTML page). Used with template engines (Thymeleaf). Methods return view names resolved by ViewResolver.</p>
+<p><strong>@RestController:</strong> = @Controller + @ResponseBody. Returns DATA directly (JSON/XML). Every method's return value is written to response body.</p>
+<pre><code>// @Controller — returns a view
+@Controller
+public class WebController {
+    @GetMapping("/home")
+    public String home(Model model) {
+        model.addAttribute("name", "Hasbrovish");
+        return "home";  // → home.html template
+    }
+}
+
+// @RestController — returns JSON
+@RestController
+public class ApiController {
+    @GetMapping("/api/users")
+    public List&lt;User&gt; getUsers() {
+        return userService.findAll(); // → JSON automatically
+    }
+}</code></pre>
+<div class="self-rate">
+<span style="font-size:12px;color:var(--text2);margin-right:6px">How did you do?</span>
+<button class="rate-btn r-good" onclick="rate(this,'good')">✓ Nailed it</button>
+<button class="rate-btn r-partial" onclick="rate(this,'partial')">~ Partial</button>
+<button class="rate-btn r-bad" onclick="rate(this,'bad')">✗ Need to study</button>
+</div>
+</div>
+</div>
+</div>
+
+<div class="q-card" data-id="sb3">
+<div class="q-header"><span class="q-number">Q3</span><div class="q-meta"><span class="difficulty diff-medium">Medium</span><span class="freq">🔥 Very Frequent</span></div></div>
+<div class="q-body">
+<h3>Explain Dependency Injection. What is the best way to inject dependencies?</h3>
+<button class="toggle-btn" onclick="toggleAnswer(this)">▼ Show Answer</button>
+<div class="answer">
+<h4>Expected Answer</h4>
+<p><strong>DI:</strong> Dependencies are provided to a class externally rather than the class creating them itself. Promotes loose coupling and testability.</p>
+<p><strong>3 types of injection:</strong></p>
+<ul>
+<li><strong>Constructor Injection (BEST ✅):</strong> Dependencies via constructor. Ensures all required deps are provided. Supports immutability (final fields). Recommended by Spring team.</li>
+<li><strong>Setter Injection:</strong> Via setter methods. For optional dependencies.</li>
+<li><strong>Field Injection (AVOID ❌):</strong> @Autowired on field directly. Hard to test, hides dependencies.</li>
+</ul>
+<pre><code>// ✅ BEST: Constructor injection (no @Autowired needed since Spring 4.3)
+@Service
+public class TaxService {
+    private final TaxRepository taxRepo;
+    private final NotificationService notifService;
+    
+    public TaxService(TaxRepository taxRepo, 
+                      NotificationService notifService) {
+        this.taxRepo = taxRepo;
+        this.notifService = notifService;
+    }
+}</code></pre>
+<div class="self-rate">
+<span style="font-size:12px;color:var(--text2);margin-right:6px">How did you do?</span>
+<button class="rate-btn r-good" onclick="rate(this,'good')">✓ Nailed it</button>
+<button class="rate-btn r-partial" onclick="rate(this,'partial')">~ Partial</button>
+<button class="rate-btn r-bad" onclick="rate(this,'bad')">✗ Need to study</button>
+</div>
+</div>
+</div>
+</div>
+
+<div class="q-card" data-id="sb4">
+<div class="q-header"><span class="q-number">Q4-18</span><div class="q-meta"><span class="difficulty diff-medium">Mixed</span><span class="freq">All Frequently Asked</span></div></div>
+<div class="q-body">
+<h3>Rapid-fire Spring Boot Questions (14 questions):</h3>
+<button class="toggle-btn" onclick="toggleAnswer(this)">▼ Show All Answers</button>
+<div class="answer">
+<h4>All Answers</h4>
+<p><strong>Q4. @Qualifier vs @Primary?</strong><br>When multiple beans of same type exist: @Primary marks the default one. @Qualifier explicitly specifies which bean by name. @Qualifier overrides @Primary.</p>
+
+<p><strong>Q5. Bean Scopes?</strong><br>singleton (default—one per container), prototype (new each request), request (per HTTP request), session (per HTTP session), application (per ServletContext).</p>
+
+<p><strong>Q6. Spring Profiles?</strong><br>Environment-specific configs. application-dev.yml, application-prod.yml. Activate: spring.profiles.active=dev. Use @Profile("dev") on beans.</p>
+
+<p><strong>Q7. @Transactional — how does it work?</strong><br>AOP-based proxy wrapping. Starts transaction before method, commits on success, rolls back on RuntimeException. Set propagation (REQUIRED, REQUIRES_NEW) and isolation levels.</p>
+
+<p><strong>Q8. @Component vs @Service vs @Repository?</strong><br>All are @Component specializations. @Service: business logic (no extra behavior). @Repository: DAO layer + auto-translates DB exceptions to Spring exceptions. Use them for clarity and specific features.</p>
+
+<p><strong>Q9. How CRUD works in Spring Boot?</strong><br>Client → @RestController (receives request) → @Service (business logic) → @Repository (extends JpaRepository) → Database. Response flows back through same layers.</p>
+
+<p><strong>Q10. Exception handling in Spring Boot?</strong><br>@ControllerAdvice + @ExceptionHandler for global handling. Return ResponseEntity with proper status code and error body. Custom exception classes extending RuntimeException.</p>
+
+<p><strong>Q11. Spring AOP annotations?</strong><br>@Aspect (marks AOP class), @Before, @After, @AfterReturning, @AfterThrowing, @Around (most powerful — controls method execution). Use for logging, security, transactions.</p>
+
+<p><strong>Q12. Spring Boot Actuator?</strong><br>Production-ready features: /health, /info, /metrics, /env endpoints. Monitor application health, track metrics, check environment properties.</p>
+
+<p><strong>Q13. How to connect Hibernate to Spring Boot?</strong><br>Add spring-boot-starter-data-jpa dependency. Configure in application.properties: spring.datasource.url, username, password, spring.jpa.hibernate.ddl-auto. Create @Entity classes and Repository interfaces.</p>
+
+<p><strong>Q14. JPA Entity lifecycle?</strong><br>Transient (new, not managed) → Persistent (managed by EntityManager, changes tracked) → Detached (session closed, not tracked) → Removed (marked for deletion).</p>
+
+<p><strong>Q15. Lazy vs Eager loading?</strong><br>Eager: loads related entities immediately (default for @ManyToOne). Lazy: loads on first access (default for @OneToMany). N+1 Problem: Lazy loading in a loop fires N extra queries. Fix: JOIN FETCH or @EntityGraph.</p>
+
+<p><strong>Q16. Spring Security basics?</strong><br>Authentication (who are you) + Authorization (what can you do). Filter chain intercepts requests. JWT for stateless auth. @PreAuthorize for method-level security.</p>
+
+<p><strong>Q17. application.properties vs application.yml?</strong><br>Both configure Spring Boot. yml is hierarchical/readable. properties is flat key=value. yml supports profiles in single file with ---.</p>
+
+<p><strong>Q18. How to handle validation?</strong><br>@Valid + javax.validation annotations: @NotNull, @NotBlank, @Size, @Email, @Min, @Max. BindingResult captures errors. Custom validators with @Constraint.</p>
+<div class="self-rate">
+<span style="font-size:12px;color:var(--text2);margin-right:6px">How did you do?</span>
+<button class="rate-btn r-good" onclick="rate(this,'good')">✓ Nailed it</button>
+<button class="rate-btn r-partial" onclick="rate(this,'partial')">~ Partial</button>
+<button class="rate-btn r-bad" onclick="rate(this,'bad')">✗ Need to study</button>
+</div>
+</div>
+</div>
+</div>
+
+</div>
+
+<!-- ==================== MICROSERVICES ==================== -->
+<div class="section" id="microservices">
+<div class="section-header">
+<h2>Microservices Architecture</h2>
+<p>Important for 5+ years experience. Relate everything to your GSTN project!</p>
+</div>
+
+<div class="q-card" data-id="ms1">
+<div class="q-header"><span class="q-number">Q1-10</span><div class="q-meta"><span class="difficulty diff-medium">Medium</span></div></div>
+<div class="q-body">
+<h3>Complete Microservices Question Bank:</h3>
+<button class="toggle-btn" onclick="toggleAnswer(this)">▼ Show All Answers</button>
+<div class="answer">
+<h4>All Answers</h4>
+<p><strong>Q1. Monolith vs Microservices?</strong><br>Monolith: single deployable unit, easier to start, harder to scale. Microservices: independent services, independently deployable, tech flexibility, but adds complexity (networking, data consistency). Choose microservices when: team is large, need independent scaling, different parts change at different speeds.</p>
+
+<p><strong>Q2. How do microservices communicate?</strong><br>Synchronous: REST (HTTP), gRPC. Asynchronous: Message queues (Kafka, RabbitMQ). Use async for: event-driven flows, decoupling, reliability. Use sync for: real-time responses, simple request-reply.</p>
+
+<p><strong>Q3. What is API Gateway?</strong><br>Single entry point for all clients. Handles: routing, authentication, rate limiting, load balancing, SSL termination. Tools: Spring Cloud Gateway, Kong, Zuul.</p>
+
+<p><strong>Q4. Service Discovery — how do services find each other?</strong><br>Services register with a discovery server (Eureka). Clients query Eureka to find service instances. Client-side (Ribbon) or Server-side load balancing. No hardcoded URLs!</p>
+
+<p><strong>Q5. Circuit Breaker pattern?</strong><br>Prevents cascading failures. States: CLOSED (normal) → OPEN (fails fast, no calls) → HALF_OPEN (tests recovery). Tool: Resilience4j. Fallback method returns default response when service is down.</p>
+
+<p><strong>Q6. How to handle distributed transactions?</strong><br>Saga Pattern: sequence of local transactions with compensating transactions on failure. Choreography (event-based) or Orchestration (central coordinator). Avoid 2PC in microservices — too slow.</p>
+
+<p><strong>Q7. What is Feign Client?</strong><br>Declarative REST client. Write interface + annotations, Spring creates implementation. Simplifies inter-service calls. Integrates with Eureka for service discovery.</p>
+
+<p><strong>Q8. How to manage configuration?</strong><br>Spring Cloud Config Server: centralized config for all services. Stores in Git. Supports environment-specific configs. @RefreshScope for dynamic updates.</p>
+
+<p><strong>Q9. Docker basics for microservices?</strong><br>Each service → separate Docker image → separate container. Dockerfile: FROM openjdk → COPY jar → ENTRYPOINT. docker-compose: define all services, networks, volumes. Health checks: HEALTHCHECK instruction.</p>
+
+<p><strong>Q10. How to manage faulty containers in Docker?</strong><br>docker logs (check errors), docker restart, health checks in docker-compose, restart policies (restart: always/on-failure), monitoring with Prometheus/Grafana. Kubernetes: auto-healing with liveness/readiness probes.</p>
+
+<div class="tip-box"><strong>🎯 GSTN Connection:</strong> When answering, say: "In GSTN, we use [pattern] for [specific use case]. For example, during GST filing deadlines when we handle 100K+ concurrent requests, our circuit breaker prevents cascading failures if the authentication service is overloaded."</div>
+<div class="self-rate">
+<span style="font-size:12px;color:var(--text2);margin-right:6px">How did you do?</span>
+<button class="rate-btn r-good" onclick="rate(this,'good')">✓ Nailed it</button>
+<button class="rate-btn r-partial" onclick="rate(this,'partial')">~ Partial</button>
+<button class="rate-btn r-bad" onclick="rate(this,'bad')">✗ Need to study</button>
+</div>
+</div>
+</div>
+</div>
+
+</div>
+
+<!-- ==================== SQL ==================== -->
+<div class="section" id="sql">
+<div class="section-header">
+<h2>SQL — Expect 1-3 Query Questions</h2>
+<p>They'll ask you to write queries on the spot. Practice these patterns!</p>
+</div>
+
+<div class="q-card" data-id="sql1">
+<div class="q-header"><span class="q-number">Q1-10</span><div class="q-meta"><span class="difficulty diff-medium">Medium</span><span class="freq">🔥 Top Queries Asked</span></div></div>
+<div class="q-body">
+<h3>Must-Know SQL Queries — Write from memory!</h3>
+<button class="toggle-btn" onclick="toggleAnswer(this)">▼ Show All Queries</button>
+<div class="answer">
+<h4>All Solutions</h4>
+
+<p><strong>Q1. Find employee(s) with highest salary:</strong></p>
+<pre><code>SELECT * FROM employees 
+WHERE salary = (SELECT MAX(salary) FROM employees);</code></pre>
+
+<p><strong>Q2. Find 2nd highest salary:</strong></p>
+<pre><code>-- Method 1: Subquery
+SELECT MAX(salary) FROM employees 
+WHERE salary &lt; (SELECT MAX(salary) FROM employees);
+
+-- Method 2: DENSE_RANK (handles ties correctly)
+SELECT * FROM (
+    SELECT *, DENSE_RANK() OVER (ORDER BY salary DESC) as rnk 
+    FROM employees
+) t WHERE rnk = 2;
+
+-- Method 3: LIMIT/OFFSET
+SELECT DISTINCT salary FROM employees 
+ORDER BY salary DESC LIMIT 1 OFFSET 1;</code></pre>
+
+<p><strong>Q3. Nth highest salary:</strong></p>
+<pre><code>SELECT * FROM (
+    SELECT *, DENSE_RANK() OVER (ORDER BY salary DESC) as rnk 
+    FROM employees
+) t WHERE rnk = N;</code></pre>
+
+<p><strong>Q4. Find duplicates:</strong></p>
+<pre><code>SELECT email, COUNT(*) as cnt FROM employees 
+GROUP BY email HAVING COUNT(*) > 1;</code></pre>
+
+<p><strong>Q5. Department-wise highest salary:</strong></p>
+<pre><code>SELECT department, MAX(salary) as max_salary 
+FROM employees GROUP BY department;
+
+-- With employee details:
+SELECT * FROM (
+    SELECT *, ROW_NUMBER() OVER (
+        PARTITION BY department ORDER BY salary DESC
+    ) as rn FROM employees
+) t WHERE rn = 1;</code></pre>
+
+<p><strong>Q6. Employees who earn more than their manager:</strong></p>
+<pre><code>SELECT e.name FROM employees e 
+JOIN employees m ON e.manager_id = m.id 
+WHERE e.salary > m.salary;</code></pre>
+
+<p><strong>Q7. DELETE duplicates keeping only one:</strong></p>
+<pre><code>DELETE FROM employees WHERE id NOT IN (
+    SELECT MIN(id) FROM employees GROUP BY email
+);</code></pre>
+
+<p><strong>Q8. INNER vs LEFT vs RIGHT vs FULL JOIN?</strong><br>INNER: only matching rows. LEFT: all from left + matching right. RIGHT: all from right + matching left. FULL: all from both tables.</p>
+
+<p><strong>Q9. WHERE vs HAVING?</strong><br>WHERE filters rows BEFORE grouping. HAVING filters groups AFTER GROUP BY. HAVING can use aggregate functions, WHERE cannot.</p>
+
+<p><strong>Q10. Index — what and when?</strong><br>Data structure to speed up queries. B-Tree index for equality/range. Use on: frequently queried columns, JOIN columns, WHERE conditions. Avoid on: small tables, frequently updated columns.</p>
+<div class="self-rate">
+<span style="font-size:12px;color:var(--text2);margin-right:6px">How did you do?</span>
+<button class="rate-btn r-good" onclick="rate(this,'good')">✓ Nailed it</button>
+<button class="rate-btn r-partial" onclick="rate(this,'partial')">~ Partial</button>
+<button class="rate-btn r-bad" onclick="rate(this,'bad')">✗ Need to study</button>
+</div>
+</div>
+</div>
+</div>
+
+</div>
+
+<!-- ==================== ANGULAR ==================== -->
+<div class="section" id="angular">
+<div class="section-header">
+<h2>Angular & JavaScript — Frontend Basics</h2>
+<p>Since JD says "Full Stack", expect 3-5 frontend questions. Keep answers practical.</p>
+</div>
+
+<div class="q-card" data-id="ang1">
+<div class="q-header"><span class="q-number">Q1-12</span><div class="q-meta"><span class="difficulty diff-easy">Easy-Medium</span></div></div>
+<div class="q-body">
+<h3>Complete Angular & JavaScript Question Bank:</h3>
+<button class="toggle-btn" onclick="toggleAnswer(this)">▼ Show All Answers</button>
+<div class="answer">
+<h4>Angular Questions</h4>
+<p><strong>Q1. What is Angular? SPA?</strong><br>TypeScript-based frontend framework by Google. SPA (Single Page Application): loads once, updates dynamically without full page reload. Uses client-side routing.</p>
+
+<p><strong>Q2. Components, Modules, Services?</strong><br>Component: building block (HTML + CSS + TS). Module: groups related components (@NgModule). Service: reusable business logic, injected via DI (@Injectable).</p>
+
+<p><strong>Q3. Data Binding types?</strong></p>
+<ul>
+<li>Interpolation: <code>{{ value }}</code> — one-way, TS→HTML</li>
+<li>Property binding: <code>[property]="value"</code> — one-way, TS→HTML</li>
+<li>Event binding: <code>(event)="handler()"</code> — one-way, HTML→TS</li>
+<li>Two-way: <code>[(ngModel)]="value"</code> — both directions</li>
+</ul>
+
+<p><strong>Q4. What are Pipes?</strong><br>Transform displayed data. Built-in: date, uppercase, lowercase, currency, json, async. Custom: implement PipeTransform interface. Pure (default, cached) vs Impure (runs on every change detection).</p>
+
+<p><strong>Q5. Component lifecycle hooks?</strong><br>ngOnInit (after first ngOnChanges), ngOnChanges (input changes), ngDoCheck, ngAfterViewInit, ngOnDestroy (cleanup subscriptions!). Most used: ngOnInit for API calls, ngOnDestroy for unsubscribing.</p>
+
+<p><strong>Q6. Observable vs Promise?</strong><br>Promise: single async value, eager (executes immediately), not cancellable. Observable: stream of values, lazy (needs subscribe), cancellable (unsubscribe), supports operators (map, filter, switchMap).</p>
+
+<p><strong>Q7. What is RxJS?</strong><br>Reactive Extensions for JS. Used in Angular for HTTP calls, event handling. Key operators: map, filter, switchMap, mergeMap, catchError, debounceTime, distinctUntilChanged.</p>
+
+<p><strong>Q8. Routing in Angular?</strong><br>RouterModule defines paths → components. Route guards (canActivate, canDeactivate) for auth. Lazy loading: loadChildren to load modules on demand.</p>
+
+<h4>JavaScript Questions</h4>
+<p><strong>Q9. var vs let vs const?</strong><br>var: function-scoped, hoisted, re-declarable. let: block-scoped, not hoisted, not re-declarable. const: block-scoped, not reassignable (but objects/arrays mutable).</p>
+
+<p><strong>Q10. What are closures?</strong><br>Function that has access to outer function's variables even after outer function has returned. Used for: data privacy, factory functions, callbacks.</p>
+
+<p><strong>Q11. Promises and async/await?</strong><br>Promise: .then().catch(). async/await: syntactic sugar over Promises, makes async code look synchronous. try/catch for error handling.</p>
+
+<p><strong>Q12. == vs ===?</strong><br>==: loose equality (type coercion). ===: strict equality (no coercion). Always use === in production code. Examples: <code>"5" == 5</code> is true, <code>"5" === 5</code> is false.</p>
+
+<div class="self-rate">
+<span style="font-size:12px;color:var(--text2);margin-right:6px">How did you do?</span>
+<button class="rate-btn r-good" onclick="rate(this,'good')">✓ Nailed it</button>
+<button class="rate-btn r-partial" onclick="rate(this,'partial')">~ Partial</button>
+<button class="rate-btn r-bad" onclick="rate(this,'bad')">✗ Need to study</button>
+</div>
+</div>
+</div>
+</div>
+
+</div>
+
+<!-- ==================== CODING ==================== -->
+<div class="section" id="coding">
+<div class="section-header">
+<h2>Coding Problems — Practice in Java!</h2>
+<p>Accenture asks 1-2 coding problems (Easy to Medium). Write clean, working code.</p>
+</div>
+
+<div class="tip-box"><strong>🎯 Strategy:</strong> Write the brute force solution first, then optimize. Mention time/space complexity. Use meaningful variable names. Handle edge cases (null, empty, single element).</div>
+
+<div class="q-card" data-id="cd1">
+<div class="q-header"><span class="q-number">C1</span><div class="q-meta"><span class="difficulty diff-easy">Easy</span><span class="freq">🔥 Most Asked</span></div></div>
+<div class="q-body">
+<h3>Two Sum: Find two numbers in an array that add up to target.</h3>
+<pre><code>Input: nums = [2, 7, 11, 15], target = 9
+Output: [0, 1] (because nums[0] + nums[1] = 9)</code></pre>
+<button class="toggle-btn" onclick="toggleAnswer(this)">▼ Show Solution</button>
+<div class="answer">
+<h4>Solution — O(n) using HashMap</h4>
+<pre><code>public int[] twoSum(int[] nums, int target) {
+    Map&lt;Integer, Integer&gt; map = new HashMap&lt;&gt;();
+    for (int i = 0; i &lt; nums.length; i++) {
+        int complement = target - nums[i];
+        if (map.containsKey(complement)) {
+            return new int[] { map.get(complement), i };
+        }
+        map.put(nums[i], i);
+    }
+    return new int[] {}; // no solution
+}
+// Time: O(n), Space: O(n)</code></pre>
+<p><strong>Key insight:</strong> Store each number's index in a HashMap. For each element, check if its complement (target - current) exists in the map.</p>
+<div class="self-rate">
+<span style="font-size:12px;color:var(--text2);margin-right:6px">How did you do?</span>
+<button class="rate-btn r-good" onclick="rate(this,'good')">✓ Nailed it</button>
+<button class="rate-btn r-partial" onclick="rate(this,'partial')">~ Partial</button>
+<button class="rate-btn r-bad" onclick="rate(this,'bad')">✗ Need to study</button>
+</div>
+</div>
+</div>
+</div>
+
+<div class="q-card" data-id="cd2">
+<div class="q-header"><span class="q-number">C2</span><div class="q-meta"><span class="difficulty diff-easy">Easy</span><span class="freq">🔥 Most Asked</span></div></div>
+<div class="q-body">
+<h3>Find duplicate elements from an array.</h3>
+<button class="toggle-btn" onclick="toggleAnswer(this)">▼ Show Solution</button>
+<div class="answer">
+<h4>Solution — Multiple Approaches</h4>
+<pre><code>// Approach 1: Using HashSet — O(n)
+public List&lt;Integer&gt; findDuplicates(int[] nums) {
+    Set&lt;Integer&gt; seen = new HashSet&lt;&gt;();
+    Set&lt;Integer&gt; duplicates = new HashSet&lt;&gt;();
+    for (int num : nums) {
+        if (!seen.add(num)) {  // add() returns false if exists
+            duplicates.add(num);
+        }
+    }
+    return new ArrayList&lt;&gt;(duplicates);
+}
+
+// Approach 2: Using Streams — Java 8
+public List&lt;Integer&gt; findDuplicatesStream(int[] nums) {
+    return Arrays.stream(nums).boxed()
+        .collect(Collectors.groupingBy(
+            Function.identity(), Collectors.counting()))
+        .entrySet().stream()
+        .filter(e -> e.getValue() > 1)
+        .map(Map.Entry::getKey)
+        .collect(Collectors.toList());
+}</code></pre>
+<div class="self-rate">
+<span style="font-size:12px;color:var(--text2);margin-right:6px">How did you do?</span>
+<button class="rate-btn r-good" onclick="rate(this,'good')">✓ Nailed it</button>
+<button class="rate-btn r-partial" onclick="rate(this,'partial')">~ Partial</button>
+<button class="rate-btn r-bad" onclick="rate(this,'bad')">✗ Need to study</button>
+</div>
+</div>
+</div>
+</div>
+
+<div class="q-card" data-id="cd3">
+<div class="q-header"><span class="q-number">C3</span><div class="q-meta"><span class="difficulty diff-easy">Easy</span><span class="freq">Frequent</span></div></div>
+<div class="q-body">
+<h3>Reverse a Linked List.</h3>
+<button class="toggle-btn" onclick="toggleAnswer(this)">▼ Show Solution</button>
+<div class="answer">
+<h4>Solution — Iterative O(n)</h4>
+<pre><code>public ListNode reverseList(ListNode head) {
+    ListNode prev = null;
+    ListNode curr = head;
+    while (curr != null) {
+        ListNode next = curr.next;  // save next
+        curr.next = prev;           // reverse pointer
+        prev = curr;                // advance prev
+        curr = next;                // advance curr
+    }
+    return prev;  // new head
+}
+// Trick: 3 pointers — prev, curr, next
+// Time: O(n), Space: O(1)</code></pre>
+<div class="self-rate">
+<span style="font-size:12px;color:var(--text2);margin-right:6px">How did you do?</span>
+<button class="rate-btn r-good" onclick="rate(this,'good')">✓ Nailed it</button>
+<button class="rate-btn r-partial" onclick="rate(this,'partial')">~ Partial</button>
+<button class="rate-btn r-bad" onclick="rate(this,'bad')">✗ Need to study</button>
+</div>
+</div>
+</div>
+</div>
+
+<div class="q-card" data-id="cd4">
+<div class="q-header"><span class="q-number">C4</span><div class="q-meta"><span class="difficulty diff-easy">Easy</span></div></div>
+<div class="q-body">
+<h3>Check if a string is a palindrome.</h3>
+<button class="toggle-btn" onclick="toggleAnswer(this)">▼ Show Solution</button>
+<div class="answer">
+<h4>Solution</h4>
+<pre><code>// Two pointer approach — O(n), O(1) space
+public boolean isPalindrome(String s) {
+    s = s.toLowerCase().replaceAll("[^a-z0-9]", "");
+    int left = 0, right = s.length() - 1;
+    while (left &lt; right) {
+        if (s.charAt(left) != s.charAt(right)) return false;
+        left++; right--;
+    }
+    return true;
+}
+
+// Using StringBuilder — simpler but O(n) space
+public boolean isPalindromeSimple(String s) {
+    String clean = s.toLowerCase().replaceAll("[^a-z0-9]", "");
+    return clean.equals(new StringBuilder(clean).reverse().toString());
+}</code></pre>
+<div class="self-rate">
+<span style="font-size:12px;color:var(--text2);margin-right:6px">How did you do?</span>
+<button class="rate-btn r-good" onclick="rate(this,'good')">✓ Nailed it</button>
+<button class="rate-btn r-partial" onclick="rate(this,'partial')">~ Partial</button>
+<button class="rate-btn r-bad" onclick="rate(this,'bad')">✗ Need to study</button>
+</div>
+</div>
+</div>
+</div>
+
+<div class="q-card" data-id="cd5">
+<div class="q-header"><span class="q-number">C5</span><div class="q-meta"><span class="difficulty diff-easy">Easy</span></div></div>
+<div class="q-body">
+<h3>Count frequency of each character in a string.</h3>
+<button class="toggle-btn" onclick="toggleAnswer(this)">▼ Show Solution</button>
+<div class="answer">
+<h4>Solution</h4>
+<pre><code>// Traditional approach
+public Map&lt;Character, Integer&gt; charFrequency(String s) {
+    Map&lt;Character, Integer&gt; freq = new HashMap&lt;&gt;();
+    for (char c : s.toCharArray()) {
+        freq.put(c, freq.getOrDefault(c, 0) + 1);
+    }
+    return freq;
+}
+
+// Java 8 Stream approach
+public Map&lt;Character, Long&gt; charFreqStream(String s) {
+    return s.chars()
+        .mapToObj(c -> (char) c)
+        .collect(Collectors.groupingBy(
+            Function.identity(), Collectors.counting()));
+}</code></pre>
+<div class="self-rate">
+<span style="font-size:12px;color:var(--text2);margin-right:6px">How did you do?</span>
+<button class="rate-btn r-good" onclick="rate(this,'good')">✓ Nailed it</button>
+<button class="rate-btn r-partial" onclick="rate(this,'partial')">~ Partial</button>
+<button class="rate-btn r-bad" onclick="rate(this,'bad')">✗ Need to study</button>
+</div>
+</div>
+</div>
+</div>
+
+<div class="q-card" data-id="cd6">
+<div class="q-header"><span class="q-number">C6</span><div class="q-meta"><span class="difficulty diff-medium">Medium</span></div></div>
+<div class="q-body">
+<h3>Implement a Stack using arrays. Include push, pop, peek, isEmpty.</h3>
+<button class="toggle-btn" onclick="toggleAnswer(this)">▼ Show Solution</button>
+<div class="answer">
+<h4>Solution</h4>
+<pre><code>public class MyStack {
+    private int[] arr;
+    private int top;
+    private int capacity;
+    
+    public MyStack(int size) {
+        arr = new int[size];
+        capacity = size;
+        top = -1;
+    }
+    
+    public void push(int val) {
+        if (top == capacity - 1) 
+            throw new StackOverflowError("Stack is full");
+        arr[++top] = val;
+    }
+    
+    public int pop() {
+        if (isEmpty()) 
+            throw new EmptyStackException();
+        return arr[top--];
+    }
+    
+    public int peek() {
+        if (isEmpty()) 
+            throw new EmptyStackException();
+        return arr[top];
+    }
+    
+    public boolean isEmpty() { return top == -1; }
+    public int size() { return top + 1; }
+}</code></pre>
+<div class="self-rate">
+<span style="font-size:12px;color:var(--text2);margin-right:6px">How did you do?</span>
+<button class="rate-btn r-good" onclick="rate(this,'good')">✓ Nailed it</button>
+<button class="rate-btn r-partial" onclick="rate(this,'partial')">~ Partial</button>
+<button class="rate-btn r-bad" onclick="rate(this,'bad')">✗ Need to study</button>
+</div>
+</div>
+</div>
+</div>
+
+<div class="q-card" data-id="cd7">
+<div class="q-header"><span class="q-number">C7-15</span><div class="q-meta"><span class="difficulty diff-medium">Mixed</span></div></div>
+<div class="q-body">
+<h3>Additional Coding Problems to Practice (try before seeing answers):</h3>
+<button class="toggle-btn" onclick="toggleAnswer(this)">▼ Show Quick Solutions</button>
+<div class="answer">
+<h4>Quick Solutions</h4>
+<p><strong>C7. FizzBuzz (1 to n):</strong></p>
+<pre><code>for (int i = 1; i &lt;= n; i++) {
+    if (i % 15 == 0) System.out.println("FizzBuzz");
+    else if (i % 3 == 0) System.out.println("Fizz");
+    else if (i % 5 == 0) System.out.println("Buzz");
+    else System.out.println(i);
+}</code></pre>
+
+<p><strong>C8. Find first non-repeating character:</strong></p>
+<pre><code>public char firstNonRepeating(String s) {
+    Map&lt;Character, Long&gt; freq = s.chars().mapToObj(c -> (char) c)
+        .collect(Collectors.groupingBy(
+            Function.identity(), LinkedHashMap::new, Collectors.counting()));
+    return freq.entrySet().stream()
+        .filter(e -> e.getValue() == 1)
+        .map(Map.Entry::getKey)
+        .findFirst().orElse('\0');
+}</code></pre>
+
+<p><strong>C9. Check if two strings are anagrams:</strong></p>
+<pre><code>public boolean isAnagram(String s, String t) {
+    char[] a = s.toCharArray(), b = t.toCharArray();
+    Arrays.sort(a); Arrays.sort(b);
+    return Arrays.equals(a, b);
+}</code></pre>
+
+<p><strong>C10. Remove duplicates from sorted array in-place:</strong></p>
+<pre><code>public int removeDuplicates(int[] nums) {
+    if (nums.length == 0) return 0;
+    int j = 0;
+    for (int i = 1; i &lt; nums.length; i++) {
+        if (nums[i] != nums[j]) nums[++j] = nums[i];
+    }
+    return j + 1;
+}</code></pre>
+
+<p><strong>C11. Fibonacci (n-th number):</strong></p>
+<pre><code>public int fib(int n) {
+    if (n &lt;= 1) return n;
+    int a = 0, b = 1;
+    for (int i = 2; i &lt;= n; i++) {
+        int temp = a + b; a = b; b = temp;
+    }
+    return b;
+}</code></pre>
+
+<p><strong>C12. Merge two sorted arrays:</strong></p>
+<pre><code>public int[] merge(int[] a, int[] b) {
+    int[] result = new int[a.length + b.length];
+    int i = 0, j = 0, k = 0;
+    while (i &lt; a.length && j &lt; b.length)
+        result[k++] = a[i] &lt;= b[j] ? a[i++] : b[j++];
+    while (i &lt; a.length) result[k++] = a[i++];
+    while (j &lt; b.length) result[k++] = b[j++];
+    return result;
+}</code></pre>
+
+<p><strong>C13. Valid parentheses:</strong></p>
+<pre><code>public boolean isValid(String s) {
+    Stack&lt;Character&gt; stack = new Stack&lt;&gt;();
+    for (char c : s.toCharArray()) {
+        if (c == '(') stack.push(')');
+        else if (c == '{') stack.push('}');
+        else if (c == '[') stack.push(']');
+        else if (stack.isEmpty() || stack.pop() != c) return false;
+    }
+    return stack.isEmpty();
+}</code></pre>
+
+<p><strong>C14. Find missing number (1 to n):</strong></p>
+<pre><code>public int missingNumber(int[] nums) {
+    int n = nums.length;
+    int expectedSum = n * (n + 1) / 2;
+    int actualSum = Arrays.stream(nums).sum();
+    return expectedSum - actualSum;
+}</code></pre>
+
+<p><strong>C15. Reverse words in a string:</strong></p>
+<pre><code>public String reverseWords(String s) {
+    String[] words = s.trim().split("\\s+");
+    Collections.reverse(Arrays.asList(words));
+    return String.join(" ", words);
+}</code></pre>
+<div class="self-rate">
+<span style="font-size:12px;color:var(--text2);margin-right:6px">How did you do?</span>
+<button class="rate-btn r-good" onclick="rate(this,'good')">✓ Nailed it</button>
+<button class="rate-btn r-partial" onclick="rate(this,'partial')">~ Partial</button>
+<button class="rate-btn r-bad" onclick="rate(this,'bad')">✗ Need to study</button>
+</div>
+</div>
+</div>
+</div>
+
+</div>
+
+<!-- ==================== BEHAVIORAL ==================== -->
+<div class="section" id="behavioral">
+<div class="section-header">
+<h2>Behavioral & HR Round</h2>
+<p>Prepare STAR format answers. Map every answer to your GSTN experience.</p>
+</div>
+
+<div class="q-card" data-id="bh1">
+<div class="q-header"><span class="q-number">Q1-8</span><div class="q-meta"><span class="freq">🔥 All Expected</span></div></div>
+<div class="q-body">
+<h3>Complete Behavioral Questions with Framework:</h3>
+<button class="toggle-btn" onclick="toggleAnswer(this)">▼ Show Preparation Guide</button>
+<div class="answer">
+<h4>Prepare These STAR Stories</h4>
+
+<p><strong>Q1. "Tell me about yourself" (2 minutes max):</strong></p>
+<p>Framework: Present role → Experience highlights → Technical skills → Why this role</p>
+<p><em>"I'm a Specialist Programmer at Infosys with 5+ years of experience working on India's GSTN platform, which serves 14 million taxpayers. I specialize in Java, Spring Boot, and microservices — we handle 100K+ concurrent requests during peak filing. I've worked on performance optimization, API development, and cross-team problem-solving. I also have a competitive programming background with a 4-star CodeChef rating. I'm excited about this role at Accenture because I want to work on diverse client projects and grow into a technical leadership role."</em></p>
+
+<p><strong>Q2. "Describe a challenging bug you fixed":</strong></p>
+<p>Pick a real GSTN bug. Mention: how you identified it (logs, monitoring), root cause analysis, the fix, and impact (reduced response time by X%, prevented Y failures).</p>
+
+<p><strong>Q3. "How do you handle disagreements with team members?":</strong></p>
+<p>Show maturity: listen to their perspective, present data/evidence, find common ground, escalate if needed. Give a specific example.</p>
+
+<p><strong>Q4. "Why are you looking for a change?":</strong></p>
+<p>NEVER badmouth current employer. Focus on growth: "I've learned a lot at Infosys on GSTN, but I'm looking for exposure to diverse projects and clients that Accenture offers. I want to grow into a senior technical role with broader impact."</p>
+
+<p><strong>Q5. "Why Accenture?":</strong></p>
+<p>Research Accenture: global clients, technology leadership, innovation, learning culture. "Accenture's scale of operations and diverse client base excites me. I want to work with cutting-edge technologies across different domains."</p>
+
+<p><strong>Q6. "Where do you see yourself in 5 years?":</strong></p>
+<p>"I see myself as a Senior Technical Architect or a Tech Lead, designing scalable systems and mentoring junior developers. Accenture's growth paths align well with this vision."</p>
+
+<p><strong>Q7. "Your strengths and weaknesses?":</strong></p>
+<p>Strengths: problem-solving (competitive programming), ownership, learning agility. Weakness: pick a real one you're working on (e.g., "Sometimes I deep-dive too much into optimization when a simpler solution would suffice. I'm learning to balance perfection with practicality.").</p>
+
+<p><strong>Q8. Salary negotiation tips:</strong></p>
+<ul>
+<li>Know your current CTC breakdown (base, HRA, special allowances, bonuses)</li>
+<li>Accenture typically offers 2-2.5x current CTC for lateral hires</li>
+<li>If you have competing offers, mention them</li>
+<li>Don't give a number first — ask "What is the budget for this role?"</li>
+<li>Negotiate on base salary, not variable components</li>
+</ul>
+<div class="self-rate">
+<span style="font-size:12px;color:var(--text2);margin-right:6px">How did you do?</span>
+<button class="rate-btn r-good" onclick="rate(this,'good')">✓ Nailed it</button>
+<button class="rate-btn r-partial" onclick="rate(this,'partial')">~ Partial</button>
+<button class="rate-btn r-bad" onclick="rate(this,'bad')">✗ Need to study</button>
+</div>
+</div>
+</div>
+</div>
+
+</div>
+
+<!-- ==================== STRATEGY ==================== -->
+<div class="section" id="strategy">
+<div class="section-header">
+<h2>🎯 Interview Strategy & Final Checklist</h2>
+<p>How to approach the interview for maximum impact.</p>
+</div>
+
+<div class="strategy-card">
+<h3>⚡ The 60-Second Rule</h3>
+<p>Keep every answer under 60 seconds unless asked to elaborate. Accenture interviewers value conciseness. If they want more, they'll ask follow-ups. Start with the answer, then explain.</p>
+</div>
+
+<div class="strategy-card">
+<h3>🧠 The GSTN Advantage</h3>
+<p>Your GSTN experience is your superpower. For EVERY technical question, try to connect it to your project: "In GSTN, we use [concept] for [specific use case]." This shows real-world application vs bookish knowledge. Example: "We use ConcurrentHashMap for caching taxpayer session data since multiple threads access it simultaneously during filing deadlines."</p>
+</div>
+
+<div class="strategy-card">
+<h3>📋 The Daily Work Story</h3>
+<p>When asked about daily responsibilities, mention these: pick stories from sprint backlog → develop REST APIs → write database queries → fix bugs across microservices → write JUnit tests → raise pull requests → code reviews → deploy services → monitor health checks. This shows you're a working developer, not theoretical.</p>
+</div>
+
+<div class="strategy-card">
+<h3>🚫 Common Mistakes to Avoid</h3>
+<p>1. Don't say "I don't know" without trying — say "I'm not sure about the specifics, but based on my understanding..." 2. Don't rush coding problems — clarify requirements first 3. Don't give textbook definitions — always add your project example 4. Don't mention salary in technical rounds 5. Don't badmouth Infosys or current team</p>
+</div>
+
+<div class="section-header"><h2>Pre-Interview Checklist</h2></div>
+<ul class="checklist" id="checklist">
+<li onclick="toggleCheck(this)"><span class="check"></span>Java 8 Streams — can write filter/map/collect from memory</li>
+<li onclick="toggleCheck(this)"><span class="check"></span>HashMap internal working explained clearly</li>
+<li onclick="toggleCheck(this)"><span class="check"></span>@Controller vs @RestController with code example</li>
+<li onclick="toggleCheck(this)"><span class="check"></span>All Spring Boot annotations memorized</li>
+<li onclick="toggleCheck(this)"><span class="check"></span>Bean scopes and Profiling explained</li>
+<li onclick="toggleCheck(this)"><span class="check"></span>Dependency Injection — constructor injection best practice</li>
+<li onclick="toggleCheck(this)"><span class="check"></span>Microservices patterns — Circuit Breaker, API Gateway</li>
+<li onclick="toggleCheck(this)"><span class="check"></span>SQL — Highest salary, 2nd highest, duplicates queries</li>
+<li onclick="toggleCheck(this)"><span class="check"></span>Two Sum problem solved from memory</li>
+<li onclick="toggleCheck(this)"><span class="check"></span>Find duplicates in array — both approaches</li>
+<li onclick="toggleCheck(this)"><span class="check"></span>"Tell me about yourself" — practiced under 2 minutes</li>
+<li onclick="toggleCheck(this)"><span class="check"></span>GSTN project story — architecture, challenges, scale</li>
+<li onclick="toggleCheck(this)"><span class="check"></span>Angular basics — components, data binding, pipes</li>
+<li onclick="toggleCheck(this)"><span class="check"></span>Docker faulty container management</li>
+<li onclick="toggleCheck(this)"><span class="check"></span>OOPs code snippet output questions practiced</li>
+<li onclick="toggleCheck(this)"><span class="check"></span>Deep copy vs Shallow copy with example</li>
+<li onclick="toggleCheck(this)"><span class="check"></span>Tested webcam, microphone, internet connection</li>
+<li onclick="toggleCheck(this)"><span class="check"></span>Resume printed and reviewed</li>
+</ul>
+
+<div class="score-summary">
+<h3>Your Readiness Score</h3>
+<div class="score-grid">
+<div class="score-item"><div class="score-val" id="scoreGood" style="color:var(--green)">0</div><div class="score-label">Confident</div></div>
+<div class="score-item"><div class="score-val" id="scorePartial" style="color:var(--orange)">0</div><div class="score-label">Needs Review</div></div>
+<div class="score-item"><div class="score-val" id="scoreBad" style="color:var(--red)">0</div><div class="score-label">Must Study</div></div>
+<div class="score-item"><div class="score-val" id="scoreChecked" style="color:var(--blue)">0/18</div><div class="score-label">Checklist</div></div>
+</div>
+</div>
+
+</div>
+
+</div>
+
+<script>
+// Tab navigation
+document.querySelectorAll('.tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+        tab.classList.add('active');
+        document.getElementById(tab.dataset.section).classList.add('active');
+    });
+});
+
+// Toggle answers
+function toggleAnswer(btn) {
+    const answer = btn.nextElementSibling;
+    const isShowing = answer.classList.contains('show');
+    answer.classList.toggle('show');
+    btn.textContent = isShowing ? '▼ Show Answer' : '▲ Hide Answer';
+    if (btn.textContent.includes('Solution')) btn.textContent = isShowing ? '▼ Show Solution' : '▲ Hide Solution';
+    if (btn.textContent.includes('All')) btn.textContent = isShowing ? '▼ Show All Answers' : '▲ Hide All Answers';
+    if (btn.textContent.includes('Guide')) btn.textContent = isShowing ? '▼ Show Preparation Guide' : '▲ Hide Preparation Guide';
+    if (btn.textContent.includes('Queries')) btn.textContent = isShowing ? '▼ Show All Queries' : '▲ Hide All Queries';
+}
+
+// Self-rating
+let ratings = { good: 0, partial: 0, bad: 0 };
+function rate(btn, type) {
+    const rateGroup = btn.parentElement;
+    const card = btn.closest('.q-card');
+    const prev = rateGroup.querySelector('.selected');
+    if (prev) {
+        const prevType = prev.classList.contains('r-good') ? 'good' : prev.classList.contains('r-partial') ? 'partial' : 'bad';
+        ratings[prevType]--;
+        prev.classList.remove('selected');
+        card.classList.remove('answered-correct', 'answered-wrong', 'answered-partial');
+    }
+    btn.classList.add('selected');
+    ratings[type]++;
+    card.classList.add(type === 'good' ? 'answered-correct' : type === 'partial' ? 'answered-partial' : 'answered-wrong');
+    updateStats();
+}
+
+// Checklist
+function toggleCheck(li) {
+    li.classList.toggle('checked');
+    li.querySelector('.check').textContent = li.classList.contains('checked') ? '✓' : '';
+    updateStats();
+}
+
+// Update statistics
+function updateStats() {
+    const total = document.querySelectorAll('.q-card').length;
+    const attempted = ratings.good + ratings.partial + ratings.bad;
+    const checkedCount = document.querySelectorAll('.checklist li.checked').length;
+    const totalChecklist = document.querySelectorAll('.checklist li').length;
+    
+    document.getElementById('totalQ').textContent = total;
+    document.getElementById('attempted').textContent = attempted;
+    document.getElementById('confident').textContent = ratings.good;
+    document.getElementById('needWork').textContent = ratings.partial + ratings.bad;
+    
+    const progress = total > 0 ? Math.round((attempted / total) * 100) : 0;
+    document.getElementById('progressFill').style.width = progress + '%';
+    document.getElementById('progressLabel').textContent = progress + '% complete';
+    
+    document.getElementById('scoreGood').textContent = ratings.good;
+    document.getElementById('scorePartial').textContent = ratings.partial;
+    document.getElementById('scoreBad').textContent = ratings.bad;
+    document.getElementById('scoreChecked').textContent = checkedCount + '/' + totalChecklist;
+}
+
+// Initialize
+updateStats();
+</script>
+
+</body>
+</html>

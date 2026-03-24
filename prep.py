@@ -3146,6 +3146,10 @@ def cmd_help():
   prep question                  → random question from 296-question bank
   prep question <topic>          → topic-specific question (verbal practice)
 
+  WEB PORTAL:
+  prep portal                    → start web dashboard (http://localhost:5555)
+  prep portal 8080               → custom port
+
   MOCK INTERVIEW:
   prep mock java                 → Java deep dive (45 min)
   prep mock dsa                  → DSA / problem solving (45 min)
@@ -3173,6 +3177,83 @@ def cmd_help():
   RESOURCES:
   cat RESOURCES.md               → week-by-week playlist + PP module mapping
 
+  ══════════════════════════════════════════
+  INTELLIGENCE ENGINE (NEW):
+  ══════════════════════════════════════════
+
+  DATA AGGREGATION:
+  prep scrape                    → scrape all sources (LeetCode, Reddit, enginebogie)
+  prep scrape reddit             → scrape specific source
+  prep add-experience            → manually log an experience from Blind/Medium/Discord
+  prep intel-status              → intelligence database dashboard
+
+  INTERVIEW INTELLIGENCE:
+  prep trending                  → what's being asked across all companies
+  prep trending google           → what Google is asking this month
+  prep experiences               → browse all aggregated experiences
+  prep experiences google sde3   → filter by company + role
+  prep company google            → full company intelligence profile
+
+  AI COACHING (requires ANTHROPIC_API_KEY):
+  prep jd-analyze                → paste a JD, get gap analysis + study plan
+  prep evaluate                  → evaluate your answer on hire/no-hire rubric
+  prep story                     → generate STAR story from raw experience
+  prep readiness                 → readiness assessment (SDE-2)
+  prep readiness sde3            → readiness assessment (SDE-3)
+  prep ai-mock sd                → AI system design question
+  prep ai-mock dsa google hard   → AI DSA question, Google-style, hard
+
+  ══════════════════════════════════════════
+  PHASE 2 ENHANCEMENTS:
+  ══════════════════════════════════════════
+
+  JAVA DSA DRILL ENGINE:
+  prep drill                     → today's 3 Java DSA problems (company-tagged, pattern-aligned)
+  prep drill google              → drill tuned for Google's trending patterns
+  prep drill done "Two Sum"      → mark a drill problem done
+  prep drill done "Two Sum" --time 25 --struggled  → with flags
+  prep drill stats               → drill streak + recent history
+
+  MOCK ROUND SIMULATOR (tracks scores over time):
+  prep mock-round google dsa     → AI mock DSA round for Google (saves score to DB)
+  prep mock-round amazon behavioral → Amazon behavioral round
+  prep mock-trend                → see your score trend across all rounds
+  prep mock-trend google         → Google-specific score trend
+
+  LLD PRACTICE ENGINE (20 problems):
+  prep lld                       → list all 20 LLD problems
+  prep lld list google           → filter by company
+  prep lld parking-lot           → practice Parking Lot (45 min timed)
+  prep lld lru-cache             → practice LRU Cache
+  prep lld notification-system   → practice Notification System (your GSTN advantage)
+  prep lld scores                → view your LLD history + scores
+
+  BEHAVIORAL GAP DETECTOR:
+  prep lp-check                  → Amazon LP gap analysis (reads STAR bank, finds thin LPs)
+
+  TC INTELLIGENCE:
+  prep tc                        → TC overview for all target companies
+  prep tc google                 → Google TC ranges + negotiation playbook
+  prep tc amazon                 → Amazon TC structure (RSU schedule)
+
+  HELLO INTERVIEW COURSE TRACKER:
+  prep hi                        → today's Hello Interview lesson (SD/LLD/DSA/Behavioral)
+  prep hi done                   → mark today's lesson as done
+  prep hi progress               → overall course progress per track
+  prep hi map                    → full 26-week curriculum map
+  prep hi week 5                 → lessons for a specific week
+
+  DAILY MORNING BRIEF:
+  prep brief                     → show today's brief in terminal
+  prep brief --send              → send to phone via ntfy.sh (set NTFY_TOPIC env var)
+
+  CURATED RESOURCES:
+  prep resources                 → full curated resource index (50+ resources)
+  prep resources dsa             → DSA resources
+  prep resources system_design   → System Design resources
+  prep resources lld             → LLD resources
+  prep resources behavioral      → Behavioral resources
+
   TOPICS for study/quiz/teach/sr/question:
     java-core  spring-boot  hibernate  microservices  kafka  redis
     database   distributed  patterns   cloud  golang  testing
@@ -3186,7 +3267,591 @@ def cmd_help():
   SETUP (one time):
     echo 'alias prep="python3 /Users/jayanti/Documents/dev/senior-prep/prep.py"' >> ~/.zshrc
     source ~/.zshrc
+
+  SETUP — Intelligence Engine (optional):
+    export ANTHROPIC_API_KEY=sk-ant-...   # for AI features
     """)
+
+# ─── Intelligence Engine Commands ─────────────────────────────────────────────
+
+def cmd_scrape(source=None):
+    """Scrape interview experiences from all sources (or specific one)."""
+    try:
+        from intel.scraper import run_scraper, print_summary
+    except ImportError:
+        print("\n  ❌ Intel module not found. Make sure intel/ directory exists.\n")
+        return
+
+    print(f"\n  ╔══════════════════════════════════════════════════════════╗")
+    print(f"  ║  SCRAPING INTERVIEW EXPERIENCES                         ║")
+    print(f"  ╚══════════════════════════════════════════════════════════╝")
+
+    stats = run_scraper(source_name=source)
+    print_summary()
+
+    total_new = sum(s.get("inserted", 0) for s in stats.values())
+    if total_new:
+        print(f"  🎯 {total_new} new experience(s) added to your intelligence DB.")
+        print(f"     Run: prep trending  or  prep trending google  to see patterns.\n")
+
+
+def cmd_trending(company=None, days=30):
+    """Show trending interview topics from aggregated data."""
+    try:
+        from intel.analyzer import print_trending
+    except ImportError:
+        print("\n  ❌ Intel module not found. Run: prep scrape  first.\n")
+        return
+    print_trending(company=company, days=days)
+
+
+def cmd_experiences(company=None, role=None):
+    """Search and display interview experiences from the DB."""
+    try:
+        from intel import db
+    except ImportError:
+        print("\n  ❌ Intel module not found.\n")
+        return
+
+    results = db.search_experiences(company=company, role=role, limit=15)
+
+    if not results:
+        print(f"\n  No experiences found{' for ' + company if company else ''}.")
+        print(f"  Run: prep scrape  to fetch experiences from LeetCode, Reddit, enginebogie.")
+        print(f"  Or:  prep add-experience  to manually log one.\n")
+        return
+
+    print(f"\n  ╔══════════════════════════════════════════════════════════╗")
+    print(f"  ║  INTERVIEW EXPERIENCES{' — ' + company.upper() if company else '':<35}║")
+    print(f"  ╚══════════════════════════════════════════════════════════╝")
+
+    for exp in results:
+        result_icon = "✅" if exp["overall_result"] == "offer" else ("❌" if exp["overall_result"] == "reject" else "❔")
+        source_tag = exp["source"][:15]
+        print(f"\n  {result_icon} {exp['company']:<18} {exp['role']:<8} [{source_tag}]  {exp['date_scraped']}")
+        if exp.get("title"):
+            print(f"     {exp['title'][:70]}")
+        if exp.get("url"):
+            print(f"     → {exp['url'][:80]}")
+
+    print(f"\n  Showing {len(results)} of total. Use: prep experiences <company> [role]\n")
+
+
+def cmd_jd_analyze():
+    """Paste a JD, get AI gap analysis + study plan."""
+    try:
+        from intel.coach import analyze_jd
+    except ImportError:
+        print("\n  ❌ Intel module not found.\n")
+        return
+
+    print(f"\n  ── JD ANALYZER ──────────────────────────────────────────")
+    print(f"  Paste the job description below. End with a blank line.\n")
+
+    try:
+        company = input("  Company name: ").strip()
+        role = input("  Role (e.g., SDE-2, SDE-3): ").strip() or "SDE-2"
+        print("  Paste JD (blank line to finish):")
+        lines = []
+        while True:
+            line = input()
+            if not line.strip():
+                break
+            lines.append(line)
+        jd_text = "\n".join(lines)
+    except (EOFError, KeyboardInterrupt):
+        print("\n  Cancelled.")
+        return
+
+    if not jd_text.strip():
+        print("  No JD provided.")
+        return
+
+    print(f"\n  ⏳ Analyzing JD with AI... (this takes 15-30 seconds)")
+    result = analyze_jd(jd_text, company=company, role=role)
+    print(f"\n{result}\n")
+
+    # Save to DB
+    try:
+        from intel.db import save_jd_analysis
+        save_jd_analysis(company, role, jd_text, {"study_plan": result})
+        print(f"  💾 Analysis saved. View past analyses in data/interviews.db")
+    except Exception:
+        pass
+
+
+def cmd_evaluate():
+    """Evaluate your answer to an interview question."""
+    try:
+        from intel.coach import evaluate_answer
+    except ImportError:
+        print("\n  ❌ Intel module not found.\n")
+        return
+
+    print(f"\n  ── ANSWER EVALUATOR ──────────────────────────────────────")
+    print(f"  Get your answer scored on a hire/no-hire rubric.\n")
+
+    try:
+        round_type = input("  Round type (dsa/sd/lld/behavioral): ").strip() or "general"
+        company = input("  Company (optional): ").strip()
+        print("  Question:")
+        question = input("  > ").strip()
+        print("  Your answer (paste below, blank line to finish):")
+        lines = []
+        while True:
+            line = input()
+            if not line.strip():
+                break
+            lines.append(line)
+        answer = "\n".join(lines)
+    except (EOFError, KeyboardInterrupt):
+        print("\n  Cancelled.")
+        return
+
+    print(f"\n  ⏳ Evaluating with AI...")
+    result = evaluate_answer(question, answer, round_type=round_type, company=company)
+    print(f"\n{result}\n")
+
+
+def cmd_story(topic=""):
+    """Generate a polished STAR story from raw experience."""
+    try:
+        from intel.coach import generate_star_story
+    except ImportError:
+        print("\n  ❌ Intel module not found.\n")
+        return
+
+    print(f"\n  ── STAR STORY GENERATOR ──────────────────────────────────")
+    print(f"  Describe your experience in plain words. AI will create a STAR story.\n")
+
+    try:
+        if topic:
+            raw = f"My experience with {topic} at GSTN"
+            print(f"  Topic: {topic}")
+        else:
+            raw = ""
+
+        company = input("  Target company (optional, for LP/values alignment): ").strip()
+        print("  Describe your raw experience (blank line to finish):")
+        lines = []
+        while True:
+            line = input()
+            if not line.strip():
+                break
+            lines.append(line)
+        if lines:
+            raw = "\n".join(lines)
+    except (EOFError, KeyboardInterrupt):
+        print("\n  Cancelled.")
+        return
+
+    if not raw.strip():
+        print("  No experience provided.")
+        return
+
+    print(f"\n  ⏳ Generating STAR story...")
+    result = generate_star_story(raw, target_company=company)
+    print(f"\n{result}\n")
+
+
+def cmd_readiness(target="sde2"):
+    """Multi-dimensional readiness assessment."""
+    p = load_progress()
+
+    # First: local gap analysis (fast, no API needed)
+    try:
+        from intel.analyzer import print_gap_analysis, readiness_percentage
+        print_gap_analysis(p, target_level=target)
+    except ImportError:
+        print("\n  ⚠️  Local gap analysis unavailable. Trying AI assessment...\n")
+
+    # Then: AI-powered deep analysis (if API key set)
+    try:
+        from intel.coach import score_readiness
+        import os
+        if os.environ.get("ANTHROPIC_API_KEY"):
+            print(f"  ⏳ Running AI readiness assessment...")
+            result = score_readiness(p, target_level=target)
+            print(f"\n{result}\n")
+        else:
+            print(f"  💡 Set ANTHROPIC_API_KEY for AI-powered deep readiness analysis.")
+            print(f"     export ANTHROPIC_API_KEY=sk-ant-...\n")
+    except ImportError:
+        pass
+
+
+def cmd_company_intel(company):
+    """Show full company intelligence."""
+    # First: local data from DB
+    try:
+        from intel.analyzer import print_company_profile
+        print_company_profile(company)
+    except ImportError:
+        pass
+
+    # Then: AI-generated intel (if API key set)
+    try:
+        from intel.coach import generate_company_intel
+        from intel import db
+        import os
+        if os.environ.get("ANTHROPIC_API_KEY"):
+            print(f"  ⏳ Generating AI company intelligence for {company}...")
+            experiences = db.search_experiences(company=company, limit=20)
+            result = generate_company_intel(company, experiences)
+            print(f"\n{result}\n")
+        else:
+            print(f"  💡 Set ANTHROPIC_API_KEY for AI-generated company intel.\n")
+    except ImportError:
+        pass
+
+
+def cmd_add_experience():
+    """Manually add an interview experience from Blind/Medium/Discord/etc."""
+    try:
+        from intel.scraper import manual_add_experience
+        manual_add_experience()
+    except ImportError:
+        print("\n  ❌ Intel module not found.\n")
+
+
+def cmd_intel_status():
+    """Show intelligence database dashboard."""
+    try:
+        from intel.scraper import print_summary
+        print_summary()
+    except ImportError:
+        print("\n  ❌ Intel module not found.\n")
+
+
+def cmd_resources(category=None):
+    """Show curated resources index."""
+    try:
+        from intel.resources import print_resources
+        print_resources(category=category)
+    except ImportError:
+        print("\n  ❌ Intel module not found.\n")
+
+
+def cmd_ai_mock(round_type="sd", company="", difficulty="medium"):
+    """AI-powered mock interview question with evaluation criteria."""
+    try:
+        from intel.coach import mock_interview_question
+        import os
+        if not os.environ.get("ANTHROPIC_API_KEY"):
+            print(f"\n  ❌ Set ANTHROPIC_API_KEY for AI mock interviews.")
+            print(f"     export ANTHROPIC_API_KEY=sk-ant-...")
+            print(f"\n  💡 Meanwhile, use: prep mock {round_type}  for the built-in mock.\n")
+            return
+    except ImportError:
+        print("\n  ❌ Intel module not found.\n")
+        return
+
+    print(f"\n  ╔══════════════════════════════════════════════════════════╗")
+    print(f"  ║  AI MOCK INTERVIEW — {round_type.upper():<36}║")
+    print(f"  ╚══════════════════════════════════════════════════════════╝")
+    print(f"\n  ⏳ Generating question from AI interviewer...")
+
+    result = mock_interview_question(round_type, company=company, difficulty=difficulty)
+    print(f"\n{result}")
+
+    print(f"\n  ── NOW ANSWER OUT LOUD (time yourself) ───────────────────")
+    try:
+        input("\n  [Press Enter when done answering]")
+    except (EOFError, KeyboardInterrupt):
+        pass
+
+    print(f"\n  Want your answer evaluated? Run: prep evaluate")
+    print(f"  Another question? Run: prep ai-mock {round_type}\n")
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# PHASE 2 ENHANCEMENTS — Drill, Mock Tracker, LLD, Behavioral, TC, Brief
+# ═══════════════════════════════════════════════════════════════════════════════
+
+def cmd_drill(args=None):
+    """Java DSA daily drill — 3 targeted problems with company tags and Java tips."""
+    args = args or []
+    sub = args[0].lower() if args else "show"
+
+    if sub in ("done", "complete", "finished"):
+        # prep drill done "Problem Name"
+        if len(args) < 2:
+            print("\n  Usage: prep drill done \"Problem Name\" [--time N] [--struggled]\n")
+            return
+        try:
+            from intel.drill import mark_drill_done
+        except ImportError:
+            print("\n  ❌ Intel module not found.\n")
+            return
+        name = args[1]
+        time_mins = 0
+        struggled = False
+        for i, a in enumerate(args[2:], 2):
+            if a == "--time" and i+1 < len(args):
+                try:
+                    time_mins = int(args[i+1])
+                except ValueError:
+                    pass
+            elif a == "--struggled":
+                struggled = True
+        ok = mark_drill_done(name, time_mins=time_mins, struggled=struggled)
+        if ok:
+            print(f"\n  ✅ Logged: {name}  (Java, {time_mins}min{'  struggled' if struggled else ''})")
+            print(f"  Keep going — code the next one!\n")
+        else:
+            print(f"\n  ❌ Could not save (DB not initialized — run prep portal first)\n")
+
+    elif sub in ("stats", "history", "streak"):
+        try:
+            from intel.drill import get_drill_stats, get_drill_history
+        except ImportError:
+            print("\n  ❌ Intel module not found.\n")
+            return
+        stats = get_drill_stats()
+        history = get_drill_history(limit=7)
+        section("DRILL STATS")
+        print(f"  Total done:  {stats['total']}  |  Java:  {stats['java']}  |  Streak: {stats['streak']}d")
+        if history:
+            print(f"\n  RECENT:")
+            for h in history:
+                icon = "✅" if not h.get("struggled") else "⚠️"
+                lang = h.get("language", "?").upper()
+                print(f"    {icon} {h['date_done']}  [{lang}]  {h['problem_name']}  ({h.get('time_mins',0)}min)")
+        print()
+
+    else:
+        # Default: show today's drill
+        try:
+            from intel.drill import print_drill
+        except ImportError:
+            print("\n  ❌ Intel module not found.\n")
+            return
+        p = load_progress()
+        java_cnt = p.get("lc_sync", {}).get("java_problems", 0)
+        wk = week_num()
+        company = args[0] if args and args[0] not in ("show",) else None
+        print_drill(week_num=wk, company=company, java_count=java_cnt)
+
+
+def cmd_mock_round(company=None, round_type=None):
+    """AI mock round with score tracking — tracks improvement over time."""
+    import time, random
+
+    company = (company or "mock").lower()
+    round_type = (round_type or "dsa").lower().replace("-", "_")
+
+    try:
+        from intel.mock_engine import save_mock_score, COMPANY_ROUND_MAP, ROUND_DURATION
+        from intel.coach import mock_interview_question
+        import os
+    except ImportError:
+        print("\n  ❌ Intel module not found.\n")
+        return
+
+    duration = ROUND_DURATION.get(round_type, 45)
+    rounds_for_company = COMPANY_ROUND_MAP.get(company, ["dsa", "system_design", "behavioral"])
+
+    print(f"""
+  ╔══════════════════════════════════════════════════════════╗
+  ║  MOCK ROUND — {company.upper():<20} {round_type.replace('_',' ').upper():<16}  ║
+  ║  Duration: {duration} min  │  Tracking scores over time            ║
+  ╚══════════════════════════════════════════════════════════╝
+""")
+
+    # Generate question via AI (or use built-in if no API key)
+    question_text = None
+    if os.environ.get("ANTHROPIC_API_KEY"):
+        print("  ⏳ Generating AI question...")
+        try:
+            question_text = mock_interview_question(
+                round_type.replace("_", " "), company=company, difficulty="medium"
+            )
+        except Exception:
+            pass
+
+    if not question_text:
+        # Fallback to quiz bank
+        question_text = f"[Built-in mock] Answer a {round_type.replace('_',' ')} question out loud for {duration} min."
+
+    print(f"\n{question_text}")
+    print(f"\n  ── ANSWER OUT LOUD — {duration} minutes ──────────────────────")
+
+    start = time.time()
+    try:
+        input("\n  [Press Enter when done answering]")
+    except (EOFError, KeyboardInterrupt):
+        pass
+    elapsed = int((time.time() - start) / 60)
+
+    # Self-score
+    try:
+        score_raw = input(f"\n  Self-score (1=didn't nail it  3=decent  5=strong hire): ").strip()
+        score = float(score_raw) if score_raw.replace(".","").isdigit() and 1 <= float(score_raw) <= 5 else 3.0
+    except (EOFError, ValueError, KeyboardInterrupt):
+        score = 3.0
+
+    # Save
+    session_id = save_mock_score(
+        company=company, round_type=round_type, score=score,
+        questions=[question_text[:200]], time_mins=elapsed
+    )
+
+    verdict = "HIRE" if score >= 3.5 else ("LEAN HIRE" if score >= 2.5 else "NO HIRE")
+    print(f"\n  Score: {score:.1f}/5  |  Verdict: {verdict}  |  Saved (session #{session_id})")
+    print(f"  Run: prep mock-trend {company}   to see your score trend over time\n")
+
+
+def cmd_mock_trend(company=None, round_type=None):
+    """Show mock round score trend over time."""
+    try:
+        from intel.mock_engine import print_score_trend, print_company_readiness
+    except ImportError:
+        print("\n  ❌ Intel module not found.\n")
+        return
+
+    if company:
+        print_company_readiness(company)
+    print_score_trend(company=company, round_type=round_type)
+
+
+def cmd_lld(args=None):
+    """LLD practice engine — 20 problems, scored and tracked."""
+    args = args or []
+
+    try:
+        from intel.lld_engine import print_lld_problems, print_lld_session, get_lld_scores
+    except ImportError:
+        print("\n  ❌ Intel module not found.\n")
+        return
+
+    if not args or args[0] in ("list", "ls", "problems"):
+        company = args[1] if len(args) > 1 else None
+        print_lld_problems(company=company)
+
+    elif args[0] in ("scores", "history", "trend"):
+        scores = get_lld_scores(limit=10)
+        section("LLD PRACTICE HISTORY")
+        if not scores:
+            print("\n  No LLD sessions yet. Run: prep lld <problem-name>")
+            print("  Example: prep lld parking-lot\n")
+            return
+        for s in scores:
+            icon = "✅" if s["score"] >= 4 else ("⚠️" if s["score"] >= 3 else "❌")
+            print(f"  {icon} {s['date_done']}  {s['problem_key']:<25} score {s['score']}/5")
+        print()
+
+    else:
+        # Practice a specific problem
+        problem_name = " ".join(args)
+        print_lld_session(problem_name)
+
+
+def cmd_lp_check():
+    """Behavioral LP gap analysis — find thin Amazon LP coverage."""
+    try:
+        from intel.behavioral import print_lp_check
+        print_lp_check()
+    except ImportError:
+        print("\n  ❌ Intel module not found.\n")
+
+
+def cmd_tc(company=None):
+    """TC intelligence from levels.fyi — salary ranges and negotiation tips."""
+    try:
+        from intel.sources.levelsfyi import print_tc_report, STATIC_TC
+    except ImportError:
+        print("\n  ❌ Intel module not found.\n")
+        return
+
+    if not company:
+        # Show overview of all companies
+        section("TC INTELLIGENCE — TARGET COMPANIES")
+        print(f"\n  {'COMPANY':<20} {'TARGET LEVEL':<15}  TC RANGE")
+        print(f"  {'─'*60}")
+        from intel.sources.levelsfyi import TARGET_COMPANIES
+        for co, info in TARGET_COMPANIES.items():
+            levels = info.get("levels", [])
+            static = STATIC_TC.get(co, {})
+            tcs = [v.get("tc", "") for v in static.values()]
+            tc_str = " | ".join(tcs[:2]) if tcs else "—"
+            print(f"  {co:<20} {', '.join(levels[:2]):<15}  {tc_str}")
+        print(f"\n  Run: prep tc <company>   for detailed breakdown + negotiation tips")
+        print(f"  Examples: prep tc google   prep tc amazon   prep tc flipkart\n")
+    else:
+        print_tc_report(company)
+
+
+def cmd_brief(send=False):
+    """Show (and optionally send) today's morning brief."""
+    try:
+        from intel.brief import print_brief, send_morning_brief, setup_ntfy_instructions
+    except ImportError:
+        print("\n  ❌ Intel module not found.\n")
+        return
+
+    print_brief()
+    if send:
+        import os
+        topic = os.environ.get("NTFY_TOPIC", "")
+        if not topic:
+            setup_ntfy_instructions()
+        else:
+            ok = send_morning_brief()
+            if ok:
+                print(f"  ✅ Sent to ntfy.sh/{topic}\n")
+            else:
+                print(f"  ❌ Failed to send. Check NTFY_TOPIC env var.\n")
+
+
+def cmd_hi(args: list):
+    """Hello Interview course tracker — today's lesson, mark done, progress."""
+    try:
+        from intel.hello_interview import (
+            print_hi_week, print_hi_progress, mark_done_by_index,
+            get_today_lesson, list_week_range, get_week_summary,
+        )
+    except ImportError:
+        print("\n  ❌ intel/hello_interview.py not found.\n")
+        return
+
+    # Resolve current week from progress.json
+    prog = {}
+    try:
+        prog = json.loads((BASE / "logs" / "progress.json").read_text())
+    except Exception:
+        pass
+    week = prog.get("current_week", 1)
+
+    sub = args[0].lower() if args else "today"
+
+    if sub in ("done", "d"):
+        lesson = mark_done_by_index(week)
+        if lesson:
+            print(f"\n  ✅ Done: {lesson['title']}")
+            print(f"     {lesson['url']}")
+            nxt = get_today_lesson(week)
+            if nxt:
+                print(f"\n  ▶ Next: {nxt['title']}")
+                print(f"     {nxt['url']}")
+            else:
+                print(f"\n  🎉 Week {week} complete! Run: prep hi week {week+1}")
+            print()
+        else:
+            print(f"\n  ✅ All lessons for week {week} already done!\n")
+
+    elif sub in ("progress", "prog", "p"):
+        print_hi_progress()
+
+    elif sub in ("map", "curriculum", "all"):
+        list_week_range()
+
+    elif sub == "week":
+        w = int(args[1]) if len(args) > 1 else week
+        print_hi_week(w)
+
+    else:  # "today" or bare `prep hi`
+        print_hi_week(week)
+
 
 # ─── Main ─────────────────────────────────────────────────────────────────────
 if __name__ == "__main__":
@@ -3264,6 +3929,30 @@ if __name__ == "__main__":
         cmd_question(topic)
     elif cmd in ("week-summary", "weeksummary", "summary", "weekly"):
         cmd_week_summary()
+    elif cmd in ("portal", "ui", "web", "dashboard", "serve"):
+        port = args[1] if len(args) > 1 else "5555"
+        import subprocess, sys as _sys, shutil
+        print(f"\n  ╔══════════════════════════════════════════════════════════╗")
+        print(f"  ║  PREPFORGE PORTAL — http://localhost:{port:<21}║")
+        print(f"  ╚══════════════════════════════════════════════════════════╝")
+        # Prefer FastAPI (uvicorn) if available, fallback to basic server
+        if shutil.which("uvicorn") or (_sys.executable and True):
+            try:
+                print(f"\n  Starting FastAPI server (recommended)...")
+                print(f"  API docs: http://localhost:{port}/docs\n")
+                subprocess.run([
+                    _sys.executable, "-m", "uvicorn",
+                    "app.main:app", "--host", "127.0.0.1",
+                    "--port", port, "--reload"
+                ])
+            except KeyboardInterrupt:
+                print("\n  Portal stopped.")
+        else:
+            portal_path = BASE / "portal" / "server.py"
+            if portal_path.exists():
+                subprocess.run([_sys.executable, str(portal_path), port])
+            else:
+                print(f"  ❌ Neither uvicorn nor portal/server.py found")
     elif cmd in ("mock", "mockinterview", "simulate"):
         rt = args[1] if len(args) > 1 else "java"
         cmd_mock(rt)
@@ -3284,6 +3973,79 @@ if __name__ == "__main__":
         cmd_ai_review()
     elif cmd in ("ai-check", "aicheck", "smart-check"):
         cmd_ai_check()
+    # ── Intelligence Engine Commands ─────────────────────────────────────────
+    elif cmd in ("scrape", "fetch", "crawl"):
+        source = args[1] if len(args) > 1 else None
+        cmd_scrape(source)
+    elif cmd in ("trending", "trends", "hot"):
+        company = args[1] if len(args) > 1 else None
+        days = int(args[2]) if len(args) > 2 else 30
+        cmd_trending(company=company, days=days)
+    elif cmd in ("experiences", "exp", "interviewexp"):
+        company = args[1] if len(args) > 1 else None
+        role = args[2] if len(args) > 2 else None
+        cmd_experiences(company=company, role=role)
+    elif cmd in ("jd-analyze", "jd", "jdanalyze", "analyze-jd"):
+        cmd_jd_analyze()
+    elif cmd in ("evaluate", "eval", "score-answer"):
+        cmd_evaluate()
+    elif cmd in ("story", "star", "star-story"):
+        topic = " ".join(args[1:]) if len(args) > 1 else ""
+        cmd_story(topic)
+    elif cmd in ("readiness", "ready", "gaps"):
+        target = args[1] if len(args) > 1 else "sde2"
+        if target in ("3", "sde3", "sde-3", "l5"):
+            target = "sde3"
+        else:
+            target = "sde2"
+        cmd_readiness(target)
+    elif cmd in ("company", "company-intel", "intel"):
+        if len(args) < 2:
+            print("  Usage: prep company <name>")
+            print("  Example: prep company google")
+        else:
+            cmd_company_intel(" ".join(args[1:]))
+    elif cmd in ("add-experience", "addexp", "logexp"):
+        cmd_add_experience()
+    elif cmd in ("intel-status", "intelstatus", "db-status", "dbstatus"):
+        cmd_intel_status()
+    elif cmd in ("resources", "res", "links"):
+        cat = args[1] if len(args) > 1 else None
+        # Normalize category aliases
+        cat_map = {"sd": "system_design", "dsa": "dsa", "lld": "lld",
+                   "behavioral": "behavioral", "behav": "behavioral",
+                   "exp": "experiences", "full": "full_prep",
+                   "system-design": "system_design", "system_design": "system_design"}
+        cat = cat_map.get(cat, cat) if cat else None
+        cmd_resources(cat)
+    elif cmd in ("ai-mock", "aimock", "ai-interview"):
+        rt = args[1] if len(args) > 1 else "sd"
+        company = args[2] if len(args) > 2 else ""
+        diff = args[3] if len(args) > 3 else "medium"
+        cmd_ai_mock(round_type=rt, company=company, difficulty=diff)
+    # ── Phase 2 Enhancement Commands ─────────────────────────────────────────
+    elif cmd in ("drill",):
+        cmd_drill(args[1:])
+    elif cmd in ("mock-round", "mockround", "mock-sim"):
+        company = args[1] if len(args) > 1 else "mock"
+        rt = args[2] if len(args) > 2 else "dsa"
+        cmd_mock_round(company=company, round_type=rt)
+    elif cmd in ("mock-trend", "mocktrend", "score-trend", "scoretrend"):
+        company = args[1] if len(args) > 1 else None
+        rt = args[2] if len(args) > 2 else None
+        cmd_mock_trend(company=company, round_type=rt)
+    elif cmd in ("lld", "low-level-design", "lowleveldesign"):
+        cmd_lld(args[1:])
+    elif cmd in ("lp-check", "lpcheck", "behavioral-check", "behavioralcheck"):
+        cmd_lp_check()
+    elif cmd in ("tc", "salary", "compensation", "ctc"):
+        company = " ".join(args[1:]) if len(args) > 1 else None
+        cmd_tc(company)
+    elif cmd in ("brief", "morning-brief", "morningbrief", "daily-brief"):
+        send = "--send" in args
+        cmd_brief(send=send)
+    elif cmd in ("hi", "hello-interview", "hellointerview", "hi-course"):
+        cmd_hi(args[1:])
     elif cmd in ("help", "h", "--help"):
         cmd_help()
     else:

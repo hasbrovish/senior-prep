@@ -1,0 +1,21 @@
+version: "3.9"
+
+services:
+  prepforge:
+    build: .
+    ports:
+      - "5555:8080"
+    volumes:
+      - ./data:/app/data          # Persist SQLite DB
+      - ./logs:/app/logs          # Persist progress.json
+    environment:
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+      - PORTAL_SECRET=${PORTAL_SECRET:-}
+      - ENV=production
+      - ALLOWED_ORIGINS=http://localhost:5555,https://yourdomain.com
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3

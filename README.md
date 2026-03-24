@@ -1,339 +1,533 @@
-# Jayanti Vishnoi — SDE-2/SDE-3 Interview Prep
-### 6-Month Programme · March → September 2026 · 5.5 YOE at GSTN
-
----
+# PrepForge — SDE-2/SDE-3 Interview Prep System
+### Jayanti Vishnoi · 5.5 YOE at GSTN · March → September 2026
 
 ```
-PHASE 1 (Mar–Jun 2026)  →  First offer at Razorpay / CRED / Juspay / Meesho
-PHASE 2 (Jun–Sep 2026)  →  Dream offer at Amazon / Flipkart / Goldman / Swiggy / Stripe
+PHASE 1  Mar–Jun 2026  →  First offer: Razorpay / CRED / Juspay / Flipkart
+PHASE 2  Jun–Sep 2026  →  Dream offer: Amazon / Google / Goldman / Swiggy
 ```
 
 ---
 
-## Daily Commands
+## Project Overview
+
+This is a **personal, full-stack interview preparation system** — not just notes. It combines:
+
+- **CLI tracker** (`prep`) — daily planner, LeetCode tracker, mock runner, progress dashboards
+- **Intelligence Engine** (`intel/`) — scrapes real interview experiences from LeetCode, Reddit, HackerNews; feeds them into an RAG-based AI coach
+- **FastAPI server** (`app/`) — REST API + web portal with background jobs
+- **Practice Engines** — Java DSA drill, LLD practice (20 problems), mock round score tracker, behavioral gap detector, TC intelligence
+
+---
+
+## Quick Start
 
 ```bash
-# Setup once
-echo 'alias prep="python3 /Users/jayanti/Documents/dev/senior-prep/prep.py"' >> ~/.zshrc && source ~/.zshrc
+# 1. Setup alias (one time)
+echo 'alias prep="python3 /Users/jayanti/Documents/dev/senior-prep/prep.py"' >> ~/.zshrc
+source ~/.zshrc
 
-prep              # today's plan
-prep check        # health check + coach advice
-prep sync         # sync LeetCode stats (hasbrovish95)
-prep log          # log what you did today
-prep status       # full progress dashboard
-prep lc "Two Sum" # mark a LeetCode problem done (Java only!)
-prep apply "Razorpay"  # log a job application
-prep mock sd      # system design mock (45 min)
-prep mock java    # Java internals mock (45 min)
-prep mock lld     # LLD mock (45 min)
-prep review       # weekly feedback
+# 2. Start your day
+prep               # today's plan + current block
+prep drill         # today's 3 Java DSA problems
+prep brief         # morning brief (streak, intel, plan)
+
+# 3. Study
+prep mock-round google dsa      # mock round (saves score to DB)
+prep lld parking-lot            # LLD practice session
+prep lp-check                   # behavioral gap analysis
+prep tc amazon                  # TC ranges + negotiation tips
+
+# 4. Track
+prep lc "Two Sum"               # mark LeetCode problem done
+prep log                        # log today's work
+prep check                      # health check + coach advice
+
+# 5. Web portal
+prep portal                     # starts FastAPI at http://localhost:5555
 ```
 
 ---
 
-## The Interview Rounds & Your Files
-
-Every SDE-2/SDE-3 interview has these 5 rounds. Here's exactly what to open for each.
+## Project Structure
 
 ```
-┌─────────────────────────────────────────────────────────────────────────────┐
-│  ROUND 1 · DSA / Problem Solving (45-60 min)                               │
-│  Bar: LeetCode Medium (Phase 1) → Medium-Hard (Phase 2)                    │
-├─────────────────────────────────────────────────────────────────────────────┤
-│  OPEN: Interview_Answers/Section_DSA_Java_Patterns.md                      │
-│    Section 1 → C++ to Java translation (read first week)                   │
-│    Section 2 → 12 pattern templates (Sliding Window, BFS, DP, etc.)        │
-│    Section 3 → Full DP guide (10 core problems with Java code)             │
-│    Section 4 → Graph algorithms in Java                                    │
-│    Section 6 → Top 30 must-do problems (includes P0 from real interviews)  │
-│                                                                             │
-│  P0 PROBLEMS (appeared in Apple/Oracle/Amazon/DoorDash real rounds):       │
-│    LRU Cache #146 · Trapping Rain Water #42 · Task Scheduler #621          │
-│    First Missing Positive #41 · Evaluate RPN #150 · Container Water #11    │
-│                                                                             │
-│  RULE: Every problem in Java. No exceptions.                                │
-└─────────────────────────────────────────────────────────────────────────────┘
-
-┌─────────────────────────────────────────────────────────────────────────────┐
-│  ROUND 2 · Low-Level Design / LLD (45-60 min)                              │
-│  Bar: OOP, SOLID, Design Patterns, class hierarchy, concurrency            │
-├─────────────────────────────────────────────────────────────────────────────┤
-│  OPEN: Interview_Answers/Section_LLD_Complete.md                           │
-│    Section 1 → 45-min LLD interview framework (minute-by-minute)           │
-│    Section 2 → SOLID principles with Java before/after code                │
-│    Section 3 → 5 full problems with COMPLETE Java code:                    │
-│                  Problem 1: Parking Lot (Strategy + Singleton)             │
-│                  Problem 2: Vending Machine (State pattern)                │
-│                  Problem 3: Elevator System (LOOK algo, threading)         │
-│                  Problem 4: BookMyShow (concurrency, seat locking)         │
-│                  Problem 5: LRU Cache (LinkedHashMap + DLL + HashMap)      │
-│    Section 4 → 10 design patterns quick reference with trigger phrases     │
-│    Section 5 → SDE-3 bar: what extra is expected                           │
-│                                                                             │
-│  START: Week 3. Phase 1 companies ask LLD in Round 1 or 2.                │
-└─────────────────────────────────────────────────────────────────────────────┘
-
-┌─────────────────────────────────────────────────────────────────────────────┐
-│  ROUND 3 · High-Level Design / System Design (45-60 min)                   │
-│  Bar: Clean thinking + trade-offs (Phase 1) → FAANG scale (Phase 2)       │
-├─────────────────────────────────────────────────────────────────────────────┤
-│  YOUR STRONGEST WEAPON: GSTN designs (use "I've built this")               │
-│                                                                             │
-│  GSTN-based designs (Phase 1):                                             │
-│    Interview_Answers/Section_21_SystemDesign_DeepDive_With_Answers.md     │
-│      → GST Return Filing System (14M users, 500M filings/yr)              │
-│      → Case Management Workflow Engine                                     │
-│      → Distributed Tax Ledger (MySQL + HBase dual-storage)                │
-│      → Distributed Cache Layer (70+ regions, 2-tier)                      │
-│      → Async Event Pipeline (Kafka + DLQ + retry)                         │
-│      → Notification System · E-Invoice · Auth System                      │
-│                                                                             │
-│  Consumer product designs (Phase 2):                                       │
-│    Interview_Answers/Section_SD_Consumer_Products.md                       │
-│      → Twitter/Instagram Feed (fan-out hybrid, celebrity problem)          │
-│      → Google Drive (chunking, deduplication, sync)                       │
-│      → WhatsApp (WebSocket, delivery receipts, group messaging)            │
-│      → Uber/Ola (Geohash, driver matching, surge pricing)                 │
-│      → BONUS: Decision trees (which DB / queue / cache to pick)           │
-│                                                                             │
-│  Framework cheatsheet:                                                     │
-│    Interview_Answers/SystemDesign_Interview_Cheatsheet.md                  │
-└─────────────────────────────────────────────────────────────────────────────┘
-
-┌─────────────────────────────────────────────────────────────────────────────┐
-│  ROUND 4 · Java/Spring Deep Dive + Past Work (45-60 min)                   │
-│  Bar: Internals, GSTN war stories, concurrency, distributed systems        │
-├─────────────────────────────────────────────────────────────────────────────┤
-│  Core Java/Spring (foundation):                                            │
-│    Interview_Answers/Section_01_Java_Core.md         → JVM, GC, threading │
-│    Interview_Answers/Section_02_Spring_Boot.md       → Auto-config, @Tx   │
-│    Interview_Answers/Section_03_Hibernate_JPA.md     → N+1, caching, lazy │
-│    Interview_Answers/Section_04_05_06_...Kafka_Redis.md → Your strongest  │
-│    Interview_Answers/Section_07_08_Database...md     → DB + distributed   │
-│                                                                             │
-│  FAANG-level depth (Phase 2):                                              │
-│    Interview_Answers/Section_20_FAANG_SDE2_SDE3_Advanced.md               │
-│      → JVM lock internals (biased/thin/fat lock)                          │
-│      → Java Memory Model, happens-before, volatile                        │
-│      → ConcurrentHashMap CAS, ReentrantLock vs synchronized               │
-│                                                                             │
-│  Modern Java + 2025-2026 trends (new — critical):                         │
-│    Interview_Answers/Section_Modern_Java_Observability_CQRS.md            │
-│      → Java 17-21: Records, Sealed Classes, Virtual Threads (Loom)        │
-│      → Spring Boot 3.x: Micrometer, Observability, Security 6             │
-│      → Observability: SLOs, RED method, OpenTelemetry, distributed tracing│
-│      → CQRS + Event Sourcing (Apple asked this directly)                  │
-│      → DDD: Bounded Context, Aggregates, Value Objects                    │
-│                                                                             │
-│  Your GSTN codebase as answers:                                            │
-│    Interview_Answers/GSTN_Architecture_Reference.md                        │
-│    Interview_Answers/GSTN_Complete_SDE2_SDE3_InterviewPrep.md             │
-└─────────────────────────────────────────────────────────────────────────────┘
-
-┌─────────────────────────────────────────────────────────────────────────────┐
-│  ROUND 5 · Behavioral / Hiring Manager (30-45 min)                         │
-│  Bar: STAR stories, "why this company", SDE-3 leadership signals          │
-├─────────────────────────────────────────────────────────────────────────────┤
-│  For Amazon (LP format):                                                   │
-│    Interview_Answers/Amazon_LP_STAR_Bank.md                                │
-│      → 22 GSTN STAR stories covering all 14 Amazon LPs                    │
-│      → Every round has 2 LP questions — prepare as warmup, not afterthought│
-│                                                                             │
-│  For all other companies (non-Amazon format):                              │
-│    Interview_Answers/Section_Behavioral_DB_Golang.md  → Part 1            │
-│      → STARL framework (better than plain STAR)                           │
-│      → 8 SDE-3-specific questions with GSTN-based answers                 │
-│      → Company-specific behavioral angles (Razorpay, Swiggy, Goldman...)  │
-│      → "Why this company?" templates for 6 companies                      │
-│      → Negotiation playbook (offer anatomy, scripts, what to negotiate)   │
-└─────────────────────────────────────────────────────────────────────────────┘
+senior-prep/
+│
+├── prep.py                     ← Main CLI (55+ commands, 3500+ lines)
+├── requirements.txt            ← Python dependencies
+├── Dockerfile                  ← Production container
+├── docker-compose.yml          ← Local containerized run
+├── .env.example                ← Required env vars template
+│
+├── app/                        ← FastAPI server
+│   ├── main.py                 ← App factory, CORS, rate limiting, startup
+│   ├── scheduler.py            ← Background jobs (scrape 6AM, LC sync, brief 8AM)
+│   └── routers/
+│       ├── coach.py            ← AI coaching endpoints (stream + non-stream)
+│       ├── practice.py         ← Drill, Mock, LLD, Behavioral, TC, Brief
+│       ├── intel_routes.py     ← Intel search, trending, company profiles
+│       ├── progress.py         ← Progress read/write, portal data, gap analysis
+│       └── career.py           ← Ladder, skill map, weekly plan
+│
+├── intel/                      ← Intelligence Engine
+│   ├── config.py               ← Models, API keys, profile data, targets
+│   ├── db.py                   ← SQLite schema + CRUD (9 tables)
+│   ├── scraper.py              ← Orchestrates all sources
+│   ├── coach.py                ← Claude API calls (JD analyze, evaluate, STAR, mock)
+│   ├── analyzer.py             ← Trend analysis, gap analysis, readiness scoring
+│   ├── resources.py            ← Curated resource index
+│   ├── drill.py                ← Java DSA drill engine (104 NeetCode problems)
+│   ├── mock_engine.py          ← Mock score tracking + trend charts
+│   ├── lld_engine.py           ← 20 LLD problems with SOLID rubrics
+│   ├── behavioral.py           ← Amazon LP gap detector + Bar Raiser probes
+│   ├── brief.py                ← Morning brief generator + ntfy.sh push
+│   └── sources/
+│       ├── reddit.py           ← Reddit r/leetcode, r/cscareerquestions, r/ExperiencedDevs
+│       ├── leetcode_discuss.py ← LeetCode Discuss GraphQL (fixed for 2025 API)
+│       ├── enginebogie.py      ← Reddit r/IndiaTechies + HackerNews Algolia
+│       └── levelsfyi.py        ← TC intelligence (levels.fyi + static data)
+│
+├── portal/
+│   └── index.html              ← Web dashboard frontend
+│
+├── data/                       ← Runtime data (git-ignored)
+│   └── interviews.db           ← SQLite: 9 tables, all scraped + practice data
+│
+├── logs/                       ← Runtime logs (git-ignored)
+│   └── progress.json           ← All CLI tracker state
+│
+├── Interview_Answers/          ← Study library (git-ignored, personal)
+│   ├── Amazon_LP_STAR_Bank.md  ← 22 GSTN STAR stories × 14 Amazon LPs
+│   ├── SystemDesign_Interview_Cheatsheet.md
+│   ├── GSTN_Architecture_Reference.md
+│   ├── Section_01_Java_Core.md ... Section_21_SystemDesign.md
+│   └── Company_Questions_Phase1/2.md
+│
+└── projects/
+    └── kafka-pipeline/         ← GitHub portfolio project (Spring Boot + Kafka + Redis)
 ```
 
 ---
 
-## Complete File Map
+## All Commands
 
-### Master Plan & Tracker
-
-| File | What it is |
-|---|---|
-| `MASTER_6MONTH_PROGRAMME.md` | **The single source of truth.** 26-week plan, weekly goals, study material map, milestones. Open this every Sunday. |
-| `prep.py` | Python CLI tracker. Run `prep` daily. Tracks LeetCode, applications, daily logs, offers. |
-| `logs/progress.json` | Auto-persisted data. Don't edit manually. |
-| `GSTN_Interview_QuestionBank_296Q.md` | 296 Q&A bank. Mapped to weekly sections (Q1-25 = Java Core, etc.). |
-
----
-
-### Interview_Answers/ — Your Study Library
-
-#### NEW FILES (built this session — biggest gaps closed)
-
-| File | Lines | Round | When |
-|---|---|---|---|
-| `Section_LLD_Complete.md` | 1,192 | Round 2 | **Start Week 3** |
-| `Section_DSA_Java_Patterns.md` | 920 | Round 1 | **Start Week 1** |
-| `Section_SD_Consumer_Products.md` | 724 | Round 3 | Week 7 + Phase 2 |
-| `Section_Modern_Java_Observability_CQRS.md` | 860 | Round 4 | Week 8 onwards |
-| `Section_Behavioral_DB_Golang.md` | 731 | Round 4+5 | Week 8 onwards |
-| `Section_API_Design_SQL_Practice.md` | 2,435 | Round 4 | Week 8 onwards |
-| `Company_Questions_Phase1.md` | 799 | All rounds | **Before each Phase 1 application** |
-| `Company_Questions_Phase2.md` | 1,082 | All rounds | Before each Phase 2 application |
-
-#### ORIGINAL FILES
-
-| File | Lines | Round | When |
-|---|---|---|---|
-| `Section_21_SystemDesign_DeepDive_With_Answers.md` | 2,275 | Round 3 | Week 7 |
-| `Section_20_FAANG_SDE2_SDE3_Advanced.md` | 2,320 | Round 4 | Phase 2 |
-| `GSTN_Complete_SDE2_SDE3_InterviewPrep.md` | 1,817 | All rounds | Always |
-| `GSTN_Architecture_Reference.md` | 1,345 | Round 3+4 | Always |
-| `Section_02_Spring_Boot.md` | 2,019 | Round 4 | Week 3 |
-| `Section_01_Java_Core.md` | 1,017 | Round 4 | Week 2 |
-| `Section_04_05_06_Microservices_Kafka_Redis.md` | 894 | Round 4 | Week 4 |
-| `Section_09_10_11_Patterns_Docker_CICD.md` | 725 | Round 4 | Week 9 |
-| `Section_16_17_18_19_Testing_Behavioral_Scenarios.md` | 552 | Round 5 | Week 10 |
-| `Section_07_08_Database_DistributedSystems.md` | 573 | Round 4 | Week 8 |
-| `Section_12_13_14_15_Cloud_Network_Design_Go.md` | 445 | Round 4 | Week 9 |
-| `Section_03_Hibernate_JPA.md` | 656 | Round 4 | Week 3 |
-| `Amazon_LP_STAR_Bank.md` | 237 | Round 5 | Week 10 |
-| `SystemDesign_Interview_Cheatsheet.md` | 430 | Round 3 | Always |
-
----
-
-### Research & Company Intel
-
-| File | What it is |
-|---|---|
-| `DEEP_RESEARCH_INTERVIEW_PATTERNS_2025_2026.md` | 54-company research: interview formats, salary, DSA/SD bar, Java depth |
-| `COMPANY_ANALYSIS.md` | Tiered company list with salary, stack, pass rate |
-| `Interview_exp.txt` | Real interview experiences: Apple, Oracle, Amazon, DoorDash — exact questions asked |
-
----
-
-### Resume & LinkedIn
-
-| File | What it is |
-|---|---|
-| `RESUME_VARIANTS.md` | **3 resume variants**: Fintech / Consumer Product / Finance — swap top 6 bullets per company type |
-| `LINKEDIN_RESUME_GUIDE.md` | ATS resume template + LinkedIn optimization guide |
-| `LinkedIn_Profile_Complete_Update.md` | Ready-to-copy LinkedIn sections |
-| `LinkedIn Saved Posts - Part 1/2/3.md` | 447 posts analyzed for prep insights |
-
----
-
-### Mock Interviews & GitHub Project
-
-| File/Dir | What it is |
-|---|---|
-| `MOCK_INTERVIEW_GUIDE.md` | Full mock interview structure — scoring rubrics, problem banks, self-assessment checklists |
-| `projects/kafka-pipeline/` | **Working Spring Boot project**: idempotent Kafka producer + consumer (DLQ + Redis dedup + Micrometer) — show interviewers real code |
-
----
-
-## Week-by-Week: What to Open
-
-```
-WEEK 1  (Mar 19) → MASTER_6MONTH_PROGRAMME + Section_DSA_Java_Patterns (S1, S2)
-WEEK 2  (Mar 26) → Section_01_Java_Core + Section_DSA_Java_Patterns (S2 Two Pointer/Sliding)
-WEEK 3  (Apr 2)  → Section_02_Spring_Boot + Section_03_Hibernate + Section_LLD_Complete (S1, S2, P1)
-WEEK 4  (Apr 9)  → Section_04_05_06_Microservices_Kafka_Redis + Section_LLD_Complete (P2, P3) + DSA Patterns (S3 DP)
-WEEK 5  (Apr 16) → Review week + Mock interview
-WEEK 6  (Apr 19) → Section_LLD_Complete (P4, P5, S4, S5) — LLD fluency
-WEEK 7  (Apr 26) → Section_21_SystemDesign + Section_SD_Consumer_Products (Twitter design)
-WEEK 8  (May 3)  → Section_07_08_Database + Section_Behavioral_DB_Golang (Part 2) + Section_Modern_Java (Parts 1-4)
-WEEK 9  (May 10) → Section_09_10_11 + Section_12_13_14_15 + Section_Modern_Java (Part 3 Observability)
-WEEK 10 (May 17) → Amazon_LP_STAR_Bank + Section_Behavioral_DB_Golang (Part 1) + Applications push
-WEEK 11 (May 19) → Full mock interview week (all 5 rounds)
-WEEK 12-13       → Active interviews. Log every question with prep interview-log
-WEEK 14          → Close first offer
-─────────────── PHASE 2 ───────────────────────────────────────────────────
-WEEK 15-16       → DSA hard mode: 2 hrs/day. NeetCode Blind 75.
-WEEK 17-18       → Section_SD_Consumer_Products (Drive, WhatsApp, Uber) + Section_Behavioral_DB_Golang (Part 3 Go)
-WEEK 19-20       → DSA: Graphs, DP hard, Heap hard
-WEEK 21-22       → Company-specific: Amazon LPs, Goldman Java, PhonePe/Razorpay fintech
-WEEK 23-24       → Final polish + dream company applications
-WEEK 25-26       → Close dream offer + negotiate
+### Daily Workflow
+```bash
+prep                            # today's plan (time-aware: shows current block)
+prep plan                       # same as above
+prep full                       # all blocks expanded
+prep log                        # log what you did today
+prep check                      # health check + AI coach note
+prep sync                       # sync LeetCode stats (hasbrovish95)
+prep score                      # one-line scoreboard
+prep brief                      # today's morning brief
+prep brief --send               # send to phone (requires NTFY_TOPIC env var)
 ```
 
----
-
-## Your Competitive Advantages (Use These Every Round)
-
-```
-GSTN scale:   14M taxpayers · 3B invoices/year · 500 filings/sec peak
-Caching:      JBoss DataGrid + EhCache · 70+ regions · 40% DB load reduction
-Kafka:        Consumer framework with DLQ · exactly-once semantics · 2M+ events/day
-Transactions: XA distributed transactions (Atomikos) · cross-service ledger consistency
-Patterns:     Strategy (CaseCustomizerFactory) · Template Method (Consumer.java) · Factory
-Scale:        Survived multiple filing season peaks · zero data loss in 18 months
+### Java DSA Drill Engine ✅ NEW
+```bash
+prep drill                      # today's 3 Java problems (company-tagged, pattern-aligned)
+prep drill google               # tuned for Google's trending patterns
+prep drill done "Two Sum"       # mark done
+prep drill done "Two Sum" --time 28 --struggled   # with flags
+prep drill stats                # drill streak + history
 ```
 
+### Mock Round Simulator (tracks scores over time) ✅ NEW
+```bash
+prep mock-round google dsa      # AI mock DSA round, saves score to DB
+prep mock-round amazon behavioral
+prep mock-round flipkart system_design
+prep mock-trend                 # score trend chart — all companies
+prep mock-trend google          # Google-specific trend
+prep mock-trend amazon dsa      # filter by company + round type
+```
+
+### LLD Practice Engine (20 problems) ✅ NEW
+```bash
+prep lld                        # list all 20 LLD problems
+prep lld list google            # filter by company
+prep lld parking-lot            # 45-min timed session with SOLID scoring
+prep lld lru-cache              # practice LRU Cache (must-do)
+prep lld notification-system    # Notification System (your GSTN advantage)
+prep lld elevator               # Elevator System
+prep lld chess                  # Chess Game
+prep lld bookmyshow             # Movie Booking
+prep lld splitwise              # Expense Sharing
+prep lld scores                 # view your LLD history + scores
+```
+
+### Behavioral Gap Detector ✅ NEW
+```bash
+prep lp-check                   # Amazon LP gap analysis (reads STAR bank file)
+                                # Shows: coverage %, thin LPs, missing quantified results
+                                # Bar Raiser probing questions for weakest LPs
+```
+
+### TC Intelligence ✅ NEW
+```bash
+prep tc                         # TC overview for all 11 target companies
+prep tc google                  # Google TC (L4/L5) + negotiation playbook
+prep tc amazon                  # Amazon TC structure (RSU cliff, signing bonus)
+prep tc flipkart                # Flipkart ESOP + base breakdown
+prep tc goldman                 # Goldman deferred comp structure
+```
+
+### AI Coaching (requires ANTHROPIC_API_KEY)
+```bash
+prep ask "question"             # ask Claude anything (reads your actual data)
+prep ai-review                  # intelligent weekly review with real numbers
+prep ai-check                   # smart daily health check
+prep jd-analyze                 # paste a JD → gap analysis + study plan
+prep evaluate                   # paste your answer → hire/no-hire rubric
+prep story                      # generate STAR story from raw experience
+prep readiness                  # multi-dimensional readiness score
+prep readiness sde3             # SDE-3 bar assessment
+prep ai-mock sd                 # AI system design question
+prep ai-mock dsa google hard    # Google-style hard DSA question
+```
+
+### Intelligence Engine
+```bash
+prep scrape                     # scrape all sources (LeetCode, Reddit, HackerNews)
+prep scrape reddit              # scrape specific source
+prep trending                   # what's being asked across all companies
+prep trending google            # Google-specific last 30 days
+prep experiences                # browse all scraped interview experiences
+prep experiences amazon sde2    # filter by company + role
+prep company google             # full company intelligence profile
+prep add-experience             # manually add an experience
+prep intel-status               # DB dashboard (total experiences, sources)
+prep resources                  # curated resource index
+prep resources dsa              # DSA resources only
+```
+
+### Built-in Mock Interviews (no API key needed)
+```bash
+prep mock java                  # Java deep dive (45 min)
+prep mock dsa                   # DSA / problem solving (45 min)
+prep mock sd                    # System Design (45 min)
+prep mock lld                   # Low-Level Design (45 min)
+prep mock behavioral            # Behavioral / STAR (30 min)
+prep mock full                  # Full loop (90 min)
+```
+
+### LeetCode & DSA
+```bash
+prep lc "Two Sum"               # mark done (prompts: time, pattern, struggled)
+prep lc "Two Sum" --time 28 --pattern two-pointers
+prep heatmap                    # colored pattern strength heatmap
+prep java                       # Java language gap tracker (4/30 critical!)
+```
+
+### Spaced Repetition
+```bash
+prep sr                         # review queue (due today + upcoming)
+prep sr-init                    # seed queue with confidence ratings
+prep study kafka 4              # mark topic studied (1–5 confidence)
+prep teach system-design        # Feynman protocol
+prep quiz java-core             # random quiz question
+```
+
+### Progress & Reviews
+```bash
+prep status                     # full progress dashboard
+prep review                     # weekly feedback + next steps
+prep retro                      # weekly retrospective
+prep week-summary               # export week snapshot
+```
+
+### Interview Tracking
+```bash
+prep interview-log "Amazon"     # structured post-round logging
+prep interviews                 # history + pattern analysis
+prep bug "blanked on DP"        # log a stumbling block
+prep bugs                       # weak area analysis
+prep recover                    # failed round recovery protocol
+prep failures                   # failure pattern analysis
+```
+
+### Applications
+```bash
+prep apply "Razorpay"           # log job application
+prep offer "Razorpay" 32LPA     # log offer received
+```
+
+### Timers & Focus
+```bash
+prep focus 45                   # Pomodoro timer (45 min)
+prep focus                      # default 25 min
+```
+
+### Web Portal
+```bash
+prep portal                     # start FastAPI at http://localhost:5555
+prep portal 8080                # custom port
+# API docs:  http://localhost:5555/docs
+```
+
 ---
 
-## Content Score vs Interview Bar
-
-| Round | Phase 1 Score | Phase 2 Score | Status |
-|---|---|---|---|
-| DSA (Java) | 7/10 | 5/10 | Switch to Java NOW. DP + Graphs started. |
-| LLD | 8/10 | 7/10 | 5 problems with full code. Need 5 more in Phase 2. |
-| System Design | 8/10 | 7/10 | GSTN designs strong. Consumer products now written. |
-| Java/Spring Internals | 9/10 | 8/10 | Java 17-21 + Observability + CQRS added. |
-| Behavioral | 8/10 | 7/10 | Amazon LP + SDE-3 behavioral + company-specific added. |
-| **Overall** | **8/10** | **7/10** | Up from 5.5/10 before this session. |
-
----
-
-## Quick Reference Cheatsheets
+## Environment Setup
 
 ```bash
-# Before a DSA round:
-open Interview_Answers/Section_DSA_Java_Patterns.md
-# → Read Section 2 for the pattern you'll likely see
+# Copy and fill in your keys
+cp .env.example .env
 
-# Before an LLD round:
-open Interview_Answers/Section_LLD_Complete.md
-# → Read Section 1 (framework) + the problem type
+# Minimum required
+export ANTHROPIC_API_KEY=sk-ant-...        # for AI features
+export NTFY_TOPIC=prepforge-yourname       # for phone push notifications
 
-# Before a System Design round:
-open Interview_Answers/SystemDesign_Interview_Cheatsheet.md
-# → 45-min framework + estimation formulas
-
-# Before behavioral:
-open Interview_Answers/Amazon_LP_STAR_Bank.md          # Amazon
-open Interview_Answers/Section_Behavioral_DB_Golang.md # Others
-
-# Before Java round:
-open Interview_Answers/Section_20_FAANG_SDE2_SDE3_Advanced.md
-open Interview_Answers/Section_Modern_Java_Observability_CQRS.md
+# Optional — improves Reddit scraping (2x rate limit)
+export REDDIT_CLIENT_ID=...
+export REDDIT_CLIENT_SECRET=...
 ```
 
----
-
----
-
-## Before Each Application — Company Cheat Sheet
-
+### ntfy.sh Setup (Free Phone Notifications)
 ```bash
-# Phase 1 companies (Razorpay, CRED, Juspay, Meesho, Paytm, MMT, Atlassian, Groww, WGT, Slice)
-open Interview_Answers/Company_Questions_Phase1.md
-# → Find company section → check DSA table, SD question, Java deep-dive, your GSTN angle
+# 1. Install ntfy app on phone (Android/iOS)
+# 2. Subscribe to a topic of your choice: prepforge-jayanti
+# 3. Set env var:
+export NTFY_TOPIC=prepforge-jayanti
+# 4. Test:
+prep brief --send
+```
 
-# Phase 2 companies (Flipkart, Amazon, Goldman, PhonePe, Swiggy, Stripe, Uber, etc.)
-open Interview_Answers/Company_Questions_Phase2.md
-
-# Resume variant — pick one per application
-open RESUME_VARIANTS.md
-# → Fintech companies → Variant A bullets
-# → Consumer product → Variant B bullets
-# → Banking/Finance  → Variant C bullets
-
-# Run a mock before applying:
-prep mock sd      # 45-min system design
-prep mock java    # 45-min Java depth
-prep mock lld     # 45-min LLD
+### Reddit API Setup (Optional, Free)
+```bash
+# 1. Go to reddit.com/prefs/apps
+# 2. Create app → script type → name: PrepForge
+# 3. Copy client ID and secret:
+export REDDIT_CLIENT_ID=your_client_id
+export REDDIT_CLIENT_SECRET=your_client_secret
 ```
 
 ---
 
-*Last updated: March 2026 | Programme Day 2 of 184*
+## API Reference
+
+When running `prep portal`, all features are available via REST:
+
+| Endpoint | Method | Description |
+|---|---|---|
+| `/api/drill/today` | GET | Today's Java DSA drill |
+| `/api/drill/done` | POST | Mark drill problem done |
+| `/api/mock/trend` | GET | Score trend over time |
+| `/api/mock/score` | POST | Save mock session score |
+| `/api/mock/readiness/{company}` | GET | Readiness % per round |
+| `/api/lld/problems` | GET | List 20 LLD problems |
+| `/api/lld/problem/{key}` | GET | Problem details |
+| `/api/lld/evaluate` | POST | AI-evaluate your design |
+| `/api/behavioral/check` | GET | Amazon LP gap analysis |
+| `/api/behavioral/probes/{lp}` | GET | Probing questions |
+| `/api/tc/{company}` | GET | TC intelligence |
+| `/api/brief` | GET | Morning brief (add `?send=true`) |
+| `/api/coach` | POST | AI coaching (non-stream) |
+| `/api/coach/stream` | POST | AI coaching (SSE stream) |
+| `/api/intel/stats` | GET | DB dashboard |
+| `/api/intel/experiences` | GET | Search experiences |
+| `/api/intel/trending` | GET | Trending topics |
+| `/api/intel/company/{name}` | GET | Company profile |
+| `/api/intel/scrape` | POST | Trigger scrape |
+| `/api/progress` | GET/POST | Progress data |
+| `/api/gaps` | GET | Gap analysis |
+| `/api/career/ladder` | GET | SDE-2→SDE-3 map |
+| `/health` | GET | Health check |
+
+---
+
+## Deployment
+
+See [DEPLOY.md](DEPLOY.md) for full deployment guide.
+
+**Option A — Local:**
+```bash
+pip install -r requirements.txt
+prep portal
+```
+
+**Option B — Docker:**
+```bash
+docker-compose up
+```
+
+**Option C — Railway.app (free, recommended for personal use):**
+```bash
+# Push to GitHub → connect Railway → set env vars → auto-deploys
+# Free tier: 500 MB RAM, always-on, custom .railway.app domain
+```
+
+---
+
+## What's Done ✅
+
+| Feature | Status | Command |
+|---|---|---|
+| 26-week daily prep plan | ✅ Done | `prep` |
+| LeetCode sync (auto + manual) | ✅ Done | `prep sync`, `prep lc` |
+| Pattern heatmap | ✅ Done | `prep heatmap` |
+| Java language tracker | ✅ Done | `prep java` |
+| Spaced repetition (15 topics) | ✅ Done | `prep sr` |
+| Bug journal + failure analysis | ✅ Done | `prep bug`, `prep recover` |
+| Application + offer tracking | ✅ Done | `prep apply`, `prep offer` |
+| Interview round logging | ✅ Done | `prep interview-log` |
+| 296-question verbal practice bank | ✅ Done | `prep question` |
+| Built-in mock interviews (6 types) | ✅ Done | `prep mock` |
+| Health check + coach notes | ✅ Done | `prep check` |
+| Weekly retro + summary export | ✅ Done | `prep retro` |
+| FastAPI web server | ✅ Done | `prep portal` |
+| Intel scraping (Reddit, LC, HN) | ✅ Done | `prep scrape` |
+| RAG-based AI coach | ✅ Done | `prep ask` |
+| JD gap analysis | ✅ Done | `prep jd-analyze` |
+| Answer evaluation (hire rubric) | ✅ Done | `prep evaluate` |
+| STAR story generator | ✅ Done | `prep story` |
+| Company intelligence profiles | ✅ Done | `prep company` |
+| Readiness assessment | ✅ Done | `prep readiness` |
+| Background scheduler (APScheduler) | ✅ Done | auto runs with portal |
+| Docker + docker-compose | ✅ Done | `docker-compose up` |
+| Java DSA Drill Engine (104 problems) | ✅ Done | `prep drill` |
+| Mock score tracker (trend charts) | ✅ Done | `prep mock-round` |
+| LLD Practice Engine (20 problems) | ✅ Done | `prep lld` |
+| Behavioral gap detector (Amazon LPs) | ✅ Done | `prep lp-check` |
+| TC intelligence (11 companies) | ✅ Done | `prep tc` |
+| Morning brief + ntfy.sh push | ✅ Done | `prep brief` |
+| DB schema (9 tables, WAL mode) | ✅ Done | auto on startup |
+
+---
+
+## What's Pending 🔲
+
+### P0 — Do this week
+| Task | Why | How |
+|---|---|---|
+| Set `ANTHROPIC_API_KEY` | Unlocks all AI features | `export ANTHROPIC_API_KEY=sk-ant-...` |
+| Switch LeetCode to Java | Critical gap: 4/155 in Java | LeetCode → Code → change language |
+| Run `prep drill` daily | Fixes Java gap in 6 weeks | 30 min morning block |
+| Complete missing LP stories | 4 critical LPs have 0 stories | `prep lp-check` → write stories |
+
+### P1 — This month
+| Task | Why | How |
+|---|---|---|
+| Set up ntfy.sh phone push | Automatic daily brief on phone | `export NTFY_TOPIC=prepforge-yourname` |
+| Set up Reddit PRAW API | 2x more experiences scraped | reddit.com/prefs/apps → 2 min |
+| Deploy to Railway.app | Access from anywhere | See DEPLOY.md → Option C |
+| Add LP stories for 4 critical gaps | Amazon LP every single round | Dive Deep, Bias for Action, Earn Trust, Have Backbone |
+| Run `prep lld parking-lot` weekly | LLD is asked at Adobe, Flipkart | Every Saturday |
+
+### P2 — Phase 2 (after first offer)
+| Feature | Status | Effort |
+|---|---|---|
+| Vector search (Qdrant semantic RAG) | Not started | 1 day — replaces keyword search |
+| Blind/TeamBlind scraper | Not started | 2h — needs your session cookie |
+| Portal UI for new practice features | Partial — needs new routes wired | 1 day |
+| Live TC scraper (levels.fyi) | Static data only (live fallback exists) | Working, may hit rate limits |
+| Test suite | Not started | Not critical for personal tool |
+| PRAW enhanced scraping | Config exists, needs credentials | 2 min setup |
+
+---
+
+## Database Schema
+
+```
+interviews.db (SQLite, WAL mode)
+│
+├── experiences         ← scraped interview posts (source, company, role, outcome)
+├── experience_rounds   ← individual rounds per experience (questions, topics, difficulty)
+├── company_intel       ← aggregated company profiles (process, SD topics, TC)
+├── trending_topics     ← trending DSA/SD/LLD topics by company + date
+├── jd_analyses         ← saved JD gap analyses
+├── resource_log        ← curated learning resources
+├── drill_sessions      ← Java DSA drill completions (streak tracking)
+├── mock_sessions       ← mock round scores over time (trend charts)
+└── lld_sessions        ← LLD practice scores per problem
+```
+
+---
+
+## Your Data — Current State
+
+```
+LeetCode:  155 solved  (Easy: ~50, Medium: ~90, Hard: ~15)
+Java:      4 problems  ← CRITICAL: must reach 30 by Week 6
+Streak:    2 days
+Week:      1/26  (Phase 1)
+Day:       6/184
+
+Amazon LP coverage:   57%  (4 critical LPs with 0 stories)
+Critical missing LPs: Dive Deep, Bias for Action, Earn Trust, Have Backbone
+
+Interview experiences in DB: run 'prep intel-status' to see current count
+```
+
+---
+
+## Your Competitive Advantages
+
+Use these in every round — they are real, verifiable, production-scale:
+
+```
+Scale:        14M taxpayers  ·  3B invoices/year  ·  500 GST filings/sec peak
+Caching:      JBoss DataGrid + EhCache  ·  70+ regions  ·  40% DB load reduction
+Kafka:        Consumer framework with DLQ  ·  exactly-once semantics  ·  2M+ events/day
+Transactions: XA distributed (Atomikos)  ·  cross-service ledger consistency
+Patterns:     Strategy (CaseCustomizerFactory)  ·  Template Method (Consumer)  ·  Factory
+LLD example:  Notification System (CommunicationService)  ←  strongest LLD answer
+SD example:   GST Return Filing System  ←  can speak to every design decision
+```
+
+---
+
+## Study Library (Interview_Answers/)
+
+| File | Round | Phase |
+|---|---|---|
+| `Section_DSA_Java_Patterns.md` | DSA | 1 |
+| `Section_LLD_Complete.md` | LLD | 1 |
+| `Section_21_SystemDesign_DeepDive_With_Answers.md` | SD | 1 |
+| `Section_01_Java_Core.md` | Java | 1 |
+| `Section_02_Spring_Boot.md` | Java | 1 |
+| `Section_03_Hibernate_JPA.md` | Java | 1 |
+| `Section_04_05_06_Microservices_Kafka_Redis.md` | Java | 1 |
+| `Section_07_08_Database_DistributedSystems.md` | Java | 1 |
+| `Section_Modern_Java_Observability_CQRS.md` | Java | 2 |
+| `Section_20_FAANG_SDE2_SDE3_Advanced.md` | Java | 2 |
+| `Section_SD_Consumer_Products.md` | SD | 2 |
+| `Amazon_LP_STAR_Bank.md` | Behavioral | 1+2 |
+| `GSTN_Architecture_Reference.md` | SD + Java | Always |
+| `GSTN_Complete_SDE2_SDE3_InterviewPrep.md` | All | Always |
+| `SystemDesign_Interview_Cheatsheet.md` | SD | Always |
+| `Company_Questions_Phase1.md` | All | Phase 1 |
+| `Company_Questions_Phase2.md` | All | Phase 2 |
+
+---
+
+## Week-by-Week Plan
+
+```
+WEEK 1  (Mar 19)  Resume + Profile Setup       DSA: Arrays, Strings
+WEEK 2  (Mar 26)  Java Core Internals           DSA: Two Pointers, Sliding Window
+WEEK 3  (Apr 2)   Spring Boot + Hibernate       DSA: HashMap, Linked Lists
+WEEK 4  (Apr 9)   Microservices + Kafka + Redis DSA: Stack, Queue, Binary Search
+WEEK 5  (Apr 16)  Review + First Mock           DSA: Review backlog
+WEEK 6  (Apr 23)  Low-Level Design Focus        DSA: Trees BFS/DFS
+WEEK 7  (Apr 30)  System Design Mid-Tier        DSA: Dynamic Programming Easy
+WEEK 8  (May 7)   Databases + Distributed       DSA: Graphs BFS/DFS
+WEEK 9  (May 14)  Cloud + Docker + K8s          DSA: Heap / Priority Queue
+WEEK 10 (May 21)  Behavioral + Acceleration     DSA: Mixed Medium
+WEEK 11 (May 28)  Full Mock Interview Week      DSA: Backtracking, Recursion
+WEEK 12 (Jun 4)   Interview Blitz               DSA: Binary Search Medium
+WEEK 13 (Jun 11)  Interview Blitz Refine        DSA: Medium/Hard
+WEEK 14 (Jun 18)  Close First Offer             DSA: Greedy, Intervals
+─── PHASE 2 ────────────────────────────────────────────────────────────────────
+WEEK 15-16        DSA Hard Mode + FAANG SD      2 hrs DSA daily
+WEEK 17-18        Graphs + Golang brush-up      Advanced patterns
+WEEK 19-20        Consumer products SD          Twitter, Google Drive, Uber
+WEEK 21-22        Company-specific prep         Amazon LPs, Goldman depth
+WEEK 23-24        Final polish                  Dream company applications
+WEEK 25-26        Close dream offer             Negotiate
+```
+
+---
+
+*Last updated: March 2026 · Day 6/184 · Week 1/26 · Phase 1*
 *Stack: Java · Spring Boot · Kafka · Redis · MySQL · MongoDB · Golang · Docker · K8s · AWS*

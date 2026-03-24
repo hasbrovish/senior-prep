@@ -1,0 +1,893 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PrepForge — Career Intelligence Engine</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;500;600;700&family=Playfair+Display:wght@700;900&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #08080c; --bg2: #0c0c10; --bg3: #0f0f14; --bg4: #1a1a22;
+  --text: #c8b8a0; --text2: #7a7a82; --text3: #5a5a62; --text4: #3a3a42;
+  --gold: #e8c87a; --red: #ff4757; --orange: #ffa502; --green: #4ecdc4;
+  --purple: #a29bfe; --pink: #fd79a8; --blue: #0984e3; --cyan: #00cec9;
+  --font: 'IBM Plex Mono', 'Fira Code', monospace;
+  --serif: 'Playfair Display', Georgia, serif;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: var(--font); background: var(--bg); color: var(--text); min-height: 100vh; }
+input, select, textarea, button { font-family: var(--font); }
+input, select, textarea {
+  padding: 7px 10px; font-size: 11px; background: var(--bg2); border: 1px solid var(--bg4);
+  border-radius: 4px; color: var(--text); outline: none; width: 100%;
+}
+input:focus, textarea:focus { border-color: var(--gold); }
+textarea { resize: vertical; }
+button { cursor: pointer; border: none; }
+a { color: var(--gold); text-decoration: none; }
+a:hover { text-decoration: underline; }
+::-webkit-scrollbar { width: 5px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--bg4); border-radius: 3px; }
+
+/* Layout */
+.topbar { background: linear-gradient(180deg, var(--bg3) 0%, var(--bg) 100%); border-bottom: 1px solid var(--bg4); padding: 12px 20px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px; }
+.topbar h1 { font-family: var(--serif); font-size: 20px; font-weight: 900; color: var(--gold); letter-spacing: 2px; }
+.topbar .sub { font-size: 9px; color: var(--text4); letter-spacing: 3px; }
+.topbar .stats { display: flex; gap: 16px; font-size: 10px; color: var(--text3); }
+
+.nav { display: flex; gap: 0; background: var(--bg2); border-bottom: 1px solid var(--bg4); overflow-x: auto; }
+.nav button { padding: 10px 18px; font-size: 10px; letter-spacing: 1.5px; text-transform: uppercase; background: transparent; color: var(--text3); border-bottom: 2px solid transparent; transition: all 0.15s; white-space: nowrap; }
+.nav button:hover { color: var(--text2); }
+.nav button.active { background: var(--bg4); color: var(--gold); border-bottom-color: var(--gold); font-weight: 700; }
+
+.content { max-width: 1100px; width: 100%; margin: 0 auto; padding: 20px; }
+.section-hdr { margin-bottom: 12px; }
+.section-hdr h2 { font-size: 10px; font-weight: 700; color: var(--gold); letter-spacing: 3px; text-transform: uppercase; }
+.section-hdr .sub { font-size: 9px; color: var(--text4); margin-top: 2px; }
+
+/* Cards */
+.stat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; margin-bottom: 24px; }
+.stat-card { background: var(--bg3); border-radius: 8px; padding: 14px 16px; }
+.stat-card .label { font-size: 9px; color: var(--text3); letter-spacing: 2px; text-transform: uppercase; margin-bottom: 6px; }
+.stat-card .value { font-size: 22px; font-weight: 700; font-family: var(--serif); }
+.stat-card .sub { font-size: 9px; color: var(--text3); margin-top: 2px; }
+
+.gap-bar { background: var(--bg3); border-radius: 8px; padding: 10px 14px; display: flex; align-items: center; gap: 12px; margin-bottom: 6px; }
+.gap-bar.critical { border-left: 3px solid var(--red); }
+.gap-bar .track { height: 4px; background: var(--bg4); border-radius: 2px; overflow: hidden; flex: 1; }
+.gap-bar .fill { height: 100%; border-radius: 2px; transition: width 0.5s; }
+.gap-bar .pct { font-size: 12px; font-weight: 700; min-width: 35px; text-align: right; }
+
+/* Resource / Note items */
+.item { background: var(--bg3); border-radius: 6px; padding: 10px 12px; margin-bottom: 6px; }
+.item.done { opacity: 0.5; }
+
+/* Chat */
+.chat-area { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; padding: 8px 0; }
+.chat-msg { padding: 10px 14px; border-radius: 8px; max-width: 88%; white-space: pre-wrap; font-size: 12px; line-height: 1.6; }
+.chat-msg.user { align-self: flex-end; background: var(--bg4); border: 1px solid #2a2a32; }
+.chat-msg.assistant { align-self: flex-start; background: var(--bg3); border: 1px solid rgba(232,200,122,0.08); }
+.chat-msg .role { font-size: 9px; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 4px; }
+.chat-input { display: flex; gap: 8px; margin-top: 12px; }
+.chat-input input { flex: 1; }
+.chat-input button { padding: 10px 20px; font-size: 10px; font-weight: 700; letter-spacing: 1px; background: var(--gold); color: var(--bg); border-radius: 8px; }
+.chat-input button:disabled { background: var(--bg4); color: var(--text3); cursor: default; }
+
+.quick-prompt { padding: 8px 14px; font-size: 11px; text-align: left; background: var(--bg3); border: 1px solid var(--bg4); border-radius: 6px; color: var(--text); width: 100%; max-width: 500px; margin-bottom: 6px; transition: border-color 0.15s; }
+.quick-prompt:hover { border-color: rgba(232,200,122,0.25); }
+
+/* Tags */
+.tag { font-size: 8px; padding: 1px 6px; border-radius: 3px; display: inline-block; margin-right: 4px; }
+
+/* Buttons */
+.btn { padding: 6px 14px; font-size: 10px; font-weight: 600; border-radius: 6px; letter-spacing: 0.5px; }
+.btn-gold { background: rgba(232,200,122,0.08); border: 1px solid rgba(232,200,122,0.2); color: var(--gold); }
+.btn-green { background: rgba(78,205,196,0.08); border: 1px solid rgba(78,205,196,0.2); color: var(--green); }
+.btn-red { background: rgba(255,71,87,0.08); border: 1px solid rgba(255,71,87,0.2); color: var(--red); }
+.btn-purple { background: rgba(162,155,254,0.08); border: 1px solid rgba(162,155,254,0.2); color: var(--purple); }
+.btn-solid { background: var(--gold); color: var(--bg); font-weight: 700; }
+
+.filter-bar { display: flex; gap: 4px; margin-bottom: 12px; flex-wrap: wrap; }
+.filter-btn { padding: 4px 10px; font-size: 9px; letter-spacing: 1px; text-transform: uppercase; background: transparent; border: 1px solid var(--bg4); border-radius: 4px; color: var(--text3); }
+.filter-btn.active { background: var(--bg4); font-weight: 700; }
+
+.form-box { background: var(--bg3); border-radius: 8px; padding: 14px; margin-bottom: 16px; }
+.form-row { display: grid; gap: 8px; margin-bottom: 8px; }
+.form-row.c2 { grid-template-columns: 1fr 1fr; }
+.form-row.c3 { grid-template-columns: 1fr 1fr 1fr; }
+
+.goal-item { background: var(--bg3); border-radius: 4px; padding: 7px 10px; margin-bottom: 4px; display: flex; justify-content: space-between; align-items: center; }
+.goal-item.done { opacity: 0.5; }
+.clickable { cursor: pointer; }
+
+.timeline-item { background: var(--bg3); border-radius: 6px; padding: 10px 14px; margin-bottom: 6px; }
+
+.company-card { background: var(--bg3); border-radius: 6px; padding: 10px 12px; }
+
+.hidden { display: none; }
+
+/* Loading */
+@keyframes pulse { 0%, 100% { opacity: 0.4; } 50% { opacity: 1; } }
+.loading { animation: pulse 1.5s infinite; color: var(--gold); font-size: 11px; }
+</style>
+</head>
+<body>
+
+<!-- Topbar -->
+<div class="topbar">
+  <div>
+    <h1>PREPFORGE</h1>
+    <div class="sub">CAREER INTELLIGENCE ENGINE</div>
+  </div>
+  <div class="stats">
+    <span>Phase <span id="hdr-phase">1</span></span>
+    <span>Week <span id="hdr-week">1</span>/26</span>
+    <span id="hdr-readiness" style="font-weight:700">0% ready</span>
+  </div>
+</div>
+
+<!-- Nav -->
+<div class="nav" id="nav">
+  <button data-tab="dashboard" class="active">◈ Dashboard</button>
+  <button data-tab="coach">◉ AI Coach</button>
+  <button data-tab="resources">◆ Resources</button>
+  <button data-tab="notes">◇ Notes</button>
+  <button data-tab="career">◎ Career</button>
+  <button data-tab="courses">◐ Courses</button>
+  <button data-tab="intel">⊕ Intel</button>
+  <button data-tab="settings">⚙ Settings</button>
+</div>
+
+<!-- Content -->
+<div class="content" id="app"></div>
+
+<script>
+// ══════════════════════════════════════════════════════════════════════════════
+// STATE
+// ══════════════════════════════════════════════════════════════════════════════
+const API = "";  // same origin
+let state = {
+  tab: "dashboard",
+  progress: {},      // from prep.py logs/progress.json
+  portal: { resources: [], notes: [], goals: [], career: {}, coach_history: [] },
+  gaps: { gaps: [], readiness: 0 },
+  intelStats: null,
+  coachLoading: false,
+  hiCurriculum: null,    // Hello Interview curriculum data
+  hiWeek: 1,
+};
+
+const CAT_COLORS = { dsa: "#ff6b6b", sd: "#4ecdc4", lld: "#ffe66d", behavioral: "#a29bfe", experiences: "#fd79a8", java: "#f39c12", career: "#00cec9", full: "#636e72" };
+const PRI_COLORS = { P0: "#ff4757", P1: "#ffa502", P2: "#57606f" };
+const CATS = { dsa: "DSA", sd: "System Design", lld: "LLD", behavioral: "Behavioral", experiences: "Experiences", java: "Java", career: "Career", full: "Full Prep" };
+
+// Default resources (pre-loaded on first run)
+const DEFAULT_RESOURCES = [
+  { id:"r1", name:"NeetCode 150", cat:"dsa", priority:"P0", url:"https://neetcode.io/practice", note:"Pattern-based curated list. Do FIRST.", type:"problems", done:false, rating:0 },
+  { id:"r2", name:"Grind 75", cat:"dsa", priority:"P0", url:"https://www.techinterviewhandbook.org/grind75", note:"Time-optimized Blind 75.", type:"problems", done:false, rating:0 },
+  { id:"r3", name:"Striver A2Z Sheet", cat:"dsa", priority:"P0", url:"https://takeuforward.org/strivers-a2z-dsa-course/strivers-a2z-dsa-course-sheet-2", note:"450+ problems. Follow alongside NeetCode.", type:"problems", done:false, rating:0 },
+  { id:"r4", name:"Hello Interview Premium", cat:"sd", priority:"P0", url:"https://www.hellointerview.com", note:"AI-guided SD practice. BEST SD tool.", type:"platform", done:false, rating:0 },
+  { id:"r5", name:"system-design-primer", cat:"sd", priority:"P0", url:"https://github.com/donnemartin/system-design-primer", note:"270K+ stars. Canonical SD reference.", type:"github", done:false, rating:0 },
+  { id:"r6", name:"ByteByteGo Newsletter", cat:"sd", priority:"P0", url:"https://blog.bytebytego.com", note:"Visual SD concepts weekly.", type:"newsletter", done:false, rating:0 },
+  { id:"r7", name:"Refactoring Guru", cat:"lld", priority:"P0", url:"https://refactoring.guru/design-patterns", note:"Pattern catalog. Bookmark this.", type:"website", done:false, rating:0 },
+  { id:"r8", name:"IGotAnOffer Guides", cat:"behavioral", priority:"P0", url:"https://igotanoffer.com/blogs/tech", note:"Company-specific behavioral prep.", type:"guide", done:false, rating:0 },
+  { id:"r9", name:"LeetCode Discuss", cat:"experiences", priority:"P0", url:"https://leetcode.com/discuss/interview-experience", note:"Largest interview experience collection.", type:"forum", done:false, rating:0 },
+  { id:"r10", name:"enginebogie.com", cat:"experiences", priority:"P1", url:"https://enginebogie.com/interview/experiences", note:"Structured round-by-round experiences.", type:"platform", done:false, rating:0 },
+  { id:"r11", name:"Reddit r/leetcodedesi", cat:"experiences", priority:"P1", url:"https://reddit.com/r/leetcodedesi", note:"India-specific. TC in LPA.", type:"forum", done:false, rating:0 },
+  { id:"r12", name:"Alex Xu SD Vol 1 & 2", cat:"sd", priority:"P0", url:"", note:"30 system designs. You have the PDFs.", type:"book", done:false, rating:0 },
+  { id:"r13", name:"DDIA (Kleppmann)", cat:"sd", priority:"P1", url:"", note:"Deep distributed systems. Ch 1-9.", type:"book", done:false, rating:0 },
+  { id:"r14", name:"awesome-low-level-design", cat:"lld", priority:"P0", url:"https://github.com/ashishps1/awesome-low-level-design", note:"LLD problems with solutions.", type:"github", done:false, rating:0 },
+  { id:"r15", name:"Amazon Leadership Principles", cat:"behavioral", priority:"P0", url:"https://amazon.jobs/content/en/our-workplace/leadership-principles", note:"Map STAR stories to LPs.", type:"framework", done:false, rating:0 },
+  { id:"r16", name:"anomaly2104 enginebogie", cat:"sd", priority:"P1", url:"https://enginebogie.com/u/anomaly2104", note:"Udit Agarwal SD masterclasses.", type:"platform", done:false, rating:0 },
+  { id:"r17", name:"Effective Java (Bloch)", cat:"java", priority:"P1", url:"", note:"Java idioms. Collections, Concurrency.", type:"book", done:false, rating:0 },
+  { id:"r18", name:"Gaurav Sen YouTube", cat:"sd", priority:"P1", url:"https://youtube.com/@gkcs", note:"Visual SD from ex-Google.", type:"youtube", done:false, rating:0 },
+];
+
+const DEFAULT_GOALS = [
+  { id:"g1", text:"Switch ALL LeetCode to Java", area:"dsa", status:"active", due:"2026-04-07" },
+  { id:"g2", text:"15 System Designs on Hello Interview", area:"sd", status:"active", due:"2026-06-19" },
+  { id:"g3", text:"Write 8 STAR stories from GSTN", area:"behavioral", status:"active", due:"2026-04-30" },
+  { id:"g4", text:"Apply to 30+ companies", area:"career", status:"active", due:"2026-06-19" },
+  { id:"g5", text:"First offer from mid-tier company", area:"career", status:"active", due:"2026-06-19" },
+  { id:"g6", text:"300+ LeetCode in Java", area:"dsa", status:"active", due:"2026-06-19" },
+];
+
+const DEFAULT_CAREER = {
+  phase:1, week:1,
+  profile: { yoe:5.5, lcTotal:155, lcJava:4, lcHard:16 },
+  targets: [
+    { company:"Google", level:"L4/L5", tc:"35-55 LPA", tier:1 },
+    { company:"Amazon", level:"SDE-2/3", tc:"30-50 LPA", tier:1 },
+    { company:"Microsoft", level:"62-64", tc:"28-45 LPA", tier:1 },
+    { company:"Adobe", level:"MTS-2/3", tc:"25-40 LPA", tier:1 },
+    { company:"Flipkart", level:"SDE-2/3", tc:"30-48 LPA", tier:1 },
+    { company:"Razorpay", level:"SDE-2", tc:"25-35 LPA", tier:2 },
+    { company:"CRED", level:"SDE-2", tc:"28-40 LPA", tier:2 },
+  ],
+  milestones: [
+    { month:"Mar-Apr", goal:"150 LC Java + 5 SD + 5 STAR", phase:1, done:false },
+    { month:"Apr-May", goal:"250 LC + 10 SD + first interviews", phase:1, done:false },
+    { month:"May-Jun", goal:"300 LC + 15 SD + mid-tier offer", phase:1, done:false },
+    { month:"Jun-Jul", goal:"400 LC Hard + 20 SD deep dives", phase:2, done:false },
+    { month:"Jul-Aug", goal:"FAANG mocks + leadership stories", phase:2, done:false },
+    { month:"Aug-Sep", goal:"Dream company interviews + offer", phase:2, done:false },
+  ],
+};
+
+// ══════════════════════════════════════════════════════════════════════════════
+// API CALLS
+// ══════════════════════════════════════════════════════════════════════════════
+async function api(method, path, body) {
+  const opts = { method, headers: { "Content-Type": "application/json" } };
+  if (body) opts.body = JSON.stringify(body);
+  try {
+    const r = await fetch(API + path, opts);
+    return await r.json();
+  } catch (e) {
+    console.error(`API ${path}:`, e);
+    return null;
+  }
+}
+
+async function loadAll() {
+  const [progress, portal, gaps] = await Promise.all([
+    api("GET", "/api/progress"),
+    api("GET", "/api/portal-data"),
+    api("GET", "/api/gaps?level=sde2"),
+  ]);
+
+  state.progress = progress || {};
+  if (portal && portal.resources?.length) {
+    state.portal = portal;
+  } else {
+    // First run — seed with defaults
+    state.portal = { resources: DEFAULT_RESOURCES, notes: [], goals: DEFAULT_GOALS, career: DEFAULT_CAREER, coach_history: [] };
+    await savePortal();
+  }
+  state.gaps = gaps || { gaps: [], readiness: 0 };
+
+  // Sync LC data from progress.json into career profile
+  const lc = state.progress.lc_sync || {};
+  if (lc.total) {
+    state.portal.career.profile = { ...state.portal.career.profile, lcTotal: lc.total, lcJava: lc.java_problems || 0, lcHard: lc.hard || 0 };
+  }
+
+  updateHeader();
+  render();
+}
+
+async function savePortal() {
+  await api("POST", "/api/portal-data", state.portal);
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+// RENDERING
+// ══════════════════════════════════════════════════════════════════════════════
+function updateHeader() {
+  const c = state.portal.career || {};
+  const r = state.gaps.readiness || 0;
+  document.getElementById("hdr-phase").textContent = c.phase || 1;
+  document.getElementById("hdr-week").textContent = c.week || 1;
+  const el = document.getElementById("hdr-readiness");
+  el.textContent = `${r}% ready`;
+  el.style.color = r > 50 ? "var(--green)" : r > 25 ? "var(--orange)" : "var(--red)";
+}
+
+function h(tag, attrs, ...children) {
+  const el = document.createElement(tag);
+  if (attrs) Object.entries(attrs).forEach(([k, v]) => {
+    if (k === "style" && typeof v === "object") Object.assign(el.style, v);
+    else if (k.startsWith("on")) el.addEventListener(k.slice(2).toLowerCase(), v);
+    else if (k === "className") el.className = v;
+    else if (k === "innerHTML") el.innerHTML = v;
+    else el.setAttribute(k, v);
+  });
+  children.flat(Infinity).forEach(c => {
+    if (c == null) return;
+    el.appendChild(typeof c === "string" ? document.createTextNode(c) : c);
+  });
+  return el;
+}
+
+function render() {
+  const app = document.getElementById("app");
+  app.innerHTML = "";
+  const renderers = { dashboard: renderDashboard, coach: renderCoach, resources: renderResources, notes: renderNotes, career: renderCareer, courses: renderCourses, intel: renderIntel, settings: renderSettings };
+  (renderers[state.tab] || renderDashboard)(app);
+}
+
+// ── NAV ──────────────────────────────────────────────────────────────────────
+document.getElementById("nav").addEventListener("click", e => {
+  if (e.target.tagName === "BUTTON") {
+    state.tab = e.target.dataset.tab;
+    document.querySelectorAll(".nav button").forEach(b => b.classList.toggle("active", b.dataset.tab === state.tab));
+    render();
+  }
+});
+
+// ══════════════════════════════════════════════════════════════════════════════
+// DASHBOARD
+// ══════════════════════════════════════════════════════════════════════════════
+function renderDashboard(app) {
+  const p = state.portal.career?.profile || {};
+  const lc = state.progress.lc_sync || {};
+  const r = state.gaps.readiness || 0;
+  const res = state.portal.resources || [];
+  const goals = state.portal.goals || [];
+  const notes = state.portal.notes || [];
+  const apps = state.progress.applications || [];
+  const doneRes = res.filter(x => x.done).length;
+  const activeGoals = goals.filter(g => g.status === "active");
+
+  // Stats
+  const stats = [
+    { label: "Readiness", value: `${r}%`, color: r > 50 ? "var(--green)" : "var(--red)" },
+    { label: "LC Total", value: lc.total || p.lcTotal || 0, sub: `${lc.java_problems || p.lcJava || 0} Java`, color: "var(--red)" },
+    { label: "Resources", value: `${doneRes}/${res.length}`, color: "var(--gold)" },
+    { label: "Goals", value: activeGoals.length, color: "var(--purple)" },
+    { label: "Notes", value: notes.length, color: "var(--green)" },
+    { label: "Applications", value: apps.length, color: "var(--cyan)" },
+  ];
+
+  const grid = h("div", { className: "stat-grid" }, stats.map(s =>
+    h("div", { className: "stat-card", style: { borderLeft: `3px solid ${s.color}` } },
+      h("div", { className: "label" }, s.label),
+      h("div", { className: "value", style: { color: s.color } }, String(s.value)),
+      s.sub ? h("div", { className: "sub" }, s.sub) : null
+    )
+  ));
+  app.appendChild(grid);
+
+  // Gap Analysis
+  app.appendChild(sectionHdr("Gap Analysis", "vs SDE-2 bar"));
+  const gapData = [
+    { label: "Java DSA", current: lc.java_problems || p.lcJava || 0, target: 100, color: "var(--red)", critical: true },
+    { label: "Hard Problems", current: lc.hard || p.lcHard || 0, target: 30, color: "var(--orange)", critical: false },
+    { label: "System Designs", current: 0, target: 15, color: "var(--green)", critical: true },
+    { label: "STAR Stories", current: 0, target: 8, color: "var(--purple)", critical: true },
+    { label: "Total LC", current: lc.total || p.lcTotal || 0, target: 300, color: "#ff6b6b", critical: false },
+    { label: "Applications", current: apps.length, target: 30, color: "var(--cyan)", critical: apps.length < 5 },
+  ];
+  gapData.forEach(g => {
+    const pct = Math.min(100, Math.round((g.current / g.target) * 100));
+    const bar = h("div", { className: `gap-bar ${g.critical ? "critical" : ""}` },
+      h("div", { style: { flex: 1 } },
+        h("div", { style: { display:"flex", justifyContent:"space-between", marginBottom:"4px" } },
+          h("span", { style: { fontSize:"11px", fontWeight:600, color: g.critical ? g.color : "var(--text)" } }, g.label + (g.critical ? " ●" : "")),
+          h("span", { style: { fontSize:"10px", color:"var(--text3)" } }, `${g.current}/${g.target}`),
+        ),
+        h("div", { className: "track" }, h("div", { className: "fill", style: { width: pct+"%", background: g.color } })),
+      ),
+      h("span", { className: "pct", style: { color: g.color } }, pct + "%"),
+    );
+    app.appendChild(bar);
+  });
+
+  // Server gaps (from analyzer)
+  if (state.gaps.gaps?.length) {
+    app.appendChild(h("div", { style: { marginTop: 16 } }));
+    app.appendChild(sectionHdr("Analyzer Insights", "from intel/analyzer.py"));
+    state.gaps.gaps.slice(0, 4).forEach(g => {
+      const icon = g.severity === "CRITICAL" ? "🔴" : g.severity === "HIGH" ? "🟠" : "🟡";
+      app.appendChild(h("div", { className: "item", style: { borderLeft: `3px solid ${g.severity === "CRITICAL" ? "var(--red)" : g.severity === "HIGH" ? "var(--orange)" : "var(--gold)"}` } },
+        h("div", { style: { fontSize: 11, fontWeight: 600 } }, `${icon} ${g.area} [${g.severity}]`),
+        h("div", { style: { fontSize: 10, color: "var(--text2)", marginTop: 2 } }, g.action),
+      ));
+    });
+  }
+
+  // Active Goals
+  app.appendChild(h("div", { style: { marginTop: 16 } }));
+  app.appendChild(sectionHdr("Active Goals", `${activeGoals.length} in progress`));
+  activeGoals.slice(0, 5).forEach(g => {
+    app.appendChild(h("div", { className: "goal-item", style: { borderLeft: `3px solid ${CAT_COLORS[g.area] || "var(--text3)"}` } },
+      h("span", { style: { fontSize: 11 } }, g.text),
+      h("span", { style: { fontSize: 9, color: "var(--text3)" } }, g.due || ""),
+    ));
+  });
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+// AI COACH
+// ══════════════════════════════════════════════════════════════════════════════
+function renderCoach(app) {
+  const msgs = state.portal.coach_history || [];
+
+  app.appendChild(sectionHdr("AI Career Coach", "Powered by Claude — knows your GSTN profile, targets, and gaps"));
+
+  const chatArea = h("div", { className: "chat-area", style: { height: "calc(100vh - 260px)" } });
+
+  if (!msgs.length) {
+    const prompts = [
+      "What should I focus on this week?",
+      "Analyze my gaps and give me a 7-day action plan",
+      "Help me craft a STAR story about Kafka DLQ at GSTN",
+      "How should I frame GSTN experience for Google interviews?",
+      "Give me a system design question and grade my approach",
+      "What's my biggest risk right now?",
+    ];
+    const box = h("div", { style: { textAlign: "center", padding: "40px 0" } },
+      h("div", { style: { fontSize: 13, color: "var(--text3)", marginBottom: 16 } }, "Start a conversation with your AI coach."),
+      ...prompts.map(p => h("button", { className: "quick-prompt", onClick: () => sendCoachMsg(p) }, "→ " + p))
+    );
+    chatArea.appendChild(box);
+  } else {
+    msgs.forEach(m => {
+      const div = h("div", { className: `chat-msg ${m.role}` },
+        h("div", { className: "role", style: { color: m.role === "user" ? "var(--text3)" : "var(--gold)" } }, m.role === "user" ? "You" : "Coach"),
+        m.content,
+      );
+      chatArea.appendChild(div);
+    });
+  }
+
+  if (state.coachLoading) {
+    chatArea.appendChild(h("div", { className: "chat-msg assistant loading" }, "Coach is thinking..."));
+  }
+
+  app.appendChild(chatArea);
+  setTimeout(() => chatArea.scrollTop = chatArea.scrollHeight, 50);
+
+  // Input
+  const input = h("input", { placeholder: "Ask your coach anything...", id: "coach-input" });
+  input.addEventListener("keydown", e => { if (e.key === "Enter") sendCoachMsg(input.value); });
+  const sendBtn = h("button", { onClick: () => sendCoachMsg(input.value), disabled: state.coachLoading ? "true" : null }, "SEND");
+  app.appendChild(h("div", { className: "chat-input" }, input, sendBtn));
+}
+
+async function sendCoachMsg(text) {
+  if (!text?.trim() || state.coachLoading) return;
+  const msgs = state.portal.coach_history || [];
+  msgs.push({ role: "user", content: text.trim() });
+  state.portal.coach_history = msgs;
+  state.coachLoading = true;
+  render();
+
+  const p = state.portal.career?.profile || {};
+  const goals = (state.portal.goals || []).filter(g => g.status === "active").map(g => g.text).join("; ");
+  const system = `You are PrepForge AI Coach — a senior FAANG engineer mentoring Jayanti Vishnoi.
+PROFILE: 5.5 YOE at Infosys on GSTN (14M users, 100K+ concurrent). Java, Spring Boot, Kafka, Redis, HBase.
+LC: ${p.lcTotal || 155} solved (${p.lcJava || 4} Java, ${p.lcHard || 16} Hard). CodeChef 4-star, CodeVita Top 1%.
+TARGETS: Google L4/L5, Amazon SDE-2/3, Microsoft, Adobe, Flipkart.
+ACTIVE GOALS: ${goals}
+READINESS: ${state.gaps.readiness || 0}%.
+Be direct, specific, actionable. Reference GSTN in advice.`;
+
+  const apiMsgs = msgs.slice(-10).map(m => ({ role: m.role, content: m.content }));
+  const result = await api("POST", "/api/coach", { messages: apiMsgs, system });
+
+  const reply = result?.text || result?.error || "Coach unavailable. Is ANTHROPIC_API_KEY set?";
+  msgs.push({ role: "assistant", content: reply });
+  state.portal.coach_history = msgs.slice(-30);
+  state.coachLoading = false;
+  await savePortal();
+  render();
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+// RESOURCES
+// ══════════════════════════════════════════════════════════════════════════════
+let resFilter = "all";
+let showAddRes = false;
+
+function renderResources(app) {
+  const res = state.portal.resources || [];
+  const doneCount = res.filter(r => r.done).length;
+
+  // Header
+  const hdr = h("div", { style: { display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom: 12 } },
+    sectionHdr("Resources", `${res.length} total · ${doneCount} completed`),
+    h("button", { className: `btn ${showAddRes ? "btn-red" : "btn-gold"}`, onClick: () => { showAddRes = !showAddRes; render(); } }, showAddRes ? "✕ Cancel" : "+ Add Resource"),
+  );
+  app.appendChild(hdr);
+
+  // Add form
+  if (showAddRes) {
+    const form = { name: "", cat: "dsa", priority: "P1", url: "", note: "", type: "website" };
+    const box = h("div", { className: "form-box", style: { border: "1px solid rgba(232,200,122,0.12)" } },
+      h("div", { className: "form-row c2" },
+        h("input", { placeholder: "Resource name", id: "res-name" }),
+        h("input", { placeholder: "URL (optional)", id: "res-url" }),
+      ),
+      h("div", { className: "form-row c3" },
+        h("select", { id: "res-cat" }, ...Object.entries(CATS).map(([k, v]) => h("option", { value: k }, v))),
+        h("select", { id: "res-pri" }, h("option",{value:"P0"},"P0 — Must Use"), h("option",{value:"P1",selected:"true"},"P1 — Recommended"), h("option",{value:"P2"},"P2 — Nice to Have")),
+        h("select", { id: "res-type" }, ...["book","course","platform","github","youtube","website","newsletter","forum","guide","framework","problems"].map(t => h("option",{value:t},t))),
+      ),
+      h("input", { placeholder: "Notes", id: "res-note", style: { marginBottom: "8px" } }),
+      h("button", { className: "btn btn-solid", onClick: addResource }, "Save Resource"),
+    );
+    app.appendChild(box);
+  }
+
+  // Filters
+  const cats = ["all", ...Object.keys(CATS), "done"];
+  const filterBar = h("div", { className: "filter-bar" },
+    ...cats.map(c => {
+      const cnt = c === "all" ? res.length : c === "done" ? doneCount : res.filter(r => r.cat === c).length;
+      return h("button", {
+        className: `filter-btn ${resFilter === c ? "active" : ""}`,
+        style: { color: resFilter === c ? (CAT_COLORS[c] || "var(--gold)") : "" },
+        onClick: () => { resFilter = c; render(); }
+      }, c === "all" ? `All (${cnt})` : c === "done" ? `Done (${cnt})` : `${CATS[c] || c} (${cnt})`);
+    })
+  );
+  app.appendChild(filterBar);
+
+  // List
+  const filtered = resFilter === "all" ? res : resFilter === "done" ? res.filter(r => r.done) : res.filter(r => r.cat === resFilter);
+  filtered.forEach((r, idx) => {
+    const stars = [1,2,3,4,5].map(s => h("span", { className: "clickable", style: { fontSize:10, color: s <= r.rating ? "var(--gold)" : "var(--bg4)" }, onClick: () => rateResource(r.id, s) }, "★"));
+    const item = h("div", { className: `item ${r.done ? "done" : ""}`, style: { borderLeft: `3px solid ${r.done ? "var(--green)" : PRI_COLORS[r.priority] || "var(--text3)"}` } },
+      h("div", { style: { display:"flex", justifyContent:"space-between", alignItems:"flex-start" } },
+        h("div", { style: { flex: 1 } },
+          h("div", { style: { display:"flex", alignItems:"center", gap:"8px", marginBottom:"2px" } },
+            h("span", { className: "clickable", style: { fontSize:13 }, onClick: () => toggleResource(r.id) }, r.done ? "☑" : "☐"),
+            h("span", { style: { fontSize:11, fontWeight:600, textDecoration: r.done ? "line-through" : "none" } }, r.name),
+            h("span", { className: "tag", style: { background: (CAT_COLORS[r.cat]||"#555")+"20", color: CAT_COLORS[r.cat]||"#555" } }, r.cat),
+            h("span", { className: "tag", style: { background: (PRI_COLORS[r.priority]||"#555")+"15", color: PRI_COLORS[r.priority]||"#555" } }, r.priority),
+          ),
+          r.note ? h("div", { style: { fontSize:10, color:"var(--text3)", marginLeft:21 } }, r.note) : null,
+          r.url ? h("div", { style: { fontSize:9, marginLeft:21, marginTop:2 } }, h("a", { href: r.url, target: "_blank" }, r.url.replace(/https?:\/\//, "").slice(0, 50))) : null,
+        ),
+        h("div", { style: { display:"flex", gap:"3px", alignItems:"center" } },
+          ...stars,
+          h("span", { className: "clickable", style: { fontSize:10, color:"var(--text4)", marginLeft:8 }, onClick: () => deleteResource(r.id) }, "✕"),
+        ),
+      ),
+    );
+    app.appendChild(item);
+  });
+}
+
+function addResource() {
+  const name = document.getElementById("res-name")?.value;
+  if (!name?.trim()) return;
+  const r = {
+    id: "r_" + Date.now(), name, done: false, rating: 0,
+    cat: document.getElementById("res-cat")?.value || "dsa",
+    priority: document.getElementById("res-pri")?.value || "P1",
+    url: document.getElementById("res-url")?.value || "",
+    note: document.getElementById("res-note")?.value || "",
+    type: document.getElementById("res-type")?.value || "website",
+  };
+  state.portal.resources.unshift(r);
+  showAddRes = false;
+  savePortal(); render();
+}
+function toggleResource(id) { state.portal.resources = state.portal.resources.map(r => r.id === id ? {...r, done: !r.done} : r); savePortal(); render(); }
+function rateResource(id, rating) { state.portal.resources = state.portal.resources.map(r => r.id === id ? {...r, rating} : r); savePortal(); render(); }
+function deleteResource(id) { state.portal.resources = state.portal.resources.filter(r => r.id !== id); savePortal(); render(); }
+
+// ══════════════════════════════════════════════════════════════════════════════
+// NOTES
+// ══════════════════════════════════════════════════════════════════════════════
+let noteTagFilter = "";
+let editingNote = null;
+
+function renderNotes(app) {
+  const notes = state.portal.notes || [];
+  app.appendChild(sectionHdr("Notes & Learnings", "Interview insights, concepts, mistakes, breakthroughs"));
+
+  // Form
+  const box = h("div", { className: "form-box", style: { border: "1px solid rgba(162,155,254,0.12)" } },
+    h("input", { placeholder: "Title (e.g., HashMap internals, Kafka gotcha, Google SD pattern)", id: "note-title", style: { marginBottom:"6px", fontWeight:"600" }, value: editingNote?.title || "" }),
+    h("textarea", { placeholder: "Your note...", id: "note-body", rows: 4, style: { marginBottom:"6px" }, innerHTML: editingNote?.body || "" }),
+    h("div", { style: { display:"flex", gap:"8px", alignItems:"center" } },
+      h("input", { placeholder: "Tags: java, sd, kafka, mistake, insight", id: "note-tags", style: { flex:1 }, value: editingNote?.tags?.join(", ") || "" }),
+      h("button", { className: "btn btn-solid", style: { background:"var(--purple)", minWidth: 70 }, onClick: saveNote }, editingNote ? "Update" : "Save"),
+      editingNote ? h("button", { className: "btn", style: { color:"var(--text3)", border:"1px solid var(--text4)" }, onClick: () => { editingNote = null; render(); } }, "Cancel") : null,
+    ),
+  );
+  app.appendChild(box);
+
+  // Tags
+  const allTags = [...new Set(notes.flatMap(n => n.tags || []))];
+  if (allTags.length) {
+    const bar = h("div", { className: "filter-bar" },
+      h("button", { className: `filter-btn ${!noteTagFilter ? "active" : ""}`, style: { color: !noteTagFilter ? "var(--purple)" : "" }, onClick: () => { noteTagFilter = ""; render(); } }, "All"),
+      ...allTags.map(t => h("button", {
+        className: `filter-btn ${noteTagFilter === t ? "active" : ""}`,
+        style: { color: noteTagFilter === t ? "var(--purple)" : "" },
+        onClick: () => { noteTagFilter = noteTagFilter === t ? "" : t; render(); }
+      }, "#" + t))
+    );
+    app.appendChild(bar);
+  }
+
+  // List
+  const filtered = noteTagFilter ? notes.filter(n => n.tags?.includes(noteTagFilter)) : notes;
+  filtered.forEach(n => {
+    const item = h("div", { className: "item", style: { border: "1px solid var(--bg4)" } },
+      h("div", { style: { display:"flex", justifyContent:"space-between" } },
+        h("div", { style: { flex:1 } },
+          h("div", { style: { fontSize:12, fontWeight:600, marginBottom:4 } }, n.title || "Untitled"),
+          h("div", { style: { fontSize:11, color:"var(--text2)", lineHeight:"1.6", whiteSpace:"pre-wrap" } }, n.body),
+          h("div", { style: { marginTop:6 } },
+            ...(n.tags || []).map(t => h("span", { className: "tag", style: { background: "rgba(162,155,254,0.1)", color: "var(--purple)" } }, "#" + t)),
+            h("span", { style: { fontSize:8, color:"var(--text4)", marginLeft:8 } }, n.updatedAt?.slice(0, 10) || ""),
+          ),
+        ),
+        h("div", { style: { display:"flex", gap:6, marginLeft:8 } },
+          h("span", { className: "clickable", style: { fontSize:10, color:"var(--text3)" }, onClick: () => { editingNote = n; render(); } }, "✎"),
+          h("span", { className: "clickable", style: { fontSize:10, color:"var(--text4)" }, onClick: () => deleteNote(n.id) }, "✕"),
+        ),
+      ),
+    );
+    app.appendChild(item);
+  });
+
+  if (!filtered.length) {
+    app.appendChild(h("div", { style: { textAlign:"center", padding:"30px", color:"var(--text4)", fontSize:11 } }, "No notes yet. Start capturing learnings above."));
+  }
+}
+
+function saveNote() {
+  const title = document.getElementById("note-title")?.value || "";
+  const body = document.getElementById("note-body")?.value || "";
+  const tags = (document.getElementById("note-tags")?.value || "").split(",").map(t => t.trim().toLowerCase()).filter(Boolean);
+  if (!title && !body) return;
+  const now = new Date().toISOString();
+  if (editingNote) {
+    state.portal.notes = state.portal.notes.map(n => n.id === editingNote.id ? { ...n, title, body, tags, updatedAt: now } : n);
+    editingNote = null;
+  } else {
+    state.portal.notes.unshift({ id: "n_" + Date.now(), title, body, tags, createdAt: now, updatedAt: now });
+  }
+  savePortal(); render();
+}
+function deleteNote(id) { state.portal.notes = state.portal.notes.filter(n => n.id !== id); savePortal(); render(); }
+
+// ══════════════════════════════════════════════════════════════════════════════
+// CAREER
+// ══════════════════════════════════════════════════════════════════════════════
+let showAddGoal = false;
+
+function renderCareer(app) {
+  const c = state.portal.career || {};
+  const goals = state.portal.goals || [];
+  const activeGoals = goals.filter(g => g.status === "active");
+
+  app.appendChild(sectionHdr("Career Trajectory", "Shape your path from Infosys → Google L5"));
+
+  // Profile
+  const pBox = h("div", { className: "form-box", style: { border: "1px solid var(--bg4)" } },
+    h("div", { style: { fontSize:10, color:"var(--gold)", letterSpacing:2, marginBottom:10, textTransform:"uppercase" } }, "Your Profile — updates gap analysis in real time"),
+    h("div", { className: "form-row c3" },
+      labeledInput("LC Total", "career-lc", c.profile?.lcTotal, "number"),
+      labeledInput("LC Java", "career-java", c.profile?.lcJava, "number"),
+      labeledInput("LC Hard", "career-hard", c.profile?.lcHard, "number"),
+    ),
+    h("button", { className: "btn btn-gold", style: { marginTop: 8 }, onClick: saveCareerProfile }, "Update Profile & Recalculate Gaps"),
+  );
+  app.appendChild(pBox);
+
+  // Milestones
+  app.appendChild(sectionHdr("6-Month Milestones"));
+  (c.milestones || []).forEach(m => {
+    app.appendChild(h("div", { className: "timeline-item", style: { borderLeft: `3px solid ${m.phase === 1 ? "var(--green)" : "var(--gold)"}`, opacity: m.done ? 0.5 : 1 } },
+      h("div", { style: { display:"flex", justifyContent:"space-between" } },
+        h("span", { style: { fontSize:11, fontWeight:600 } }, m.month),
+        h("span", { style: { fontSize:9, color: m.phase === 1 ? "var(--green)" : "var(--gold)" } }, "Phase " + m.phase),
+      ),
+      h("div", { style: { fontSize:10, color:"var(--text2)", marginTop:2 } }, m.goal),
+    ));
+  });
+
+  // Targets
+  app.appendChild(h("div", { style: { marginTop: 16 } }));
+  app.appendChild(sectionHdr("Target Companies"));
+  const tGrid = h("div", { style: { display:"grid", gridTemplateColumns:"repeat(auto-fit,minmax(200px,1fr))", gap:8, marginBottom:20 } },
+    ...(c.targets || []).map(t => h("div", { className: "company-card", style: { borderLeft: `3px solid ${t.tier === 1 ? "var(--gold)" : "var(--text3)"}` } },
+      h("div", { style: { fontSize:12, fontWeight:700, color: t.tier === 1 ? "var(--gold)" : "var(--text)" } }, t.company),
+      h("div", { style: { fontSize:9, color:"var(--text3)" } }, `${t.level} · ${t.tc}`),
+    ))
+  );
+  app.appendChild(tGrid);
+
+  // Goals
+  const ghdr = h("div", { style: { display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:8 } },
+    sectionHdr("Goals", `${activeGoals.length} active`),
+    h("button", { className: "btn btn-green", onClick: () => { showAddGoal = !showAddGoal; render(); } }, showAddGoal ? "Cancel" : "+ Goal"),
+  );
+  app.appendChild(ghdr);
+
+  if (showAddGoal) {
+    app.appendChild(h("div", { style: { display:"flex", gap:6, marginBottom:10 } },
+      h("input", { placeholder: "Goal description", id: "goal-text", style: { flex: 1 } }),
+      h("select", { id: "goal-area" }, ...Object.entries(CATS).map(([k, v]) => h("option", { value: k }, v))),
+      h("input", { type: "date", id: "goal-due", style: { maxWidth: 140 } }),
+      h("button", { className: "btn btn-solid", style: { background:"var(--green)" }, onClick: addGoal }, "Add"),
+    ));
+  }
+
+  goals.forEach(g => {
+    app.appendChild(h("div", { className: `goal-item ${g.status === "done" ? "done" : ""}`, style: { borderLeft: `3px solid ${g.status === "done" ? "var(--green)" : CAT_COLORS[g.area] || "var(--text3)"}` } },
+      h("div", { style: { display:"flex", alignItems:"center", gap:8 } },
+        h("span", { className: "clickable", style: { fontSize:12 }, onClick: () => toggleGoal(g.id) }, g.status === "done" ? "☑" : "☐"),
+        h("span", { style: { fontSize:11, textDecoration: g.status === "done" ? "line-through" : "none" } }, g.text),
+      ),
+      h("div", { style: { display:"flex", alignItems:"center", gap:8 } },
+        g.due ? h("span", { style: { fontSize:9, color:"var(--text3)" } }, g.due) : null,
+        h("span", { className: "clickable", style: { fontSize:9, color:"var(--text4)" }, onClick: () => deleteGoal(g.id) }, "✕"),
+      ),
+    ));
+  });
+}
+
+function labeledInput(label, id, value, type) {
+  return h("div", null,
+    h("div", { style: { fontSize:9, color:"var(--text3)", marginBottom:3 } }, label),
+    h("input", { id, value: value || 0, type: type || "text" }),
+  );
+}
+async function saveCareerProfile() {
+  const c = state.portal.career;
+  c.profile = { ...c.profile,
+    lcTotal: Number(document.getElementById("career-lc")?.value || 0),
+    lcJava: Number(document.getElementById("career-java")?.value || 0),
+    lcHard: Number(document.getElementById("career-hard")?.value || 0),
+  };
+  // Also update progress.json lc_sync for consistency
+  const prog = state.progress;
+  prog.lc_sync = { ...prog.lc_sync, total: c.profile.lcTotal, java_problems: c.profile.lcJava, hard: c.profile.lcHard };
+  await Promise.all([ api("POST", "/api/progress", prog), savePortal() ]);
+  state.gaps = await api("GET", "/api/gaps?level=sde2") || state.gaps;
+  updateHeader(); render();
+}
+function addGoal() {
+  const text = document.getElementById("goal-text")?.value;
+  if (!text?.trim()) return;
+  state.portal.goals.unshift({ id: "g_" + Date.now(), text, area: document.getElementById("goal-area")?.value || "dsa", status: "active", due: document.getElementById("goal-due")?.value || "" });
+  showAddGoal = false; savePortal(); render();
+}
+function toggleGoal(id) { state.portal.goals = state.portal.goals.map(g => g.id === id ? {...g, status: g.status === "active" ? "done" : "active"} : g); savePortal(); render(); }
+function deleteGoal(id) { state.portal.goals = state.portal.goals.filter(g => g.id !== id); savePortal(); render(); }
+
+// ══════════════════════════════════════════════════════════════════════════════
+// INTEL
+// ══════════════════════════════════════════════════════════════════════════════
+function renderIntel(app) {
+  app.appendChild(sectionHdr("Interview Intelligence", "Data from scrapers — LeetCode Discuss, Reddit, enginebogie.com"));
+
+  // Scrape button
+  app.appendChild(h("div", { style: { display:"flex", gap:8, marginBottom:16 } },
+    h("button", { className: "btn btn-gold", id: "scrape-btn", onClick: runScrape }, "⟳ Scrape All Sources"),
+    h("button", { className: "btn btn-green", onClick: () => loadTrending() }, "◈ Load Trends"),
+    h("span", { id: "scrape-status", style: { fontSize:10, color:"var(--text3)", alignSelf:"center" } }),
+  ));
+
+  app.appendChild(h("div", { id: "intel-content" }));
+
+  // Load stats on render
+  api("GET", "/api/intel/stats").then(stats => {
+    const el = document.getElementById("intel-content");
+    if (!el) return;
+    if (!stats || stats.error) {
+      el.innerHTML = '<div style="color:var(--text3);font-size:11px">Intel DB not available. Run: prep scrape first.</div>';
+      return;
+    }
+    el.innerHTML = "";
+    el.appendChild(h("div", { className: "stat-grid" },
+      h("div", { className: "stat-card" }, h("div",{className:"label"},"Experiences"), h("div",{className:"value",style:{color:"var(--gold)"}}, String(stats.total_experiences || 0))),
+      h("div", { className: "stat-card" }, h("div",{className:"label"},"Companies"), h("div",{className:"value",style:{color:"var(--green)"}}, String(stats.companies || 0))),
+    ));
+    if (stats.sources?.length) {
+      el.appendChild(sectionHdr("By Source"));
+      stats.sources.forEach(s => {
+        el.appendChild(h("div", { className: "item" }, `${s.source}: ${s.cnt} experiences`));
+      });
+    }
+    if (stats.recent?.length) {
+      el.appendChild(h("div", { style: { marginTop: 12 } }));
+      el.appendChild(sectionHdr("Most Recent"));
+      stats.recent.forEach(r => {
+        const icon = r.overall_result === "offer" ? "✅" : r.overall_result === "reject" ? "❌" : "❔";
+        el.appendChild(h("div", { className: "item" }, `${icon} ${r.company} — ${r.role} — ${r.date_scraped}`));
+      });
+    }
+  });
+}
+
+async function runScrape() {
+  const btn = document.getElementById("scrape-btn");
+  const status = document.getElementById("scrape-status");
+  if (btn) btn.disabled = true;
+  if (status) status.textContent = "Scraping...";
+  const result = await api("POST", "/api/intel/scrape", {});
+  if (status) status.textContent = result?.error ? `Error: ${result.error}` : "Done! Reload Intel tab.";
+  if (btn) btn.disabled = false;
+}
+
+async function loadTrending(company) {
+  const url = company ? `/api/intel/trending?company=${company}` : "/api/intel/trending";
+  const data = await api("GET", url);
+  const el = document.getElementById("intel-content");
+  if (!el || !data) return;
+  if (data.total_rounds === 0) {
+    el.appendChild(h("div", { style: { marginTop:12, color:"var(--text3)", fontSize:11 } }, "No trend data. Run scrape first."));
+    return;
+  }
+  el.appendChild(h("div", { style: { marginTop: 12 } }));
+  el.appendChild(sectionHdr("Trending Topics", `${data.total_rounds} rounds analyzed`));
+  if (data.round_types) {
+    Object.entries(data.round_types).forEach(([rt, cnt]) => {
+      el.appendChild(h("div", { className: "item" }, `${rt}: ${cnt} round(s)`));
+    });
+  }
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+// SETTINGS
+// ══════════════════════════════════════════════════════════════════════════════
+function renderSettings(app) {
+  const c = state.portal.career || {};
+  app.appendChild(sectionHdr("Settings"));
+
+  // Phase/Week
+  app.appendChild(h("div", { className: "form-box" },
+    h("div", { style: { fontSize:11, fontWeight:600, marginBottom:8 } }, "Phase & Week"),
+    h("div", { style: { display:"flex", gap:8 } },
+      h("div", null,
+        h("div", { style: { fontSize:9, color:"var(--text3)", marginBottom:2 } }, "Phase"),
+        h("select", { id: "set-phase", onChange: () => { state.portal.career.phase = Number(document.getElementById("set-phase").value); savePortal(); updateHeader(); } },
+          h("option", { value: 1, selected: c.phase === 1 }, "Phase 1 — First Offer"),
+          h("option", { value: 2, selected: c.phase === 2 }, "Phase 2 — Dream Company"),
+        ),
+      ),
+      h("div", null,
+        h("div", { style: { fontSize:9, color:"var(--text3)", marginBottom:2 } }, "Week"),
+        h("input", { type:"number", min:1, max:26, value: c.week || 1, id: "set-week",
+          onChange: () => { state.portal.career.week = Number(document.getElementById("set-week").value); savePortal(); updateHeader(); }
+        }),
+      ),
+    ),
+  ));
+
+  // Export
+  app.appendChild(h("div", { className: "form-box" },
+    h("div", { style: { fontSize:11, fontWeight:600, marginBottom:8 } }, "Data Management"),
+    h("div", { style: { fontSize:10, color:"var(--text3)", marginBottom:8 } },
+      `Resources: ${state.portal.resources?.length || 0} · Notes: ${state.portal.notes?.length || 0} · Goals: ${state.portal.goals?.length || 0}`),
+    h("div", { style: { display:"flex", gap:8 } },
+      h("button", { className: "btn btn-green", onClick: exportData }, "Export JSON"),
+      h("button", { className: "btn btn-red", onClick: resetData }, "Reset Portal Data"),
+    ),
+  ));
+
+  // CLI Integration
+  app.appendChild(h("div", { className: "form-box" },
+    h("div", { style: { fontSize:11, fontWeight:600, marginBottom:6 } }, "CLI Integration"),
+    h("div", { style: { fontSize:10, color:"var(--text3)", lineHeight:1.8 } }, "This portal reads/writes the same progress.json and data/interviews.db as your prep.py CLI. Changes here are reflected in CLI and vice versa."),
+    h("pre", { style: { fontSize:9, color:"var(--text4)", marginTop:8, lineHeight:1.8, fontFamily:"var(--font)" } }, `prep readiness     → gap analysis (same as dashboard)
+prep resources      → curated index (same as resources tab)
+prep scrape         → populates intel tab data
+prep ai-mock sd     → AI interview questions`),
+  ));
+}
+
+function exportData() {
+  const blob = new Blob([JSON.stringify({ portal: state.portal, progress: state.progress }, null, 2)], { type: "application/json" });
+  const a = document.createElement("a"); a.href = URL.createObjectURL(blob);
+  a.download = `prepforge-export-${new Date().toISOString().slice(0,10)}.json`; a.click();
+}
+async function resetData() {
+  if (!confirm("Reset all portal data? (progress.json is NOT affected)")) return;
+  state.portal = { resources: DEFAULT_RESOURCES, notes: [], goals: DEFAULT_GOALS, career: DEFAULT_CAREER, coach_history: [] };
+  await savePortal(); render();
+}
+
+// ── Helpers ──────────────────────────────────────────────────────────────────
+function sectionHdr(title, sub) {
+  return h("div", { className: "section-hdr" },
+    h("h2", null, title),
+    sub ? h("div", { className: "sub" }, sub) : null,
+  );
+}
+
+// ── Boot ─────────────────────────────────────────────────────────────────────
+loadAll();
+</script>
+</body>
+</html>

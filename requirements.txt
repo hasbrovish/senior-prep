@@ -1,0 +1,15 @@
+# PrepForge — Python dependencies
+# Core server
+fastapi>=0.110.0
+uvicorn[standard]>=0.27.0
+python-multipart>=0.0.9
+
+# Background scheduler
+APScheduler>=3.10.4
+
+# Optional: enhanced scraping
+# beautifulsoup4>=4.12.0
+# praw>=7.7.0
+
+# Optional: rich terminal output
+# rich>=13.7.0
