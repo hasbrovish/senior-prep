@@ -2188,7 +2188,7 @@ def cmd_retro():
 
 def _parse_question_bank():
     """Parse GSTN_Interview_QuestionBank_296Q.md into a list of (num, section, text)."""
-    qfile = BASE / "GSTN_Interview_QuestionBank_296Q.md"
+    qfile = BASE / "docs" / "GSTN_Interview_QuestionBank_296Q.md"
     if not qfile.exists():
         return []
     import re
@@ -2215,7 +2215,7 @@ def cmd_question(topic_raw=None):
 
     questions = _parse_question_bank()
     if not questions:
-        print("\n  ❌ Could not read GSTN_Interview_QuestionBank_296Q.md\n")
+        print("\n  ❌ Could not read docs/GSTN_Interview_QuestionBank_296Q.md\n")
         return
 
     # Filter by topic if given
@@ -3803,6 +3803,128 @@ def cmd_brief(send=False):
                 print(f"  ❌ Failed to send. Check NTFY_TOPIC env var.\n")
 
 
+def cmd_pp(args: list):
+    """Programming Pathshala course tracker — today's module, progress, watch order."""
+    import json as _json
+    from pathlib import Path as _Path
+
+    BASE_PATH  = Path(__file__).parent
+    PP_FILE    = BASE_PATH / "data" / "programming_pathshala_courses.json"
+    PROG_FILE_ = BASE_PATH / "logs" / "progress.json"
+
+    if not PP_FILE.exists():
+        print("\n  ❌ data/programming_pathshala_courses.json not found.\n")
+        return
+
+    data = _json.loads(PP_FILE.read_text(encoding="utf-8"))
+
+    # PP watch order from MASTER_16H_WARPLAN.md
+    PP_WATCH_ORDER = {
+        (1, 2):   {"course": "DSA", "module": "Module 3", "focus": "Binary Search, Sorting, Two Pointers", "hrs": "4 hrs/week"},
+        (3, 4):   {"course": "DSA", "module": "Module 4", "focus": "Hashing, Stacks, Linked Lists, Binary Trees", "hrs": "6 hrs/week"},
+        (5, 6):   {"course": "DSA", "module": "Module 5", "focus": "Graphs: BFS/DFS/Dijkstra/Topo", "hrs": "5 hrs/week"},
+        (7, 8):   {"course": "DSA", "module": "Module 6", "focus": "DP: all classical", "hrs": "6 hrs/week"},
+        (9, 10):  {"course": "DSA", "module": "Module 6", "focus": "Heaps, Greedy", "hrs": "4 hrs/week"},
+        (11, 12): {"course": "LLD", "module": "Module 7", "focus": "SOLID + 5 Design Patterns", "hrs": "5 hrs/week"},
+        (13,):    {"course": "LLD", "module": "Module 8", "focus": "Case Studies: Parking Lot, Chess, ATM", "hrs": "5 hrs"},
+        (14, 15, 16): {"course": "LLD", "module": "Module 8", "focus": "Concurrency — race conditions, locks, producer-consumer", "hrs": "6 hrs/week"},
+        (17, 18): {"course": "Java Springboot", "module": "Module 11", "focus": "IoC, Spring MVC, Hibernate, JDBC", "hrs": "5 hrs/week"},
+        (19, 20): {"course": "System Design", "module": "Module 9", "focus": "OS fundamentals: scheduling, memory, paging", "hrs": "4 hrs/week"},
+        (21, 22): {"course": "Java Springboot", "module": "Module 11", "focus": "Transactions, Security, Projects", "hrs": "5 hrs/week"},
+        (23, 24): {"course": "LLD", "module": "Module 8", "focus": "Case Studies: Elevator, E-Commerce, Stock Trading", "hrs": "4 hrs/week"},
+        (25, 26): {"course": "Review", "module": "All", "focus": "Weak areas only", "hrs": "2 hrs/week"},
+    }
+
+    def get_week_module(wk: int) -> dict:
+        for weeks, info in PP_WATCH_ORDER.items():
+            if wk in weeks:
+                return info
+        return {"course": "Review", "module": "All", "focus": "Revision", "hrs": "2 hrs/week"}
+
+    # Load progress
+    try:
+        prog = _json.loads(PROG_FILE_.read_text(encoding="utf-8"))
+    except Exception:
+        prog = {}
+    pp_done = prog.get("pp_modules_done", [])
+
+    # Current week
+    from datetime import date as _date
+    start = _date(2026, 3, 19)
+    wk = min(max(1, (_date.today() - start).days // 7 + 1), 26)
+
+    sub = args[0].lower() if args else "today"
+
+    if sub in ("done", "d") and len(args) > 1:
+        module_key = " ".join(args[1:])
+        if module_key not in pp_done:
+            pp_done.append(module_key)
+            prog["pp_modules_done"] = pp_done
+            PROG_FILE_.write_text(_json.dumps(prog, indent=2, default=str, ensure_ascii=False), encoding="utf-8")
+        print(f"\n  ✅ Marked as watched: {module_key}")
+        print(f"     Total PP modules watched: {len(pp_done)}\n")
+
+    elif sub in ("list", "all", "modules"):
+        print(f"\n  ╔══════════════════════════════════════════════════════════╗")
+        print(f"  ║  PROGRAMMING PATHSHALA — OPTIMISED WATCH ORDER           ║")
+        print(f"  ╚══════════════════════════════════════════════════════════╝\n")
+        seen = set()
+        for weeks, info in PP_WATCH_ORDER.items():
+            key = f"{info['course']} {info['module']}"
+            if key in seen:
+                continue
+            seen.add(key)
+            wk_range = f"Wk {min(weeks)}–{max(weeks)}" if len(weeks) > 1 else f"Wk {weeks[0]}"
+            done_marker = "✅" if key in pp_done else "  "
+            print(f"  {done_marker} [{wk_range:<8}] {info['course']} {info['module']}: {info['focus']}")
+            print(f"              → {info['hrs']}")
+        print(f"\n  Total watched: {len(pp_done)} module phases")
+        print(f"  Mark done:    prep pp done \"DSA Module 3\"\n")
+
+    elif sub in ("progress", "prog", "p"):
+        total = len(PP_WATCH_ORDER)
+        done_count = sum(1 for weeks, info in PP_WATCH_ORDER.items()
+                         if f"{info['course']} {info['module']}" in pp_done)
+        pct = int(done_count / total * 100) if total else 0
+        bar = "█" * (pct // 5) + "░" * (20 - pct // 5)
+        print(f"\n  PP Course Progress: [{bar}] {pct}%  ({done_count}/{total} phases)\n")
+        current = get_week_module(wk)
+        print(f"  Current week ({wk}): {current['course']} {current['module']}")
+        print(f"  Focus: {current['focus']}")
+        print(f"  Time:  {current['hrs']}\n")
+
+    elif sub in ("week", "w") and len(args) > 1:
+        target_wk = int(args[1]) if args[1].isdigit() else wk
+        info = get_week_module(target_wk)
+        print(f"\n  Week {target_wk} — {info['course']} {info['module']}")
+        print(f"  Focus: {info['focus']}")
+        print(f"  Time:  {info['hrs']}\n")
+        # Show topics from JSON if module matches
+        mod_num = info["module"].replace("Module ", "").strip()
+        for course in data.get("courses", []):
+            if info["course"].lower() in course.get("course_name", "").lower():
+                for mod in course.get("modules", []):
+                    if str(mod.get("module_number", "")) == mod_num:
+                        print(f"  Topics in {info['module']}:")
+                        for t in mod.get("topics", []):
+                            print(f"    • {t.get('topic_name', 'Unknown')}  ({t.get('estimated_duration', '')})")
+                        break
+
+    else:  # default: today
+        info = get_week_module(wk)
+        key = f"{info['course']} {info['module']}"
+        done_marker = "✅ DONE" if key in pp_done else "▶ IN PROGRESS"
+        print(f"\n  ╔══════════════════════════════════════════════════════════╗")
+        print(f"  ║  PP TODAY — Week {wk:<42}║")
+        print(f"  ╚══════════════════════════════════════════════════════════╝\n")
+        print(f"  {done_marker}: {info['course']} — {info['module']}")
+        print(f"  Focus: {info['focus']}")
+        print(f"  Time:  {info['hrs']}")
+        print(f"\n  When done: prep pp done \"{key}\"")
+        print(f"  All modules: prep pp list")
+        print(f"  Progress:    prep pp progress\n")
+
+
 def cmd_hi(args: list):
     """Hello Interview course tracker — today's lesson, mark done, progress."""
     try:
@@ -3914,8 +4036,43 @@ if __name__ == "__main__":
         cmd_interview_log(company)
     elif cmd in ("interviews", "iv"):
         cmd_interviews()
-    elif cmd in ("java", "javacheck"):
-        cmd_java()
+    elif cmd in ("java", "javacheck", "jqa"):
+        # Subcommands: list | <topic> | done <topic> | reset <topic>
+        sub = args[1].lower() if len(args) > 1 else ""
+        if sub == "list":
+            try:
+                from intel.java_qa import print_java_list
+                print_java_list()
+            except ImportError:
+                cmd_java()
+        elif sub == "done" and len(args) > 2:
+            try:
+                from intel.java_qa import mark_topic_studied
+                n = mark_topic_studied(args[2])
+                print(f"\n  ✅ Marked '{args[2]}' studied — {n} P0 questions logged.\n")
+            except ImportError:
+                print("  intel/java_qa.py not found.")
+        elif sub == "reset" and len(args) > 2:
+            try:
+                from intel.java_qa import reset_topic
+                reset_topic(args[2])
+                print(f"\n  🔄 Reset '{args[2]}' — will appear in study queue again.\n")
+            except ImportError:
+                print("  intel/java_qa.py not found.")
+        elif sub and sub not in ("list", "done", "reset"):
+            # treat as topic id
+            hints = "--hints" in args
+            try:
+                from intel.java_qa import print_java_topic
+                print_java_topic(sub, show_hints=hints)
+            except ImportError:
+                cmd_java()
+        else:
+            try:
+                from intel.java_qa import print_java_today
+                print_java_today(current_week=week_num())
+            except ImportError:
+                cmd_java()
     elif cmd in ("quiz", "q"):
         topic = args[1] if len(args) > 1 else None
         cmd_quiz(topic)
@@ -4044,8 +4201,50 @@ if __name__ == "__main__":
     elif cmd in ("brief", "morning-brief", "morningbrief", "daily-brief"):
         send = "--send" in args
         cmd_brief(send=send)
+    elif cmd in ("pp", "pathshala", "pp-course", "programming-pathshala"):
+        cmd_pp(args[1:])
     elif cmd in ("hi", "hello-interview", "hellointerview", "hi-course"):
         cmd_hi(args[1:])
+    elif cmd in ("warplan", "show-plan", "16h"):
+        plan_file = BASE / "docs" / "MASTER_16H_WARPLAN.md"
+        week = args[1] if len(args) > 1 else None
+        if plan_file.exists():
+            content = plan_file.read_text(encoding="utf-8")
+            if week:
+                # Show just the requested week block
+                lines = content.split("\n")
+                wk_tag = f"### WEEK {week}"
+                in_block = False
+                block = []
+                for line in lines:
+                    if wk_tag in line:
+                        in_block = True
+                    if in_block:
+                        block.append(line)
+                        if line.startswith("### WEEK ") and wk_tag not in line and block:
+                            break
+                print("\n".join(block[:60]) if block else f"  Week {week} not found in plan.")
+            else:
+                # Show summary (first 80 lines)
+                print("\n".join(content.split("\n")[:80]))
+                print(f"\n  ... Full plan: {plan_file}")
+                print(f"  View week: prep warplan <week_number>  (e.g. prep warplan 1)")
+        else:
+            print(f"  ❌ docs/MASTER_16H_WARPLAN.md not found. Run from senior-prep directory.")
+    elif cmd in ("sources", "source-status", "ext-sources"):
+        try:
+            from intel.sources.blind_helloiv import source_status
+            source_status()
+        except ImportError as e:
+            print(f"  ❌ {e}")
+    elif cmd in ("ib", "interviewbit", "ibit"):
+        company = args[1] if len(args) > 1 else None
+        topic   = args[2] if len(args) > 2 else None
+        try:
+            from intel.sources.blind_helloiv import print_ib_problems
+            print_ib_problems(company=company, topic=topic)
+        except ImportError as e:
+            print(f"  ❌ {e}")
     elif cmd in ("help", "h", "--help"):
         cmd_help()
     else:

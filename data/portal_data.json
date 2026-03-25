@@ -371,6 +371,14 @@
     {
       "role": "assistant",
       "content": "## GAP ANALYSIS\n\n**CRITICAL GAPS (Blocking you from FAANG):**\n1. **Java fluency gap**: Only 4/155 LC problems in Java - you'll struggle in interviews\n2. **System Design void**: Zero structured practice for L4/L5 expectations  \n3. **Story bank empty**: No prepared GSTN experiences for behavioral rounds\n4. **Application paralysis**: Haven't started applying to build interview momentum\n\n**SECONDARY GAPS:**\n- LC Hard volume too low (16) for senior roles\n- No interview practice/mock experience\n- Resume likely doesn't highlight GSTN scale properly\n\n## 7-DAY INTENSIVE ACTION PLAN\n\n### DAY 1-2: JAVA FOUNDATION BLITZ\n**Target**: Solve 20 LC Easy/Medium in Java\n- **Morning (3h)**: Solve 5 Array/String problems you've done before, but in Java\n- **Evening (2h)**: 5 HashMap/Two Pointer problems in Java\n- **Focus**: Java syntax, Collections API, String methods\n- **GSTN Connection**: Think how you'd implement GSTN's validation logic in Java\n\n### DAY 3-4: SYSTEM DESIGN KICKOFF  \n**Target**: Complete 2 system designs on Hello Interview\n- **Day 3**: Design a tax filing system (mirrors GSTN complexity)\n- **Day 4**: Design a notification service (like GSTN's bulk notifications)\n- **Method**: Watch → Practice → Document your approach\n- **Key**: Focus on 14M user scale, 100K concurrent load patterns\n\n### DAY 5-6: STORY DEVELOPMENT\n**Target**: Draft 4 STAR stories from GSTN\n- **Stories needed**: \n  1. Handling 100K+ concurrent users during peak filing\n  2. Kafka implementation for async processing  \n  3. Redis caching strategy optimization\n  4. Critical production issue resolution\n- **Format**: 2 minutes each, quantified impact\n\n### DAY 7: APPLICATION LAUNCH\n**Target**: Apply to 10 companies\n- **Morning**: Update resume with GSTN scale metrics\n- **Afternoon**: Apply to 5 mid-tier (Razorpay, Zomato, PayTM)\n- **Evening**: Apply to 5 product companies (Adobe, Microsoft, Flipkart)\n\n**DAILY COMMITMENT**: 5 hours total\n**WEEK GOAL**: 20 Java LCs, 2 System Designs, 4 Stories, 10 Applications\n\nReady to commit to this intensity?"
+    },
+    {
+      "role": "user",
+      "content": "my this week plan"
+    },
+    {
+      "role": "assistant",
+      "content": "Rate limit exceeded. Please wait."
     }
   ]
 }

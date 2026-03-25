@@ -43,8 +43,6 @@ async def save_portal_data(request_data: dict):
 
 @router.get("/gaps")
 async def get_gaps(level: str = "sde2"):
-    import sys
-    sys.path.insert(0, str(BASE))
     try:
         from intel.analyzer import compute_gap_analysis, readiness_percentage
         progress = _load(PROG_FILE, {})

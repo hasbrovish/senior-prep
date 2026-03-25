@@ -28,8 +28,8 @@ REDDIT_SECRET      = os.environ.get("REDDIT_CLIENT_SECRET", "")
 REDDIT_USER_AGENT  = "PrepForge/1.0 (SDE interview prep bot)"
 
 # ─── Claude API ───────────────────────────────────────────────────────────────
-CLAUDE_MODEL        = os.environ.get("CLAUDE_MODEL", "claude-sonnet-4-20250514")
-CLAUDE_MODEL_FAST   = os.environ.get("CLAUDE_MODEL_FAST", "claude-haiku-4-5-20251001")  # for cheap calls
+CLAUDE_MODEL        = os.environ.get("CLAUDE_MODEL", "claude-sonnet-4-5")
+CLAUDE_MODEL_FAST   = os.environ.get("CLAUDE_MODEL_FAST", "claude-haiku-4-5")
 CLAUDE_MAX_TOKENS   = 4096
 CLAUDE_STREAM_TOKENS = 2048
 
@@ -38,25 +38,69 @@ PROFILE = {
     "name":       "Jayanti Vishnoi",
     "yoe":        5.5,
     "current":    "Specialist Programmer L2 @ Infosys",
+    "education":  "B.Tech CS, ABES Engineering College (2016–2020), CGPA 8.7/10",
+
+    # ── Current role: GSTN (Jun 2023 – Present) ───────────────────────────────
     "project":    "GSTN (Goods and Services Tax Network)",
-    "scale":      "14M users, 100K+ concurrent, 300Cr+ invoices",
-    "stack":      ["Java", "Spring Boot", "Hibernate", "Golang", "Angular",
-                   "Kafka", "Redis", "MySQL", "MongoDB", "HBase",
-                   "Docker", "Kubernetes", "AWS"],
-    "strengths":  ["Distributed caching (JBoss DataGrid + EhCache)",
-                   "Kafka exactly-once with DLQ",
-                   "XA transactions (Atomikos JTA)",
-                   "Strategy + Factory pattern workflow engine",
-                   "HBase + MySQL ledger at 14M user scale"],
-    "weak_areas": ["Java DSA (only 4 of 155 in Java)",
-                   "Hard LeetCode problems",
-                   "LLD practice depth",
-                   "FAANG system design framing",
-                   "Golang goroutines/channels"],
+    "scale":      "14M taxpayers, 100K+ officials, ₹15L crore+ annual tax collection",
+    "gstn_wins": [
+        "Appeal Management: 15+ REST APIs, 10+ lifecycle states, 50+ RBAC rules",
+        "XA transactions on MySQL (36 state-wise shards) + Redis + Kafka",
+        "Order processing time 60% faster: 45 min → 18 min",
+        "99.9% ledger accuracy, zero fund misappropriation incidents",
+        "Map-Reduce payment aggregation: 500+ daily records, 90% reconciliation reduction",
+        "HBase file upload: 100K concurrent users, 5MB uploads, high reliability",
+        "Session-based state mgmt framework: cut duplicate API calls 100%",
+        "Mentored 3 engineers; led design reviews and documentation",
+    ],
+
+    # ── Previous role: Infosys Marketplace/CodeStore (2020–2023) ─────────────
+    "marketplace_wins": [
+        "Download orchestration (Golang + MongoDB): 10K daily downloads, BFS cycle detection",
+        "Download time 95% faster: 45 min → 2 min, 99.8% job success rate",
+        "Streaming ZIP generation for 2GB+ packages, 60% storage cost reduction",
+        "Guided Tour (6 Angular MFEs): 65% first-time activation, 474% ROI",
+        "MutationObserver + IntersectionObserver: 98.5% tour success, 40% support tickets down",
+        "Elasticsearch weighted search: 50% 'no results' reduction, 500K monthly events",
+        "Cross-MFE event bus: Angular micro-frontends, 65% activation improvement",
+    ],
+
+    "stack":      ["Java", "Spring Boot", "Hibernate", "Golang", "Angular (12+)",
+                   "Kafka", "Redis", "MySQL (Sharding)", "MongoDB", "HBase",
+                   "Elasticsearch", "GraphQL", "Docker", "Kubernetes", "AWS"],
+
+    "strengths":  [
+        "Distributed caching (JBoss DataGrid + EhCache → DistCacheUtil)",
+        "Kafka exactly-once with DLQ + idempotent consumer framework",
+        "XA transactions (Atomikos JTA) across multi-shard MySQL + Redis",
+        "Strategy + Factory + State Machine workflow engine",
+        "HBase + MySQL ledger at 14M taxpayer scale",
+        "BFS/DFS in production: download dependency resolution (Golang)",
+        "Micro-frontend event bus architecture (6 Angular MFEs)",
+        "Map-Reduce patterns for financial reconciliation",
+    ],
+
+    "weak_areas": [
+        "Java DSA (only 4 of 155 in Java — must switch ALL to Java)",
+        "Hard LeetCode (16 Hard done, need 30+)",
+        "LLD practice problems (parking lot, chess, etc.)",
+        "FAANG system design framing (know the concepts, need interview format)",
+        "Amazon LP behavioral (critical: every Amazon round has 2 LP questions)",
+    ],
+
+    "achievements": [
+        "Engineering Excellence Award (2023) — Innovative micro-frontend architecture",
+        "Open-Source Contributor — ngx-joyride (PR merged, used by 1000+ apps)",
+        "Patent Disclosure — Dynamic event naming in distributed plugin systems",
+        "CodeChef 4-Star (Rating: 1859)",
+        "CodeVita Top 1%",
+    ],
+
     "targets":    ["Google L4/L5", "Amazon SDE-2/3", "Microsoft 62-64",
-                   "Adobe MTS-2/3", "Flipkart SDE-2/3", "Goldman Sachs VP"],
+                   "Adobe MTS-2/3", "Flipkart SDE-2/3", "Goldman Sachs VP",
+                   "Razorpay SDE-2", "CRED SDE-2", "PhonePe SDE-2", "Swiggy SDE-2/3"],
     "lc_user":    "hasbrovish95",
-    "cp_badges":  "CodeChef 4-star, CodeVita Top 1%, Google Code Jam qualifier",
+    "cp_badges":  "CodeChef 4-star (1859), CodeVita Top 1%",
 }
 
 # ─── Interview Experience Sources ─────────────────────────────────────────────
@@ -110,31 +154,47 @@ SOURCES = {
 TARGET_COMPANIES = {
     "google":       {"level": "L4/L5",    "tc_range": "35-55 LPA",  "tier": 1,
                      "rounds": ["DSA x2", "System Design x1-2", "Behavioral (Googleyness)", "Project Deep Dive"],
-                     "focus": "DSA precision + SD depth + Googleyness signals"},
+                     "focus": "DSA precision + SD depth + Googleyness signals",
+                     "oa": {"platform": "Custom", "time_mins": 60, "format": "2 DSA", "dsa_focus": "All topics"}},
     "amazon":       {"level": "SDE-2/3",  "tc_range": "30-50 LPA",  "tier": 1,
                      "rounds": ["DSA x2", "System Design x1", "LLD x1", "Behavioral (LP) x2", "Bar Raiser"],
-                     "focus": "Leadership Principles + Ownership stories + Scale"},
+                     "focus": "Leadership Principles + Ownership stories + Scale",
+                     "oa": {"platform": "HackerRank", "time_mins": 105, "format": "2 DSA + LP", "dsa_focus": "Trees, OOP"}},
     "microsoft":    {"level": "62-64",    "tc_range": "28-45 LPA",  "tier": 1,
                      "rounds": ["DSA x2-4", "System Design x1", "Behavioral x1"],
-                     "focus": "Clean code + Design + Growth mindset"},
+                     "focus": "Clean code + Design + Growth mindset",
+                     "oa": {"platform": "HackerRank", "time_mins": 90, "format": "2-3 DSA", "dsa_focus": "Arrays, Trees, DP"}},
     "adobe":        {"level": "MTS-2/3",  "tc_range": "25-40 LPA",  "tier": 1,
                      "rounds": ["DSA x2", "LLD x1", "System Design x1", "Behavioral x1"],
-                     "focus": "LLD depth + Java mastery + Design patterns"},
+                     "focus": "LLD depth + Java mastery + Design patterns",
+                     "oa": {"platform": "HackerRank", "time_mins": 90, "format": "3 DSA", "dsa_focus": "Arrays, DP, Strings"}},
     "flipkart":     {"level": "SDE-2/3",  "tc_range": "30-48 LPA",  "tier": 1,
                      "rounds": ["DSA x2", "Machine Coding x1", "System Design x1", "Behavioral x1"],
-                     "focus": "Machine coding round + E-commerce scale design"},
+                     "focus": "Machine coding round + E-commerce scale design",
+                     "oa": {"platform": "HackerRank", "time_mins": 90, "format": "3 DSA", "dsa_focus": "Arrays, DP"}},
     "goldman_sachs":{"level": "VP",       "tc_range": "35-55 LPA",  "tier": 1,
                      "rounds": ["DSA x2", "System Design x1", "Behavioral x1", "HackerRank OA"],
-                     "focus": "Strong DSA + Finance domain knowledge"},
+                     "focus": "Strong DSA + Java concurrency + Finance domain",
+                     "oa": {"platform": "HackerRank", "time_mins": 90, "format": "3 DSA", "dsa_focus": "DP, Graphs, Concurrency"}},
+    "uber":         {"level": "SDE-2",    "tc_range": "30-48 LPA",  "tier": 1,
+                     "rounds": ["DSA x2", "System Design x1", "LLD x1", "Behavioral x1"],
+                     "focus": "Geospatial systems + Real-time matching + Graphs",
+                     "oa": {"platform": "HackerRank", "time_mins": 90, "format": "2-3 DSA", "dsa_focus": "Graphs, DP"}},
+    "atlassian":    {"level": "SDE-2",    "tc_range": "28-45 LPA",  "tier": 1,
+                     "rounds": ["DSA x2", "System Design x1", "Behavioral x1"],
+                     "focus": "Clean code + Dev tooling SD + JIRA-type designs",
+                     "oa": {"platform": "HackerRank", "time_mins": 90, "format": "3 DSA", "dsa_focus": "Arrays, Trees"}},
     "razorpay":     {"level": "SDE-2",    "tc_range": "25-35 LPA",  "tier": 2,
                      "rounds": ["DSA x1-2", "System Design x1", "LLD x1", "Cultural Fit"],
-                     "focus": "Payment systems + Distributed transactions"},
+                     "focus": "Payment systems + Distributed transactions",
+                     "oa": {"platform": "HackerRank", "time_mins": 75, "format": "2-3 DSA", "dsa_focus": "Strings, DP"}},
     "cred":         {"level": "SDE-2",    "tc_range": "28-40 LPA",  "tier": 2,
                      "rounds": ["DSA x1-2", "System Design x1", "LLD x1", "Culture Round"],
                      "focus": "Clean architecture + Product thinking"},
     "phonepe":      {"level": "SDE-2",    "tc_range": "28-42 LPA",  "tier": 1,
                      "rounds": ["DSA x2", "System Design x1", "LLD x1", "Behavioral x1"],
-                     "focus": "Payments + Scale + Java depth"},
+                     "focus": "Payments + Scale + Java depth",
+                     "oa": {"platform": "Custom", "time_mins": 90, "format": "3 DSA + SQL", "dsa_focus": "DP, SQL"}},
     "swiggy":       {"level": "SDE-2/3",  "tc_range": "28-45 LPA",  "tier": 1,
                      "rounds": ["DSA x2", "System Design x1", "Machine Coding x1", "Behavioral x1"],
                      "focus": "Real-time systems + Location services + Scale"},

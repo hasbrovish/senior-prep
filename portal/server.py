@@ -1,14 +1,15 @@
 #!/usr/bin/env python3
 """
-PrepForge Portal Server
-Serves the web UI and provides API endpoints that read/write the SAME data as prep.py.
+PrepForge Portal Server  [DEPRECATED — use FastAPI app instead]
 
-Usage:
-  python3 portal/server.py              # start on port 5555
-  python3 portal/server.py 8080         # custom port
+This is the original stdlib HTTPServer. It is kept only as a fallback
+if uvicorn/FastAPI is unavailable. All active development is in app/main.py.
 
-Or via prep.py:
-  prep portal                           # starts server + opens browser
+  Preferred:  prep portal   (starts uvicorn app.main:app on port 5555)
+  Fallback:   python3 portal/server.py  (this file, used if uvicorn missing)
+
+WARNING: Running both servers simultaneously will cause file-write conflicts
+on logs/progress.json and data/portal_data.json.
 """
 
 import json, sys, os, urllib.request, urllib.error, mimetypes

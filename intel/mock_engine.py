@@ -5,7 +5,8 @@ Tracks mock scores over time to show weekly improvement trends.
 Uses intel DB for persistence. Integrates with AI coach for question generation.
 
 Usage:
-  from intel.mock_engine import start_mock_session, save_mock_score, get_score_trend
+  from intel.mock_engine import save_mock_score, get_score_trend, print_score_trend
+  from intel.mock_engine import get_readiness_by_company, print_company_readiness
 """
 
 from datetime import date, timedelta

@@ -152,6 +152,30 @@ NEETCODE_150 = [
     (2013, "Detect Squares",              "medium", "math",           ["amazon","google"],                       "HashMap count + iterate all points"),
 ]
 
+# ─── Explicit Problem IDs per Week (from MASTER_16H_WARPLAN.md) ──────────────
+# Use these as the primary drill list when current week matches.
+# Problems not in NEETCODE_150 (e.g. LC #876, #82, #83) are shown as URL-only.
+WEEK_PROBLEMS = {
+    1:  [1, 3, 11, 15, 121, 125, 167, 209, 238, 283, 424, 567],        # Arrays, Two Pointers, Sliding Window
+    2:  [206, 21, 141, 142, 234, 876, 92, 82, 83, 160],                 # Linked Lists, Recursion
+    3:  [20, 155, 232, 739, 84, 85, 496, 503, 901, 907],                # Stacks, Queues
+    4:  [104, 102, 103, 199, 543, 124, 236, 235, 112, 113, 116, 226],   # Binary Trees
+    5:  [98, 230, 450, 701, 215, 347, 373, 378, 502, 632],              # BST, Heap
+    6:  [200, 207, 210, 417, 547, 684, 695, 733, 994, 1091],            # Graphs
+    7:  [17, 39, 40, 46, 47, 51, 52, 78],                               # Backtracking
+    8:  [70, 198, 213, 322, 518, 300, 1143, 516, 647, 5, 139, 140],     # DP Part 1
+    9:  [62, 63, 64, 72, 97, 115, 118, 119, 120, 174],                  # DP Part 2
+    10: [208, 211, 212, 421, 648, 676, 677, 745],                       # Tries
+    11: [55, 45, 134, 135, 316, 406, 435, 452, 136, 137, 260, 268],     # Greedy, Bit Manipulation
+    # Weeks 12-13: Mock/Polish — use pattern-based selection (no fixed list)
+    14: [4, 23, 25, 41, 42, 76, 84, 85, 149, 154],                     # Hard DSA Ramp
+    15: [312, 514, 664, 689, 730, 741, 818, 903, 920, 975],             # Hard DP
+    16: [269, 329, 332, 399, 444, 753, 787, 815, 864, 947],             # Hard Graphs
+    17: [28, 151, 165, 214, 336, 459, 572, 686],                        # String Algorithms
+    21: [149, 224, 227, 282, 301, 330, 381, 432],                       # Math + Hard
+}
+
+
 # ─── Pattern → Week Mapping (aligns with WEEKS dict in prep.py) ──────────────
 WEEK_PATTERNS = {
     1:  ["arrays"],
@@ -189,10 +213,10 @@ def get_drill(week_num: int = None, company: str = None, java_count: int = 0,
     Select today's drill problems.
 
     Selection logic (priority order):
-    1. This week's patterns (aligned with 26-week plan)
-    2. Company-trending patterns (from intel DB if available)
-    3. Problems you're weak on (easy-medium if java < 30)
-    4. At least 1 problem you should solve in Java (if java < 30)
+    1. WEEK_PROBLEMS: explicit warplan problem IDs for this week (if defined)
+    2. Pattern-based scoring from WEEK_PATTERNS + company trends
+    3. Easy/medium bias when java_count < 30
+    4. Hard problems for Phase 2 (week 15+)
     """
     if week_num is None:
         from datetime import date
@@ -200,56 +224,60 @@ def get_drill(week_num: int = None, company: str = None, java_count: int = 0,
         delta = (date.today() - start).days
         week_num = min(max(1, delta // 7 + 1), 26)
 
-    # Get company-trending patterns from DB
-    trending_patterns = _get_trending_patterns(company)
+    # ── If this week has an explicit warplan problem list, use those IDs ──────
+    week_ids = WEEK_PROBLEMS.get(week_num)
+    if week_ids:
+        lc_id_index = {p[0]: p for p in NEETCODE_150}
+        selected = []
+        for lc_id in week_ids:
+            if len(selected) >= limit:
+                break
+            if lc_id in lc_id_index:
+                selected.append(lc_id_index[lc_id])
+            else:
+                # Problem not in NEETCODE_150 — create a stub entry
+                name = f"LC #{lc_id}"
+                selected.append((lc_id, name, "medium", "unknown", [], "check LC"))
+        return [_format_drill_problem(p, java_count) for p in selected]
 
-    # Get week's target patterns
+    # ── Fallback: pattern-based scoring ──────────────────────────────────────
+    trending_patterns = _get_trending_patterns(company)
     week_pats = WEEK_PATTERNS.get(week_num, ["arrays"])
 
-    # Score each problem
     scored = []
     for problem in NEETCODE_150:
         lc_id, name, diff, pattern, companies, java_tip = problem
         score = 0
 
-        # Week alignment
         if pattern in week_pats:
             score += 3
-
-        # Company trending
         if pattern in trending_patterns:
             score += 2
         if company and company.lower() in [c.lower() for c in companies]:
             score += 2
 
-        # Java gap: prefer easy/medium if java count is low
         if java_count < 30:
             if diff == "easy":
                 score += 2
             elif diff == "medium":
                 score += 1
 
-        # Hard problems for Phase 2 (week 15+)
         if week_num >= 15 and diff == "hard":
             score += 1
 
         scored.append((score, problem))
 
-    # Sort by score desc, then by difficulty
     diff_order = {"easy": 0, "medium": 1, "hard": 2}
     scored.sort(key=lambda x: (-x[0], diff_order.get(x[1][2], 1)))
 
-    # Deduplicate patterns — ensure variety
     selected = []
     used_patterns = set()
     for score, problem in scored:
         lc_id, name, diff, pattern, companies, java_tip = problem
         if len(selected) >= limit:
             break
-        # Allow at most 2 of same pattern only if we're running out of variety
-        if used_patterns.count(pattern) < 2 if hasattr(used_patterns, 'count') else True:
-            selected.append(problem)
-            used_patterns.add(pattern)
+        selected.append(problem)
+        used_patterns.add(pattern)
 
     return [_format_drill_problem(p, java_count) for p in selected]
 
@@ -321,7 +349,15 @@ def _format_drill_problem(problem: tuple, java_count: int) -> dict:
 
 def print_drill(week_num: int = None, company: str = None, java_count: int = 0):
     """Print today's drill problems in a formatted way."""
-    problems = get_drill(week_num=week_num, company=company, java_count=java_count)
+    if week_num is None:
+        start = date(2026, 3, 19)
+        delta = (date.today() - start).days
+        week_num = min(max(1, delta // 7 + 1), 26)
+
+    # For warplan weeks, show the full problem list (not just 3)
+    week_ids = WEEK_PROBLEMS.get(week_num)
+    limit = len(week_ids) if week_ids else 3
+    problems = get_drill(week_num=week_num, company=company, java_count=java_count, limit=limit)
 
     print(f"""
   ╔══════════════════════════════════════════════════════════╗

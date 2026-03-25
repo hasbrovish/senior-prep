@@ -151,3 +151,17 @@ async def serve_portal():
 @app.get("/health")
 async def health():
     return {"status": "ok", "time": str(datetime.now()), "env": ENV}
+
+
+@app.get("/api/hi-curriculum")
+async def hi_curriculum():
+    """Serve course curriculum JSON for portal Courses tab.
+    Priority: hellointerviewcourse.json → programming_pathshala_courses.json → error.
+    """
+    for candidate in [
+        BASE / "data" / "hellointerviewcourse.json",
+        BASE / "data" / "programming_pathshala_courses.json",
+    ]:
+        if candidate.exists():
+            return load_json(candidate, {})
+    return {"error": "No course JSON found. Expected hellointerviewcourse.json or programming_pathshala_courses.json at project root."}

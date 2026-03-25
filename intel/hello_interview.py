@@ -13,7 +13,7 @@ import json
 from pathlib import Path
 
 BASE         = Path(__file__).parent.parent
-HI_JSON      = BASE / "hellointerviewcourse.json"
+HI_JSON      = BASE / "data" / "hellointerviewcourse.json"
 PROG_FILE    = BASE / "logs" / "progress.json"
 HI_BASE_URL  = "https://www.hellointerview.com"
 

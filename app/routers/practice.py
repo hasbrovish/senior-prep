@@ -40,12 +40,10 @@ router = APIRouter()
 async def get_drill_today(company: Optional[str] = None, week: Optional[int] = None):
     try:
         from intel.drill import get_drill
-        from pathlib import Path
-        import json
-        prog = BASE / "logs" / "progress.json"
+        prog_path = BASE / "logs" / "progress.json"
         java_count = 0
         try:
-            p = json.loads(prog.read_text())
+            p = json.loads(prog_path.read_text())
             java_count = p.get("lc_sync", {}).get("java_problems", 0)
         except Exception:
             pass

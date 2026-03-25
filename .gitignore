@@ -44,6 +44,9 @@ prepforge-portal.jsx
 files/
 files.zip
 
+# Generated logs (auto-created, not version controlled)
+logs/week_*.txt
+
 # Misc
 encoded.txt
 1.md
