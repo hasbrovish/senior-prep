@@ -84,6 +84,145 @@ async def get_drill_stats():
         raise HTTPException(500, str(e))
 
 
+# ─── Drill Company Bank ──────────────────────────────────────────────────────
+
+@router.get("/drill/companies")
+async def list_drill_companies():
+    try:
+        from intel.drill import get_all_companies
+        return {"companies": get_all_companies()}
+    except Exception as e:
+        raise HTTPException(500, str(e))
+
+
+@router.get("/drill/company/{company}")
+async def get_drill_by_company(company: str):
+    try:
+        from intel.drill import get_company_problems
+        problems = get_company_problems(company)
+        return {"company": company, "problems": problems, "count": len(problems)}
+    except Exception as e:
+        raise HTTPException(500, str(e))
+
+
+# ─── Java QA (Theory) ────────────────────────────────────────────────────────
+
+@router.get("/jqa")
+async def get_jqa_today(week: Optional[int] = None):
+    """Get today's Java theory topic based on current week."""
+    try:
+        from intel.java_qa import get_today_topic, get_progress, TOPICS
+        prog_path = BASE / "logs" / "progress.json"
+        current_week = week or 1
+        try:
+            p = json.loads(prog_path.read_text())
+            current_week = week or p.get("current_week", 1)
+        except Exception:
+            pass
+        today = get_today_topic(current_week)
+        progress = get_progress()
+        return {
+            "today": today,
+            "progress": progress,
+            "total_topics": len(TOPICS),
+        }
+    except Exception as e:
+        raise HTTPException(500, str(e))
+
+
+@router.get("/jqa/topic/{topic_id}")
+async def get_jqa_topic(topic_id: str, hints: bool = False):
+    """Get questions for a specific Java theory topic."""
+    try:
+        from intel.java_qa import TOPICS
+        if topic_id not in TOPICS:
+            raise HTTPException(404, f"Topic '{topic_id}' not found")
+        topic = TOPICS[topic_id]
+        questions = []
+        for q in topic["questions"]:
+            item = {"q": q["q"], "priority": q.get("p", "P1")}
+            if hints:
+                item["hint"] = q.get("hint", "")
+            questions.append(item)
+        return {
+            "topic_id": topic_id,
+            "label": topic["label"],
+            "questions": questions,
+            "count": len(questions),
+        }
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(500, str(e))
+
+
+@router.get("/jqa/list")
+async def list_jqa_topics():
+    """List all Java theory topics with study status."""
+    try:
+        from intel.java_qa import TOPICS, get_progress
+        progress = get_progress()
+        studied = progress.get("studied_topics", [])
+        topics = []
+        for tid, t in TOPICS.items():
+            p0 = sum(1 for q in t["questions"] if q.get("p") == "P0")
+            topics.append({
+                "id": tid,
+                "label": t["label"],
+                "total_questions": len(t["questions"]),
+                "p0_count": p0,
+                "studied": tid in studied,
+            })
+        return {"topics": topics, "studied_count": len(studied), "total": len(TOPICS)}
+    except Exception as e:
+        raise HTTPException(500, str(e))
+
+
+@router.post("/jqa/done/{topic_id}")
+async def mark_jqa_done(topic_id: str):
+    """Mark a Java theory topic as studied."""
+    try:
+        from intel.java_qa import mark_topic_studied
+        count = mark_topic_studied(topic_id)
+        return {"topic_id": topic_id, "questions_logged": count, "success": True}
+    except Exception as e:
+        raise HTTPException(500, str(e))
+
+
+# ─── War Plan ────────────────────────────────────────────────────────────────
+
+@router.get("/warplan")
+async def get_warplan(week: Optional[int] = None):
+    """Get the war plan content, optionally filtered to a specific week."""
+    plan_candidates = [
+        BASE / "ULTIMATE_INTERVIEW_ASSAULT.md",
+        BASE / "MASTER_16H_WARPLAN.md",
+    ]
+    plan_file = None
+    for pf in plan_candidates:
+        if pf.exists():
+            plan_file = pf
+            break
+    if not plan_file:
+        raise HTTPException(404, "No war plan file found")
+
+    content = plan_file.read_text(encoding="utf-8")
+    if week:
+        lines = content.split("\n")
+        block = []
+        in_block = False
+        for line in lines:
+            if f"WEEK {week}" in line and (line.startswith("##") or line.startswith("###")):
+                in_block = True
+            if in_block:
+                block.append(line)
+                if len(block) > 1 and (line.startswith("## WEEK") or line.startswith("### WEEK")) and f"WEEK {week}" not in line:
+                    break
+        return {"week": week, "content": "\n".join(block), "source": plan_file.name}
+
+    return {"content": content, "source": plan_file.name}
+
+
 # ─── Mock Score Tracker ───────────────────────────────────────────────────────
 
 @router.get("/mock/trend")

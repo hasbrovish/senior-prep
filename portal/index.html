@@ -135,6 +135,7 @@ a:hover { text-decoration: underline; }
   <button data-tab="notes">◇ Notes</button>
   <button data-tab="career">◎ Career</button>
   <button data-tab="courses">◐ Courses</button>
+  <button data-tab="warplan">⚔ War Plan</button>
   <button data-tab="intel">⊕ Intel</button>
   <button data-tab="settings">⚙ Settings</button>
 </div>
@@ -293,7 +294,7 @@ function h(tag, attrs, ...children) {
 function render() {
   const app = document.getElementById("app");
   app.innerHTML = "";
-  const renderers = { dashboard: renderDashboard, coach: renderCoach, resources: renderResources, notes: renderNotes, career: renderCareer, courses: renderCourses, intel: renderIntel, settings: renderSettings };
+  const renderers = { dashboard: renderDashboard, coach: renderCoach, resources: renderResources, notes: renderNotes, career: renderCareer, courses: renderCourses, warplan: renderWarPlan, intel: renderIntel, settings: renderSettings };
   (renderers[state.tab] || renderDashboard)(app);
 }
 
@@ -386,6 +387,62 @@ function renderDashboard(app) {
       h("span", { style: { fontSize: 9, color: "var(--text3)" } }, g.due || ""),
     ));
   });
+
+  // Java Theory Widget
+  app.appendChild(h("div", { style: { marginTop: 16 } }));
+  app.appendChild(sectionHdr("Java Theory", "P0 questions for today"));
+  const jqaBox = h("div", { className: "stat-card", style: { borderLeft: "3px solid var(--orange)" } },
+    h("div", { className: "label" }, "Loading Java QA..."),
+  );
+  app.appendChild(jqaBox);
+  fetch(`${API}/api/jqa`).then(r => r.json()).then(data => {
+    jqaBox.innerHTML = "";
+    if (data.today) {
+      const t = data.today;
+      jqaBox.appendChild(h("div", { style: { marginBottom: 8 } },
+        h("span", { style: { fontSize: 12, fontWeight: 700, color: "var(--orange)" } }, t.label || t.topic_id || "Topic"),
+        h("span", { style: { fontSize: 10, color: "var(--text3)", marginLeft: 8 } }, `${t.p0_count || "?"} P0 questions`),
+      ));
+      (t.questions || []).slice(0, 5).forEach((q, i) => {
+        jqaBox.appendChild(h("div", { style: { fontSize: 11, color: "var(--text)", padding: "4px 0", borderBottom: "1px solid var(--bg4)" } },
+          h("span", { style: { color: "var(--text3)", marginRight: 6 } }, `${i + 1}.`),
+          q.q || q,
+        ));
+      });
+      const prog = data.progress || {};
+      jqaBox.appendChild(h("div", { style: { marginTop: 8, fontSize: 10, color: "var(--text3)" } },
+        `${(prog.studied_topics || []).length}/${data.total_topics || 16} topics studied`,
+      ));
+    } else {
+      jqaBox.appendChild(h("div", { style: { fontSize: 11, color: "var(--text3)" } }, "Java QA data not available — run: prep jqa"));
+    }
+  }).catch(() => {
+    jqaBox.innerHTML = "";
+    jqaBox.appendChild(h("div", { style: { fontSize: 11, color: "var(--text3)" } }, "Java QA API not available"));
+  });
+
+  // Company Problem Bank Widget
+  app.appendChild(h("div", { style: { marginTop: 16 } }));
+  app.appendChild(sectionHdr("Company Problem Bank", "DSA problems tagged by company"));
+  const bankBox = h("div", { className: "stat-card", style: { borderLeft: "3px solid var(--cyan)" } },
+    h("div", { className: "label" }, "Loading..."),
+  );
+  app.appendChild(bankBox);
+  fetch(`${API}/api/drill/companies`).then(r => r.json()).then(data => {
+    bankBox.innerHTML = "";
+    const companies = data.companies || {};
+    const entries = Object.entries(companies).slice(0, 10);
+    entries.forEach(([co, count]) => {
+      const pct = Math.min(100, Math.round((count / 80) * 100));
+      bankBox.appendChild(h("div", { style: { display: "flex", alignItems: "center", gap: 8, marginBottom: 4 } },
+        h("span", { style: { fontSize: 11, minWidth: 80, color: "var(--text)" } }, co),
+        h("div", { style: { flex: 1, height: 4, background: "var(--bg4)", borderRadius: 2, overflow: "hidden" } },
+          h("div", { style: { height: "100%", width: pct + "%", background: "var(--cyan)", borderRadius: 2 } }),
+        ),
+        h("span", { style: { fontSize: 10, color: "var(--text3)", minWidth: 25, textAlign: "right" } }, String(count)),
+      ));
+    });
+  }).catch(() => { bankBox.innerHTML = ""; });
 }
 
 // ══════════════════════════════════════════════════════════════════════════════
@@ -941,6 +998,114 @@ function renderCourses(app) {
       }),
     ));
   }
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+// WAR PLAN
+// ══════════════════════════════════════════════════════════════════════════════
+function renderWarPlan(app) {
+  app.appendChild(sectionHdr("16-Hour War Plan", "ULTIMATE_INTERVIEW_ASSAULT.md"));
+
+  // Week selector
+  const weekSel = h("div", { style: { display: "flex", gap: 8, marginBottom: 16, flexWrap: "wrap" } });
+  const weekDisplay = h("div", { style: { background: "var(--bg3)", borderRadius: 8, padding: 16, fontSize: 12, lineHeight: 1.8, whiteSpace: "pre-wrap", maxHeight: "calc(100vh - 280px)", overflowY: "auto" } },
+    h("div", { className: "label" }, "Loading war plan..."),
+  );
+
+  // Overview button
+  weekSel.appendChild(h("button", {
+    style: { padding: "6px 12px", fontSize: 10, background: "var(--gold)", color: "var(--bg)", borderRadius: 4, fontWeight: 700 },
+    onClick: () => {
+      fetch(`${API}/api/warplan`).then(r => r.json()).then(data => {
+        weekDisplay.innerHTML = "";
+        const lines = (data.content || "No plan found").split("\n").slice(0, 120).join("\n");
+        weekDisplay.appendChild(h("pre", { style: { fontSize: 11, color: "var(--text)", whiteSpace: "pre-wrap", fontFamily: "var(--font)" } }, lines + "\n\n... (showing first 120 lines)"));
+      }).catch(() => { weekDisplay.textContent = "Failed to load plan"; });
+    }
+  }, "Overview"));
+
+  // Week buttons 1-26
+  for (let w = 1; w <= 26; w++) {
+    const phase = w <= 13 ? "1" : "2";
+    const color = w <= 13 ? "var(--green)" : "var(--purple)";
+    weekSel.appendChild(h("button", {
+      style: { padding: "4px 8px", fontSize: 9, background: "var(--bg3)", color, border: `1px solid ${color}30`, borderRadius: 4 },
+      onClick: () => {
+        fetch(`${API}/api/warplan?week=${w}`).then(r => r.json()).then(data => {
+          weekDisplay.innerHTML = "";
+          weekDisplay.appendChild(h("div", { style: { fontSize: 10, color: "var(--text3)", marginBottom: 8 } }, `Phase ${phase} — Week ${w}`));
+          weekDisplay.appendChild(h("pre", { style: { fontSize: 11, color: "var(--text)", whiteSpace: "pre-wrap", fontFamily: "var(--font)" } }, data.content || `Week ${w} not found in plan`));
+        }).catch(() => { weekDisplay.textContent = "Failed to load"; });
+      }
+    }, `W${w}`));
+  }
+  app.appendChild(weekSel);
+  app.appendChild(weekDisplay);
+
+  // Java QA Topics
+  app.appendChild(h("div", { style: { marginTop: 24 } }));
+  app.appendChild(sectionHdr("Java Theory Topics", "123 P0 questions across 16 topics"));
+  const jqaGrid = h("div", { style: { display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))", gap: 8 } });
+  app.appendChild(jqaGrid);
+  fetch(`${API}/api/jqa/list`).then(r => r.json()).then(data => {
+    (data.topics || []).forEach(t => {
+      const done = t.studied;
+      jqaGrid.appendChild(h("div", {
+        className: "stat-card",
+        style: { borderLeft: `3px solid ${done ? "var(--green)" : "var(--orange)"}`, opacity: done ? 0.6 : 1, cursor: "pointer" },
+        onClick: () => {
+          fetch(`${API}/api/jqa/topic/${t.id}?hints=true`).then(r => r.json()).then(td => {
+            weekDisplay.innerHTML = "";
+            weekDisplay.appendChild(h("div", { style: { fontSize: 13, fontWeight: 700, color: "var(--orange)", marginBottom: 8 } }, td.label));
+            (td.questions || []).forEach((q, i) => {
+              weekDisplay.appendChild(h("div", { style: { padding: "6px 0", borderBottom: "1px solid var(--bg4)" } },
+                h("div", { style: { fontSize: 11, color: "var(--text)" } }, `${i + 1}. ${q.q}`),
+                q.hint ? h("div", { style: { fontSize: 10, color: "var(--text3)", marginTop: 2 } }, `Hint: ${q.hint}`) : null,
+                h("span", { className: "tag", style: { background: q.priority === "P0" ? "rgba(255,71,87,0.15)" : "rgba(100,100,200,0.1)", color: q.priority === "P0" ? "var(--red)" : "var(--blue)", marginTop: 2 } }, q.priority),
+              ));
+            });
+          });
+        }
+      },
+        h("div", { style: { fontSize: 11, fontWeight: 600, color: done ? "var(--green)" : "var(--text)" } }, `${done ? "✓ " : ""}${t.label}`),
+        h("div", { style: { fontSize: 9, color: "var(--text3)", marginTop: 4 } }, `${t.p0_count} P0 / ${t.total_questions} total`),
+      ));
+    });
+  }).catch(() => {});
+
+  // Company Bank
+  app.appendChild(h("div", { style: { marginTop: 24 } }));
+  app.appendChild(sectionHdr("Company Problem Bank", "Click a company to see tagged problems"));
+  const bankGrid = h("div", { style: { display: "flex", flexWrap: "wrap", gap: 8 } });
+  app.appendChild(bankGrid);
+  fetch(`${API}/api/drill/companies`).then(r => r.json()).then(data => {
+    Object.entries(data.companies || {}).forEach(([co, count]) => {
+      bankGrid.appendChild(h("button", {
+        style: { padding: "6px 12px", fontSize: 10, background: "var(--bg3)", color: "var(--text)", border: "1px solid var(--bg4)", borderRadius: 4 },
+        onClick: () => {
+          fetch(`${API}/api/drill/company/${co}`).then(r => r.json()).then(cd => {
+            weekDisplay.innerHTML = "";
+            weekDisplay.appendChild(h("div", { style: { fontSize: 13, fontWeight: 700, color: "var(--cyan)", marginBottom: 8 } }, `${co.toUpperCase()} — ${cd.count} problems`));
+            (cd.problems || []).forEach((p, i) => {
+              const dc = p.difficulty === "easy" ? "var(--green)" : (p.difficulty === "medium" ? "var(--orange)" : "var(--red)");
+              weekDisplay.appendChild(h("div", { style: { padding: "4px 0", borderBottom: "1px solid var(--bg4)", fontSize: 11 } },
+                h("span", { style: { color: dc, marginRight: 6 } }, `[${p.difficulty[0].toUpperCase()}]`),
+                h("span", {}, `#${p.lc_id} ${p.name}`),
+                h("span", { style: { color: "var(--text3)", fontSize: 10, marginLeft: 8 } }, p.pattern),
+              ));
+            });
+          });
+        }
+      }, `${co} (${count})`));
+    });
+  }).catch(() => {});
+
+  // Auto-load overview
+  fetch(`${API}/api/warplan`).then(r => r.json()).then(data => {
+    weekDisplay.innerHTML = "";
+    const lines = (data.content || "").split("\n").slice(0, 80).join("\n");
+    weekDisplay.appendChild(h("pre", { style: { fontSize: 11, color: "var(--text)", whiteSpace: "pre-wrap", fontFamily: "var(--font)" } }, lines + "\n\n... (click a week button above for details)"));
+  }).catch(() => { weekDisplay.textContent = "War plan not found. Create ULTIMATE_INTERVIEW_ASSAULT.md"; });
 }
 
 // ══════════════════════════════════════════════════════════════════════════════

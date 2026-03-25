@@ -3619,6 +3619,25 @@ def cmd_drill(args=None):
                 print(f"    {icon} {h['date_done']}  [{lang}]  {h['problem_name']}  ({h.get('time_mins',0)}min)")
         print()
 
+    elif sub in ("company", "comp", "co"):
+        try:
+            from intel.drill import print_company_drill, print_company_list
+        except ImportError:
+            print("\n  ❌ Intel module not found.\n")
+            return
+        if len(args) > 1:
+            print_company_drill(args[1])
+        else:
+            print_company_list()
+
+    elif sub in ("bank", "all", "count"):
+        try:
+            from intel.drill import print_company_list
+        except ImportError:
+            print("\n  ❌ Intel module not found.\n")
+            return
+        print_company_list()
+
     else:
         # Default: show today's drill
         try:
@@ -4205,32 +4224,43 @@ if __name__ == "__main__":
         cmd_pp(args[1:])
     elif cmd in ("hi", "hello-interview", "hellointerview", "hi-course"):
         cmd_hi(args[1:])
-    elif cmd in ("warplan", "show-plan", "16h"):
-        plan_file = BASE / "docs" / "MASTER_16H_WARPLAN.md"
+    elif cmd in ("warplan", "show-plan", "16h", "assault"):
+        # Check multiple plan file locations
+        plan_candidates = [
+            BASE / "ULTIMATE_INTERVIEW_ASSAULT.md",
+            BASE / "MASTER_16H_WARPLAN.md",
+            BASE / "docs" / "MASTER_16H_WARPLAN.md",
+        ]
+        plan_file = None
+        for pf in plan_candidates:
+            if pf.exists():
+                plan_file = pf
+                break
         week = args[1] if len(args) > 1 else None
-        if plan_file.exists():
+        if plan_file:
             content = plan_file.read_text(encoding="utf-8")
             if week:
                 # Show just the requested week block
                 lines = content.split("\n")
                 wk_tag = f"### WEEK {week}"
+                wk_tag_alt = f"## WEEK {week}"
                 in_block = False
                 block = []
                 for line in lines:
-                    if wk_tag in line:
+                    if wk_tag in line or wk_tag_alt in line:
                         in_block = True
                     if in_block:
                         block.append(line)
-                        if line.startswith("### WEEK ") and wk_tag not in line and block:
+                        if len(block) > 1 and (line.startswith("### WEEK ") or line.startswith("## WEEK ")) and wk_tag not in line and wk_tag_alt not in line:
                             break
-                print("\n".join(block[:60]) if block else f"  Week {week} not found in plan.")
+                print("\n".join(block[:80]) if block else f"  Week {week} not found in plan.")
             else:
                 # Show summary (first 80 lines)
                 print("\n".join(content.split("\n")[:80]))
                 print(f"\n  ... Full plan: {plan_file}")
                 print(f"  View week: prep warplan <week_number>  (e.g. prep warplan 1)")
         else:
-            print(f"  ❌ docs/MASTER_16H_WARPLAN.md not found. Run from senior-prep directory.")
+            print(f"  ❌ No war plan file found. Expected ULTIMATE_INTERVIEW_ASSAULT.md or MASTER_16H_WARPLAN.md")
     elif cmd in ("sources", "source-status", "ext-sources"):
         try:
             from intel.sources.blind_helloiv import source_status

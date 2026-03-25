@@ -152,6 +152,157 @@ NEETCODE_150 = [
     (2013, "Detect Squares",              "medium", "math",           ["amazon","google"],                       "HashMap count + iterate all points"),
 ]
 
+# ─── Extra Problems from Merged DSA Master List + Company Intelligence ────────
+# Problems NOT in NeetCode 150 but high-priority from Blind 75, Grind 75,
+# Hello Interview, Striver A2Z, and real interview data.
+# Format: (lc_id, name, difficulty, pattern, companies[], java_tip)
+EXTRA_COMPANY_PROBLEMS = [
+    # Arrays & Hashing — company favorites
+    (41,   "First Missing Positive",           "hard",   "arrays",         ["amazon","apple","google","doordash"],   "swap to correct index: nums[i] at idx nums[i]-1"),
+    (283,  "Move Zeroes",                      "easy",   "arrays",         ["amazon","google","flipkart"],           "two pointers: slow for non-zero placement"),
+    (209,  "Minimum Size Subarray Sum",        "medium", "sliding-window", ["amazon","google","flipkart"],           "sliding window, shrink from left"),
+    (1423, "Max Points from Cards",            "medium", "sliding-window", ["google","amazon"],                      "sliding window on the gap in the middle"),
+    (2461, "Max Sum Distinct Subarrays K",     "medium", "sliding-window", ["google"],                               "HashMap + window of size K"),
+
+    # Stack — additional
+    (22,   "Generate Parentheses",             "medium", "backtracking",   ["amazon","google","flipkart","stripe"],  "backtrack: open < n, close < open"),
+    (394,  "Decode String",                    "medium", "stack",          ["google","amazon","bloomberg"],          "two stacks: counts + strings"),
+    (32,   "Longest Valid Parentheses",        "hard",   "stack",          ["amazon","google","bloomberg"],          "stack of indices, track last invalid"),
+    (735,  "Asteroid Collision",               "medium", "stack",          ["amazon","google"],                      "stack, pop when smaller going right meets left"),
+    (853,  "Car Fleet",                        "medium", "stack",          ["google","amazon"],                      "sort by position desc, stack of times"),
+
+    # Binary Search — additional
+    (410,  "Split Array Largest Sum",          "hard",   "binary-search",  ["google","amazon"],                      "binary search on answer + greedy check"),
+    (981,  "Time Based Key-Value Store",       "medium", "binary-search",  ["google","amazon","stripe"],             "TreeMap or binary search on timestamps"),
+    (1011, "Capacity to Ship Packages",        "medium", "binary-search",  ["amazon","google"],                      "binary search on answer, greedy simulate"),
+    (378,  "Kth Smallest in Sorted Matrix",    "medium", "binary-search",  ["amazon","google","flipkart"],           "binary search on value range + count"),
+
+    # Linked List — additional
+    (234,  "Palindrome Linked List",           "easy",   "linked-list",    ["amazon","microsoft","flipkart"],        "find mid, reverse second half, compare"),
+    (24,   "Swap Nodes in Pairs",              "medium", "linked-list",    ["amazon","google"],                      "dummy head, swap adjacent pairs"),
+    (25,   "Reverse Nodes in K-Group",         "hard",   "linked-list",    ["amazon","google","flipkart"],           "count k nodes, reverse, recurse"),
+    (142,  "Linked List Cycle II",             "medium", "linked-list",    ["amazon","microsoft","flipkart"],        "Floyd's: after meet, one ptr to head, both move 1"),
+    (160,  "Intersection of Two Linked Lists", "easy",   "linked-list",    ["amazon","microsoft","flipkart"],        "two pointers, switch heads at end"),
+    (876,  "Middle of Linked List",            "easy",   "linked-list",    ["amazon","flipkart"],                    "slow/fast pointers"),
+
+    # Trees — additional
+    (572,  "Subtree of Another Tree",          "easy",   "trees",          ["amazon","microsoft"],                   "isSameTree helper, check each node"),
+    (235,  "Lowest Common Ancestor BST",       "medium", "trees",          ["amazon","google","flipkart"],           "if both < node go left, both > go right"),
+    (199,  "Binary Tree Right Side View",      "medium", "trees",          ["amazon","google","flipkart"],           "BFS, take last of each level"),
+    (112,  "Path Sum",                         "easy",   "trees",          ["amazon","microsoft"],                   "recurse with target - node.val"),
+    (103,  "Binary Tree Zigzag Level Order",   "medium", "trees",          ["amazon","google","flipkart"],           "BFS + flag to reverse alternate levels"),
+    (236,  "Lowest Common Ancestor BT",        "medium", "trees",          ["amazon","google","flipkart","goldman"], "if left && right return root, else non-null"),
+    (662,  "Maximum Width of Binary Tree",     "medium", "trees",          ["amazon","google"],                      "BFS, index nodes: left=2*i, right=2*i+1"),
+    (450,  "Delete Node in BST",               "medium", "trees",          ["amazon","microsoft"],                   "find inorder successor, replace, delete"),
+
+    # Heap — additional
+    (658,  "Find K Closest Elements",          "medium", "heap",           ["amazon","google","flipkart"],           "binary search for left bound OR two pointers"),
+
+    # Graphs — additional
+    (261,  "Graph Valid Tree",                 "medium", "graphs",         ["amazon","google"],                      "Union-Find: n-1 edges + no cycle"),
+    (323,  "Number of Connected Components",   "medium", "graphs",         ["amazon","google"],                      "Union-Find or DFS, count roots"),
+    (130,  "Surrounded Regions",               "medium", "graphs",         ["amazon","google","flipkart"],           "BFS/DFS from border Os, flip rest"),
+    (994,  "Rotting Oranges",                  "medium", "graphs",         ["amazon","google","flipkart"],           "multi-source BFS from all rotten"),
+    (733,  "Flood Fill",                       "easy",   "graphs",         ["amazon","google","flipkart"],           "DFS from start, change color"),
+    (743,  "Network Delay Time",               "medium", "graphs",         ["amazon","google"],                      "Dijkstra with PriorityQueue<int[]>"),
+    (787,  "Cheapest Flights Within K Stops",  "medium", "graphs",         ["amazon","google"],                      "Bellman-Ford K+1 iterations or BFS"),
+    (542,  "01 Matrix",                        "medium", "graphs",         ["amazon","google"],                      "multi-source BFS from all 0s"),
+
+    # Backtracking — additional
+    (17,   "Letter Combinations of Phone",     "medium", "backtracking",   ["amazon","google","flipkart"],           "String[] map, backtrack with index"),
+
+    # DP — additional
+    (322,  "Coin Change",                      "medium", "dp",             ["amazon","google","flipkart","goldman"], "dp[amount+1], dp[i]=min(dp[i], dp[i-coin]+1)"),
+    (62,   "Unique Paths",                     "medium", "dp",             ["amazon","google","flipkart"],           "dp[i][j] = dp[i-1][j] + dp[i][j-1]"),
+    (152,  "Maximum Product Subarray",         "medium", "dp",             ["amazon","google","flipkart","bloomberg"],"track maxSoFar, minSoFar (negatives flip)"),
+    (221,  "Maximal Square",                   "medium", "dp",             ["amazon","google","flipkart"],           "dp[i][j] = min(left,top,diag)+1 if '1'"),
+    (1235, "Maximum Profit Job Scheduling",    "hard",   "dp",             ["amazon","google","doordash","stripe"],  "sort by end, dp + binary search for prev"),
+    (494,  "Target Sum",                       "medium", "dp",             ["amazon","google","flipkart"],           "0/1 knapsack: sum+target must be even"),
+    (518,  "Coin Change II",                   "medium", "dp",             ["amazon","google","goldman"],            "dp[j] += dp[j-coin] for each coin"),
+    (1143, "Longest Common Subsequence",       "medium", "dp",             ["amazon","google","flipkart"],           "dp[i][j] = dp[i-1][j-1]+1 if match else max"),
+    (97,   "Interleaving String",              "medium", "dp",             ["amazon","google"],                      "dp[i][j] = s1[i-1] match || s2[j-1] match"),
+
+    # Greedy — additional
+    (135,  "Candy",                            "hard",   "greedy",         ["amazon","google"],                      "two passes: left-to-right, right-to-left"),
+
+    # Trie — important for OAs
+    (208,  "Implement Trie",                   "medium", "trie",           ["amazon","google","microsoft"],          "TrieNode[] children = new TrieNode[26]"),
+    (211,  "Design Add and Search Words",      "medium", "trie",           ["amazon","google"],                      "Trie + DFS for '.' wildcard"),
+    (212,  "Word Search II",                   "hard",   "trie",           ["amazon","google","flipkart"],           "Trie + backtracking on board"),
+
+    # Intervals — additional
+    (252,  "Meeting Rooms",                    "easy",   "intervals",      ["amazon","google","flipkart","bloomberg"],"sort by start, check overlap"),
+    (253,  "Meeting Rooms II",                 "medium", "intervals",      ["amazon","google","flipkart","bloomberg"],"min-heap of end times"),
+
+    # Company-specific P0 problems (from real interview data)
+    (146,  "LRU Cache",                        "medium", "design",         ["amazon","google","flipkart","goldman","apple","stripe"], "LinkedHashMap OR DLL + HashMap"),
+    (380,  "Insert Delete GetRandom O(1)",     "medium", "design",         ["amazon","google","flipkart"],           "ArrayList + HashMap<val, index>"),
+    (895,  "Maximum Frequency Stack",          "hard",   "design",         ["amazon","google","stripe"],             "Map<freq, Stack> + Map<val, freq>"),
+    (460,  "LFU Cache",                        "hard",   "design",         ["amazon","google"],                      "3 HashMaps: val, count, lists per freq"),
+    (588,  "Design In-Memory File System",     "hard",   "design",         ["amazon","google","stripe"],             "Trie of directories, TreeMap children"),
+]
+
+# ─── Company tag enrichment from interview intelligence ───────────────────────
+# Maps LC_ID -> extra companies to add (from COMPANY_INTERVIEW_INTELLIGENCE.md)
+COMPANY_ENRICHMENT = {
+    1:    ["tesla", "paypal"],                  # Two Sum
+    42:   ["apple", "bloomberg"],               # Trapping Rain Water
+    5:    ["swiggy", "bloomberg"],              # Longest Palindromic Substring
+    56:   ["doordash"],                         # Merge Intervals
+    11:   ["apple"],                            # Container With Most Water
+    150:  ["apple"],                            # Evaluate RPN
+    621:  ["doordash"],                         # Task Scheduler
+    347:  ["nvidia"],                           # Top K Frequent
+    55:   ["doordash"],                         # Jump Game
+    300:  ["oracle"],                           # LIS
+    230:  ["nvidia"],                           # Kth Smallest BST
+    206:  ["tesla", "zerodha"],                 # Reverse Linked List
+    141:  ["zerodha"],                          # Linked List Cycle
+    236:  ["paypal", "zerodha"],                # LCA Binary Tree
+    146:  ["stripe"],                           # LRU Cache
+    200:  ["swiggy"],                           # Number of Islands
+    207:  ["doordash", "swiggy"],               # Course Schedule
+    98:   ["bloomberg"],                        # Validate BST
+    102:  ["bloomberg"],                        # Level Order Traversal
+    3:    ["stripe", "bloomberg", "doordash"],  # Longest Substring
+    15:   ["bloomberg"],                        # 3Sum
+    20:   ["bloomberg"],                        # Valid Parentheses
+    23:   ["bloomberg"],                        # Merge K Sorted Lists
+    155:  ["bloomberg"],                        # Min Stack
+    295:  ["bloomberg"],                        # Find Median from Data Stream
+    72:   ["bloomberg"],                        # Edit Distance
+    127:  ["bloomberg"],                        # Word Ladder
+    46:   ["oracle", "bloomberg"],              # Permutations
+    79:   ["bloomberg"],                        # Word Search
+    121:  ["doordash", "stripe"],               # Best Time Buy Sell Stock
+    139:  ["doordash"],                         # Word Break
+    198:  ["bloomberg"],                        # House Robber
+    215:  ["oracle", "nvidia"],                 # Kth Largest Element
+    39:   ["oracle"],                           # Combination Sum
+    78:   ["oracle"],                           # Subsets
+    33:   ["doordash"],                         # Search in Rotated
+    76:   ["stripe"],                           # Min Window Substring
+    297:  ["bloomberg"],                        # Serialize/Deserialize
+    124:  ["bloomberg"],                        # BT Max Path Sum
+}
+
+
+def _enrich_companies(problem):
+    """Return problem tuple with enriched company tags."""
+    lc_id = problem[0]
+    extra = COMPANY_ENRICHMENT.get(lc_id, [])
+    if extra:
+        existing = list(problem[4])
+        for c in extra:
+            if c not in existing:
+                existing.append(c)
+        return (problem[0], problem[1], problem[2], problem[3], existing, problem[5])
+    return problem
+
+
+# ─── Combined problem pool ────────────────────────────────────────────────────
+ALL_PROBLEMS = [_enrich_companies(p) for p in NEETCODE_150] + EXTRA_COMPANY_PROBLEMS
+
 # ─── Explicit Problem IDs per Week (from MASTER_16H_WARPLAN.md) ──────────────
 # Use these as the primary drill list when current week matches.
 # Problems not in NEETCODE_150 (e.g. LC #876, #82, #83) are shown as URL-only.
@@ -227,7 +378,7 @@ def get_drill(week_num: int = None, company: str = None, java_count: int = 0,
     # ── If this week has an explicit warplan problem list, use those IDs ──────
     week_ids = WEEK_PROBLEMS.get(week_num)
     if week_ids:
-        lc_id_index = {p[0]: p for p in NEETCODE_150}
+        lc_id_index = {p[0]: p for p in ALL_PROBLEMS}
         selected = []
         for lc_id in week_ids:
             if len(selected) >= limit:
@@ -244,8 +395,16 @@ def get_drill(week_num: int = None, company: str = None, java_count: int = 0,
     trending_patterns = _get_trending_patterns(company)
     week_pats = WEEK_PATTERNS.get(week_num, ["arrays"])
 
+    # Deduplicate ALL_PROBLEMS by lc_id (prefer first occurrence = NeetCode)
+    seen_ids = set()
+    unique_problems = []
+    for p in ALL_PROBLEMS:
+        if p[0] not in seen_ids:
+            seen_ids.add(p[0])
+            unique_problems.append(p)
+
     scored = []
-    for problem in NEETCODE_150:
+    for problem in unique_problems:
         lc_id, name, diff, pattern, companies, java_tip = problem
         score = 0
 
@@ -422,6 +581,81 @@ def mark_drill_done(problem_name: str, time_mins: int = 0,
         return True
     except Exception:
         return False
+
+
+def get_company_problems(company: str) -> list[dict]:
+    """Get all problems tagged for a specific company, sorted by difficulty."""
+    company_lower = company.lower()
+    seen = set()
+    results = []
+    for p in ALL_PROBLEMS:
+        lc_id, name, diff, pattern, companies, java_tip = p
+        if lc_id in seen:
+            continue
+        if company_lower in [c.lower() for c in companies]:
+            seen.add(lc_id)
+            results.append(_format_drill_problem(p, 0))
+    diff_order = {"easy": 0, "medium": 1, "hard": 2}
+    results.sort(key=lambda x: diff_order.get(x["difficulty"], 1))
+    return results
+
+
+def print_company_drill(company: str):
+    """Print all problems for a specific company."""
+    problems = get_company_problems(company)
+    print(f"""
+  ╔══════════════════════════════════════════════════════════╗
+  ║  {company.upper()} PROBLEM BANK — {len(problems)} problems{' ' * (25 - len(company) - len(str(len(problems))))}║
+  ╚══════════════════════════════════════════════════════════╝
+""")
+    if not problems:
+        print(f"  No problems tagged for '{company}'. Try: amazon, google, flipkart, stripe, etc.\n")
+        return
+
+    by_pattern = {}
+    for p in problems:
+        by_pattern.setdefault(p["pattern"], []).append(p)
+
+    for pattern, probs in sorted(by_pattern.items()):
+        print(f"  ── {pattern.upper()} ({len(probs)}) ──")
+        for p in probs:
+            diff_icon = "🟢" if p["difficulty"] == "easy" else ("🟡" if p["difficulty"] == "medium" else "🔴")
+            print(f"    {diff_icon} #{p['lc_id']} {p['name']} [{p['difficulty']}]  →  {p['java_tip']}")
+        print()
+
+    easy = sum(1 for p in problems if p["difficulty"] == "easy")
+    med  = sum(1 for p in problems if p["difficulty"] == "medium")
+    hard = sum(1 for p in problems if p["difficulty"] == "hard")
+    print(f"  Summary: 🟢 {easy} Easy  🟡 {med} Medium  🔴 {hard} Hard")
+    print(f"  Total:   {len(problems)} problems\n")
+
+
+def get_all_companies() -> dict:
+    """Get count of problems per company across the full bank."""
+    counts = {}
+    seen = set()
+    for p in ALL_PROBLEMS:
+        if p[0] in seen:
+            continue
+        seen.add(p[0])
+        for c in p[4]:
+            counts[c] = counts.get(c, 0) + 1
+    return dict(sorted(counts.items(), key=lambda x: -x[1]))
+
+
+def print_company_list():
+    """Print all companies and their problem counts."""
+    counts = get_all_companies()
+    print(f"""
+  ╔══════════════════════════════════════════════════════════╗
+  ║  COMPANY PROBLEM BANK — {sum(counts.values())} tags across {len(counts)} companies      ║
+  ╚══════════════════════════════════════════════════════════╝
+""")
+    for company, count in counts.items():
+        bar = "█" * (count // 3) + "░" * (20 - count // 3)
+        print(f"  {company:<14} {bar} {count}")
+    print(f"\n  Usage: prep drill company <name>")
+    print(f"  Example: prep drill company stripe\n")
 
 
 def get_drill_stats() -> dict:
