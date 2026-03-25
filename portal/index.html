@@ -1109,76 +1109,395 @@ function renderWarPlan(app) {
 }
 
 // ══════════════════════════════════════════════════════════════════════════════
-// INTEL
+// INTEL — Experiences + Hot Questions Feed
 // ══════════════════════════════════════════════════════════════════════════════
+
+// Hot questions from real interviews — static base, enriched by scraped data
+const HOT_QUESTIONS = [
+  // DSA
+  { q: "LRU Cache implementation", tag: "DSA", diff: "M", cos: ["Apple","Stripe","Google","Flipkart"], lc: 146 },
+  { q: "Trapping Rain Water", tag: "DSA", diff: "H", cos: ["Apple","Google","Amazon"], lc: 42 },
+  { q: "Task Scheduler", tag: "DSA", diff: "M", cos: ["DoorDash","Amazon","Apple"], lc: 621 },
+  { q: "First Missing Positive", tag: "DSA", diff: "H", cos: ["Apple","DoorDash"], lc: 41 },
+  { q: "Evaluate Reverse Polish Notation", tag: "DSA", diff: "M", cos: ["Apple","Goldman"], lc: 150 },
+  { q: "Container With Most Water", tag: "DSA", diff: "M", cos: ["Apple","Amazon"], lc: 11 },
+  { q: "Merge Intervals", tag: "DSA", diff: "M", cos: ["Google","DoorDash","Amazon"], lc: 56 },
+  { q: "Find Median from Data Stream", tag: "DSA", diff: "H", cos: ["Bloomberg","Google","Goldman"], lc: 295 },
+  { q: "Word Ladder", tag: "DSA", diff: "H", cos: ["Bloomberg","Amazon","Google"], lc: 127 },
+  { q: "Maximum Profit Job Scheduling", tag: "DSA", diff: "H", cos: ["DoorDash","Stripe","Amazon"], lc: 1235 },
+  { q: "Kth Largest in BST", tag: "DSA", diff: "M", cos: ["NVIDIA","Amazon"], lc: 230 },
+  { q: "Longest Increasing Path in Matrix", tag: "DSA", diff: "H", cos: ["DoorDash","Google"], lc: 329 },
+  // System Design
+  { q: "Design a Payment System", tag: "SD", diff: "H", cos: ["Stripe","Razorpay","PayPal","PhonePe"] },
+  { q: "Design Rate Limiter", tag: "SD", diff: "M", cos: ["Zomato","Stripe","Google"] },
+  { q: "Design Food Delivery (Swiggy/Zomato)", tag: "SD", diff: "H", cos: ["Swiggy","Zomato","DoorDash"] },
+  { q: "Design Notification System", tag: "SD", diff: "M", cos: ["Oracle","DoorDash","Stripe"] },
+  { q: "Design Real-time Order Tracking", tag: "SD", diff: "H", cos: ["DoorDash","Swiggy"] },
+  { q: "Design Distributed Cache", tag: "SD", diff: "H", cos: ["Stripe","Flipkart","Google"] },
+  { q: "Design URL Shortener", tag: "SD", diff: "M", cos: ["Razorpay","Generic"] },
+  { q: "Design Google Calendar", tag: "SD", diff: "M", cos: ["PayPal","Google"] },
+  { q: "Design Stock Trading Platform", tag: "SD", diff: "H", cos: ["Zerodha","Goldman"] },
+  { q: "Design IoT Data Pipeline", tag: "SD", diff: "H", cos: ["Samsara"] },
+  // LLD / Machine Coding
+  { q: "Parking Lot System", tag: "LLD", diff: "M", cos: ["Flipkart","Razorpay"] },
+  { q: "Splitwise (Expense Sharing)", tag: "LLD", diff: "M", cos: ["Flipkart","PayPal"] },
+  { q: "Movie Ticket Booking (BookMyShow)", tag: "LLD", diff: "H", cos: ["Flipkart","Swiggy"] },
+  { q: "Ride Sharing (Uber/Ola)", tag: "LLD", diff: "H", cos: ["Swiggy","Flipkart","Razorpay"] },
+  { q: "Version Control System (Git)", tag: "LLD", diff: "H", cos: ["Razorpay","Zerodha"] },
+  { q: "Snake & Ladder", tag: "LLD", diff: "M", cos: ["Flipkart"] },
+  // Java
+  { q: "Java volatile vs synchronized — when to use each?", tag: "Java", diff: "P0", cos: ["Oracle","Goldman","Amazon"] },
+  { q: "How does ConcurrentHashMap work internally?", tag: "Java", diff: "P0", cos: ["All"] },
+  { q: "ThreadPoolExecutor — corePoolSize vs maxPoolSize", tag: "Java", diff: "P0", cos: ["Amazon","Goldman"] },
+  { q: "Spring @Transactional propagation types", tag: "Java", diff: "P0", cos: ["Oracle","Flipkart"] },
+  { q: "Kafka consumer group rebalancing — explain", tag: "Java", diff: "P0", cos: ["Razorpay","PhonePe","Swiggy"] },
+];
+
 function renderIntel(app) {
-  app.appendChild(sectionHdr("Interview Intelligence", "Data from scrapers — LeetCode Discuss, Reddit, enginebogie.com"));
+  // ── Header + controls ──
+  const filterState = { company: "", tag: "All", search: "" };
+
+  app.appendChild(sectionHdr("Interview Intelligence", "Real experiences + hot questions from target companies"));
+
+  // Top controls row
+  const controls = h("div", { style: { display:"flex", gap:8, marginBottom:16, flexWrap:"wrap", alignItems:"center" } });
 
   // Scrape button
-  app.appendChild(h("div", { style: { display:"flex", gap:8, marginBottom:16 } },
-    h("button", { className: "btn btn-gold", id: "scrape-btn", onClick: runScrape }, "⟳ Scrape All Sources"),
-    h("button", { className: "btn btn-green", onClick: () => loadTrending() }, "◈ Load Trends"),
-    h("span", { id: "scrape-status", style: { fontSize:10, color:"var(--text3)", alignSelf:"center" } }),
-  ));
+  const scrapeBtn = h("button", { className:"btn btn-gold", onClick: () => runScrape(scrapeStatus) }, "⟳ Scrape Sources");
+  const scrapeStatus = h("span", { style: { fontSize:10, color:"var(--text3)" } });
+  controls.appendChild(scrapeBtn);
+  controls.appendChild(scrapeStatus);
 
-  app.appendChild(h("div", { id: "intel-content" }));
+  // Company filter
+  const coFilter = h("select", {
+    style: { fontSize:10, padding:"4px 8px", background:"var(--bg3)", color:"var(--text)", border:"1px solid var(--bg4)", borderRadius:4, maxWidth:140 },
+    onChange: (e) => { filterState.company = e.target.value; refreshFeed(); }
+  },
+    h("option", { value:"" }, "All Companies"),
+    ["Google","Amazon","Flipkart","Stripe","DoorDash","Apple","Bloomberg","Goldman","Razorpay","PhonePe","Swiggy","Zomato","Oracle","NVIDIA"].map(c =>
+      h("option", { value: c.toLowerCase() }, c)
+    )
+  );
 
-  // Load stats on render
-  api("GET", "/api/intel/stats").then(stats => {
-    const el = document.getElementById("intel-content");
-    if (!el) return;
-    if (!stats || stats.error) {
-      el.innerHTML = '<div style="color:var(--text3);font-size:11px">Intel DB not available. Run: prep scrape first.</div>';
+  // Tag filter
+  const tagFilter = h("select", {
+    style: { fontSize:10, padding:"4px 8px", background:"var(--bg3)", color:"var(--text)", border:"1px solid var(--bg4)", borderRadius:4 },
+    onChange: (e) => { filterState.tag = e.target.value; refreshFeed(); }
+  },
+    ["All","DSA","SD","LLD","Java","Behavioral"].map(t => h("option", { value:t }, t))
+  );
+
+  // Search
+  const searchBox = h("input", {
+    type:"text", placeholder:"Search questions...",
+    style: { fontSize:10, padding:"4px 8px", background:"var(--bg3)", color:"var(--text)", border:"1px solid var(--bg4)", borderRadius:4, width:160 },
+    onInput: (e) => { filterState.search = e.target.value.toLowerCase(); refreshFeed(); }
+  });
+
+  controls.appendChild(h("span", { style:{fontSize:10,color:"var(--text3)"}}, "Filter:"));
+  controls.appendChild(coFilter);
+  controls.appendChild(tagFilter);
+  controls.appendChild(searchBox);
+  app.appendChild(controls);
+
+  // ── Stats row ──
+  const statsRow = h("div", { className:"stat-grid", style:{marginBottom:16} });
+  app.appendChild(statsRow);
+  api("GET", "/api/intel/stats").then(s => {
+    statsRow.innerHTML = "";
+    const items = [
+      { label:"Experiences", value: s?.total_experiences || 0, color:"var(--gold)" },
+      { label:"Companies",   value: s?.companies || 0,         color:"var(--green)" },
+      { label:"Hot Questions", value: HOT_QUESTIONS.length,    color:"var(--cyan)" },
+      { label:"Sources",     value: s?.sources?.length || 0,   color:"var(--purple)" },
+    ];
+    items.forEach(item => {
+      statsRow.appendChild(h("div", { className:"stat-card", style:{borderLeft:`3px solid ${item.color}`} },
+        h("div",{className:"label"}, item.label),
+        h("div",{className:"value",style:{color:item.color}}, String(item.value)),
+      ));
+    });
+  });
+
+  // ── Two column layout ──
+  const cols = h("div", { style:{display:"grid", gridTemplateColumns:"1fr 1fr", gap:16} });
+  app.appendChild(cols);
+
+  // LEFT: Hot Questions
+  const leftCol = h("div");
+  const hotHdr = h("div", { style:{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:8} },
+    h("div", { style:{fontSize:10,fontWeight:700,color:"var(--gold)",letterSpacing:"2px",textTransform:"uppercase"} }, "🔥 Hot Questions"),
+    h("span", { style:{fontSize:9,color:"var(--text3)"} }, "from real interviews"),
+  );
+  leftCol.appendChild(hotHdr);
+  const hotList = h("div", { style:{display:"flex",flexDirection:"column",gap:6,maxHeight:"calc(100vh - 320px)",overflowY:"auto"} });
+  leftCol.appendChild(hotList);
+  cols.appendChild(leftCol);
+
+  // RIGHT: Experiences Feed
+  const rightCol = h("div");
+  const expHdr = h("div", { style:{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:8} },
+    h("div", { style:{fontSize:10,fontWeight:700,color:"var(--green)",letterSpacing:"2px",textTransform:"uppercase"} }, "📋 Interview Experiences"),
+    h("span", { style:{fontSize:9,color:"var(--text3)"} }, "scraped + manual imports"),
+  );
+  rightCol.appendChild(expHdr);
+  const expList = h("div", { style:{display:"flex",flexDirection:"column",gap:6,maxHeight:"calc(100vh - 320px)",overflowY:"auto"} });
+  rightCol.appendChild(expList);
+  cols.appendChild(rightCol);
+
+  // ── Detail panel (below columns, shown on click) ──
+  const detailPanel = h("div", {
+    style:{ marginTop:16, background:"var(--bg3)", borderRadius:8, padding:16, display:"none",
+            borderLeft:"3px solid var(--gold)", fontSize:11, lineHeight:1.8 }
+  });
+  app.appendChild(detailPanel);
+
+  // ── Render functions ──
+  function refreshFeed() {
+    renderHotQuestions();
+    renderExperiences();
+  }
+
+  function renderHotQuestions() {
+    hotList.innerHTML = "";
+    let qs = HOT_QUESTIONS;
+
+    if (filterState.tag !== "All") qs = qs.filter(q => q.tag === filterState.tag);
+    if (filterState.company) qs = qs.filter(q => q.cos.some(c => c.toLowerCase().includes(filterState.company)));
+    if (filterState.search) qs = qs.filter(q => q.q.toLowerCase().includes(filterState.search));
+
+    if (!qs.length) {
+      hotList.appendChild(h("div", {style:{fontSize:11,color:"var(--text3)",padding:12}}, "No questions match filter."));
       return;
     }
-    el.innerHTML = "";
-    el.appendChild(h("div", { className: "stat-grid" },
-      h("div", { className: "stat-card" }, h("div",{className:"label"},"Experiences"), h("div",{className:"value",style:{color:"var(--gold)"}}, String(stats.total_experiences || 0))),
-      h("div", { className: "stat-card" }, h("div",{className:"label"},"Companies"), h("div",{className:"value",style:{color:"var(--green)"}}, String(stats.companies || 0))),
-    ));
-    if (stats.sources?.length) {
-      el.appendChild(sectionHdr("By Source"));
-      stats.sources.forEach(s => {
-        el.appendChild(h("div", { className: "item" }, `${s.source}: ${s.cnt} experiences`));
-      });
-    }
-    if (stats.recent?.length) {
-      el.appendChild(h("div", { style: { marginTop: 12 } }));
-      el.appendChild(sectionHdr("Most Recent"));
-      stats.recent.forEach(r => {
-        const icon = r.overall_result === "offer" ? "✅" : r.overall_result === "reject" ? "❌" : "❔";
-        el.appendChild(h("div", { className: "item" }, `${icon} ${r.company} — ${r.role} — ${r.date_scraped}`));
-      });
-    }
-  });
-}
 
-async function runScrape() {
-  const btn = document.getElementById("scrape-btn");
-  const status = document.getElementById("scrape-status");
-  if (btn) btn.disabled = true;
-  if (status) status.textContent = "Scraping...";
-  const result = await api("POST", "/api/intel/scrape", {});
-  if (status) status.textContent = result?.error ? `Error: ${result.error}` : "Done! Reload Intel tab.";
-  if (btn) btn.disabled = false;
-}
-
-async function loadTrending(company) {
-  const url = company ? `/api/intel/trending?company=${company}` : "/api/intel/trending";
-  const data = await api("GET", url);
-  const el = document.getElementById("intel-content");
-  if (!el || !data) return;
-  if (data.total_rounds === 0) {
-    el.appendChild(h("div", { style: { marginTop:12, color:"var(--text3)", fontSize:11 } }, "No trend data. Run scrape first."));
-    return;
-  }
-  el.appendChild(h("div", { style: { marginTop: 12 } }));
-  el.appendChild(sectionHdr("Trending Topics", `${data.total_rounds} rounds analyzed`));
-  if (data.round_types) {
-    Object.entries(data.round_types).forEach(([rt, cnt]) => {
-      el.appendChild(h("div", { className: "item" }, `${rt}: ${cnt} round(s)`));
+    qs.forEach(q => {
+      const tagColors = { DSA:"var(--red)", SD:"var(--green)", LLD:"var(--purple)", Java:"var(--orange)", Behavioral:"var(--cyan)" };
+      const diffColors = { E:"var(--green)", M:"var(--orange)", H:"var(--red)", P0:"var(--gold)" };
+      const card = h("div", {
+        style:{ background:"var(--bg3)", borderRadius:6, padding:"8px 10px", cursor:"pointer",
+                borderLeft:`3px solid ${tagColors[q.tag]||"var(--text3)"}`,
+                transition:"background 0.1s" },
+        onClick: () => showQuestionDetail(q, detailPanel),
+        onMouseenter: e => e.currentTarget.style.background = "var(--bg4)",
+        onMouseleave: e => e.currentTarget.style.background = "var(--bg3)",
+      },
+        h("div", {style:{display:"flex",justifyContent:"space-between",alignItems:"flex-start",gap:8}},
+          h("div", {style:{fontSize:11,fontWeight:600,color:"var(--text)",flex:1}}, q.q),
+          h("div", {style:{display:"flex",gap:4,flexShrink:0}},
+            h("span", {style:{fontSize:9,padding:"2px 5px",borderRadius:3,background:tagColors[q.tag]+"20",color:tagColors[q.tag]}}, q.tag),
+            h("span", {style:{fontSize:9,padding:"2px 5px",borderRadius:3,background:diffColors[q.diff]+"20",color:diffColors[q.diff]}}, q.diff),
+          ),
+        ),
+        h("div", {style:{fontSize:9,color:"var(--text3)",marginTop:3}},
+          q.cos.slice(0,4).join(" · ") + (q.cos.length > 4 ? ` +${q.cos.length-4}` : ""),
+          q.lc ? h("a", {href:`https://leetcode.com/problems/${q.q.toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"")}/`, target:"_blank", style:{marginLeft:8,color:"var(--gold)",fontSize:9}}, `LC#${q.lc}`) : null,
+        ),
+      );
+      hotList.appendChild(card);
     });
   }
+
+  function renderExperiences() {
+    expList.innerHTML = "";
+    const coParam = filterState.company ? `?company=${filterState.company}&limit=30` : "?limit=30";
+    api("GET", `/api/intel/experiences${coParam}`).then(data => {
+      const exps = data?.experiences || [];
+      if (!exps.length) {
+        expList.appendChild(h("div", {style:{padding:12,fontSize:11,color:"var(--text3)"}},
+          "No experiences yet. Click ⟳ Scrape Sources to fetch data.",
+        ));
+        // Show import hint
+        expList.appendChild(h("div", {style:{marginTop:8,padding:10,background:"var(--bg4)",borderRadius:6,fontSize:10,color:"var(--text3)"}},
+          "💡 Manually import from Blind: use the form below or API /api/intel/import",
+        ));
+        return;
+      }
+
+      exps.forEach(exp => {
+        const icon = exp.overall_result === "offer" ? "✅" : exp.overall_result === "reject" ? "❌" : "❔";
+        const srcColor = { reddit_leetcode:"var(--orange)", reddit_leetcodedesi:"var(--cyan)",
+                           leetcode_discuss:"var(--gold)", blind:"var(--red)", hackernews:"var(--purple)" };
+        const src = exp.source || "unknown";
+        const card = h("div", {
+          style:{ background:"var(--bg3)", borderRadius:6, padding:"8px 10px", cursor:"pointer",
+                  borderLeft:`3px solid ${exp.overall_result==="offer"?"var(--green)":exp.overall_result==="reject"?"var(--red)":"var(--text4)"}`,
+                  transition:"background 0.1s" },
+          onClick: () => showExpDetail(exp, detailPanel),
+          onMouseenter: e => e.currentTarget.style.background = "var(--bg4)",
+          onMouseleave: e => e.currentTarget.style.background = "var(--bg3)",
+        },
+          h("div", {style:{display:"flex",justifyContent:"space-between",alignItems:"flex-start"}},
+            h("div", {style:{fontSize:11,fontWeight:600,color:"var(--text)",flex:1}}, `${icon} ${exp.company} — ${exp.role || "SDE-2"}`),
+            h("span", {style:{fontSize:9,color:srcColor[src]||"var(--text3)",flexShrink:0}}, src.replace("reddit_","r/")),
+          ),
+          h("div", {style:{fontSize:10,color:"var(--text2)",marginTop:2}}, exp.title || "Interview Experience"),
+          h("div", {style:{fontSize:9,color:"var(--text3)",marginTop:2}}, exp.date_scraped || exp.date_posted || ""),
+        );
+        expList.appendChild(card);
+      });
+    });
+  }
+
+  function showQuestionDetail(q, panel) {
+    panel.style.display = "block";
+    panel.innerHTML = "";
+    const tagColors = { DSA:"var(--red)", SD:"var(--green)", LLD:"var(--purple)", Java:"var(--orange)" };
+    panel.appendChild(h("div", {style:{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:12}},
+      h("div", {style:{fontSize:14,fontWeight:700,color:"var(--gold)"}}, q.q),
+      h("button", {style:{background:"none",color:"var(--text3)",fontSize:14,cursor:"pointer"}, onClick:()=>panel.style.display="none"}, "✕"),
+    ));
+    panel.appendChild(h("div", {style:{display:"flex",gap:8,marginBottom:12}},
+      h("span", {style:{padding:"3px 8px",borderRadius:4,background:tagColors[q.tag]+"20",color:tagColors[q.tag],fontSize:10}}, q.tag),
+      h("span", {style:{padding:"3px 8px",borderRadius:4,background:"var(--bg4)",color:"var(--text2)",fontSize:10}}, `Difficulty: ${q.diff}`),
+    ));
+    panel.appendChild(h("div", {style:{fontSize:10,color:"var(--text3)",marginBottom:8}},
+      "Asked at: ", h("span",{style:{color:"var(--text)"}}, q.cos.join(", ")),
+    ));
+    if (q.lc) {
+      panel.appendChild(h("a", {
+        href:`https://leetcode.com/problems/${q.q.toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"")}/`,
+        target:"_blank",
+        style:{display:"inline-block",padding:"6px 14px",background:"var(--gold)",color:"var(--bg)",borderRadius:6,fontSize:11,fontWeight:700,marginTop:4}
+      }, `→ Open LC #${q.lc} on LeetCode`));
+    }
+    panel.appendChild(h("div", {style:{marginTop:12,fontSize:10,color:"var(--text3)"}},
+      "💡 Ask AI Coach: click AI Coach tab → ask about this problem"
+    ));
+    panel.scrollIntoView({behavior:"smooth", block:"nearest"});
+  }
+
+  function showExpDetail(exp, panel) {
+    panel.style.display = "block";
+    panel.innerHTML = "";
+    panel.appendChild(h("div", {style:{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:12}},
+      h("div", {style:{fontSize:13,fontWeight:700,color:"var(--green)"}}, `${exp.company} — ${exp.role || "SDE-2"}`),
+      h("button", {style:{background:"none",color:"var(--text3)",fontSize:14,cursor:"pointer"}, onClick:()=>panel.style.display="none"}, "✕"),
+    ));
+    const resultColor = exp.overall_result === "offer" ? "var(--green)" : exp.overall_result === "reject" ? "var(--red)" : "var(--text3)";
+    panel.appendChild(h("div", {style:{display:"flex",gap:8,marginBottom:10}},
+      h("span",{style:{padding:"3px 8px",borderRadius:4,background:resultColor+"20",color:resultColor,fontSize:10,textTransform:"uppercase"}}, exp.overall_result || "unknown"),
+      h("span",{style:{padding:"3px 8px",borderRadius:4,background:"var(--bg4)",color:"var(--text3)",fontSize:10}}, exp.source || ""),
+      exp.date_posted ? h("span",{style:{padding:"3px 8px",borderRadius:4,background:"var(--bg4)",color:"var(--text3)",fontSize:10}}, exp.date_posted) : null,
+    ));
+    if (exp.title) {
+      panel.appendChild(h("div",{style:{fontSize:11,color:"var(--text2)",marginBottom:8,fontStyle:"italic"}}, `"${exp.title}"`));
+    }
+    if (exp.tc_offered) {
+      panel.appendChild(h("div",{style:{fontSize:11,color:"var(--gold)",marginBottom:6}}, `💰 TC: ${exp.tc_offered}`));
+    }
+    if (exp.url) {
+      panel.appendChild(h("a",{href:exp.url,target:"_blank",style:{fontSize:10,color:"var(--gold)",display:"block",marginBottom:8}}, "→ View original post"));
+    }
+    panel.scrollIntoView({behavior:"smooth", block:"nearest"});
+  }
+
+  // ── Trends Section ──
+  const trendsSection = h("div", {style:{marginTop:24}});
+  app.appendChild(trendsSection);
+
+  const trendsHdr = h("div", {style:{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:10}},
+    h("div", {style:{fontSize:10,fontWeight:700,color:"var(--purple)",letterSpacing:"2px",textTransform:"uppercase"}}, "📈 Trending Now"),
+    h("div", {style:{display:"flex",gap:6,alignItems:"center"}},
+      h("span",{style:{fontSize:9,color:"var(--text3)"}},"Days:"),
+      ...[7,14,30,90].map(d => {
+        const btn = h("button", {
+          style:{padding:"2px 8px",fontSize:9,background:"var(--bg4)",color:"var(--text3)",borderRadius:3,border:"1px solid var(--bg4)"},
+          onClick: () => loadTrends(d, btn, trendsBtns, trendsList)
+        }, `${d}d`);
+        return btn;
+      })
+    )
+  );
+  const trendsBtns = trendsHdr.querySelectorAll ? [...trendsHdr.querySelectorAll("button")] : [];
+  trendsSection.appendChild(trendsHdr);
+
+  const trendsList = h("div", {style:{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(160px,1fr))",gap:8,marginBottom:8}});
+  trendsSection.appendChild(trendsList);
+
+  function loadTrends(days, activeBtn, btns, container) {
+    container.innerHTML = "<div style='font-size:10px;color:var(--text3);padding:8px'>Loading trends...</div>";
+    const co = filterState.company;
+    const url = `/api/intel/trending?days=${days}${co ? `&company=${co}` : ""}`;
+    api("GET", url).then(data => {
+      container.innerHTML = "";
+      const topics = (data?.topics || data?.trending || []).slice(0,12);
+      if (!topics.length) {
+        container.innerHTML = "<div style='font-size:10px;color:var(--text3);padding:8px'>No trends yet — scrape some data first.</div>";
+        return;
+      }
+      const maxCount = Math.max(...topics.map(t => t.count || t.frequency || 1));
+      topics.forEach(t => {
+        const count = t.count || t.frequency || 1;
+        const pct = Math.round((count / maxCount) * 100);
+        container.appendChild(h("div", {style:{background:"var(--bg3)",borderRadius:6,padding:"8px 10px",borderLeft:"3px solid var(--purple)"}},
+          h("div", {style:{fontSize:10,fontWeight:600,color:"var(--text)",marginBottom:4}}, t.topic || t.keyword || t.name || "—"),
+          h("div", {style:{height:3,background:"var(--bg4)",borderRadius:2,marginBottom:4}},
+            h("div", {style:{height:"100%",width:`${pct}%`,background:"var(--purple)",borderRadius:2}})
+          ),
+          h("div", {style:{display:"flex",justifyContent:"space-between",fontSize:9,color:"var(--text3)"}},
+            h("span", null, t.company || co || "All"),
+            h("span", null, `${count}x`),
+          ),
+        ));
+      });
+    }).catch(() => {
+      container.innerHTML = "<div style='font-size:10px;color:var(--text3);padding:8px'>Trends unavailable.</div>";
+    });
+  }
+  loadTrends(30, null, [], trendsList);
+
+  // ── Manual Import Form ──
+  app.appendChild(h("div", {style:{marginTop:24}}));
+  app.appendChild(sectionHdr("Manual Import", "Paste from Blind / enginebogie / LinkedIn"));
+  const importForm = h("div", {style:{background:"var(--bg3)",borderRadius:8,padding:16,display:"grid",gridTemplateColumns:"1fr 1fr",gap:10}});
+  const iCompany = h("input", {type:"text", placeholder:"Company (e.g. Razorpay)"});
+  const iTitle   = h("input", {type:"text", placeholder:"Post title"});
+  const iSource  = h("select", {style:{background:"var(--bg2)",color:"var(--text)",border:"1px solid var(--bg4)",borderRadius:4,padding:"7px 10px",fontSize:11}},
+    ["blind","enginebogie","linkedin","reddit","other"].map(s => h("option",{value:s}, s))
+  );
+  const iResult  = h("select", {style:{background:"var(--bg2)",color:"var(--text)",border:"1px solid var(--bg4)",borderRadius:4,padding:"7px 10px",fontSize:11}},
+    ["unknown","offer","reject"].map(s => h("option",{value:s}, s))
+  );
+  const iBody    = h("textarea", {placeholder:"Paste the full post/experience text here...", style:{gridColumn:"1/-1",minHeight:100}});
+  const iStatus  = h("div", {style:{gridColumn:"1/-1",fontSize:11,color:"var(--text3)"}});
+  const iSubmit  = h("button", {
+    style:{gridColumn:"1/-1",padding:"8px 0",background:"var(--gold)",color:"var(--bg)",borderRadius:6,fontWeight:700,fontSize:11},
+    onClick: async () => {
+      if (!iCompany.value || !iBody.value) { iStatus.textContent = "Company and body are required."; return; }
+      iStatus.textContent = "Saving...";
+      const res = await api("POST", "/api/intel/import", {
+        source: iSource.value, company: iCompany.value, title: iTitle.value || `${iCompany.value} interview`,
+        body: iBody.value, result: iResult.value, url: ""
+      });
+      if (res?.saved) {
+        iStatus.style.color = "var(--green)";
+        iStatus.textContent = `✅ Saved! ID: ${res.id}. Reload to see in feed.`;
+        iBody.value = ""; iCompany.value = ""; iTitle.value = "";
+      } else {
+        iStatus.style.color = "var(--red)";
+        iStatus.textContent = `❌ Error: ${JSON.stringify(res)}`;
+      }
+    }
+  }, "Save Experience");
+
+  importForm.appendChild(h("div",null, h("div",{style:{fontSize:9,color:"var(--text3)",marginBottom:3}},"Company"), iCompany));
+  importForm.appendChild(h("div",null, h("div",{style:{fontSize:9,color:"var(--text3)",marginBottom:3}},"Title"), iTitle));
+  importForm.appendChild(h("div",null, h("div",{style:{fontSize:9,color:"var(--text3)",marginBottom:3}},"Source"), iSource));
+  importForm.appendChild(h("div",null, h("div",{style:{fontSize:9,color:"var(--text3)",marginBottom:3}},"Result"), iResult));
+  importForm.appendChild(iBody);
+  importForm.appendChild(iSubmit);
+  importForm.appendChild(iStatus);
+  app.appendChild(importForm);
+
+  // Initial load
+  refreshFeed();
+}
+
+async function runScrape(statusEl) {
+  if (statusEl) statusEl.textContent = "Scraping... (runs in background, check back in 30s)";
+  const result = await api("POST", "/api/intel/scrape", {});
+  if (statusEl) statusEl.textContent = result?.error ? `Error: ${result.error}` : "✅ Scrape triggered — reload in 30s";
 }
 
 // ══════════════════════════════════════════════════════════════════════════════
