@@ -12,15 +12,16 @@ PHASE 2  Jun–Sep 2026  →  Dream offer: Amazon / Google / Goldman / Swiggy   
 
 ## Project Overview
 
-A **personal, full-stack interview preparation system** — not just notes. Built for one purpose: getting from GSTN → FAANG/Tier-1 India in 26 weeks.
+A **personal, full-stack interview preparation system** — not just notes. Built for one purpose: getting from GSTN → FAANG/Tier-1 India in 26 weeks. Deployed on Railway, accessible from anywhere.
 
 | Layer | What it does |
 |-------|-------------|
 | **CLI** (`prep`) | Daily planner, drill engine, mock runner, AI coach, 55+ commands |
-| **Intelligence Engine** (`intel/`) | Scrapes real interview experiences (Reddit, LeetCode, HN), feeds them to an AI coach |
+| **Intelligence Engine** (`intel/`) | Scrapes real interview experiences (Reddit OAuth2, LeetCode Discuss), trending topic analysis |
 | **FastAPI Server** (`app/`) | REST API + web portal + background scheduler |
-| **Practice Engines** | Java DSA drill (warplan-aligned), LLD (20 problems), mock score tracker, behavioral gap detector, TC intel |
-| **War Plan** (`docs/MASTER_16H_WARPLAN.md`) | 26-week 16h/day schedule with weekly LC targets, PP watch order, company strategies |
+| **Practice Engines** | Java DSA drill (211 problems, 16 companies), LLD (20 problems), mock score tracker, behavioral gap detector, TC intel |
+| **War Plan** (`MASTER_16H_WARPLAN.md`) | 26-week 16h/day schedule with weekly LC targets, PP watch order, company strategies |
+| **Web Portal** (`portal/index.html`) | Single-file dashboard: Dashboard, AI Coach, Intel, War Plan, Resources, Career, Courses, Settings |
 
 ---
 
@@ -32,28 +33,31 @@ echo 'alias prep="python3 /Users/jayanti/Documents/dev/senior-prep/prep.py"' >> 
 source ~/.zshrc
 
 # 2. Start your day
-prep               # today's plan (time-aware: shows current block)
-prep drill         # today's Java DSA problems (warplan-aligned, all 12 Week 1 targets)
+prep status        # full dashboard: streak, LC count, apps, week
 prep brief         # morning brief (streak, intel, plan)
-prep pp            # today's Programming Pathshala module
+prep drill         # today's Java DSA problems (warplan-aligned)
+prep jqa           # today's Java theory topic + P0 questions
 
 # 3. Study
-prep warplan       # open 26-week war plan (first 80 lines)
+prep warplan       # open 26-week war plan
 prep warplan 4     # jump to Week 4 details
+prep assault       # alias for warplan
+prep drill company amazon   # Amazon-specific problem bank (160 problems)
+prep drill bank             # list all companies + problem counts
 prep java          # today's recommended Java theory topic
-prep java list     # all 15 Java/Spring/Concurrency topics + readiness %
+prep java list     # all 16 topics + readiness %
 prep lld parking-lot  # LLD practice session
 prep lp-check      # behavioral gap analysis
 
 # 4. Track
-prep lc "Two Sum"               # mark LeetCode problem done (in Java!)
-prep jqa done oop               # mark Java OOP topic as studied
-prep pp done "DSA Module 3"     # mark PP module as watched
-prep log                        # log today's work
-prep check                      # health check + coach advice
+prep lc "Two Sum"            # mark LeetCode problem done (in Java!)
+prep jqa done oop            # mark Java OOP topic as studied
+prep log "worked on trees"   # log today's activity
+prep check                   # health check + coach advice
 
 # 5. Web portal
-prep portal        # starts FastAPI at http://localhost:5555
+prep portal        # starts FastAPI at http://localhost:8080
+# Or open your Railway deployment URL in any browser
 ```
 
 ---
@@ -160,18 +164,14 @@ prep brief                      # today's morning brief
 prep brief --send               # send to phone (requires NTFY_TOPIC env var)
 ```
 
-### War Plan
-```bash
-prep warplan                    # open MASTER_16H_WARPLAN.md (26-week summary)
-prep warplan 1                  # jump to Week 1 detail
-prep warplan 19                 # Amazon full-prep week detail
-```
-
-### Java DSA Drill Engine — Warplan-Aligned
+### Java DSA Drill Engine
 ```bash
 prep drill                      # this week's exact LC problems (from warplan)
-                                # Week 1: all 12 problems (LC #1,3,11,15,121,125...)
-prep drill google               # filter by company trending patterns
+prep drill week 3               # week 3 problems
+prep drill company amazon       # Amazon problem bank (160 problems)
+prep drill company google       # Google bank (133 problems)
+prep drill company stripe       # Stripe bank (9 problems)
+prep drill bank                 # list all 16 companies + problem counts
 prep drill done "Two Sum"       # mark done
 prep drill done "Two Sum" --time 28 --struggled
 prep drill stats                # drill streak + history
@@ -179,14 +179,25 @@ prep drill stats                # drill streak + history
 
 ### Java Theory — `prep java` / `prep jqa`
 ```bash
+prep jqa                        # today's Java topic + P0 questions
+prep jqa list                   # all 16 topics with study %
+prep jqa done threads           # mark topic as studied
 prep java                       # today's recommended Java topic + weak areas
-prep java list                  # all 15 topics with P0 question count + readiness %
+prep java list                  # all 16 topics with P0 question count + readiness %
 prep java oop                   # show all OOP P0 questions
 prep java concurrency           # critical: Java concurrency (Goldman, PhonePe, Adobe)
 prep java kafka                 # Kafka internals + patterns
 prep java done oop              # mark OOP as studied today
 prep java reset oop             # reset (re-study next week)
 prep java oop --hints           # show 1-line answer hints
+```
+
+### War Plan
+```bash
+prep warplan                    # open MASTER_16H_WARPLAN.md (26-week summary)
+prep warplan 1                  # jump to Week 1 detail
+prep warplan 19                 # Amazon full-prep week detail
+prep assault                    # alias for warplan
 ```
 
 ### Programming Pathshala Tracker
@@ -251,14 +262,15 @@ prep ai-mock dsa google hard    # Google-style hard DSA question
 
 ### Intelligence Engine
 ```bash
-prep scrape                     # scrape all sources (LeetCode, Reddit, HackerNews)
+prep scrape                     # scrape all sources (Reddit OAuth2, LeetCode Discuss)
 prep scrape reddit              # scrape specific source
+prep scrape lc                  # just LeetCode Discuss
 prep trending                   # what's being asked across all companies
 prep trending google 30         # Google-specific last 30 days
 prep experiences                # browse scraped interview experiences
 prep experiences amazon sde2    # filter by company + role
 prep company google             # full company intelligence profile
-prep add-experience             # manually add an experience
+prep add-experience             # manually add an experience (Blind/enginebogie paste)
 prep intel-status               # DB dashboard (total experiences, sources)
 prep resources                  # curated resource index
 prep resources dsa              # DSA resources only
@@ -368,39 +380,52 @@ prep brief --send
 |---|---|---|
 | `/api/drill/today` | GET | Today's Java DSA drill (warplan-aligned) |
 | `/api/drill/done` | POST | Mark drill problem done |
-| `/api/hi-curriculum` | GET | PP course JSON (falls back to programming_pathshala_courses.json) |
+| `/api/drill/stats` | GET | Drill streak + history |
+| `/api/drill/companies` | GET | All companies + problem counts |
+| `/api/drill/company/{company}` | GET | Problems for a specific company |
+| `/api/jqa` | GET | Today's Java theory topic + P0 questions |
+| `/api/jqa/list` | GET | All 16 topics with study % |
+| `/api/jqa/topic/{id}` | GET | Questions for a specific topic |
+| `/api/jqa/done/{id}` | POST | Mark topic as studied |
+| `/api/warplan` | GET | War plan content (`?week=N` for a specific week) |
 | `/api/mock/trend` | GET | Score trend over time |
 | `/api/mock/score` | POST | Save mock session score |
-| `/api/mock/readiness/{company}` | GET | Readiness % per round |
-| `/api/lld/problems` | GET | List 20 LLD problems |
+| `/api/mock/readiness/{company}` | GET | Readiness % per round type |
+| `/api/lld/problems` | GET | List LLD problems |
+| `/api/lld/problem/{key}` | GET | Problem details |
+| `/api/lld/score` | POST | Save LLD session score |
 | `/api/lld/evaluate` | POST | AI-evaluate your design |
 | `/api/behavioral/check` | GET | Amazon LP gap analysis |
+| `/api/behavioral/probes/{lp}` | GET | Probing questions for an LP |
 | `/api/tc/{company}` | GET | TC intelligence |
 | `/api/brief` | GET | Morning brief (`?send=true` for push) |
-| `/api/coach` | POST | AI coaching (non-stream) |
+| `/api/coach` | POST | AI coaching (non-stream, 30 req/min) |
 | `/api/coach/stream` | POST | AI coaching (SSE stream) |
 | `/api/intel/stats` | GET | DB dashboard |
-| `/api/intel/experiences` | GET | Search experiences |
-| `/api/intel/trending` | GET | Trending topics |
-| `/api/intel/company/{name}` | GET | Company profile |
-| `/api/intel/scrape` | POST | Trigger scrape |
+| `/api/intel/experiences` | GET | Search experiences (`?company=&role=`) |
+| `/api/intel/trending` | GET | Trending topics (`?company=&days=30`) |
+| `/api/intel/company/{name}` | GET | Company intelligence profile |
+| `/api/intel/scrape` | POST | Trigger scrape in background |
+| `/api/intel/import` | POST | Manual import (Blind/enginebogie paste) |
+| `/api/intel/import/guide` | GET | Setup guide for each source |
+| `/api/intel/resources` | GET | Curated resources (`?cat=dsa`) |
 | `/api/progress` | GET/POST | Progress data |
 | `/api/gaps` | GET | Gap analysis |
-| `/api/career/ladder` | GET | SDE-2→SDE-3 map |
+| `/api/career/ladder` | GET | SDE-2→SDE-3 skill map |
 | `/health` | GET | Health check |
 
 ---
 
 ## What's Done ✅
 
-| Feature | Status | Command |
+| Feature | Status | Command / Where |
 |---|---|---|
 | 26-week daily prep plan | ✅ | `prep` / `prep plan` |
-| 26-week war plan (16h/day) | ✅ | `prep warplan` |
+| 26-week war plan (16h/day) | ✅ | `prep warplan` / `prep assault` |
 | LeetCode sync (auto + manual) | ✅ | `prep sync`, `prep lc` |
 | Pattern heatmap | ✅ | `prep heatmap` |
 | Java language tracker | ✅ | `prep java` |
-| Java Q&A bank (160 P0 questions, 15 topics) | ✅ | `prep java list` |
+| Java Q&A bank (123 P0 questions, 16 topics) | ✅ | `prep jqa` / portal War Plan |
 | Programming Pathshala tracker | ✅ | `prep pp` |
 | Spaced repetition (15 topics) | ✅ | `prep sr` |
 | Bug journal + failure analysis | ✅ | `prep bug`, `prep recover` |
@@ -411,8 +436,12 @@ prep brief --send
 | Health check + coach notes | ✅ | `prep check` |
 | Weekly retro + summary export | ✅ | `prep retro` |
 | FastAPI web server | ✅ | `prep portal` |
-| Intel scraping (Reddit, LC, HN) | ✅ | `prep scrape` |
-| RAG-based AI coach | ✅ | `prep ask` |
+| **Deployed on Railway** | ✅ | push to main → auto-deploy |
+| Intel scraping (Reddit OAuth2, LC Discuss) | ✅ | `prep scrape` / portal Intel |
+| **Manual import (Blind/enginebogie paste)** | ✅ | portal Intel → form / `POST /api/intel/import` |
+| **Trending topics (7/14/30/90d, by company)** | ✅ | portal Intel → Trends |
+| **Hot Questions panel (30 real questions)** | ✅ | portal Intel tab |
+| RAG-based AI coach | ✅ | `prep ask` / portal AI Coach |
 | JD gap analysis | ✅ | `prep jd-analyze` |
 | Answer evaluation (hire rubric) | ✅ | `prep evaluate` |
 | STAR story generator | ✅ | `prep story` |
@@ -420,15 +449,16 @@ prep brief --send
 | Readiness assessment | ✅ | `prep readiness` |
 | Background scheduler | ✅ | auto with portal |
 | Docker + docker-compose | ✅ | `docker-compose up` |
-| Java DSA Drill Engine (warplan-aligned) | ✅ | `prep drill` |
+| **Java DSA Drill Bank (211 problems, 16 companies)** | ✅ | `prep drill company amazon` |
 | Mock score tracker (trend charts) | ✅ | `prep mock-round` |
 | LLD Practice Engine (20 problems) | ✅ | `prep lld` |
 | Behavioral gap detector (Amazon LPs) | ✅ | `prep lp-check` |
 | TC intelligence (11 companies) | ✅ | `prep tc` |
-| Morning brief + ntfy.sh push | ✅ | `prep brief` |
+| Morning brief + push notifications | ✅ | `prep brief` |
 | Source status dashboard | ✅ | `prep sources` |
 | InterviewBit fetcher | ✅ | `prep ib` |
-| DB schema (9 tables, WAL mode) | ✅ | auto on startup |
+| **War Plan portal tab** | ✅ | portal → War Plan (W1–W26 selector) |
+| DB schema (SQLite, WAL mode) | ✅ | auto on startup |
 
 ---
 
@@ -437,19 +467,17 @@ prep brief --send
 ### P0 — Do this week (Week 1)
 | Task | Why | How |
 |---|---|---|
-| Set `ANTHROPIC_API_KEY` | Unlocks all AI features | `export ANTHROPIC_API_KEY=sk-ant-...` |
 | Switch LeetCode to Java | Critical gap: only 4/155 in Java | LeetCode → Code → change language |
 | `prep drill` every morning | Fixes Java gap in 6 weeks | 30 min morning block — 12 problems target |
-| `prep java done oop` after studying | Tracks Java theory progress | `prep java list` to see all topics |
+| `prep jqa done oop` after studying | Tracks Java theory progress | `prep jqa list` to see all 16 topics |
 | Complete missing LP stories | 4 critical LPs have 0 stories | `prep lp-check` → write stories |
-| `prep pp done "DSA Module 3"` | Track PP watch progress | After watching DSA Module 3 videos |
+| Add Reddit API keys to Railway | Enables auto-scraping on cloud | reddit.com/prefs/apps → Railway env vars |
 
 ### P1 — This month
 | Task | Why | How |
 |---|---|---|
 | Set up ntfy.sh phone push | Automatic daily brief on phone | `export NTFY_TOPIC=prepforge-yourname` |
-| Set up Reddit PRAW API | 2x more experiences scraped | reddit.com/prefs/apps → 2 min |
-| Deploy to Railway.app | Access from anywhere | See Deployment section |
+| Import Blind posts manually | High-quality India-specific intel | Portal Intel tab → Manual Import form |
 | Add LP stories for 4 critical gaps | Amazon LP asked every round | Dive Deep, Bias for Action, Earn Trust, Have Backbone |
 | `prep lld parking-lot` weekly | LLD at Adobe, Flipkart, CRED | Every Saturday |
 
@@ -457,8 +485,6 @@ prep brief --send
 | Feature | Effort |
 |---|---|
 | Vector search (Qdrant semantic RAG) | 1 day |
-| Blind/TeamBlind scraper | 2h — needs session cookie |
-| Portal UI for new practice features | 1 day |
 | Live TC scraper (levels.fyi) | Working, may hit rate limits |
 | Test suite | Not critical for personal tool |
 
@@ -566,13 +592,28 @@ prep portal
 docker-compose up
 ```
 
-**Option C — Railway.app (free, recommended):**
+**Option C — Railway.app (deployed, recommended):**
 ```bash
-# Push to GitHub → connect Railway → set env vars → auto-deploys
-# Free tier: 500 MB RAM, always-on, custom .railway.app domain
+# Already deployed — push to main → auto-redeploys in ~2 min
+git push origin main
+
+# Required Railway env vars:
+# ANTHROPIC_API_KEY    — AI Coach (required)
+# REDDIT_CLIENT_ID     — Reddit OAuth2 scraping (optional)
+# REDDIT_CLIENT_SECRET — Reddit OAuth2 scraping (optional)
+# TELEGRAM_BOT_TOKEN   — morning brief push (optional)
+# TELEGRAM_CHAT_ID     — morning brief push (optional)
 ```
+
+### Reddit Setup (for cloud scraping)
+1. Go to [reddit.com/prefs/apps](https://reddit.com/prefs/apps) — **check the reCAPTCHA box**
+2. Create "script" app → copy Client ID + Secret
+3. Add to Railway Variables → auto-redeploys
+4. Portal Intel → "Scrape Sources" now fetches from 6 subreddits via OAuth2
+
+Without keys, public `.json` API is used (works locally, blocked on cloud IPs).
 
 ---
 
-*Last updated: Mar 24, 2026 · Day 6/184 · Week 1/26 · Phase 1*
+*Last updated: Mar 25, 2026 · Day 7/184 · Week 1/26 · Phase 1*
 *Stack: Java · Spring Boot · Kafka · Redis · MySQL · MongoDB · Golang · Docker · K8s · AWS*
