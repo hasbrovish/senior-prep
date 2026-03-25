@@ -12,29 +12,32 @@
     ],
     "2026-03-20": [
       "[LeetCode sync] 1 new problem(s) solved (total: 155)"
+    ],
+    "2026-03-25": [
+      "[LeetCode sync] 3 new problem(s) solved (total: 158)"
     ]
   },
   "topics_done": [],
   "offers": [],
   "lc_sync": {
     "username": "hasbrovish95",
-    "total": 155,
+    "total": 158,
     "easy": 62,
-    "medium": 77,
+    "medium": 80,
     "hard": 16,
-    "streak": 4,
-    "total_active_days": 16,
-    "today_submissions": 0,
+    "streak": 2,
+    "total_active_days": 9,
+    "today_submissions": 7,
     "beats_easy": 81.4,
-    "beats_medium": 81.4,
+    "beats_medium": 82.0,
     "beats_hard": 73.1,
-    "java_problems": 4,
+    "java_problems": 9,
     "cpp_problems": 151,
     "python_problems": 3,
     "go_problems": 1,
     "languages": {
       "C++": 151,
-      "Java": 4,
+      "Java": 9,
       "Go": 1,
       "Python3": 3
     },
