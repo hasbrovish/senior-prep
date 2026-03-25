@@ -73,18 +73,20 @@ def _get_oauth_token():
 
 
 def _fetch_json(url, use_oauth=True):
-    """Fetch Reddit JSON with OAuth if available, fallback to public API."""
+    """Fetch Reddit JSON with OAuth if available, fallback to public API.
+
+    Respects X-Ratelimit-Remaining header — backs off when close to limit.
+    OAuth: 100 req/10 min. Public: 10 req/min (IP-based, fails on cloud IPs).
+    """
     token = _get_oauth_token() if use_oauth else None
 
     if token:
-        # Use OAuth API endpoint
         oauth_url = url.replace("https://www.reddit.com/", "https://oauth.reddit.com/")
         headers = {
             "Authorization": f"Bearer {token}",
             "User-Agent": REDDIT_USER_AGENT,
         }
     else:
-        # Fallback: public .json endpoint
         oauth_url = url
         headers = {"User-Agent": REDDIT_USER_AGENT}
 
@@ -92,15 +94,32 @@ def _fetch_json(url, use_oauth=True):
         try:
             req = urllib.request.Request(oauth_url, headers=headers)
             with urllib.request.urlopen(req, timeout=15) as resp:
+                # Respect rate limit headers
+                remaining = resp.headers.get("X-Ratelimit-Remaining", "99")
+                reset_secs = resp.headers.get("X-Ratelimit-Reset", "0")
+                try:
+                    if float(remaining) < 5:
+                        wait = min(int(reset_secs) + 1, 30)
+                        print(f"  ⏳ Reddit rate limit low ({remaining} remaining) — waiting {wait}s")
+                        time.sleep(wait)
+                except (ValueError, TypeError):
+                    pass
                 return json.loads(resp.read())
         except urllib.error.HTTPError as e:
-            if e.code == 403 and token:
-                # OAuth blocked — force token refresh
+            if e.code == 429:
+                # Hard rate limit hit — wait for reset
+                wait = int(e.headers.get("X-Ratelimit-Reset", "60")) + 1
+                print(f"  ⏳ Reddit 429 — waiting {wait}s")
+                time.sleep(wait)
+            elif e.code == 403 and token:
                 global _oauth_token
                 _oauth_token = None
                 return None
-            if attempt < 2:
+            elif attempt < 2:
                 time.sleep(2 ** attempt)
+            else:
+                print(f"  ⚠️  Reddit HTTP {e.code} for {url[:60]}")
+                return None
         except Exception as e:
             if attempt < 2:
                 time.sleep(2 ** attempt)
