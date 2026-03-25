@@ -122,9 +122,32 @@ async def manual_import(body: ManualImportRequest):
             "date_posted":    None,
         }
         exp_id = insert_experience(exp)
+        # Auto-enrich the newly imported experience with LLM
+        if exp_id:
+            try:
+                from intel.exp_extractor import enrich_pending_experiences
+                enrich_pending_experiences(limit=1)
+            except Exception:
+                pass
         return {"saved": bool(exp_id), "id": exp_id, "company": body.company}
     except Exception as e:
         raise HTTPException(500, str(e))
+
+
+@router.post("/enrich")
+async def enrich_experiences(background_tasks: BackgroundTasks, limit: int = 30):
+    """
+    LLM-enrich pending experiences (those with no body_summary).
+    Runs in background. Use after scraping to extract real questions from raw posts.
+    """
+    def _do():
+        try:
+            from intel.exp_extractor import enrich_pending_experiences
+            enrich_pending_experiences(limit=limit)
+        except Exception:
+            pass
+    background_tasks.add_task(_do)
+    return {"ok": True, "message": f"Enriching up to {limit} experiences with LLM in background"}
 
 
 @router.get("/import/guide")

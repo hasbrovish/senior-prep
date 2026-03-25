@@ -74,6 +74,22 @@ async def lifespan(app: FastAPI):
     except Exception as e:
         print(f"  ⚠️  Intel DB: {e}")
 
+    # Init feedback/logging tables
+    try:
+        from intel.feedback_engine import init_feedback_tables
+        init_feedback_tables()
+        print("  ✅ Feedback tables initialized")
+    except Exception as e:
+        print(f"  ⚠️  Feedback tables: {e}")
+
+    # Init knowledge base (pre-index docs for AI coach)
+    try:
+        from intel.knowledge_base import init_kb
+        init_kb()
+        print("  ✅ Knowledge base indexed")
+    except Exception as e:
+        print(f"  ⚠️  Knowledge base: {e}")
+
     # Start background scheduler
     try:
         from app.scheduler import start_scheduler

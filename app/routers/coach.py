@@ -7,7 +7,7 @@ Includes RAG: retrieves relevant interview experiences before prompting Claude.
 import os, json, sys
 from pathlib import Path
 from typing import Optional, List
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, BackgroundTasks
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
 
@@ -47,21 +47,51 @@ class CoachRequest(BaseModel):
     round_type: Optional[str] = None
 
 
-def _get_rag_context(query: str, company: Optional[str] = None, limit: int = 5) -> str:
-    """Retrieve relevant interview experiences for RAG context."""
+def _get_rag_context(query: str,
+                     context_type: str = "general",
+                     company: Optional[str] = None,
+                     limit: int = 5) -> str:
+    """
+    Full RAG context = knowledge base (your prep docs) + scraped interview experiences.
+    """
+    ctx_parts = []
+
+    # 1. Knowledge base — your Interview_Answers/ + docs/ files
+    try:
+        from intel.knowledge_base import get_coach_context
+        kb_ctx = get_coach_context(query, context_type=context_type, company=company)
+        if kb_ctx:
+            ctx_parts.append(kb_ctx)
+    except Exception:
+        pass
+
+    # 2. Scraped interview experiences (from DB)
     try:
         from intel.db import search_experiences
+        from intel.exp_extractor import get_enriched_questions
+        # First try LLM-enriched questions
+        enriched_qs = get_enriched_questions(company=company, limit=8)
+        if enriched_qs:
+            lines = ["\n--- REAL INTERVIEW QUESTIONS (LLM-extracted from scraped posts) ---"]
+            for q in enriched_qs[:5]:
+                lines.append(f"[{q['company']} | {q['round_type']} | {q['difficulty']}] {q['question']}")
+                if q.get("key_insight"):
+                    lines.append(f"  → Insight: {q['key_insight']}")
+            ctx_parts.append("\n".join(lines))
+
+        # Also include experience summaries
         results = search_experiences(company=company, limit=limit)
-        if not results:
-            return ""
-        lines = ["\n--- RELEVANT INTERVIEW EXPERIENCES FROM DB ---"]
-        for r in results[:3]:
-            lines.append(f"[{r['company']} {r['role']}] {r['title']}")
-            if r.get("body_summary"):
-                lines.append(f"  Summary: {r['body_summary'][:200]}")
-        return "\n".join(lines)
+        if results:
+            lines = ["\n--- INTERVIEW EXPERIENCE SUMMARIES ---"]
+            for r in results[:3]:
+                lines.append(f"[{r['company']} {r['role']}] {r['title']}")
+                if r.get("body_summary"):
+                    lines.append(f"  Summary: {r['body_summary'][:200]}")
+            ctx_parts.append("\n".join(lines))
     except Exception:
-        return ""
+        pass
+
+    return "\n".join(ctx_parts)
 
 
 def _call_claude_stream(system_prompt: str, messages: list):
@@ -205,11 +235,13 @@ async def coach_chat(body: CoachRequest):
     if not ANTHROPIC_KEY:
         raise HTTPException(400, "ANTHROPIC_API_KEY not configured")
 
+    ctx_type = body.context_type or "general"
     rag = _get_rag_context(
         body.messages[-1].content if body.messages else "",
+        context_type=ctx_type,
         company=body.company
     )
-    system = body.system or _build_system(body.context_type or "general", body.company or "", rag)
+    system = body.system or _build_system(ctx_type, body.company or "", rag)
     messages = [{"role": m.role, "content": m.content} for m in body.messages]
 
     text = _call_claude(system, messages)
@@ -222,11 +254,13 @@ async def coach_stream(body: CoachRequest):
     if not ANTHROPIC_KEY:
         raise HTTPException(400, "ANTHROPIC_API_KEY not configured")
 
+    ctx_type = body.context_type or "general"
     rag = _get_rag_context(
         body.messages[-1].content if body.messages else "",
+        context_type=ctx_type,
         company=body.company
     )
-    system = body.system or _build_system(body.context_type or "general", body.company or "", rag)
+    system = body.system or _build_system(ctx_type, body.company or "", rag)
     messages = [{"role": m.role, "content": m.content} for m in body.messages]
 
     return StreamingResponse(
@@ -244,7 +278,7 @@ async def analyze_jd(body: dict):
     company = body.get("company", "")
     if not jd:
         raise HTTPException(400, "jd_text required")
-    rag = _get_rag_context(jd, company=company)
+    rag = _get_rag_context(jd, context_type="jd", company=company)
     system = _build_system("jd", company, rag)
     result = _call_claude(system, [{"role": "user", "content": f"Company: {company}\n\nJD:\n{jd}"}])
     # Save to DB
@@ -264,8 +298,44 @@ async def evaluate_answer(body: dict):
     answer   = body.get("answer", "")
     round_type = body.get("round_type", "general")
     company  = body.get("company", "")
-    rag = _get_rag_context(question, company=company)
+    rag = _get_rag_context(question, context_type="answer_eval", company=company)
     system = _build_system("answer_eval", company, rag)
     prompt = f"Round: {round_type}\nQuestion: {question}\nAnswer: {answer}"
     result = _call_claude(system, [{"role": "user", "content": prompt}])
     return {"evaluation": result}
+
+
+@router.get("/coach/kb/stats")
+async def kb_stats():
+    """Knowledge base statistics — how many chunks indexed from which documents."""
+    try:
+        from intel.knowledge_base import get_kb_stats
+        return get_kb_stats()
+    except Exception as e:
+        raise HTTPException(500, str(e))
+
+
+@router.post("/coach/kb/reindex")
+async def kb_reindex(background_tasks: BackgroundTasks, force: bool = False):
+    """Re-index all documents into the knowledge base (runs in background)."""
+    def _do():
+        try:
+            from intel.knowledge_base import init_kb
+            init_kb(force=force)
+        except Exception:
+            pass
+    background_tasks.add_task(_do)
+    return {"ok": True, "message": "Re-indexing knowledge base in background"}
+
+
+@router.get("/coach/questions")
+async def get_real_questions(company: Optional[str] = None,
+                              round_type: Optional[str] = None,
+                              limit: int = 30):
+    """Real interview questions extracted by LLM from scraped posts."""
+    try:
+        from intel.exp_extractor import get_enriched_questions
+        questions = get_enriched_questions(company=company, round_type=round_type, limit=limit)
+        return {"questions": questions, "count": len(questions)}
+    except Exception as e:
+        raise HTTPException(500, str(e))

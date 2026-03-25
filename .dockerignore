@@ -19,3 +19,10 @@ __pycache__/
 node_modules/
 01_Career_Interview_Prep/
 trackers-docs/
+# Large binary files in Interview_Answers (PDFs, DOCX, XLSX, ZIP)
+Interview_Answers/*.pdf
+Interview_Answers/*.docx
+Interview_Answers/*.xlsx
+Interview_Answers/*.zip
+docs/books/
+prepforge-export-*.json
