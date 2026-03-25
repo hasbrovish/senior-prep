@@ -192,8 +192,10 @@ async def mark_jqa_done(topic_id: str):
 async def get_warplan(week: Optional[int] = None):
     """Get the war plan content, optionally filtered to a specific week."""
     plan_candidates = [
-        BASE / "ULTIMATE_INTERVIEW_ASSAULT.md",
-        BASE / "MASTER_16H_WARPLAN.md",
+        BASE / "docs" / "ULTIMATE_INTERVIEW_ASSAULT.md",
+        BASE / "docs" / "MASTER_16H_WARPLAN.md",
+        BASE / "ULTIMATE_INTERVIEW_ASSAULT.md",   # legacy root fallback
+        BASE / "MASTER_16H_WARPLAN.md",           # legacy root fallback
     ]
     plan_file = None
     for pf in plan_candidates:

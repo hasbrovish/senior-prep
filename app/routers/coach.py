@@ -21,7 +21,7 @@ ANTHROPIC_KEY = os.environ.get("ANTHROPIC_API_KEY", "")
 try:
     from intel.config import CLAUDE_MODEL, CLAUDE_MAX_TOKENS
 except ImportError:
-    CLAUDE_MODEL      = os.environ.get("CLAUDE_MODEL", "claude-sonnet-4-20250514")
+    CLAUDE_MODEL      = os.environ.get("CLAUDE_MODEL", "claude-sonnet-4-5")
     CLAUDE_MAX_TOKENS = 4096
 
 PROFILE_CONTEXT = """

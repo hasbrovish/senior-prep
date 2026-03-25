@@ -4298,9 +4298,10 @@ if __name__ == "__main__":
     elif cmd in ("warplan", "show-plan", "16h", "assault"):
         # Check multiple plan file locations
         plan_candidates = [
+            BASE / "docs" / "ULTIMATE_INTERVIEW_ASSAULT.md",
+            BASE / "docs" / "MASTER_16H_WARPLAN.md",
             BASE / "ULTIMATE_INTERVIEW_ASSAULT.md",
             BASE / "MASTER_16H_WARPLAN.md",
-            BASE / "docs" / "MASTER_16H_WARPLAN.md",
         ]
         plan_file = None
         for pf in plan_candidates:

@@ -6,8 +6,8 @@ Install: https://ntfy.sh  (or use web push at ntfy.sh/<topic>)
 
 Setup (one time):
   1. Install ntfy app on phone
-  2. Subscribe to topic: prepforge-<your_name>  (e.g. prepforge-jayanti)
-  3. Add to ~/.zshrc:  export NTFY_TOPIC=prepforge-jayanti
+  2. Subscribe to topic: senior_prep_sde2  (e.g. senior_prep_sde2)
+  3. Add to ~/.zshrc:  export NTFY_TOPIC=senior_prep_sde2
   4. Optional: export NTFY_TOKEN=<token>  (only needed for private topics)
 
 What the brief contains:
@@ -173,17 +173,37 @@ def send_morning_brief(topic: str = None, verbose: bool = False) -> bool:
 
     try:
         token = os.environ.get("NTFY_TOKEN", "")
+
+        # HTTP headers must be ASCII strings — strip/replace non-ASCII chars
+        # Replace common non-ASCII chars before ASCII encoding
+        safe_title = (brief["title"]
+            .replace("—", "-").replace("–", "-")   # em/en dash -> -
+            .replace("│", "|").replace("’", "'")   # box-draw, smart quote
+            .encode("ascii", errors="ignore").decode("ascii"))
+
+        # Build rich notification body: full sections, not just the short body
+        full_body = "\n\n".join(filter(None, [
+            brief.get("body", ""),
+            brief["sections"].get("week", ""),
+            brief["sections"].get("drill", ""),
+            brief["sections"].get("intel", ""),
+            brief["sections"].get("behavioral", ""),
+        ])).strip()
+        full_body = full_body[:4000]  # ntfy.sh 4096-char limit
+
         headers = {
-            "Title":   brief["title"].encode(),
-            "Content-Type": b"text/plain",
+            "Title":        safe_title,
+            "Content-Type": "text/plain; charset=utf-8",
+            "Priority":     "default",
+            "Tags":         "books,computer",
         }
         if token:
-            headers["Authorization"] = f"Bearer {token}".encode()
+            headers["Authorization"] = f"Bearer {token}"
 
         req = urllib.request.Request(
             f"{NTFY_BASE}/{topic}",
-            data=brief["body"].encode("utf-8"),
-            headers={k: v if isinstance(v, bytes) else v.encode() for k, v in headers.items()},
+            data=full_body.encode("utf-8"),
+            headers=headers,
             method="POST",
         )
         with urllib.request.urlopen(req, timeout=10):
@@ -230,13 +250,13 @@ def setup_ntfy_instructions():
      iOS:     https://apps.apple.com/us/app/ntfy/id1625396347
 
   2. Choose a topic name (it's like a channel):
-     Example: prepforge-jayanti
+     Example: senior_prep_sde2
      (Pick something unique — anyone who knows the name can subscribe)
 
   3. In the app: tap "+" → enter topic name → Subscribe
 
   4. Add to ~/.zshrc:
-     export NTFY_TOPIC=prepforge-jayanti
+     export NTFY_TOPIC=senior_prep_sde2
 
   5. Test it:
      prep brief --send

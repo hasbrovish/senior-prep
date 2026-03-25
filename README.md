@@ -20,7 +20,7 @@ A **personal, full-stack interview preparation system** — not just notes. Buil
 | **Intelligence Engine** (`intel/`) | Scrapes real interview experiences (Reddit OAuth2, LeetCode Discuss), trending topic analysis |
 | **FastAPI Server** (`app/`) | REST API + web portal + background scheduler |
 | **Practice Engines** | Java DSA drill (211 problems, 16 companies), LLD (20 problems), mock score tracker, behavioral gap detector, TC intel |
-| **War Plan** (`MASTER_16H_WARPLAN.md`) | 26-week 16h/day schedule with weekly LC targets, PP watch order, company strategies |
+| **War Plan** (`docs/MASTER_16H_WARPLAN.md`) | 26-week 16h/day schedule with weekly LC targets, PP watch order, company strategies |
 | **Web Portal** (`portal/index.html`) | Single-file dashboard: Dashboard, AI Coach, Intel, War Plan, Resources, Career, Courses, Settings |
 
 ---
@@ -56,7 +56,7 @@ prep log "worked on trees"   # log today's activity
 prep check                   # health check + coach advice
 
 # 5. Web portal
-prep portal        # starts FastAPI at http://localhost:8080
+prep portal        # starts FastAPI at http://localhost:5555
 # Or open your Railway deployment URL in any browser
 ```
 
@@ -82,7 +82,8 @@ senior-prep/
 │       ├── practice.py          ← Drill, Mock, LLD, Behavioral, TC, Brief
 │       ├── intel_routes.py      ← Intel search, trending, company profiles
 │       ├── progress.py          ← Progress read/write, gap analysis
-│       └── career.py            ← Skill ladder, weekly plan
+│       ├── career.py            ← Skill ladder, weekly plan
+│       └── feedback.py          ← Activity log, adaptive daily/weekly plan
 │
 ├── intel/                       ← Intelligence Engine
 │   ├── config.py                ← Models (claude-sonnet-4-5), profile, 14 companies
@@ -353,7 +354,7 @@ cp .env.example .env
 export ANTHROPIC_API_KEY=sk-ant-...
 
 # Optional — phone push notifications
-export NTFY_TOPIC=prepforge-yourname
+export NTFY_TOPIC=prep
 
 # Optional — 2x Reddit scraping rate
 export REDDIT_CLIENT_ID=...
@@ -368,7 +369,7 @@ export REDDIT_CLIENT_SECRET=...
 ```bash
 # 1. Install ntfy app on phone
 # 2. Subscribe to your topic
-export NTFY_TOPIC=prepforge-jayanti
+export NTFY_TOPIC=prep
 prep brief --send
 ```
 
@@ -412,6 +413,13 @@ prep brief --send
 | `/api/progress` | GET/POST | Progress data |
 | `/api/gaps` | GET | Gap analysis |
 | `/api/career/ladder` | GET | SDE-2→SDE-3 skill map |
+| `/api/log` | POST | Log a study activity |
+| `/api/log/recent` | GET | Last N days of logs |
+| `/api/log/today` | GET | Today's activity summary |
+| `/api/plan/daily` | GET | Today's adaptive plan (cached) |
+| `/api/plan/weekly` | GET | This week's adaptive plan |
+| `/api/plan/stats` | GET | Velocity + weak areas analysis |
+| `/api/curriculum` | GET | Merged HI + PP curriculum by week |
 | `/health` | GET | Health check |
 
 ---
@@ -476,7 +484,7 @@ prep brief --send
 ### P1 — This month
 | Task | Why | How |
 |---|---|---|
-| Set up ntfy.sh phone push | Automatic daily brief on phone | `export NTFY_TOPIC=prepforge-yourname` |
+| Set up ntfy.sh phone push | Automatic daily brief on phone | `export NTFY_TOPIC=prep` |
 | Import Blind posts manually | High-quality India-specific intel | Portal Intel tab → Manual Import form |
 | Add LP stories for 4 critical gaps | Amazon LP asked every round | Dive Deep, Bias for Action, Earn Trust, Have Backbone |
 | `prep lld parking-lot` weekly | LLD at Adobe, Flipkart, CRED | Every Saturday |
@@ -601,8 +609,8 @@ git push origin main
 # ANTHROPIC_API_KEY    — AI Coach (required)
 # REDDIT_CLIENT_ID     — Reddit OAuth2 scraping (optional)
 # REDDIT_CLIENT_SECRET — Reddit OAuth2 scraping (optional)
-# TELEGRAM_BOT_TOKEN   — morning brief push (optional)
-# TELEGRAM_CHAT_ID     — morning brief push (optional)
+# NTFY_TOPIC           — phone push notifications via ntfy.sh (optional, e.g. prep)
+# NTFY_TOKEN           — only needed for private ntfy.sh topics (optional)
 ```
 
 ### Reddit Setup (for cloud scraping)
@@ -615,5 +623,5 @@ Without keys, public `.json` API is used (works locally, blocked on cloud IPs).
 
 ---
 
-*Last updated: Mar 25, 2026 · Day 7/184 · Week 1/26 · Phase 1*
+*Last updated: Mar 25, 2026 · Day 7/184 · Week 1/26 · Phase 1 · ntfy topic: prep*
 *Stack: Java · Spring Boot · Kafka · Redis · MySQL · MongoDB · Golang · Docker · K8s · AWS*
