@@ -803,199 +803,243 @@ function toggleGoal(id) { state.portal.goals = state.portal.goals.map(g => g.id 
 function deleteGoal(id) { state.portal.goals = state.portal.goals.filter(g => g.id !== id); savePortal(); render(); }
 
 // ══════════════════════════════════════════════════════════════════════════════
-// COURSES — Hello Interview 26-Week Curriculum Tracker
+// COURSES — Master Curriculum (Hello Interview + Programming Pathshala)
 // ══════════════════════════════════════════════════════════════════════════════
-const HI_BASE = "https://www.hellointerview.com";
-const COURSE_ICONS = { "system-design": "🏗️", "dsa": "⌗", "low-level-design": "◆", "behavioral": "◇" };
-const COURSE_COLORS_HI = { "system-design": "var(--green)", "dsa": "var(--red)", "low-level-design": "var(--gold)", "behavioral": "var(--purple)" };
+const CAT_META = {
+  "dsa":            { label: "DSA",            color: "var(--red)",    icon: "⌗" },
+  "system-design":  { label: "System Design",   color: "var(--green)",  icon: "🏗" },
+  "lld":            { label: "Low-Level Design", color: "var(--gold)",   icon: "◆" },
+  "java":           { label: "Java / Spring",    color: "var(--orange)", icon: "☕" },
+  "behavioral":     { label: "Behavioral",       color: "var(--purple)", icon: "◇" },
+  "ml-system-design":{ label: "ML System Design", color: "var(--cyan)", icon: "🤖" },
+};
+const SOURCE_META = {
+  "hi": { label: "Hello Interview", color: "var(--cyan)",   dot: "●" },
+  "pp": { label: "Prog. Pathshala", color: "var(--purple)", dot: "●" },
+};
 const DIFF_COLORS = { "Easy": "var(--green)", "Medium": "var(--orange)", "Hard": "var(--red)" };
 
-// Week → sections map (mirrors intel/hello_interview.py SECTION_WEEKS)
-const SECTION_WEEKS = {
-  "dsa|Two Pointers":                    [1, 1],
-  "dsa|Sliding Window":                  [1, 2],
-  "dsa|Intervals":                       [2, 2],
-  "dsa|Stack":                           [2, 3],
-  "dsa|Linked List":                     [3, 3],
-  "dsa|Binary Search":                   [3, 4],
-  "dsa|Heap":                            [4, 5],
-  "dsa|Depth-First Search (DFS)":        [5, 6],
-  "dsa|Breadth-First Search (BFS)":      [6, 7],
-  "dsa|Backtracking":                    [7, 8],
-  "dsa|Graphs":                          [8, 9],
-  "dsa|Dynamic Programming":             [9, 11],
-  "dsa|Greedy Algorithms":               [11, 11],
-  "dsa|Trie":                            [11, 12],
-  "dsa|Prefix Sum":                      [12, 12],
-  "dsa|Matrices":                        [12, 12],
-  "low-level-design|In a Hurry":         [4, 5],
-  "low-level-design|Concurrency":        [5, 6],
-  "low-level-design|Problem Breakdowns": [10, 13],
-  "system-design|In a Hurry":            [1, 2],
-  "system-design|Core Concepts":         [9, 12],
-  "system-design|Patterns":              [12, 14],
-  "system-design|Key Technologies (Deep Dives)": [13, 16],
-  "system-design|Advanced Topics":       [16, 17],
-  "system-design|Question Breakdowns":   [14, 26],
-  "behavioral|Course":                   [1, 5],
-  "behavioral|Story Builder":            [4, 26],
-};
-const COURSE_ORDER_HI = ["system-design", "dsa", "low-level-design", "behavioral"];
-
-function buildCurriculum(courses) {
-  const byId = {};
-  courses.forEach(c => byId[c.id] = c);
-  const result = [];
-  for (const cid of COURSE_ORDER_HI) {
-    const course = byId[cid];
-    if (!course) continue;
-    for (const section of (course.sections || [])) {
-      const key = `${cid}|${section.section}`;
-      const [sw, ew] = SECTION_WEEKS[key] || [13, 20];
-      const isProblem = section.type === "problem_breakdowns";
-      const lessons = (section.lessons || []).filter(l => l.url);
-      const n = lessons.length;
-      lessons.forEach((lesson, i) => {
-        const week = n > 1 && ew > sw ? sw + Math.round(i * (ew - sw) / (n - 1)) : sw;
-        result.push({
-          week, courseId: cid, course: course.title,
-          section: section.section, title: lesson.title,
-          url: HI_BASE + lesson.url, key: lesson.url,
-          difficulty: lesson.difficulty || "",
-          type: isProblem ? "problem" : (lesson.type || "lesson"),
-        });
-      });
-    }
-  }
-  return result.sort((a, b) => a.week - b.week || COURSE_ORDER_HI.indexOf(a.courseId) - COURSE_ORDER_HI.indexOf(b.courseId));
+function getCurrDone() {
+  return new Set((state.progress?.curriculum_done) || []);
 }
 
-function getHIDone() {
-  return new Set((state.progress?.hi_course?.done) || []);
-}
-
-async function markHIDone(lessonKey) {
-  const done = [...getHIDone()];
-  if (!done.includes(lessonKey)) done.push(lessonKey);
+async function toggleCurrItem(itemId) {
+  const done = new Set(state.progress?.curriculum_done || []);
+  if (done.has(itemId)) done.delete(itemId); else done.add(itemId);
   const prog = state.progress || {};
-  prog.hi_course = { ...(prog.hi_course || {}), done };
-  state.progress = prog;
-  await api("POST", "/api/progress", prog);
-  render();
-}
-
-async function markHIUndone(lessonKey) {
-  const prog = state.progress || {};
-  const done = (prog.hi_course?.done || []).filter(k => k !== lessonKey);
-  prog.hi_course = { ...(prog.hi_course || {}), done };
+  prog.curriculum_done = [...done];
+  // keep legacy hi_course.done in sync for backwards compat
+  const hiDone = prog.curriculum_done.filter(id => id.startsWith("hi_")).map(id => id.replace(/^hi_/, "").replace(/_/g, "/").replace(/\/([^/]+)$/, "/$1"));
+  prog.hi_course = { ...(prog.hi_course || {}), done: hiDone };
   state.progress = prog;
   await api("POST", "/api/progress", prog);
   render();
 }
 
 function renderCourses(app) {
-  const week = state.portal.career?.week || 1;
-  state.hiWeek = state.hiWeek || week;
+  const currentWeek = state.portal.career?.week || 1;
+  state.currWeek = state.currWeek ?? currentWeek;
+  state.currCat = state.currCat ?? "all";
+  state.currSource = state.currSource ?? "all";
 
-  app.appendChild(sectionHdr("Hello Interview Courses", "26-week structured curriculum — track every lesson"));
+  app.appendChild(sectionHdr("Master Curriculum", "Hello Interview + Programming Pathshala — unified 26-week tracker"));
 
-  // Load curriculum from JSON if not cached
-  if (!state.hiCurriculum) {
-    api("GET", "/api/hi-curriculum").then(data => {
-      if (data?.courses) {
-        state.hiCurriculum = buildCurriculum(data.courses);
+  // ── Load from API ──
+  if (!state.curriculum) {
+    api("GET", "/api/curriculum").then(data => {
+      if (data?.items?.length) {
+        state.curriculum = data.items;
         render();
+      } else {
+        app.querySelector?.(".loading")?.replaceWith?.(
+          h("div",{style:{padding:20,color:"var(--red)",fontSize:11}}, "Failed to load curriculum. Check /api/curriculum.")
+        );
       }
     });
-    app.appendChild(h("div", { className: "loading", style: { padding: "20px" } }, "Loading course data..."));
+    app.appendChild(h("div", { className: "loading", style: { padding: "20px", color: "var(--text3)", fontSize: 11 } }, "Loading master curriculum..."));
     return;
   }
 
-  const curriculum = state.hiCurriculum;
-  const done = getHIDone();
+  const all = state.curriculum;
+  const done = getCurrDone();
 
-  // Progress bar per course
-  const progressBox = h("div", { style: { display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px,1fr))", gap: 8, marginBottom: 20 } });
-  for (const cid of COURSE_ORDER_HI) {
-    const lessons = curriculum.filter(l => l.courseId === cid);
-    if (!lessons.length) continue;
-    const doneCount = lessons.filter(l => done.has(l.key)).length;
-    const pct = Math.round(doneCount / lessons.length * 100);
-    const problems = lessons.filter(l => l.type === "problem");
-    const problemsDone = problems.filter(l => done.has(l.key)).length;
-    const color = COURSE_COLORS_HI[cid] || "var(--text3)";
-    progressBox.appendChild(h("div", { className: "stat-card", style: { borderLeft: `3px solid ${color}` } },
-      h("div", { className: "label" }, `${COURSE_ICONS[cid] || ""} ${lessons[0].course}`),
-      h("div", { className: "value", style: { color, fontSize: 18 } }, `${pct}%`),
-      h("div", { className: "sub" }, `${doneCount}/${lessons.length} lessons`),
-      problems.length ? h("div", { className: "sub", style: { color } }, `${problemsDone}/${problems.length} problems`) : null,
+  // ── Overall progress stat cards ──
+  const statGrid = h("div", { style: { display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(130px,1fr))", gap: 8, marginBottom: 18 } });
+  const cats = ["dsa","system-design","lld","java","behavioral"];
+  cats.forEach(cat => {
+    const items = all.filter(i => i.category === cat);
+    const doneN = items.filter(i => done.has(i.id)).length;
+    const pct = items.length ? Math.round(doneN / items.length * 100) : 0;
+    const { label, color, icon } = CAT_META[cat] || {};
+    statGrid.appendChild(h("div", { className: "stat-card", style: { borderLeft: `3px solid ${color}` } },
+      h("div", { className: "label" }, `${icon} ${label}`),
+      h("div", { className: "value", style: { color, fontSize: 20 } }, `${pct}%`),
+      h("div", { className: "sub" }, `${doneN}/${items.length}`),
     ));
-  }
-  app.appendChild(progressBox);
+  });
+  // Source breakdown
+  ["hi","pp"].forEach(src => {
+    const items = all.filter(i => i.source === src);
+    const doneN = items.filter(i => done.has(i.id)).length;
+    const { label, color } = SOURCE_META[src];
+    statGrid.appendChild(h("div", { className: "stat-card", style: { borderLeft: `3px solid ${color}` } },
+      h("div", { className: "label" }, label),
+      h("div", { className: "value", style: { color, fontSize: 20 } }, `${Math.round(doneN/items.length*100)||0}%`),
+      h("div", { className: "sub" }, `${doneN}/${items.length} items`),
+    ));
+  });
+  app.appendChild(statGrid);
 
-  // Week selector
-  const weekTotal = Math.max(...curriculum.map(l => l.week));
-  const weekLessons = curriculum.filter(l => l.week === state.hiWeek);
-  const weekDone = weekLessons.filter(l => done.has(l.key)).length;
-  const todayLesson = weekLessons.find(l => !done.has(l.key));
+  // ── Filters row ──
+  const filterRow = h("div", { style: { display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 14, alignItems: "center" } });
 
-  const weekNav = h("div", { style: { display: "flex", alignItems: "center", gap: 12, marginBottom: 16 } },
-    h("button", { className: "btn btn-gold", onClick: () => { state.hiWeek = Math.max(1, state.hiWeek - 1); render(); }, disabled: state.hiWeek <= 1 ? "true" : null }, "◀"),
-    h("div", { style: { fontSize: 13, fontWeight: 700, color: "var(--gold)" } }, `Week ${state.hiWeek} / ${weekTotal}`),
-    h("button", { className: "btn btn-gold", onClick: () => { state.hiWeek = Math.min(weekTotal, state.hiWeek + 1); render(); }, disabled: state.hiWeek >= weekTotal ? "true" : null }, "▶"),
-    h("span", { style: { fontSize: 10, color: "var(--text3)" } }, `${weekDone}/${weekLessons.length} done`),
-    h("button", { className: "btn btn-green", style: { marginLeft: "auto" }, onClick: () => { state.hiWeek = week; render(); } }, `Go to Week ${week}`),
+  // Category tabs
+  const catTabs = h("div", { style: { display: "flex", gap: 4, flexWrap: "wrap" } });
+  [["all","All","var(--text3)"], ...cats.map(c => [c, CAT_META[c].icon+" "+CAT_META[c].label, CAT_META[c].color]),
+   ["ml-system-design","🤖 ML SD","var(--cyan)"]
+  ].forEach(([val, lbl, col]) => {
+    const active = state.currCat === val;
+    catTabs.appendChild(h("button", {
+      style: { padding: "4px 10px", fontSize: 9, borderRadius: 4, border: `1px solid ${active ? col : "var(--bg4)"}`,
+               background: active ? col+"22" : "transparent", color: active ? col : "var(--text3)", cursor: "pointer" },
+      onClick: () => { state.currCat = val; render(); }
+    }, lbl));
+  });
+  filterRow.appendChild(catTabs);
+
+  // Source + Week filters
+  const srcSel = h("select", {
+    style: { fontSize: 10, padding: "4px 8px", background: "var(--bg3)", color: "var(--text)", border: "1px solid var(--bg4)", borderRadius: 4 },
+    onChange: e => { state.currSource = e.target.value; render(); }
+  },
+    h("option",{value:"all"},"All Sources"),
+    h("option",{value:"hi"},"Hello Interview"),
+    h("option",{value:"pp"},"Prog. Pathshala"),
   );
-  app.appendChild(weekNav);
+  srcSel.value = state.currSource;
 
-  // Today's lesson highlight
-  if (todayLesson) {
-    const color = COURSE_COLORS_HI[todayLesson.courseId] || "var(--gold)";
-    const diffColor = DIFF_COLORS[todayLesson.difficulty] || "var(--text3)";
-    app.appendChild(h("div", { style: { background: "var(--bg3)", borderLeft: `4px solid ${color}`, borderRadius: 8, padding: "12px 16px", marginBottom: 16 } },
-      h("div", { style: { fontSize: 9, color: "var(--text3)", letterSpacing: 2, marginBottom: 4 } }, "▶ TODAY'S LESSON"),
-      h("div", { style: { fontSize: 13, fontWeight: 700, color } }, `${COURSE_ICONS[todayLesson.courseId] || ""} ${todayLesson.title}`),
-      h("div", { style: { fontSize: 10, color: "var(--text2)", margin: "3px 0" } }, `${todayLesson.course} › ${todayLesson.section}`),
-      todayLesson.difficulty ? h("span", { className: "tag", style: { background: diffColor + "20", color: diffColor, marginTop: 4 } }, todayLesson.difficulty) : null,
+  // Week nav
+  const maxWeek = Math.max(...all.map(i => i.week_end || i.week_start || 1));
+  const weekNav = h("div", { style: { display: "flex", gap: 4, alignItems: "center" } },
+    h("button", { style: { padding: "3px 8px", fontSize: 10, background: "var(--bg4)", color: "var(--text3)", borderRadius: 3, border: "1px solid var(--bg4)" },
+                  onClick: () => { state.currWeek = Math.max(1, state.currWeek - 1); render(); } }, "◀"),
+    h("span", { style: { fontSize: 10, color: "var(--gold)", minWidth: 60, textAlign: "center" } }, `Week ${state.currWeek}`),
+    h("button", { style: { padding: "3px 8px", fontSize: 10, background: "var(--bg4)", color: "var(--text3)", borderRadius: 3, border: "1px solid var(--bg4)" },
+                  onClick: () => { state.currWeek = Math.min(maxWeek, state.currWeek + 1); render(); } }, "▶"),
+    h("button", { style: { padding: "3px 8px", fontSize: 9, background: "var(--green)22", color: "var(--green)", borderRadius: 3, border: "1px solid var(--green)44" },
+                  onClick: () => { state.currWeek = currentWeek; render(); } }, `→ W${currentWeek}`),
+  );
+
+  filterRow.appendChild(srcSel);
+  filterRow.appendChild(weekNav);
+  app.appendChild(filterRow);
+
+  // ── Filter items ──
+  let items = all.filter(i => i.week_start <= state.currWeek && i.week_end >= state.currWeek);
+  if (state.currCat !== "all") items = items.filter(i => i.category === state.currCat);
+  if (state.currSource !== "all") items = items.filter(i => i.source === state.currSource);
+
+  const weekDoneN = items.filter(i => done.has(i.id)).length;
+
+  // ── Week summary bar ──
+  const summaryBar = h("div", { style: { display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12, padding: "8px 12px", background: "var(--bg3)", borderRadius: 6 } },
+    h("span", { style: { fontSize: 10, color: "var(--gold)", fontWeight: 700 } }, `Week ${state.currWeek} — ${items.length} items`),
+    h("span", { style: { fontSize: 10, color: "var(--text3)" } }, `${weekDoneN}/${items.length} done · ${items.length ? Math.round(weekDoneN/items.length*100) : 0}%`),
+  );
+  app.appendChild(summaryBar);
+
+  if (!items.length) {
+    app.appendChild(h("div", { style: { padding: "30px 0", textAlign: "center", color: "var(--text3)", fontSize: 11 } },
+      "No items for this week / filter. Try a different week or category."
+    ));
+    return;
+  }
+
+  // Next undone item highlight
+  const nextItem = items.find(i => !done.has(i.id));
+  if (nextItem) {
+    const { color, icon } = CAT_META[nextItem.category] || { color: "var(--gold)", icon: "▶" };
+    const srcMeta = SOURCE_META[nextItem.source] || {};
+    app.appendChild(h("div", { style: { background: "var(--bg3)", borderLeft: `4px solid ${color}`, borderRadius: 8, padding: "12px 16px", marginBottom: 14 } },
+      h("div", { style: { fontSize: 9, color: "var(--text3)", letterSpacing: 2, marginBottom: 4 } }, "▶ UP NEXT"),
+      h("div", { style: { fontSize: 13, fontWeight: 700, color } }, `${icon} ${nextItem.title}`),
+      h("div", { style: { fontSize: 10, color: "var(--text2)", margin: "3px 0" } }, `${nextItem.module} › ${nextItem.section}`),
+      h("div", { style: { display: "flex", gap: 6, marginTop: 4, alignItems: "center", flexWrap: "wrap" } },
+        h("span", { style: { fontSize: 9, padding: "2px 6px", borderRadius: 3, background: srcMeta.color+"22", color: srcMeta.color } }, srcMeta.label),
+        nextItem.difficulty ? h("span", { style: { fontSize: 9, padding: "2px 6px", borderRadius: 3, background: (DIFF_COLORS[nextItem.difficulty]||"#555")+"22", color: DIFF_COLORS[nextItem.difficulty]||"#555" } }, nextItem.difficulty) : null,
+        nextItem.duration ? h("span", { style: { fontSize: 9, color: "var(--text3)" } }, `~${nextItem.duration}`) : null,
+      ),
       h("div", { style: { display: "flex", gap: 8, marginTop: 10 } },
-        h("a", { href: todayLesson.url, target: "_blank", className: "btn btn-gold" }, "Open Lesson →"),
-        h("button", { className: "btn btn-green", onClick: () => markHIDone(todayLesson.key) }, "✓ Mark Done"),
+        h("a", { href: nextItem.url, target: "_blank", className: "btn btn-gold" }, "Open →"),
+        h("button", { className: "btn btn-green", onClick: () => toggleCurrItem(nextItem.id) }, "✓ Mark Done"),
       ),
     ));
-  } else if (weekLessons.length > 0) {
-    app.appendChild(h("div", { style: { background: "var(--bg3)", borderLeft: "4px solid var(--green)", borderRadius: 8, padding: "12px 16px", marginBottom: 16 } },
-      h("div", { style: { fontSize: 13, fontWeight: 700, color: "var(--green)" } }, "🎉 Week complete! All lessons done."),
-      h("button", { className: "btn btn-gold", style: { marginTop: 8 }, onClick: () => { state.hiWeek++; render(); } }, `Start Week ${state.hiWeek + 1} →`),
-    ));
   }
 
-  // Lessons list grouped by course
-  const byCourse = {};
-  weekLessons.forEach(l => { (byCourse[l.courseId] = byCourse[l.courseId] || []).push(l); });
+  // ── Items grouped by category then source ──
+  const byCat = {};
+  items.forEach(i => { (byCat[i.category] = byCat[i.category] || []).push(i); });
 
-  for (const cid of COURSE_ORDER_HI) {
-    const lessons = byCourse[cid];
-    if (!lessons?.length) continue;
-    const color = COURSE_COLORS_HI[cid] || "var(--text3)";
-    const doneC = lessons.filter(l => done.has(l.key)).length;
-    app.appendChild(h("div", { style: { marginBottom: 4 } },
-      h("div", { style: { fontSize: 10, fontWeight: 700, color, letterSpacing: 1, marginBottom: 6 } },
-        `${COURSE_ICONS[cid] || ""} ${lessons[0].course} — ${lessons[0].section} [${doneC}/${lessons.length}]`),
-      ...lessons.map(l => {
-        const isDone = done.has(l.key);
-        const diffColor = DIFF_COLORS[l.difficulty] || null;
-        return h("div", {
-          style: { display: "flex", alignItems: "center", gap: 8, padding: "6px 10px", background: "var(--bg3)", borderRadius: 5, marginBottom: 3, opacity: isDone ? 0.55 : 1 }
-        },
-          h("span", { className: "clickable", style: { fontSize: 13, color: isDone ? "var(--green)" : "var(--text4)" }, onClick: () => isDone ? markHIUndone(l.key) : markHIDone(l.key) }, isDone ? "☑" : "☐"),
-          h("div", { style: { flex: 1 } },
-            h("span", { style: { fontSize: 11, textDecoration: isDone ? "line-through" : "none" } }, l.title),
-            l.difficulty ? h("span", { className: "tag", style: { background: (diffColor || "#555") + "20", color: diffColor || "#555", marginLeft: 6 } }, l.difficulty) : null,
-            l.type === "problem" ? h("span", { className: "tag", style: { background: "rgba(100,100,200,0.1)", color: "var(--blue)" } }, "problem") : null,
-          ),
-          h("a", { href: l.url, target: "_blank", style: { fontSize: 9, color: "var(--text4)" } }, "↗"),
-        );
-      }),
+  const catOrder = cats.concat(["ml-system-design"]);
+  for (const cat of catOrder) {
+    const catItems = byCat[cat];
+    if (!catItems?.length) continue;
+    const { label, color, icon } = CAT_META[cat] || { label: cat, color: "var(--text3)", icon: "" };
+    const catDone = catItems.filter(i => done.has(i.id)).length;
+
+    // Category header
+    app.appendChild(h("div", { style: { marginTop: 14, marginBottom: 6, display: "flex", justifyContent: "space-between", alignItems: "center" } },
+      h("div", { style: { fontSize: 10, fontWeight: 700, color, letterSpacing: 2, textTransform: "uppercase" } }, `${icon} ${label}`),
+      h("span", { style: { fontSize: 9, color: "var(--text3)" } }, `${catDone}/${catItems.length} done`),
+    ));
+
+    // Group by source within category
+    const bySrc = {};
+    catItems.forEach(i => (bySrc[i.source] = bySrc[i.source] || []).push(i));
+    for (const src of ["hi","pp"]) {
+      const srcItems = bySrc[src];
+      if (!srcItems?.length) continue;
+      const srcMeta = SOURCE_META[src];
+      const srcDone = srcItems.filter(i => done.has(i.id)).length;
+
+      // Source sub-header
+      app.appendChild(h("div", { style: { padding: "3px 8px", background: srcMeta.color+"11", borderRadius: 4, marginBottom: 4, display: "flex", justifyContent: "space-between" } },
+        h("span", { style: { fontSize: 9, color: srcMeta.color, fontWeight: 700 } }, `${srcMeta.dot} ${srcMeta.label}`),
+        h("span", { style: { fontSize: 9, color: "var(--text3)" } }, `${srcDone}/${srcItems.length}`),
+      ));
+
+      // Group by section
+      const bySection = {};
+      srcItems.forEach(i => (bySection[i.section] = bySection[i.section] || []).push(i));
+      for (const [section, secItems] of Object.entries(bySection)) {
+        const secDone = secItems.filter(i => done.has(i.id)).length;
+        app.appendChild(h("div", { style: { marginLeft: 8, marginBottom: 8 } },
+          h("div", { style: { fontSize: 9, color: "var(--text3)", marginBottom: 3, letterSpacing: 1 } }, `${section} [${secDone}/${secItems.length}]`),
+          ...secItems.map(item => {
+            const isDone = done.has(item.id);
+            const diffColor = DIFF_COLORS[item.difficulty] || null;
+            return h("div", {
+              style: { display: "flex", alignItems: "center", gap: 8, padding: "5px 10px", background: "var(--bg3)", borderRadius: 5, marginBottom: 2, opacity: isDone ? 0.5 : 1 }
+            },
+              h("span", { style: { fontSize: 13, color: isDone ? "var(--green)" : "var(--text4)", cursor: "pointer", flexShrink: 0 },
+                          onClick: () => toggleCurrItem(item.id) }, isDone ? "☑" : "☐"),
+              h("div", { style: { flex: 1, minWidth: 0 } },
+                h("span", { style: { fontSize: 11, textDecoration: isDone ? "line-through" : "none" } }, item.title),
+                item.difficulty ? h("span", { style: { fontSize: 9, marginLeft: 6, padding: "1px 5px", borderRadius: 3, background: (diffColor||"#555")+"22", color: diffColor||"#555" } }, item.difficulty) : null,
+                item.item_type === "problem" ? h("span", { style: { fontSize: 9, marginLeft: 4, padding: "1px 5px", borderRadius: 3, background: "rgba(100,100,200,0.12)", color: "var(--blue)" } }, "problem") : null,
+                item.duration ? h("span", { style: { fontSize: 9, marginLeft: 4, color: "var(--text4)" } }, item.duration) : null,
+              ),
+              h("a", { href: item.url, target: "_blank", style: { fontSize: 10, color: "var(--text4)", flexShrink: 0 } }, "↗"),
+            );
+          }),
+        ));
+      }
+    }
+  }
+
+  if (weekDoneN === items.length && items.length > 0) {
+    app.appendChild(h("div", { style: { marginTop: 16, padding: "10px 14px", background: "var(--green)11", borderLeft: "3px solid var(--green)", borderRadius: 6, fontSize: 11, color: "var(--green)" } },
+      `🎉 Week ${state.currWeek} complete! Move to Week ${state.currWeek + 1}.`
     ));
   }
 }
