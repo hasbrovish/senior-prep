@@ -111,7 +111,7 @@ async def get_drill_by_company(company: str):
 async def get_jqa_today(week: Optional[int] = None):
     """Get today's Java theory topic based on current week."""
     try:
-        from intel.java_qa import get_today_topic, get_progress, TOPICS
+        from intel.java_qa import get_today_topic, get_progress, JAVA_QA
         prog_path = BASE / "logs" / "progress.json"
         current_week = week or 1
         try:
@@ -124,7 +124,7 @@ async def get_jqa_today(week: Optional[int] = None):
         return {
             "today": today,
             "progress": progress,
-            "total_topics": len(TOPICS),
+            "total_topics": len(JAVA_QA),
         }
     except Exception as e:
         raise HTTPException(500, str(e))
@@ -134,16 +134,12 @@ async def get_jqa_today(week: Optional[int] = None):
 async def get_jqa_topic(topic_id: str, hints: bool = False):
     """Get questions for a specific Java theory topic."""
     try:
-        from intel.java_qa import TOPICS
-        if topic_id not in TOPICS:
-            raise HTTPException(404, f"Topic '{topic_id}' not found")
-        topic = TOPICS[topic_id]
-        questions = []
-        for q in topic["questions"]:
-            item = {"q": q["q"], "priority": q.get("p", "P1")}
-            if hints:
-                item["hint"] = q.get("hint", "")
-            questions.append(item)
+        from intel.java_qa import JAVA_QA, get_questions
+        if topic_id not in JAVA_QA:
+            raise HTTPException(404, f"Topic '{topic_id}' not found. Available: {list(JAVA_QA.keys())}")
+        topic = JAVA_QA[topic_id]
+        # get_questions returns list of dicts with id, q, priority, company, hint, studied
+        questions = get_questions(topic_id, priority=None)  # all priorities
         return {
             "topic_id": topic_id,
             "label": topic["label"],
@@ -160,20 +156,21 @@ async def get_jqa_topic(topic_id: str, hints: bool = False):
 async def list_jqa_topics():
     """List all Java theory topics with study status."""
     try:
-        from intel.java_qa import TOPICS, get_progress
-        progress = get_progress()
-        studied = progress.get("studied_topics", [])
+        from intel.java_qa import JAVA_QA, get_topics
+        topics_data = get_topics()  # returns list of dicts with id, label, p0_total, p0_done, pct, week
         topics = []
-        for tid, t in TOPICS.items():
-            p0 = sum(1 for q in t["questions"] if q.get("p") == "P0")
+        for t in topics_data:
             topics.append({
-                "id": tid,
+                "id": t["id"],
                 "label": t["label"],
-                "total_questions": len(t["questions"]),
-                "p0_count": p0,
-                "studied": tid in studied,
+                "total_questions": len(JAVA_QA.get(t["id"], {}).get("questions", [])),
+                "p0_count": t["p0_total"],
+                "p0_done": t["p0_done"],
+                "pct": t["pct"],
+                "studied": t["pct"] > 0,
             })
-        return {"topics": topics, "studied_count": len(studied), "total": len(TOPICS)}
+        studied_count = sum(1 for t in topics if t["studied"])
+        return {"topics": topics, "studied_count": studied_count, "total": len(topics)}
     except Exception as e:
         raise HTTPException(500, str(e))
 
