@@ -3,7 +3,14 @@ Interview_Answers.zip
 encoded.txt
 
 # Intelligence Engine
-data/                          # SQLite DB + cache (auto-generated, personal data)
+# data/ — ignore runtime/personal files but keep static curriculum JSONs
+data/*.db
+data/*.db-shm
+data/*.db-wal
+data/cache/
+data/portal_data.json
+data/prepforge-*.json
+data/programming_pathshala_complete.json
 intel/config_local.py          # API keys — NEVER commit this
 
 # SQLite WAL files (auto-generated, never commit)
