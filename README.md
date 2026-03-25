@@ -16,12 +16,16 @@ A **personal, full-stack interview preparation system** — not just notes. Buil
 
 | Layer | What it does |
 |-------|-------------|
-| **CLI** (`prep`) | Daily planner, drill engine, mock runner, AI coach, 55+ commands |
-| **Intelligence Engine** (`intel/`) | Scrapes real interview experiences (Reddit OAuth2, LeetCode Discuss), trending topic analysis |
-| **FastAPI Server** (`app/`) | REST API + web portal + background scheduler |
-| **Practice Engines** | Java DSA drill (211 problems, 16 companies), LLD (20 problems), mock score tracker, behavioral gap detector, TC intel |
-| **War Plan** (`docs/MASTER_16H_WARPLAN.md`) | 26-week 16h/day schedule with weekly LC targets, PP watch order, company strategies |
-| **Web Portal** (`portal/index.html`) | Single-file dashboard: Dashboard, AI Coach, Intel, War Plan, Resources, Career, Courses, Settings |
+| **CLI** (`prep`) | Daily planner, drill engine, mock runner, AI coach, 100+ commands |
+| **Intelligence Engine** (`intel/`) | Reddit OAuth2 scraper, LeetCode Discuss GraphQL, trending topic analysis, LLM feedback loop |
+| **FastAPI Server** (`app/`) | REST API (36 endpoints) + web portal + background scheduler |
+| **Practice Engines** | DSA drill (211 problems, 16 companies), LLD (20 problems), mock score tracker, behavioral gap detector, TC intel |
+| **Master Curriculum** | Hello Interview (218 lessons) + PP (9 modules) merged into unified 26-week tracker |
+| **LLM Adaptive Planning** | Daily/weekly AI plans from Claude Haiku — adapts based on logs, mock scores, intel trends |
+| **War Plan** (`docs/MASTER_16H_WARPLAN.md`) | 26-week 16h/day schedule, weekly LC targets, company strategies |
+| **Web Portal** (`portal/index.html`) | Single-file dashboard: Dashboard, AI Coach, Intel, War Plan, Courses, Resources, Career, Settings |
+
+See [ARCHITECTURE.md](ARCHITECTURE.md) for system design deep-dive, data flow, DB schema, and interview talking points.
 
 ---
 
@@ -163,6 +167,14 @@ prep sync                       # sync LeetCode stats (hasbrovish95)
 prep score                      # one-line scoreboard
 prep brief                      # today's morning brief
 prep brief --send               # send to phone (requires NTFY_TOPIC env var)
+```
+
+### AI Adaptive Planning
+```bash
+prep aiplan                     # today's AI plan (Claude Haiku, cached)
+prep weekplan                   # this week's adaptive plan
+prep logx lc "Two Sum"          # log a structured activity
+prep logx mock "Razorpay SD" --outcome struggled --conf 2
 ```
 
 ### Java DSA Drill Engine
@@ -410,6 +422,15 @@ prep brief --send
 | `/api/intel/import` | POST | Manual import (Blind/enginebogie paste) |
 | `/api/intel/import/guide` | GET | Setup guide for each source |
 | `/api/intel/resources` | GET | Curated resources (`?cat=dsa`) |
+| `/api/curriculum` | GET | Merged master curriculum (HI + PP, ~317 items) |
+| `/api/log` | POST | Log an activity (feeds LLM planner) |
+| `/api/log/recent` | GET | Last N days of logs (`?days=7`) |
+| `/api/log/today` | GET | Today's activity summary |
+| `/api/plan/daily` | GET | Today's AI adaptive plan (cached) |
+| `/api/plan/daily/refresh` | POST | Force-regenerate daily plan |
+| `/api/plan/weekly` | GET | This week's AI plan (cached) |
+| `/api/plan/weekly/refresh` | POST | Force-regenerate weekly plan |
+| `/api/plan/stats` | GET | Progress analytics (velocity, weak areas) |
 | `/api/progress` | GET/POST | Progress data |
 | `/api/gaps` | GET | Gap analysis |
 | `/api/career/ladder` | GET | SDE-2→SDE-3 skill map |
@@ -445,6 +466,9 @@ prep brief --send
 | Weekly retro + summary export | ✅ | `prep retro` |
 | FastAPI web server | ✅ | `prep portal` |
 | **Deployed on Railway** | ✅ | push to main → auto-deploy |
+| **Master Curriculum (HI + PP merged)** | ✅ | portal Courses tab — 317 items, category/source/week filters |
+| **LLM Adaptive Planning** | ✅ | `prep aiplan` / portal Dashboard — daily+weekly, Claude Haiku |
+| **Structured Activity Logging** | ✅ | `prep logx` / portal Dashboard log row |
 | Intel scraping (Reddit OAuth2, LC Discuss) | ✅ | `prep scrape` / portal Intel |
 | **Manual import (Blind/enginebogie paste)** | ✅ | portal Intel → form / `POST /api/intel/import` |
 | **Trending topics (7/14/30/90d, by company)** | ✅ | portal Intel → Trends |
@@ -853,4 +877,17 @@ intel/config.py            → PROFILE, TARGET_COMPANIES, LEVEL_EXPECTATIONS
 
 ---
 
-*Last updated: Mar 25, 2026 · Day 7/184 · Week 1/26 · Phase 1 · ntfy topic: prep*
+---
+
+## Architecture
+
+See [ARCHITECTURE.md](ARCHITECTURE.md) for full system design documentation including:
+- Component overview + ASCII system diagram
+- SQLite schema (11 tables) and data flow
+- LLM integration patterns (caching, context assembly, adaptive planning)
+- Rate limiting, OAuth2, WAL mode, idempotent writes
+- **Interview talking points** derived from building PrepForge
+
+---
+
+*Last updated: Mar 25, 2026 · Day 7/184 · Week 1/26 · Phase 1 · ntfy topic: senior_prep/sde2*
