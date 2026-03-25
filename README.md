@@ -623,5 +623,234 @@ Without keys, public `.json` API is used (works locally, blocked on cloud IPs).
 
 ---
 
-*Last updated: Mar 25, 2026 · Day 7/184 · Week 1/26 · Phase 1 · ntfy topic: prep*
+
 *Stack: Java · Spring Boot · Kafka · Redis · MySQL · MongoDB · Golang · Docker · K8s · AWS*
+
+---
+
+## Architecture Deep Dive
+
+> Read this to understand how the system works and learn from the design decisions.
+
+### System Architecture Diagram
+
+```
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                          PREPFORGE SYSTEM                                   │
+│                                                                             │
+│  YOU (CLI)                  SERVER                      EXTERNAL            │
+│  ──────────                 ──────────                  ────────            │
+│                                                                             │
+│  prep.py ──────────────▶  FastAPI (port 5555)           Anthropic API      │
+│  (4000+ lines)             ├── app/main.py               (Claude Sonnet)   │
+│   ├── 55+ commands         ├── app/scheduler.py  ──▶    Reddit API         │
+│   ├── WEEKS dict           └── app/routers/             LeetCode GraphQL   │
+│   └── dispatch fn              ├── practice.py          ntfy.sh (push)     │
+│                                ├── coach.py    ──────▶  Anthropic API      │
+│  Browser                       ├── intel_routes.py                         │
+│  ──────────                    ├── progress.py                             │
+│  portal/index.html ────────▶   ├── career.py                               │
+│  (single-file SPA)             └── feedback.py                             │
+│   ├── vanilla JS                                                            │
+│   ├── no framework         intel/ (Engine)                                  │
+│   └── fetch() API calls    ├── config.py   ← profile, models, 14 companies │
+│                            ├── db.py       ← SQLite (9 tables, WAL)         │
+│  Railway.app               ├── scraper.py  ← orchestrates all sources      │
+│  ──────────                ├── analyzer.py ← trends, gap analysis          │
+│  git push → deploy         ├── coach.py    ← Claude calls (RAG-enhanced)   │
+│  Docker container          ├── drill.py    ← 211 LC problems, week mapping │
+│  Persistent volume         ├── java_qa.py  ← 160 P0 Q&A, 16 topics        │
+│                            ├── mock_engine.py ← scores, trend charts       │
+│                            ├── lld_engine.py ← 20 problems, SOLID rubric   │
+│                            ├── behavioral.py ← Amazon LP gap detector      │
+│                            ├── brief.py    ← ntfy.sh push notifications    │
+│                            ├── pp_tracker.py ← PP course watch order       │
+│                            ├── hello_interview.py ← HI lesson tracker      │
+│                            ├── resources.py ← curated resource index       │
+│                            └── sources/    ← 5 scrapers                    │
+│                                                                             │
+│  DATA STORES                                                                │
+│  ───────────                                                                │
+│  data/interviews.db     ← SQLite (scraped intel, drill, mock, LLD scores)  │
+│  logs/progress.json     ← all personal tracker state (LC, SR, offers...)   │
+│  data/portal_data.json  ← portal state (resources, notes, settings)        │
+│  data/hellointerviewcourse.json  ← HI curriculum (committed to git)        │
+│  data/programming_pathshala_courses.json ← PP catalog (committed to git)   │
+└─────────────────────────────────────────────────────────────────────────────┘
+```
+
+---
+
+### How Data Flows — End to End
+
+#### 1. Morning Brief (ntfy.sh)
+```
+app/scheduler.py (8 AM IST cron)
+  └─▶ intel/brief.py::send_morning_brief()
+        ├─ reads logs/progress.json  → streak, LC count, Java count
+        ├─ reads prep.py::WEEKS      → today's theme, DSA topic
+        ├─ intel/drill.py::get_drill → top 3 Java problems for today
+        ├─ intel/db.py               → trending company from yesterday
+        ├─ intel/behavioral.py       → weakest LP story reminder
+        └─▶ POST https://ntfy.sh/prep
+              Title: "PrepForge Brief - Wed D7/184 W1/26"  (ASCII header)
+              Body:  streak + drill problems + intel + behavioral
+```
+
+#### 2. CLI drill command (`prep drill`)
+```
+prep.py::cmd_drill()
+  └─▶ intel/drill.py::print_drill(week_num, java_count)
+        ├─ Calculates current week from start date (Mar 19, 2026)
+        ├─ Looks up WEEK_PROBLEMS[week_num] → explicit LC problem IDs
+        ├─ Fetches problem details from NEETCODE_150 list
+        ├─ _enrich_companies() → adds trending company problems from DB
+        └─ Prints colour-coded table with Java tips + LeetCode URLs
+```
+
+#### 3. AI Coach request (portal or CLI)
+```
+Browser::fetch POST /api/coach
+  └─▶ app/routers/coach.py::coach_chat()
+        ├─ _get_rag_context(query, company)
+        │    └─ intel/db.py::search_experiences() → recent interview posts
+        ├─ _build_system(context_type, company, rag_ctx)
+        │    └─ Returns Claude system prompt with:
+        │         - Your full PROFILE from config.py (GSTN wins, stack, gaps)
+        │         - RAG context (real interview experiences from DB)
+        │         - Prompt template for context_type (jd/eval/star/mock...)
+        └─▶ POST https://api.anthropic.com/v1/messages
+              model: claude-sonnet-4-5
+              stream: false (or true for /api/coach/stream SSE)
+```
+
+#### 4. Intel scraping pipeline
+```
+app/scheduler.py (6 AM IST cron) OR prep scrape
+  └─▶ intel/scraper.py::run_scraper()
+        ├─ sources/leetcode_discuss.py → GraphQL query, no key needed
+        ├─ sources/reddit.py → Reddit OAuth2 (REDDIT_CLIENT_ID env var)
+        │    └─ r/leetcode, r/cscareerquestions, r/leetcodedesi, r/IndiaTechies
+        └─ sources/enginebogie.py → HackerNews Algolia API
+             │
+             ▼  (for each scraped post)
+        intel/db.py::insert_experience()
+             └─ UNIQUE(source, source_id) → safe to re-run, no duplicates
+                 SQLite WAL mode → concurrent reads during writes
+```
+
+#### 5. Gap Analysis
+```
+Browser::GET /api/gaps OR prep check
+  └─▶ app/routers/progress.py::get_gaps()
+        └─▶ intel/analyzer.py::compute_gap_analysis(progress_data)
+              ├─ Reads LEVEL_EXPECTATIONS from config.py (SDE-2 / SDE-3 bar)
+              ├─ java_lc < 100 → CRITICAL severity gap
+              ├─ hard < 30    → HIGH severity gap
+              ├─ sd_studied < 15 → HIGH severity gap
+              └─ Returns sorted list of gaps with action items
+        └─▶ intel/analyzer.py::readiness_percentage()
+              └─ 100 - sum(severity_weights) → score
+                 CRITICAL=-25, HIGH=-15, MEDIUM=-8
+```
+
+---
+
+### Key Design Decisions (Learn From These)
+
+#### 1. Single-file portal (no React/Vue)
+**Why:** No build step, no `node_modules`, deploys as one HTML file.
+**How:** Vanilla JS + `h()` helper that mimics React's `createElement()`.
+The entire SPA is ~1750 lines of JS inside one `<script>` tag.
+```javascript
+function h(tag, attrs, ...children) {
+  const el = document.createElement(tag);
+  // sets attrs, appends children, handles events
+  return el;
+}
+```
+
+#### 2. SQLite over PostgreSQL
+**Why:** Zero config, ships with Python, WAL mode handles concurrent reads.
+**When to use Postgres instead:** multiple servers writing, >10GB data, complex JOINs at scale.
+```python
+conn.execute("PRAGMA journal_mode=WAL")   # allows reads during writes
+conn.execute("PRAGMA foreign_keys=ON")    # data integrity
+```
+
+#### 3. No SDK — raw urllib for Claude API
+**Why:** Avoids the `anthropic` package dependency, works on Python 3.9+, shows you exactly what's happening.
+**Trade-off:** More boilerplate. Worth it for a personal tool on Railway.
+```python
+req = urllib.request.Request("https://api.anthropic.com/v1/messages",
+    data=json.dumps(payload).encode(), headers={...})
+```
+
+#### 4. APScheduler inside FastAPI (no Celery/Redis)
+**Why:** Single-process, no broker needed. Works on Railway's $5/month plan.
+**When you'd need Celery:** multiple workers, job retries, job queues, distributed tasks.
+```python
+_scheduler = BackgroundScheduler(timezone="Asia/Kolkata")
+_scheduler.add_job(job_scrape_all, CronTrigger(hour=6, minute=0))
+```
+
+#### 5. RAG pattern without a vector DB
+**Why:** SQLite full-text search is fast enough for <10K documents.
+**How:** `search_experiences(company=company, limit=5)` → recent posts → injected into system prompt.
+**When to upgrade:** >50K documents → use Qdrant/Pinecone with embeddings.
+
+#### 6. In-memory rate limiting
+**Why:** No Redis dependency for a personal tool.
+**How:** Dict of `{ip: [timestamps]}` — sliding window, cleaned on every request.
+**Limit:** 120 req/min general, 30 req/min for AI endpoints.
+
+#### 7. prep.py dispatch pattern
+All 55+ CLI commands follow the same pattern — single `if/elif` chain:
+```python
+cmd = args[0].lower()
+if cmd in ("plan", "today"):
+    cmd_plan(args[1:])
+elif cmd in ("drill",):
+    cmd_drill(args[1:])
+elif cmd in ("pp",):
+    cmd_pp(args[1:])   # thin wrapper → intel/pp_tracker.py
+```
+**Lesson:** Keep the CLI file as a router only. All logic lives in `intel/`.
+
+#### 8. ntfy.sh push notifications
+**Lesson learned in this project:** HTTP headers must be ASCII strings.
+Passing `bytes` as a header value to `urllib.request` silently corrupts it.
+The notification rang but had no content until this was fixed.
+```python
+# WRONG: brief["title"].encode() → bytes → urllib sends as b'...' literally
+# RIGHT:
+safe_title = brief["title"].replace("—", "-").encode("ascii", errors="ignore").decode()
+headers = {"Title": safe_title, "Content-Type": "text/plain; charset=utf-8"}
+```
+
+---
+
+### Dependency Map
+
+```
+prep.py
+  → intel/drill.py         → intel/db.py
+  → intel/pp_tracker.py    → data/programming_pathshala_courses.json
+  → intel/java_qa.py       → logs/progress.json
+  → intel/mock_engine.py   → intel/db.py
+  → intel/lld_engine.py    → intel/db.py
+  → intel/behavioral.py    → docs/GSTN_Interview_QuestionBank_296Q.md (for qbank)
+  → intel/brief.py         → intel/drill.py, intel/behavioral.py, intel/db.py
+  → intel/coach.py         → intel/config.py (ANTHROPIC_API_KEY, CLAUDE_MODEL)
+
+app/main.py
+  → app/routers/*          → intel/* (lazy imports inside handlers)
+  → app/scheduler.py       → intel/scraper.py, intel/brief.py
+
+intel/config.py            → PROFILE, TARGET_COMPANIES, LEVEL_EXPECTATIONS
+                             (single source of truth for all AI prompts)
+```
+
+---
+
+*Last updated: Mar 25, 2026 · Day 7/184 · Week 1/26 · Phase 1 · ntfy topic: prep*
