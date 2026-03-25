@@ -131,13 +131,14 @@ def scrub_pii(data: dict) -> dict:
 
 
 # ─── Include Routers ──────────────────────────────────────────────────────────
-from app.routers import progress, intel_routes, coach, career, practice
+from app.routers import progress, intel_routes, coach, career, practice, feedback
 
 app.include_router(progress.router, prefix="/api")
 app.include_router(intel_routes.router, prefix="/api/intel")
 app.include_router(coach.router, prefix="/api")
 app.include_router(career.router, prefix="/api")
 app.include_router(practice.router, prefix="/api")
+app.include_router(feedback.router, prefix="/api")
 
 
 # ─── Portal Static Files ──────────────────────────────────────────────────────

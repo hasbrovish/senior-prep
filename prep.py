@@ -3800,6 +3800,77 @@ def cmd_tc(company=None):
         print_tc_report(company)
 
 
+def _cmd_logx(activity_type=None, title=None):
+    """Structured activity log — feeds LLM feedback loop."""
+    TYPES = ["lc", "drill", "mock", "curriculum", "lld", "jqa", "system_design", "behavioral", "notes"]
+    OUTCOMES = ["solved", "watched", "practiced", "struggled", "failed", "skipped"]
+    try:
+        from intel.feedback_engine import log_activity
+    except ImportError:
+        print("  ❌ feedback_engine not available")
+        return
+
+    print("\n  ── Activity Logger (Structured) ──")
+    if not activity_type:
+        print(f"  Type: {', '.join(TYPES)}")
+        activity_type = input("  Type: ").strip() or "lc"
+    if not title:
+        title = input("  Title/Problem: ").strip()
+    if not title:
+        print("  Nothing logged."); return
+
+    outcome = input(f"  Outcome ({'/'.join(OUTCOMES)}) [solved]: ").strip() or "solved"
+    try:
+        conf = int(input("  Confidence 1-5 [3]: ").strip() or "3")
+    except ValueError:
+        conf = 3
+    try:
+        mins = int(input("  Duration (mins) [30]: ").strip() or "30")
+    except ValueError:
+        mins = 30
+    notes = input("  Notes (optional): ").strip()
+
+    entry_id = log_activity(
+        activity_type=activity_type, title=title,
+        duration_mins=mins, outcome=outcome,
+        confidence=conf, notes=notes,
+    )
+    print(f"\n  ✅ Logged #{entry_id}: [{activity_type}] {title} — {outcome} ({conf}/5, {mins}m)")
+    print(f"  Portal Dashboard shows today's activity feed in real-time.")
+    print()
+
+
+def _cmd_ai_plan():
+    """Show today's AI-generated adaptive plan."""
+    try:
+        from intel.feedback_engine import generate_daily_plan
+    except ImportError:
+        print("  ❌ feedback_engine not available"); return
+
+    print("\n  🧠 Generating today's AI plan (uses Claude Haiku, ~10s)...\n")
+    result = generate_daily_plan(force=False)
+    cached_note = " [cached]" if result.get("cached") else " [freshly generated]"
+    print(f"  ── Today's Adaptive Plan{cached_note} ──\n")
+    print(result.get("plan", "No plan available — set ANTHROPIC_API_KEY"))
+    print(f"\n  Force refresh: prep aiplan --refresh")
+    print(f"  Weekly plan:   prep weekplan\n")
+
+
+def _cmd_weekly_plan():
+    """Show this week's AI adaptive plan."""
+    try:
+        from intel.feedback_engine import generate_weekly_plan
+    except ImportError:
+        print("  ❌ feedback_engine not available"); return
+
+    print("\n  🧠 Generating weekly plan (uses Claude Haiku, ~15s)...\n")
+    result = generate_weekly_plan(force=False)
+    cached_note = " [cached]" if result.get("cached") else " [freshly generated]"
+    print(f"  ── Weekly Adaptive Plan{cached_note} ──\n")
+    print(result.get("plan", "No plan available — set ANTHROPIC_API_KEY"))
+    print()
+
+
 def cmd_brief(send=False):
     """Show (and optionally send) today's morning brief."""
     try:
@@ -4275,6 +4346,15 @@ if __name__ == "__main__":
             print_ib_problems(company=company, topic=topic)
         except ImportError as e:
             print(f"  ❌ {e}")
+    elif cmd in ("logx", "logact", "activity", "log-activity"):
+        # Structured activity logging (feeds LLM feedback loop)
+        activity_type = args[1] if len(args) > 1 else None
+        title = " ".join(args[2:]) if len(args) > 2 else None
+        _cmd_logx(activity_type, title)
+    elif cmd in ("aiplan", "ai-plan", "plan-ai", "myplan", "today-plan"):
+        _cmd_ai_plan()
+    elif cmd in ("weekly-plan", "weekplan", "week-plan", "plan-weekly"):
+        _cmd_weekly_plan()
     elif cmd in ("help", "h", "--help"):
         cmd_help()
     else:

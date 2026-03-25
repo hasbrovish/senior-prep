@@ -340,6 +340,147 @@ function renderDashboard(app) {
   ));
   app.appendChild(grid);
 
+  // ── AI Adaptive Plan ──
+  app.appendChild(h("div", { style: { marginTop: 16 } }));
+  const planHdr = h("div", { style: { display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 } },
+    h("div", { style: { fontSize: 10, fontWeight: 700, color: "var(--gold)", letterSpacing: 3, textTransform: "uppercase" } }, "🧠 AI Adaptive Plan"),
+    h("div", { style: { display: "flex", gap: 6 } },
+      h("button", {
+        style: { padding: "3px 9px", fontSize: 9, background: "var(--bg4)", color: "var(--text3)", borderRadius: 3, border: "1px solid var(--bg4)", cursor: "pointer" },
+        onClick: () => {
+          api("POST", "/api/plan/daily/refresh").then(() => {
+            planBody.textContent = "Regenerating... check back in 15s";
+          });
+        }
+      }, "⟳ Refresh"),
+      h("button", {
+        style: { padding: "3px 9px", fontSize: 9, background: "var(--purple)22", color: "var(--purple)", borderRadius: 3, border: "1px solid var(--purple)44", cursor: "pointer" },
+        onClick: () => {
+          planWeekly.style.display = planWeekly.style.display === "none" ? "block" : "none";
+        }
+      }, "Weekly ▾"),
+    ),
+  );
+  app.appendChild(planHdr);
+  const planBody = h("div", {
+    style: { background: "var(--bg3)", borderRadius: 8, padding: 14, fontSize: 11, lineHeight: 1.7,
+             borderLeft: "3px solid var(--gold)", whiteSpace: "pre-wrap", maxHeight: 340, overflowY: "auto", color: "var(--text)" }
+  }, "Loading today's plan...");
+  app.appendChild(planBody);
+
+  const planWeekly = h("div", {
+    style: { display: "none", background: "var(--bg3)", borderRadius: 8, padding: 14, marginTop: 8,
+             fontSize: 11, lineHeight: 1.7, borderLeft: "3px solid var(--purple)", whiteSpace: "pre-wrap",
+             maxHeight: 380, overflowY: "auto", color: "var(--text)" }
+  }, "Loading weekly plan...");
+  app.appendChild(planWeekly);
+
+  api("GET", "/api/plan/daily").then(data => {
+    planBody.textContent = data?.plan || "No plan available — add ANTHROPIC_API_KEY and click ⟳ Refresh.";
+    if (data?.cached) {
+      const badge = h("span", { style: { fontSize: 9, color: "var(--text3)", display: "block", marginTop: 4 } }, `Cached · ${data.date}`);
+      planBody.appendChild(badge);
+    }
+  }).catch(() => { planBody.textContent = "Plan API unavailable."; });
+
+  api("GET", "/api/plan/weekly").then(data => {
+    planWeekly.textContent = data?.plan || "No weekly plan yet — click ⟳ on the weekly section.";
+  }).catch(() => {});
+
+  // ── Activity Logger (quick log) ──
+  app.appendChild(h("div", { style: { marginTop: 12 } }));
+  const logRow = h("div", { style: { display: "flex", gap: 6, flexWrap: "wrap", alignItems: "center" } });
+  const logType = h("select", {
+    style: { fontSize: 10, padding: "4px 8px", background: "var(--bg3)", color: "var(--text)", border: "1px solid var(--bg4)", borderRadius: 4, maxWidth: 120 },
+  },
+    ["lc","drill","mock","curriculum","lld","jqa","system_design","behavioral","notes"].map(t =>
+      h("option", { value: t }, t)
+    )
+  );
+  const logTitle = h("input", {
+    type: "text", placeholder: "Title / problem name",
+    style: { fontSize: 10, padding: "4px 8px", background: "var(--bg3)", color: "var(--text)", border: "1px solid var(--bg4)", borderRadius: 4, flex: 1, minWidth: 120 },
+  });
+  const logOutcome = h("select", {
+    style: { fontSize: 10, padding: "4px 8px", background: "var(--bg3)", color: "var(--text)", border: "1px solid var(--bg4)", borderRadius: 4, maxWidth: 100 },
+  },
+    ["solved","watched","practiced","struggled","failed","skipped"].map(o => h("option",{value:o},o))
+  );
+  const logConf = h("select", {
+    style: { fontSize: 10, padding: "4px 8px", background: "var(--bg3)", color: "var(--text)", border: "1px solid var(--bg4)", borderRadius: 4, maxWidth: 80 },
+  },
+    ["1 ✗","2 ✗","3 ~","4 ✓","5 ✓✓"].map((l, i) => h("option",{value: i+1}, l))
+  );
+  logConf.value = "3";
+  const logMins = h("input", {
+    type: "number", placeholder: "mins", value: "30",
+    style: { fontSize: 10, padding: "4px 6px", background: "var(--bg3)", color: "var(--text)", border: "1px solid var(--bg4)", borderRadius: 4, width: 55 },
+  });
+  const logStatus = h("span", { style: { fontSize: 10, color: "var(--text3)" } });
+  const logBtn = h("button", {
+    style: { padding: "4px 12px", fontSize: 10, background: "var(--gold)", color: "var(--bg)", borderRadius: 4, fontWeight: 700, cursor: "pointer" },
+    onClick: async () => {
+      if (!logTitle.value.trim()) { logStatus.textContent = "Enter a title"; return; }
+      logStatus.textContent = "Saving...";
+      const res = await api("POST", "/api/log", {
+        activity_type: logType.value, title: logTitle.value.trim(),
+        outcome: logOutcome.value, confidence: parseInt(logConf.value),
+        duration_mins: parseInt(logMins.value) || 0,
+      });
+      if (res?.logged) {
+        logStatus.style.color = "var(--green)";
+        logStatus.textContent = "✓ Logged";
+        logTitle.value = "";
+        setTimeout(() => { logStatus.textContent = ""; logStatus.style.color = ""; }, 2000);
+        loadActivityFeed();
+      } else {
+        logStatus.style.color = "var(--red)";
+        logStatus.textContent = "Error";
+      }
+    }
+  }, "+ Log");
+
+  logRow.appendChild(logType);
+  logRow.appendChild(logTitle);
+  logRow.appendChild(logOutcome);
+  logRow.appendChild(logConf);
+  logRow.appendChild(logMins);
+  logRow.appendChild(logBtn);
+  logRow.appendChild(logStatus);
+  app.appendChild(logRow);
+
+  // Today's activity feed
+  const feedBox = h("div", { style: { marginTop: 8, display: "flex", flexDirection: "column", gap: 3, maxHeight: 180, overflowY: "auto" } });
+  app.appendChild(feedBox);
+
+  function loadActivityFeed() {
+    api("GET", "/api/log/today").then(data => {
+      feedBox.innerHTML = "";
+      const logs = data?.logs || [];
+      if (!logs.length) {
+        feedBox.appendChild(h("div", { style: { fontSize: 10, color: "var(--text4)", padding: "4px 0" } }, "No activity logged today yet."));
+        return;
+      }
+      logs.slice().reverse().forEach(l => {
+        const outcomeColors = { solved: "var(--green)", watched: "var(--cyan)", practiced: "var(--blue)",
+                                struggled: "var(--orange)", failed: "var(--red)", skipped: "var(--text4)" };
+        const col = outcomeColors[l.outcome] || "var(--text3)";
+        feedBox.appendChild(h("div", { style: { display: "flex", gap: 6, alignItems: "center", padding: "3px 8px", background: "var(--bg3)", borderRadius: 4 } },
+          h("span", { style: { fontSize: 9, color: "var(--text4)", minWidth: 70 } }, l.activity_type),
+          h("span", { style: { fontSize: 11, color: "var(--text)", flex: 1 } }, l.title),
+          h("span", { style: { fontSize: 9, color: col } }, l.outcome),
+          h("span", { style: { fontSize: 9, color: "var(--text4)" } }, `${l.duration_mins || 0}m`),
+          h("span", { style: { fontSize: 9, color: "var(--text4)" } }, `${l.confidence}/5`),
+        ));
+      });
+      const totalMins = logs.reduce((s, l) => s + (l.duration_mins || 0), 0);
+      feedBox.appendChild(h("div", { style: { fontSize: 9, color: "var(--text3)", padding: "4px 0", textAlign: "right" } },
+        `${logs.length} activities · ${totalMins} min today`
+      ));
+    }).catch(() => {});
+  }
+  loadActivityFeed();
+
   // Gap Analysis
   app.appendChild(sectionHdr("Gap Analysis", "vs SDE-2 bar"));
   const gapData = [
