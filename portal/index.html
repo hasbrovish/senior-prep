@@ -983,21 +983,39 @@ function renderCourses(app) {
   state.currCat = state.currCat ?? "all";
   state.currSource = state.currSource ?? "all";
 
-  app.appendChild(sectionHdr("Master Curriculum", "Hello Interview + Programming Pathshala — unified 26-week tracker"));
+  const hdrRow = h("div", { style: { display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 } },
+    h("div", {},
+      h("div", { style: { fontSize: 10, fontWeight: 700, color: "var(--gold)", letterSpacing: 3, textTransform: "uppercase" } }, "Master Curriculum"),
+      h("div", { style: { fontSize: 9, color: "var(--text4)", marginTop: 2 } }, "Hello Interview + Programming Pathshala — unified 26-week tracker"),
+    ),
+    h("button", {
+      style: { padding: "3px 9px", fontSize: 9, background: "var(--bg4)", color: "var(--text3)", borderRadius: 3, border: "1px solid var(--bg4)", cursor: "pointer" },
+      onClick: () => { state.curriculum = null; render(); }
+    }, "⟳ Reload"),
+  );
+  app.appendChild(hdrRow);
 
   // ── Load from API ──
   if (!state.curriculum) {
+    const loadingEl = h("div", { style: { padding: "20px", color: "var(--text3)", fontSize: 11 } }, "Loading master curriculum...");
+    app.appendChild(loadingEl);
     api("GET", "/api/curriculum").then(data => {
       if (data?.items?.length) {
         state.curriculum = data.items;
         render();
       } else {
-        app.querySelector?.(".loading")?.replaceWith?.(
-          h("div",{style:{padding:20,color:"var(--red)",fontSize:11}}, "Failed to load curriculum. Check /api/curriculum.")
-        );
+        loadingEl.innerHTML = "";
+        loadingEl.style.color = "var(--red)";
+        loadingEl.appendChild(document.createTextNode("No curriculum data — check /api/curriculum"));
+        loadingEl.appendChild(h("button", {
+          style:{marginLeft:12,padding:"3px 8px",fontSize:10,background:"var(--gold)",color:"var(--bg)",borderRadius:3,cursor:"pointer"},
+          onClick: () => { state.curriculum = null; render(); }
+        }, "Retry"));
       }
+    }).catch(() => {
+      loadingEl.textContent = "Curriculum load failed. Check server logs.";
+      loadingEl.style.color = "var(--red)";
     });
-    app.appendChild(h("div", { className: "loading", style: { padding: "20px", color: "var(--text3)", fontSize: 11 } }, "Loading master curriculum..."));
     return;
   }
 
@@ -1194,7 +1212,7 @@ function renderWarPlan(app) {
   // Week selector
   const weekSel = h("div", { style: { display: "flex", gap: 8, marginBottom: 16, flexWrap: "wrap" } });
   const weekDisplay = h("div", { style: { background: "var(--bg3)", borderRadius: 8, padding: 16, fontSize: 12, lineHeight: 1.8, whiteSpace: "pre-wrap", maxHeight: "calc(100vh - 280px)", overflowY: "auto" } },
-    h("div", { className: "label" }, "Loading war plan..."),
+    h("div", { style: { fontSize: 11, color: "var(--text3)" } }, "Loading..."),
   );
 
   // Overview button
@@ -1226,6 +1244,14 @@ function renderWarPlan(app) {
   }
   app.appendChild(weekSel);
   app.appendChild(weekDisplay);
+
+  // Auto-load current week on first visit
+  const autoWeek = state.portal.career?.week || 1;
+  fetch(`${API}/api/warplan?week=${autoWeek}`).then(r => r.json()).then(data => {
+    weekDisplay.innerHTML = "";
+    weekDisplay.appendChild(h("div", { style: { fontSize: 10, color: "var(--text3)", marginBottom: 8 } }, `Week ${autoWeek} — auto-loaded`));
+    weekDisplay.appendChild(h("pre", { style: { fontSize: 11, color: "var(--text)", whiteSpace: "pre-wrap", fontFamily: "var(--font)" } }, data.content || "Week not found in plan"));
+  }).catch(() => { weekDisplay.textContent = "Failed to load war plan"; });
 
   // Java QA Topics
   app.appendChild(h("div", { style: { marginTop: 24 } }));

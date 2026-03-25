@@ -11,12 +11,13 @@ COPY app/ ./app/
 COPY intel/ ./intel/
 COPY portal/ ./portal/
 COPY prep.py .
-# Copy plan docs (needed by /api/warplan endpoint)
-COPY ULTIMATE_INTERVIEW_ASSAULT.md* ./
-COPY MASTER_16H_WARPLAN.md* ./
+# Curriculum JSONs needed by /api/curriculum
+COPY data/*.json ./data/
+# War plan docs (in docs/ subdir)
+COPY docs/ ./docs/
 
-# Create data and logs directories
-RUN mkdir -p data logs
+# Create logs directory
+RUN mkdir -p logs
 
 # Non-root user for security
 RUN useradd -m -u 1001 prepforge && chown -R prepforge:prepforge /app

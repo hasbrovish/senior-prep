@@ -1,0 +1,21 @@
+# Git
+.git/
+.gitignore
+
+# Runtime data (rebuilt at startup)
+data/*.db
+data/*.db-shm
+data/*.db-wal
+data/cache/
+data/portal_data.json
+logs/
+
+# Dev stuff
+__pycache__/
+*.pyc
+*.pyo
+.env
+.env.*
+node_modules/
+01_Career_Interview_Prep/
+trackers-docs/
