@@ -217,6 +217,111 @@ def _index_file(conn, folder: str, filename: str, category: str,
     return added
 
 
+def index_github_repo(repo_path, category: str, source_prefix: str,
+                      conn=None, skip_langs=None) -> dict:
+    """
+    Walk a cloned GitHub repo directory and index all .md / .txt files.
+    Skips translated files (README-zh, README-ja, etc.) and binary files.
+
+    repo_path : absolute Path or str to repo root
+    category  : 'system_design', 'dsa', 'java', 'lld', 'general', 'behavioral'
+    source_prefix : short prefix for source_key, e.g. 'sdp' or 'grokking'
+    skip_langs: list of lang suffixes to skip, default ['zh', 'ja', 'tw', 'ko', 'pt', 'es']
+    """
+    repo_path = Path(repo_path)
+    skip_langs = skip_langs or ["zh", "ja", "tw", "ko", "pt", "es", "ru", "de", "fr"]
+    skip_dirs = {".git", "images", "img", "assets", "bin", "__pycache__", "node_modules"}
+
+    stats = {"indexed": 0, "skipped": 0, "total_chunks": 0}
+    close_conn = conn is None
+    if conn is None:
+        conn = _conn()
+        _init_table(conn)
+
+    try:
+        md_files = []
+        for f in sorted(repo_path.rglob("*.md")):
+            # Skip translation files
+            stem = f.stem.lower()
+            if any(f"-{lang}" in stem for lang in skip_langs):
+                continue
+            # Skip hidden dirs and media dirs
+            if any(part in skip_dirs for part in f.parts):
+                continue
+            md_files.append(f)
+
+        # Also grab .txt files at root
+        for f in sorted(repo_path.glob("*.txt")):
+            md_files.append(f)
+
+        for md_path in md_files:
+            # Build a stable source_key from relative path
+            rel = md_path.relative_to(repo_path)
+            key_parts = list(rel.parts)
+            # Remove .md extension from last part
+            key_parts[-1] = key_parts[-1].replace(".md", "").replace(".txt", "")
+            source_key = f"{source_prefix}_" + "_".join(key_parts)[:50]
+            source_key = re.sub(r"[^a-zA-Z0-9_]", "_", source_key)
+
+            try:
+                content = md_path.read_text(encoding="utf-8", errors="replace")
+            except Exception:
+                stats["skipped"] += 1
+                continue
+
+            if len(content) < 100:
+                stats["skipped"] += 1
+                continue
+
+            # Use relative path as source_file label
+            rel_from_base = str(md_path.relative_to(BASE)) if md_path.is_relative_to(BASE) else str(rel)
+
+            file_h = _file_hash(content)
+            existing = conn.execute(
+                "SELECT COUNT(*) FROM kb_chunks WHERE source_key=? AND chunk_hash=?",
+                (source_key, file_h)
+            ).fetchone()[0]
+            if existing > 0:
+                stats["skipped"] += 1
+                continue
+
+            conn.execute("DELETE FROM kb_chunks WHERE source_key=?", (source_key,))
+            chunks = _chunk_text(content)
+            added = 0
+            for idx, heading, chunk_text in chunks:
+                if len(chunk_text.strip()) < 50:
+                    continue
+                keywords = _extract_keywords(chunk_text)
+                conn.execute(
+                    """INSERT INTO kb_chunks
+                         (source_key, source_file, category, chunk_idx, chunk_hash, heading, content, keywords)
+                       VALUES (?, ?, ?, ?, ?, ?, ?, ?)""",
+                    (source_key, rel_from_base, category, idx, file_h, heading, chunk_text, keywords)
+                )
+                added += 1
+
+            if added > 0:
+                stats["indexed"] += 1
+                stats["total_chunks"] += added
+                conn.commit()
+            else:
+                stats["skipped"] += 1
+
+    finally:
+        if close_conn:
+            conn.close()
+
+    return stats
+
+
+# GitHub repos to auto-index on startup
+GITHUB_REPOS = [
+    # (repo_dir_relative_to_BASE, category, source_prefix)
+    ("docs/github/system-design-primer", "system_design", "sdp"),
+    ("docs/github/Grokking-System-Design", "system_design", "grokking"),
+]
+
+
 def init_kb(force: bool = False) -> dict:
     """
     Index all knowledge sources into SQLite.
@@ -231,6 +336,8 @@ def init_kb(force: bool = False) -> dict:
             conn.commit()
 
         stats = {"indexed": 0, "skipped": 0, "missing": 0, "total_chunks": 0}
+
+        # ── Static file list ──────────────────────────────────────────────────
         for entry in KNOWLEDGE_SOURCES:
             folder, filename, category, source_key = entry[0], entry[1], entry[2], entry[3]
             max_pages = entry[4] if len(entry) > 4 else 0
@@ -244,6 +351,17 @@ def init_kb(force: bool = False) -> dict:
                 stats["total_chunks"] += added
             else:
                 stats["skipped"] += 1
+
+        # ── GitHub repos (walk all markdown files) ────────────────────────────
+        for repo_rel, category, prefix in GITHUB_REPOS:
+            repo_path = BASE / repo_rel
+            if not repo_path.exists():
+                stats["missing"] += 1
+                continue
+            r = index_github_repo(repo_path, category, prefix, conn=conn)
+            stats["indexed"] += r["indexed"]
+            stats["skipped"] += r["skipped"]
+            stats["total_chunks"] += r["total_chunks"]
 
         total = conn.execute("SELECT COUNT(*) FROM kb_chunks").fetchone()[0]
         stats["total_chunks_in_db"] = total

@@ -51,6 +51,9 @@ prepforge-portal.jsx
 files/
 files.zip
 
+# GitHub repos cloned for knowledge base (re-cloned on deploy, don't commit)
+docs/github/
+
 # Generated logs (auto-created, not version controlled)
 logs/week_*.txt
 

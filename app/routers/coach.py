@@ -315,6 +315,55 @@ async def kb_stats():
         raise HTTPException(500, str(e))
 
 
+@router.post("/coach/kb/add-repo")
+async def kb_add_repo(background_tasks: BackgroundTasks, body: dict):
+    """
+    Clone a public GitHub repo and index all its markdown files.
+    Body: { "github_url": "https://github.com/owner/repo", "category": "system_design" }
+    Runs in background — check /api/coach/kb/stats after ~30s.
+    """
+    import re as _re
+    github_url = body.get("github_url", "").strip()
+    category = body.get("category", "system_design")
+
+    if not github_url.startswith("https://github.com/"):
+        raise HTTPException(400, "github_url must start with https://github.com/")
+
+    # Only allow public repos (no credentials passed)
+    import subprocess, os
+    from pathlib import Path
+
+    BASE = Path(__file__).parent.parent.parent
+    github_dir = BASE / "docs" / "github"
+    github_dir.mkdir(parents=True, exist_ok=True)
+
+    repo_name = github_url.rstrip("/").split("/")[-1]
+    repo_name = _re.sub(r"[^a-zA-Z0-9_\-]", "_", repo_name)
+    clone_path = github_dir / repo_name
+    prefix = _re.sub(r"[^a-zA-Z0-9]", "_", repo_name)[:12]
+
+    def _do():
+        try:
+            if clone_path.exists():
+                subprocess.run(["git", "-C", str(clone_path), "pull", "--depth=1"],
+                               capture_output=True, timeout=120)
+            else:
+                subprocess.run(["git", "clone", "--depth=1", github_url, str(clone_path)],
+                               capture_output=True, timeout=120)
+            from intel.knowledge_base import index_github_repo
+            index_github_repo(clone_path, category=category, source_prefix=prefix)
+        except Exception:
+            pass
+
+    background_tasks.add_task(_do)
+    return {
+        "ok": True,
+        "repo": repo_name,
+        "clone_path": str(clone_path),
+        "message": f"Cloning + indexing {github_url} in background. Check /api/coach/kb/stats in ~30s."
+    }
+
+
 @router.post("/coach/kb/reindex")
 async def kb_reindex(background_tasks: BackgroundTasks, force: bool = False):
     """Re-index all documents into the knowledge base (runs in background)."""

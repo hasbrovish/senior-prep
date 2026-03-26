@@ -82,6 +82,26 @@ async def lifespan(app: FastAPI):
     except Exception as e:
         print(f"  ⚠️  Feedback tables: {e}")
 
+    # Clone GitHub repos for knowledge base (if missing — Railway deploys)
+    try:
+        import subprocess
+        from intel.knowledge_base import GITHUB_REPOS
+        for repo_rel, _cat, _pfx in GITHUB_REPOS:
+            repo_path = BASE / repo_rel
+            if not repo_path.exists():
+                url_map = {
+                    "docs/github/system-design-primer": "https://github.com/donnemartin/system-design-primer.git",
+                    "docs/github/Grokking-System-Design": "https://github.com/Jeevan-kumar-Raj/Grokking-System-Design.git",
+                }
+                url = url_map.get(repo_rel)
+                if url:
+                    repo_path.parent.mkdir(parents=True, exist_ok=True)
+                    subprocess.run(["git", "clone", "--depth=1", url, str(repo_path)],
+                                   capture_output=True, timeout=120)
+                    print(f"  ✅ Cloned {repo_rel}")
+    except Exception as e:
+        print(f"  ⚠️  GitHub clone: {e}")
+
     # Init knowledge base (pre-index docs for AI coach)
     try:
         from intel.knowledge_base import init_kb
