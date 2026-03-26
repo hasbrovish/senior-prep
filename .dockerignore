@@ -18,11 +18,16 @@ __pycache__/
 .env.*
 node_modules/
 01_Career_Interview_Prep/
+# trackers-docs — XLSX/DOCX selectively copied in Dockerfile
 trackers-docs/
-# Large binary files in Interview_Answers (PDFs, DOCX, XLSX, ZIP)
+# Large binary files in Interview_Answers (not needed — content is in .md files)
 Interview_Answers/*.pdf
 Interview_Answers/*.docx
 Interview_Answers/*.xlsx
 Interview_Answers/*.zip
-docs/books/
+# 01_Career_Interview_Prep — selectively copied in Dockerfile
+# docs/books PDFs included (Alex Xu)
 prepforge-export-*.json
+# Resumes — skip personal PDFs, only keep prep guides
+02_Resumes/*.pdf
+02_Resumes/files (1)/

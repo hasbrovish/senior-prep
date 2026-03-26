@@ -13,11 +13,19 @@ COPY portal/ ./portal/
 COPY prep.py .
 # Curriculum JSONs needed by /api/curriculum
 COPY data/*.json ./data/
-# War plan docs and reference files
+# War plan docs, reference files + Alex Xu PDFs (knowledge base)
 COPY docs/ ./docs/
-# Interview prep content (Interview_Answers/) — indexed by knowledge base for AI coach
-# Only copy .md and .txt files (skip PDFs/DOCX/XLSX to keep image size small)
+# Interview prep content — markdown + binary files indexed by knowledge base
 COPY Interview_Answers/*.md ./Interview_Answers/
+# Interview Q&A sheets and prep programmes (XLSX + DOCX)
+COPY trackers-docs/*.xlsx ./trackers-docs/
+COPY trackers-docs/*.docx ./trackers-docs/
+# Supplementary prep guides
+COPY "02_Resumes/files/Supplementary_Prep_Guide_Complete.docx" ./02_Resumes/files/
+COPY "02_Resumes/files/Top_1_Percent_Engineer_Preparation_Blueprint.docx" ./02_Resumes/files/
+COPY 01_Career_Interview_Prep/THRIVING_PLAN_SDE2_SDE3.docx ./01_Career_Interview_Prep/
+COPY 01_Career_Interview_Prep/INTERVIEW_MASTER_SHEET.docx ./01_Career_Interview_Prep/
+COPY 01_Career_Interview_Prep/SDE2_Preparation_Analysis_January2026.docx ./01_Career_Interview_Prep/
 
 # Create logs directory
 RUN mkdir -p logs

@@ -1,7 +1,7 @@
 """
 Document Knowledge Base — lightweight RAG for AI Coach.
 
-Indexes markdown/text files from Interview_Answers/ and docs/ into SQLite.
+Indexes markdown, PDF, DOCX, and XLSX files into SQLite.
 Retrieval is keyword-based (no vectors needed for this size corpus).
 
 Flow:
@@ -9,12 +9,13 @@ Flow:
   search_kb(query)   → keyword match → returns top-N relevant chunks
   get_coach_context(query, context_type) → assembled system context string
 
-Indexed documents (all markdown):
-  Interview_Answers/  — 23 files: Java, Spring, Microservices, SD, LLD, GSTN, STAR, company Qs
+Indexed documents:
+  Interview_Answers/  — 23 markdown files: Java, Spring, Microservices, SD, LLD, GSTN, STAR, company Qs
   docs/               — Question bank, company analysis, interview patterns, war plan
-  docs/Interview_exp.txt — real interview experiences
-
-PDFs/Excel/DOCX are skipped (need extra libs — convert to markdown manually to include).
+  docs/books/         — Alex Xu SD Vol1 + Vol2, Spring PDF, Java/Spring DOCX guide
+  trackers-docs/      — Java, SD, LLD, DB/OS/CN interview sheets (XLSX), prep programmes (DOCX)
+  02_Resumes/files/   — Supplementary prep guides (DOCX)
+  01_Career_Interview_Prep/ — interview master sheet, SDE2 analysis (DOCX)
 """
 
 import hashlib
@@ -27,33 +28,56 @@ from typing import Optional
 BASE = Path(__file__).parent.parent
 DB_PATH = BASE / "data" / "interviews.db"
 
-# Files to index — ordered by priority (most useful first)
+# Files to index — (folder, filename, category, source_key, max_pdf_pages)
+# max_pdf_pages=0 means all pages; set a limit for huge PDFs to cap indexing time
 KNOWLEDGE_SOURCES = [
-    # ─── High Priority: Direct Interview Content ───────────────────────────────
-    ("Interview_Answers", "Amazon_LP_STAR_Bank.md",          "behavioral",      "amazon_lp"),
-    ("Interview_Answers", "Section_01_Java_Core.md",          "java",            "java_core"),
-    ("Interview_Answers", "Section_02_Spring_Boot.md",        "java",            "spring_boot"),
-    ("Interview_Answers", "Section_04_05_06_Microservices_Kafka_Redis.md", "java", "microservices"),
-    ("Interview_Answers", "Section_07_08_Database_DistributedSystems.md", "system_design", "databases"),
-    ("Interview_Answers", "Section_21_SystemDesign_DeepDive_With_Answers.md", "system_design", "sd_deep"),
-    ("Interview_Answers", "GSTN_Architecture_Reference.md",   "system_design",   "gstn_arch"),
-    ("Interview_Answers", "GSTN_Complete_SDE2_SDE3_InterviewPrep.md", "general", "gstn_prep"),
-    ("Interview_Answers", "Company_Questions_Phase1.md",      "general",         "company_q1"),
-    ("Interview_Answers", "Company_Questions_Phase2.md",      "general",         "company_q2"),
-    ("Interview_Answers", "Section_20_FAANG_SDE2_SDE3_Advanced.md", "general",  "faang_adv"),
-    ("Interview_Answers", "Section_LLD_Complete.md",          "lld",             "lld_complete"),
-    ("Interview_Answers", "Section_DSA_Java_Patterns.md",     "dsa",             "dsa_patterns"),
-    ("Interview_Answers", "Section_Modern_Java_Observability_CQRS.md", "java",   "modern_java"),
-    ("Interview_Answers", "Section_Behavioral_DB_Golang.md",  "behavioral",      "behavioral_go"),
-    ("Interview_Answers", "Section_SD_Consumer_Products.md",  "system_design",   "sd_consumer"),
-    ("Interview_Answers", "OA_Patterns_MockInterviews_RevisionGuide.md", "dsa",  "oa_patterns"),
-    # ─── Medium Priority: Reference Docs ─────────────────────────────────────
-    ("docs",              "GSTN_Interview_QuestionBank_296Q.md", "general",      "qbank_296"),
-    ("docs",              "COMPANY_ANALYSIS.md",                "general",       "company_analysis"),
-    ("docs",              "DEEP_RESEARCH_INTERVIEW_PATTERNS_2025_2026.md", "general", "patterns_2026"),
-    ("docs",              "CPP_to_Java_DSA_CheatSheet.md",      "dsa",           "dsa_cheat"),
-    ("docs",              "Interview_exp.txt",                   "general",       "real_experiences"),
-    ("docs",              "MASTER_16H_WARPLAN.md",               "general",       "war_plan"),
+    # ─── Markdown: Direct Interview Content ───────────────────────────────────
+    ("Interview_Answers", "Amazon_LP_STAR_Bank.md",          "behavioral",      "amazon_lp",       0),
+    ("Interview_Answers", "Section_01_Java_Core.md",          "java",            "java_core",        0),
+    ("Interview_Answers", "Section_02_Spring_Boot.md",        "java",            "spring_boot",      0),
+    ("Interview_Answers", "Section_04_05_06_Microservices_Kafka_Redis.md", "java", "microservices",  0),
+    ("Interview_Answers", "Section_07_08_Database_DistributedSystems.md", "system_design", "databases", 0),
+    ("Interview_Answers", "Section_21_SystemDesign_DeepDive_With_Answers.md", "system_design", "sd_deep", 0),
+    ("Interview_Answers", "GSTN_Architecture_Reference.md",   "system_design",   "gstn_arch",        0),
+    ("Interview_Answers", "GSTN_Complete_SDE2_SDE3_InterviewPrep.md", "general", "gstn_prep",       0),
+    ("Interview_Answers", "Company_Questions_Phase1.md",      "general",         "company_q1",       0),
+    ("Interview_Answers", "Company_Questions_Phase2.md",      "general",         "company_q2",       0),
+    ("Interview_Answers", "Section_20_FAANG_SDE2_SDE3_Advanced.md", "general",  "faang_adv",        0),
+    ("Interview_Answers", "Section_LLD_Complete.md",          "lld",             "lld_complete",     0),
+    ("Interview_Answers", "Section_DSA_Java_Patterns.md",     "dsa",             "dsa_patterns",     0),
+    ("Interview_Answers", "Section_Modern_Java_Observability_CQRS.md", "java",   "modern_java",      0),
+    ("Interview_Answers", "Section_Behavioral_DB_Golang.md",  "behavioral",      "behavioral_go",    0),
+    ("Interview_Answers", "Section_SD_Consumer_Products.md",  "system_design",   "sd_consumer",      0),
+    ("Interview_Answers", "OA_Patterns_MockInterviews_RevisionGuide.md", "dsa",  "oa_patterns",      0),
+    ("Interview_Answers", "Section_API_Design_SQL_Practice.md", "system_design", "api_sql",          0),
+    # ─── Markdown: Reference Docs ─────────────────────────────────────────────
+    ("docs",              "GSTN_Interview_QuestionBank_296Q.md", "general",      "qbank_296",        0),
+    ("docs",              "COMPANY_ANALYSIS.md",                "general",       "company_analysis", 0),
+    ("docs",              "DEEP_RESEARCH_INTERVIEW_PATTERNS_2025_2026.md", "general", "patterns_2026", 0),
+    ("docs",              "CPP_to_Java_DSA_CheatSheet.md",      "dsa",           "dsa_cheat",        0),
+    ("docs",              "Interview_exp.txt",                   "general",       "real_experiences", 0),
+    ("docs",              "MASTER_16H_WARPLAN.md",               "general",       "war_plan",         0),
+    # ─── PDF: Books (Alex Xu System Design — core chapters only) ────────────
+    # Vol1: 280 pages — cap at 250 to skip appendix
+    ("docs/books",        "Alex_Xu_SystemDesign_Vol1.pdf",      "system_design", "alex_xu_vol1",   250),
+    # Vol2: ~400 pages — cap at 350
+    ("docs/books",        "Alex_Xu_SystemDesign_Vol2.pdf",      "system_design", "alex_xu_vol2",   350),
+    ("docs/books",        "springpdf.pdf",                       "java",          "spring_pdf",       0),
+    # ─── DOCX: Interview Guides ───────────────────────────────────────────────
+    ("docs/books",        "Java_SpringBoot_Microservices_Interview_Guide.docx", "java", "java_guide_docx", 0),
+    ("trackers-docs",     "The_Badass_Senior_Developer_Programme.docx", "general", "badass_sde",    0),
+    ("trackers-docs",     "The_Comeback_Protocol_6Month_Roadmap.docx",  "general", "comeback_proto", 0),
+    ("02_Resumes/files",  "Supplementary_Prep_Guide_Complete.docx",     "general", "supp_prep",     0),
+    ("02_Resumes/files",  "Top_1_Percent_Engineer_Preparation_Blueprint.docx", "general", "top1pct", 0),
+    ("01_Career_Interview_Prep", "THRIVING_PLAN_SDE2_SDE3.docx",        "general", "thriving_plan", 0),
+    ("01_Career_Interview_Prep", "INTERVIEW_MASTER_SHEET.docx",          "general", "interview_master", 0),
+    ("01_Career_Interview_Prep", "SDE2_Preparation_Analysis_January2026.docx", "general", "sde2_analysis", 0),
+    # ─── XLSX: Interview Q&A Sheets (high signal — curated Q&A with answers) ─
+    ("trackers-docs",     "Java_SpringBoot_Master_Interview_Sheet.xlsx", "java",   "java_sheet_xl", 0),
+    ("trackers-docs",     "System_Design_Master_Interview_Sheet.xlsx",   "system_design", "sd_sheet_xl", 0),
+    ("trackers-docs",     "LLD_Master_Interview_Sheet_v2.xlsx",          "lld",    "lld_sheet_xl",  0),
+    ("trackers-docs",     "DB_OS_CN_Master_Interview_Sheet_v2.xlsx",     "system_design", "db_sheet_xl", 0),
+    ("trackers-docs",     "Tech_Stack_Skills_Evaluation_Matrix.xlsx",    "general", "tech_matrix_xl", 0),
 ]
 
 CHUNK_SIZE = 1200       # chars per chunk (≈300 tokens)
@@ -138,13 +162,26 @@ def _file_hash(content: str) -> str:
     return hashlib.sha1(content.encode("utf-8", errors="replace")).hexdigest()[:12]
 
 
-def _index_file(conn, folder: str, filename: str, category: str, source_key: str) -> int:
+def _index_file(conn, folder: str, filename: str, category: str,
+                source_key: str, max_pdf_pages: int = 0) -> int:
     """Index one file into kb_chunks. Returns number of chunks added."""
     path = BASE / folder / filename
     if not path.exists():
         return 0
 
-    content = path.read_text(encoding="utf-8", errors="replace")
+    ext = path.suffix.lower()
+    if ext in (".pdf", ".docx", ".xlsx", ".xls"):
+        try:
+            from intel.doc_extractor import extract_file
+            content = extract_file(path, max_pdf_pages=max_pdf_pages)
+        except Exception:
+            return 0
+    else:
+        try:
+            content = path.read_text(encoding="utf-8", errors="replace")
+        except Exception:
+            return 0
+
     if len(content) < 100:
         return 0
 
@@ -194,12 +231,14 @@ def init_kb(force: bool = False) -> dict:
             conn.commit()
 
         stats = {"indexed": 0, "skipped": 0, "missing": 0, "total_chunks": 0}
-        for folder, filename, category, source_key in KNOWLEDGE_SOURCES:
+        for entry in KNOWLEDGE_SOURCES:
+            folder, filename, category, source_key = entry[0], entry[1], entry[2], entry[3]
+            max_pages = entry[4] if len(entry) > 4 else 0
             path = BASE / folder / filename
             if not path.exists():
                 stats["missing"] += 1
                 continue
-            added = _index_file(conn, folder, filename, category, source_key)
+            added = _index_file(conn, folder, filename, category, source_key, max_pdf_pages=max_pages)
             if added > 0:
                 stats["indexed"] += 1
                 stats["total_chunks"] += added
