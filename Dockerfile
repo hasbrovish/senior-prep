@@ -1,3 +1,11 @@
+# ─── Stage 1: Build React UI ─────────────────────────────────────────────────
+FROM node:22-slim AS ui-build
+WORKDIR /workspace
+COPY ui/ ./ui/
+RUN cd ui && npm ci && npm run build
+# Vite outputs to /workspace/portal/ (../portal relative to ui/)
+
+# ─── Stage 2: Python application ─────────────────────────────────────────────
 FROM python:3.11-slim
 
 WORKDIR /app
@@ -9,7 +17,6 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy application code
 COPY app/ ./app/
 COPY intel/ ./intel/
-COPY portal/ ./portal/
 COPY prep.py .
 # Curriculum JSONs needed by /api/curriculum
 COPY data/*.json ./data/
@@ -18,7 +25,9 @@ COPY docs/ ./docs/
 # Interview prep content — markdown + HTML files indexed by knowledge base
 COPY Interview_Answers/*.md ./Interview_Answers/
 COPY Interview_Answers/*.html ./Interview_Answers/
-# Note: trackers-docs/ is in .gitignore (local only) — not needed in container
+
+# Copy built React UI from stage 1
+COPY --from=ui-build /workspace/portal/ ./portal/
 
 # Create logs directory
 RUN mkdir -p logs

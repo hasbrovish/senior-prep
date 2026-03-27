@@ -1,6 +1,7 @@
 """Progress data endpoints — reads/writes logs/progress.json"""
-import json
+import json, time
 from pathlib import Path
+from datetime import date
 from fastapi import APIRouter, HTTPException
 from fastapi.responses import JSONResponse
 
@@ -18,6 +19,12 @@ def _load(path, default=None):
 
 def _save(path, data):
     path.write_text(json.dumps(data, indent=2, default=str, ensure_ascii=False), encoding="utf-8")
+
+def _progress():
+    return _load(PROG_FILE, {})
+
+def _save_progress(data):
+    _save(PROG_FILE, data)
 
 
 @router.get("/progress")
@@ -51,3 +58,118 @@ async def get_gaps(level: str = "sde2"):
         return {"gaps": gaps, "readiness": score, "level": level}
     except Exception as e:
         raise HTTPException(500, str(e))
+
+
+# ─── Granular endpoints for the React UI ──────────────────────────────────────
+
+@router.post("/progress/lc")
+async def log_lc_problem(data: dict):
+    """Log a single LeetCode problem without sending the entire progress blob."""
+    p = _progress()
+    lc_done = p.get("lc_done", [])
+    entry = {"name": data.get("name", ""), "date": data.get("date", str(date.today()))}
+    if data.get("pattern"): entry["pattern"] = data["pattern"]
+    if data.get("time_mins"): entry["time_mins"] = data["time_mins"]
+    if data.get("hard"): entry["hard"] = True
+    lc_done.append(entry)
+    p["lc_done"] = lc_done
+    _save_progress(p)
+    return {"ok": True, "total": len(lc_done)}
+
+@router.post("/progress/apply")
+async def log_application(data: dict):
+    p = _progress()
+    apps = p.get("applications", [])
+    entry = {
+        "id": int(time.time() * 1000), "company": data.get("company", ""),
+        "role": data.get("role", ""), "link": data.get("link", ""),
+        "stage": data.get("stage", "Applied"), "date": str(date.today()),
+    }
+    apps.append(entry)
+    p["applications"] = apps
+    _save_progress(p)
+    return {"ok": True, "id": entry["id"]}
+
+@router.patch("/progress/applications/{app_id}")
+async def update_application(app_id: int, data: dict):
+    p = _progress()
+    apps = p.get("applications", [])
+    for app in apps:
+        if app.get("id") == app_id:
+            app.update(data)
+            break
+    p["applications"] = apps
+    _save_progress(p)
+    return {"ok": True}
+
+@router.post("/progress/bug")
+async def log_bug(data: dict):
+    p = _progress()
+    bugs = p.get("bug_journal", [])
+    entry = {
+        "id": int(time.time() * 1000), "date": str(date.today()),
+        "description": data.get("description", ""),
+        "category": data.get("category", "other"),
+        "context": data.get("context", ""),
+    }
+    bugs.append(entry)
+    p["bug_journal"] = bugs
+    _save_progress(p)
+    return {"ok": True, "id": entry["id"]}
+
+@router.post("/progress/retro")
+async def log_retro(data: dict):
+    p = _progress()
+    retros = p.get("retros", [])
+    entry = {"id": int(time.time() * 1000), "date": str(date.today()), **data}
+    retros.append(entry)
+    p["retros"] = retros
+    _save_progress(p)
+    return {"ok": True, "id": entry["id"]}
+
+@router.post("/progress/failure")
+async def log_failure(data: dict):
+    p = _progress()
+    failures = p.get("failures", [])
+    entry = {"id": int(time.time() * 1000), "date": str(date.today()), **data}
+    failures.append(entry)
+    p["failures"] = failures
+    _save_progress(p)
+    return {"ok": True, "id": entry["id"]}
+
+@router.post("/progress/sr/review")
+async def sr_review(data: dict):
+    """Record a spaced repetition review."""
+    p = _progress()
+    sr = p.get("spaced_repetition", [])
+    item_id = data.get("id")
+    confidence = data.get("confidence", 3)
+    intervals = [0, 1, 3, 7, 14, 30]
+    next_days = intervals[min(confidence, len(intervals) - 1)]
+    from datetime import timedelta
+    next_date = str(date.today() + timedelta(days=next_days))
+    for item in sr:
+        if item.get("id") == item_id:
+            item["confidence"] = confidence
+            item["reviews"] = item.get("reviews", 0) + 1
+            item["next_review"] = next_date
+            item["last_reviewed"] = str(date.today())
+            break
+    p["spaced_repetition"] = sr
+    _save_progress(p)
+    return {"ok": True, "next_review": next_date}
+
+@router.post("/progress/sr/add")
+async def sr_add(data: dict):
+    """Add a new topic to spaced repetition."""
+    p = _progress()
+    sr = p.get("spaced_repetition", [])
+    entry = {
+        "id": int(time.time() * 1000), "topic": data.get("topic", ""),
+        "category": data.get("category", "other"), "confidence": 0,
+        "reviews": 0, "next_review": str(date.today()), "added": str(date.today()),
+    }
+    sr.append(entry)
+    p["spaced_repetition"] = sr
+    _save_progress(p)
+    return {"ok": True, "id": entry["id"]}

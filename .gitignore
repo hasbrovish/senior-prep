@@ -30,6 +30,11 @@ __pycache__/
 .venv/
 venv/
 
+# Node / UI build
+ui/node_modules/
+ui/dist/
+portal/assets/
+
 # macOS
 .DS_Store
 .DS_Store?

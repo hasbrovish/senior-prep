@@ -23,7 +23,7 @@ A **personal, full-stack interview preparation system** — not just notes. Buil
 | **Master Curriculum** | Hello Interview (218 lessons) + PP (9 modules) merged into unified 26-week tracker |
 | **LLM Adaptive Planning** | Daily/weekly AI plans from Claude Haiku — adapts based on logs, mock scores, intel trends |
 | **War Plan** (`docs/MASTER_16H_WARPLAN.md`) | 26-week 16h/day schedule, weekly LC targets, company strategies |
-| **Web Portal** (`portal/index.html`) | Single-file dashboard: Dashboard, AI Coach, Intel, War Plan, Courses, Resources, Career, Settings |
+| **React Dashboard** (`ui/`) | Full React 19 + Vite SPA: Dashboard visualizations, AI Coach (streaming), Drills, Mock Simulator, LLD, Behavioral, LeetCode Tracker, Applications Kanban, Spaced Repetition, Curriculum, Intelligence, Settings (16 pages) |
 
 See [ARCHITECTURE.md](ARCHITECTURE.md) for system design deep-dive, data flow, DB schema, and interview talking points.
 
@@ -116,8 +116,15 @@ senior-prep/
 │       ├── levelsfyi.py         ← TC intelligence (levels.fyi)
 │       └── blind_helloiv.py     ← Source status + InterviewBit fetcher
 │
-├── portal/
-│   └── index.html               ← Web dashboard (single-file UI)
+├── ui/                          ← React 19 + Vite dashboard (source)
+│   ├── src/pages/               ← 16 page components
+│   ├── src/components/          ← Reusable chart/widget components
+│   ├── src/hooks/               ← TanStack Query hooks, timer
+│   └── vite.config.js           ← Builds to portal/ for production
+│
+├── portal/                      ← Built React app (served by FastAPI)
+│   ├── index.html               ← Vite build output
+│   └── assets/                  ← JS + CSS bundles
 │
 ├── data/                        ← Runtime + course data (git-ignored)
 │   ├── interviews.db            ← SQLite: 9 tables (WAL mode)
@@ -375,8 +382,17 @@ prep focus                      # default 25 min
 
 ### Web Portal
 ```bash
-prep portal                     # start FastAPI at http://localhost:5555
+# Option 1: Production build (one command)
+prep portal                     # starts FastAPI at http://localhost:5555 (serves built React app)
 prep portal 8080                # custom port
+
+# Option 2: Development (hot reload)
+uvicorn app.main:app --reload --port 5555   # Terminal 1: API server
+cd ui && npm run dev                         # Terminal 2: Vite dev server at :5173
+
+# Build React UI for production
+cd ui && npm run build                       # outputs to portal/
+
 # API docs:  http://localhost:5555/docs  (dev mode only)
 ```
 
@@ -638,20 +654,32 @@ For full weekly details: `prep warplan` or `prep warplan <week_number>`
 
 ## Deployment
 
-**Option A — Local:**
+**Option A — Local Development (recommended for day-to-day use):**
 ```bash
+# 1. Install Python deps
 pip install -r requirements.txt
+
+# 2. Install UI deps + build
+cd ui && npm install && npm run build && cd ..
+
+# 3. Start server (serves built React app at /)
 prep portal
+# Open http://localhost:5555
+
+# For hot-reload UI development (two terminals):
+uvicorn app.main:app --reload --port 5555    # Terminal 1
+cd ui && npm run dev                          # Terminal 2 → http://localhost:5173
 ```
 
-**Option B — Docker:**
+**Option B — Docker (multi-stage build, includes UI):**
 ```bash
 docker-compose up
+# Builds React UI in Node stage, then Python app → http://localhost:5555
 ```
 
-**Option C — Railway.app (deployed, recommended):**
+**Option C — Railway.app (deployed, recommended for cloud):**
 ```bash
-# Already deployed — push to main → auto-redeploys in ~2 min
+# Push to main → auto-redeploys in ~3 min (multi-stage Dockerfile builds UI automatically)
 git push origin main
 
 # Required Railway env vars:
@@ -696,13 +724,13 @@ Without keys, public `.json` API is used (works locally, blocked on cloud IPs).
 │   ├── WEEKS dict           └── app/routers/             LeetCode GraphQL   │
 │   └── dispatch fn              ├── practice.py          ntfy.sh (push)     │
 │                                ├── coach.py    ──────▶  Anthropic API      │
-│  Browser                       ├── intel_routes.py                         │
+│  Browser (React 19)            ├── intel_routes.py                         │
 │  ──────────                    ├── progress.py                             │
-│  portal/index.html ────────▶   ├── career.py                               │
-│  (single-file SPA)             └── feedback.py                             │
-│   ├── vanilla JS                                                            │
-│   ├── no framework         intel/ (Engine)                                  │
-│   └── fetch() API calls    ├── config.py   ← profile, models, 14 companies │
+│  ui/ → portal/index.html ──▶   ├── career.py                               │
+│  (Vite + React SPA)           └── feedback.py                             │
+│   ├── 16 pages, 13 components                                              │
+│   ├── TanStack Query + Router  intel/ (Engine)                              │
+│   ├── Recharts visualizations  ├── config.py   ← profile, models, 14 companies │
 │                            ├── db.py       ← SQLite (9 tables, WAL)         │
 │  Railway.app               ├── scraper.py  ← orchestrates all sources      │
 │  ──────────                ├── analyzer.py ← trends, gap analysis          │
@@ -807,16 +835,16 @@ Browser::GET /api/gaps OR prep check
 
 ### Key Design Decisions (Learn From These)
 
-#### 1. Single-file portal (no React/Vue)
-**Why:** No build step, no `node_modules`, deploys as one HTML file.
-**How:** Vanilla JS + `h()` helper that mimics React's `createElement()`.
-The entire SPA is ~1750 lines of JS inside one `<script>` tag.
-```javascript
-function h(tag, attrs, ...children) {
-  const el = document.createElement(tag);
-  // sets attrs, appends children, handles events
-  return el;
-}
+#### 1. React 19 + Vite dashboard (multi-stage Docker build)
+**Why:** 16 pages with visualizations, streaming chat, timers, and interactive practice sessions outgrew a single HTML file.
+**How:** React 19, Vite 6, TanStack Query for caching, Recharts for charts, Lucide for icons. Vite proxies to FastAPI in dev, builds to `portal/` for production.
+```bash
+# Development: hot-reload on both frontend and backend
+uvicorn app.main:app --reload --port 5555   # API
+cd ui && npm run dev                         # UI at :5173 (proxied to :5555)
+
+# Production: multi-stage Dockerfile builds UI in Node, serves from FastAPI
+docker-compose up                            # builds automatically
 ```
 
 #### 2. SQLite over PostgreSQL
