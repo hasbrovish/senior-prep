@@ -1,0 +1,706 @@
+<!DOCTYPE html>
+        <html>
+        <head>
+            <meta charset="UTF-8">
+            <title>SECTIONS 16-19&colon; TESTING&comma; BEHAVIORAL&comma; QUICK-FIRE&comma; SCENARIOS &mdash; Interview Answers &lpar;Q249&ndash;Q296&rpar;</title>
+            <style>
+/* From extension vscode.github */
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+
+.vscode-dark img[src$=\#gh-light-mode-only],
+.vscode-light img[src$=\#gh-dark-mode-only],
+.vscode-high-contrast:not(.vscode-high-contrast-light) img[src$=\#gh-light-mode-only],
+.vscode-high-contrast-light img[src$=\#gh-dark-mode-only] {
+	display: none;
+}
+
+</style>
+            
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Microsoft/vscode/extensions/markdown-language-features/media/markdown.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Microsoft/vscode/extensions/markdown-language-features/media/highlight.css">
+<style>
+            body {
+                font-family: -apple-system, BlinkMacSystemFont, 'Segoe WPC', 'Segoe UI', system-ui, 'Ubuntu', 'Droid Sans', sans-serif;
+                font-size: 14px;
+                line-height: 1.6;
+            }
+        </style>
+        <style>
+.task-list-item {
+    list-style-type: none;
+}
+
+.task-list-item-checkbox {
+    margin-left: -20px;
+    vertical-align: middle;
+    pointer-events: none;
+}
+</style>
+<style>
+:root {
+  --color-note: #0969da;
+  --color-tip: #1a7f37;
+  --color-warning: #9a6700;
+  --color-severe: #bc4c00;
+  --color-caution: #d1242f;
+  --color-important: #8250df;
+}
+
+</style>
+<style>
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-note: #2f81f7;
+    --color-tip: #3fb950;
+    --color-warning: #d29922;
+    --color-severe: #db6d28;
+    --color-caution: #f85149;
+    --color-important: #a371f7;
+  }
+}
+
+</style>
+<style>
+.markdown-alert {
+  padding: 0.5rem 1rem;
+  margin-bottom: 16px;
+  color: inherit;
+  border-left: .25em solid #888;
+}
+
+.markdown-alert>:first-child {
+  margin-top: 0
+}
+
+.markdown-alert>:last-child {
+  margin-bottom: 0
+}
+
+.markdown-alert .markdown-alert-title {
+  display: flex;
+  font-weight: 500;
+  align-items: center;
+  line-height: 1
+}
+
+.markdown-alert .markdown-alert-title .octicon {
+  margin-right: 0.5rem;
+  display: inline-block;
+  overflow: visible !important;
+  vertical-align: text-bottom;
+  fill: currentColor;
+}
+
+.markdown-alert.markdown-alert-note {
+  border-left-color: var(--color-note);
+}
+
+.markdown-alert.markdown-alert-note .markdown-alert-title {
+  color: var(--color-note);
+}
+
+.markdown-alert.markdown-alert-important {
+  border-left-color: var(--color-important);
+}
+
+.markdown-alert.markdown-alert-important .markdown-alert-title {
+  color: var(--color-important);
+}
+
+.markdown-alert.markdown-alert-warning {
+  border-left-color: var(--color-warning);
+}
+
+.markdown-alert.markdown-alert-warning .markdown-alert-title {
+  color: var(--color-warning);
+}
+
+.markdown-alert.markdown-alert-tip {
+  border-left-color: var(--color-tip);
+}
+
+.markdown-alert.markdown-alert-tip .markdown-alert-title {
+  color: var(--color-tip);
+}
+
+.markdown-alert.markdown-alert-caution {
+  border-left-color: var(--color-caution);
+}
+
+.markdown-alert.markdown-alert-caution .markdown-alert-title {
+  color: var(--color-caution);
+}
+
+</style>
+        
+        </head>
+        <body class="vscode-body vscode-light">
+            <h1 id="sections-16-19-testing-behavioral-quick-fire-scenarios--interview-answers-q249q296">SECTIONS 16-19: TESTING, BEHAVIORAL, QUICK-FIRE, SCENARIOS — Interview Answers (Q249–Q296)</h1>
+<h2 id="with-gstn-codebase-references">With GSTN Codebase References</h2>
+<hr>
+<h1 id="section-16-testing-q249q256">SECTION 16: TESTING (Q249–Q256)</h1>
+<h3 id="q249-unit-vs-integration-vs-e2e-testing">Q249. Unit vs Integration vs E2E Testing?</h3>
+<p><strong>Answer:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Level</th>
+<th>Scope</th>
+<th>Speed</th>
+<th>GSTN Example</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Unit</strong></td>
+<td>Single class/method in isolation</td>
+<td>Fast (ms)</td>
+<td>Test <code>Anx1aServiceImpl.processReturn()</code> with mocked repository</td>
+</tr>
+<tr>
+<td><strong>Integration</strong></td>
+<td>Multiple components together</td>
+<td>Medium (sec)</td>
+<td>Test Controller → Service → Repository with embedded DB</td>
+</tr>
+<tr>
+<td><strong>E2E</strong></td>
+<td>Full system including external dependencies</td>
+<td>Slow (min)</td>
+<td>Complete filing flow: taxpayer login → save GSTR1 → validate → submit</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Testing Pyramid:</strong> Many unit tests (70%), fewer integration (20%), fewest E2E (10%).</p>
+<p>GSTN uses <strong>TestNG 6.8.7</strong> (not JUnit) — configured via <code>testng.xml</code> files in each module.</p>
+<pre><code class="language-xml"><span class="hljs-comment">&lt;!-- From BOLitigationWeb/testng.xml --&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-name">suite</span> <span class="hljs-attr">name</span>=<span class="hljs-string">&quot;Suite&quot;</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">test</span> <span class="hljs-attr">name</span>=<span class="hljs-string">&quot;Test&quot;</span>&gt;</span>
+        <span class="hljs-tag">&lt;<span class="hljs-name">classes</span>&gt;</span>
+            <span class="hljs-tag">&lt;<span class="hljs-name">class</span> <span class="hljs-attr">name</span>=<span class="hljs-string">&quot;com.gstn.litigation.test.SomeTest&quot;</span>/&gt;</span>
+        <span class="hljs-tag">&lt;/<span class="hljs-name">classes</span>&gt;</span>
+    <span class="hljs-tag">&lt;/<span class="hljs-name">test</span>&gt;</span>
+<span class="hljs-tag">&lt;/<span class="hljs-name">suite</span>&gt;</span>
+</code></pre>
+<hr>
+<h3 id="q250-mocking--mockito-patterns">Q250. Mocking — Mockito patterns?</h3>
+<p><strong>Answer:</strong></p>
+<pre><code class="language-java"><span class="hljs-comment">// Mock dependencies</span>
+<span class="hljs-meta">@Mock</span>
+<span class="hljs-keyword">private</span> GspAuthToknLogRepository tokenRepo;
+
+<span class="hljs-meta">@InjectMocks</span>
+<span class="hljs-keyword">private</span> AuthServiceImpl authService;
+
+<span class="hljs-meta">@BeforeMethod</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">setup</span><span class="hljs-params">()</span> {
+    MockitoAnnotations.initMocks(<span class="hljs-built_in">this</span>);
+}
+
+<span class="hljs-meta">@Test</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">testTokenValidation</span><span class="hljs-params">()</span> {
+    <span class="hljs-comment">// Given</span>
+    when(tokenRepo.findByToken(<span class="hljs-string">&quot;abc123&quot;</span>)).thenReturn(mockTokenEntity);
+    
+    <span class="hljs-comment">// When</span>
+    <span class="hljs-type">boolean</span> <span class="hljs-variable">valid</span> <span class="hljs-operator">=</span> authService.validateToken(<span class="hljs-string">&quot;abc123&quot;</span>);
+    
+    <span class="hljs-comment">// Then</span>
+    assertTrue(valid);
+    verify(tokenRepo, times(<span class="hljs-number">1</span>)).findByToken(<span class="hljs-string">&quot;abc123&quot;</span>);
+}
+</code></pre>
+<p><strong>Key annotations:</strong></p>
+<ul>
+<li><code>@Mock</code> — Create mock instance</li>
+<li><code>@Spy</code> — Partial mock (real methods unless stubbed)</li>
+<li><code>@InjectMocks</code> — Auto-inject mocks into target class</li>
+<li><code>@Captor</code> — Capture arguments for verification</li>
+</ul>
+<hr>
+<h3 id="q251-tdd--test-driven-development">Q251. TDD — Test-Driven Development?</h3>
+<p><strong>Answer:</strong></p>
+<p><strong>Red → Green → Refactor cycle:</strong></p>
+<ol>
+<li><strong>Red</strong> — Write a failing test for the desired behavior</li>
+<li><strong>Green</strong> — Write minimal code to make the test pass</li>
+<li><strong>Refactor</strong> — Clean up code while keeping tests green</li>
+</ol>
+<pre><code class="language-java"><span class="hljs-comment">// Step 1: RED — test first</span>
+<span class="hljs-meta">@Test</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">shouldRejectInvalidGSTIN</span><span class="hljs-params">()</span> {
+    <span class="hljs-type">ValidationResult</span> <span class="hljs-variable">result</span> <span class="hljs-operator">=</span> validator.validateGSTIN(<span class="hljs-string">&quot;INVALID&quot;</span>);
+    assertFalse(result.isValid());
+    assertEquals(<span class="hljs-string">&quot;GSTIN format invalid&quot;</span>, result.getError());
+}
+
+<span class="hljs-comment">// Step 2: GREEN — implement</span>
+<span class="hljs-keyword">public</span> ValidationResult <span class="hljs-title function_">validateGSTIN</span><span class="hljs-params">(String gstin)</span> {
+    <span class="hljs-keyword">if</span> (!gstin.matches(<span class="hljs-string">&quot;\\d{2}[A-Z]{5}\\d{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}&quot;</span>)) {
+        <span class="hljs-keyword">return</span> ValidationResult.error(<span class="hljs-string">&quot;GSTIN format invalid&quot;</span>);
+    }
+    <span class="hljs-keyword">return</span> ValidationResult.valid();
+}
+
+<span class="hljs-comment">// Step 3: REFACTOR — extract regex constant, improve naming</span>
+</code></pre>
+<hr>
+<h3 id="q252-testng-vs-junit">Q252. TestNG vs JUnit?</h3>
+<p><strong>Answer:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Feature</th>
+<th>TestNG (GSTN uses this)</th>
+<th>JUnit 5</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Annotations</td>
+<td><code>@Test</code>, <code>@BeforeMethod</code>, <code>@AfterMethod</code></td>
+<td><code>@Test</code>, <code>@BeforeEach</code>, <code>@AfterEach</code></td>
+</tr>
+<tr>
+<td>XML config</td>
+<td><code>testng.xml</code> for suite/group definitions</td>
+<td><code>@Suite</code>, extensions</td>
+</tr>
+<tr>
+<td>Parameterized</td>
+<td><code>@DataProvider</code></td>
+<td><code>@ParameterizedTest</code></td>
+</tr>
+<tr>
+<td>Parallel</td>
+<td>Built-in parallel execution</td>
+<td>Extension model</td>
+</tr>
+<tr>
+<td>Groups</td>
+<td><code>@Test(groups = {&quot;smoke&quot;, &quot;regression&quot;})</code></td>
+<td><code>@Tag(&quot;smoke&quot;)</code></td>
+</tr>
+<tr>
+<td>Dependency</td>
+<td><code>@Test(dependsOnMethods = {&quot;login&quot;})</code></td>
+<td><code>@Order(1)</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Why GSTN uses TestNG:</strong> Started before JUnit 5 existed. TestNG had better parameterized testing and group execution. Migration cost not justified.</p>
+<hr>
+<h3 id="q253-code-coverage--whats-meaningful">Q253. Code Coverage — What's meaningful?</h3>
+<p><strong>Answer:</strong></p>
+<ul>
+<li><strong>Line coverage:</strong> Which lines were executed (most basic)</li>
+<li><strong>Branch coverage:</strong> Were all if/else paths tested? (more useful)</li>
+<li><strong>Mutation testing:</strong> Do tests fail when code is changed? (most rigorous)</li>
+</ul>
+<p><strong>Targets:</strong></p>
+<ul>
+<li>80%+ line coverage for business logic (validators, services)</li>
+<li>100% coverage for security-critical code (authentication, authorization)</li>
+<li>Less emphasis on coverage for controllers (integration tests cover those)</li>
+</ul>
+<p><strong>Tools:</strong> JaCoCo (Java Code Coverage) integrated with Maven/SonarQube.</p>
+<hr>
+<h3 id="q254-testing-microservices">Q254. Testing Microservices?</h3>
+<p><strong>Answer:</strong></p>
+<ol>
+<li>
+<p><strong>Contract Testing:</strong> Consumer-driven contracts (Pact, Spring Cloud Contract)</p>
+<ul>
+<li>ReturnAPI defines contract: &quot;I call RegistrationAPI with GSTIN, expect taxpayer name back&quot;</li>
+<li>Provider verifies it satisfies the contract</li>
+</ul>
+</li>
+<li>
+<p><strong>Component Testing:</strong> Test one microservice with stubbed dependencies</p>
+</li>
+<li>
+<p><strong>Integration Testing:</strong> Test real HTTP calls between 2 services using TestContainers</p>
+</li>
+<li>
+<p><strong>Chaos Testing:</strong> Kill random pods during filing and verify system degrades gracefully</p>
+</li>
+</ol>
+<hr>
+<h3 id="q255-q256-load-testing-test-data-management">Q255-Q256. Load Testing, Test Data Management</h3>
+<p><strong>Q255. Load Testing:</strong></p>
+<ul>
+<li><strong>JMeter/Gatling</strong> for API load testing</li>
+<li>Simulate filing deadline: 200K concurrent users submitting GSTR1</li>
+<li>Measure: p95 response time &lt; 2s, error rate &lt; 0.1%</li>
+<li>Types: Load test → Stress test → Spike test → Soak test</li>
+</ul>
+<p><strong>Q256. Test Data Management:</strong></p>
+<ul>
+<li>Anonymized production data for performance testing</li>
+<li>Builders for unit test data: <code>TestDataBuilder.aReturn().withGSTIN(&quot;29...&quot;).build()</code></li>
+<li>Separate test databases per developer/pipeline</li>
+<li>Cleanup: <code>@AfterMethod</code> or transactional rollback</li>
+</ul>
+<hr>
+<h1 id="section-17-behavioral-q257q266">SECTION 17: BEHAVIORAL (Q257–Q266)</h1>
+<h3 id="q257-tell-me-about-yourself">Q257. Tell me about yourself?</h3>
+<p><strong>Answer:</strong></p>
+<p>&quot;I'm Jayanti Vishnoi, a Specialist Programmer L2 at Infosys with 5.5 years of experience. I've worked on two major projects:</p>
+<p><strong>1. GSTN (Goods &amp; Services Tax Network) — 4.5 years:</strong>
+I work on India's GST platform serving 14M+ taxpayers. I develop and maintain microservices using Spring Boot, Hibernate, Kafka, Redis, and MySQL. I've contributed to multiple modules — Return Filing, Back-Office Services, Litigation, Registration, and user management. My work spans the full stack from REST API development to database optimization and distributed caching.</p>
+<p><strong>2. Infosys MarketPlace — 1 year:</strong>
+Built a marketplace application using Go, MongoDB, and GraphQL. This gave me experience with polyglot programming and NoSQL databases.</p>
+<p>I'm particularly strong in backend architecture, performance optimization, and building scalable systems that handle high traffic during filing deadlines.&quot;</p>
+<hr>
+<h3 id="q258-most-challenging-technical-problem">Q258. Most challenging technical problem?</h3>
+<p><strong>Answer:</strong></p>
+<p>&quot;During a GSTR1 filing deadline, we observed response times spiking from 200ms to 15 seconds. The system was handling 200K+ concurrent users.</p>
+<p><strong>Root cause analysis:</strong></p>
+<ol>
+<li>Thread dumps showed threads blocked on database connections</li>
+<li>HikariCP pool was exhausted (max 50 connections, all active)</li>
+<li>Slow queries identified — full table scans on the <code>invoice</code> table</li>
+</ol>
+<p><strong>Solution:</strong></p>
+<ol>
+<li><strong>Immediate:</strong> Added database index on <code>(gstin, return_period)</code> — query time dropped from 8s to 50ms</li>
+<li><strong>Short-term:</strong> Increased HikariCP pool to 100 connections with proper timeout configuration</li>
+<li><strong>Long-term:</strong> Implemented Redis caching for frequently accessed taxpayer data using <code>DistCacheUtil</code> — cache hit rate reached 85%</li>
+</ol>
+<p><strong>Result:</strong> Response times dropped to 150ms. System handled the filing deadline with zero downtime.&quot;</p>
+<hr>
+<h3 id="q259-conflict-with-a-team-member">Q259. Conflict with a team member?</h3>
+<p><strong>Answer:</strong></p>
+<p>&quot;A fellow developer wanted to use a stored procedure for complex return computation, arguing it would be faster. I advocated for implementing it in the Java service layer because:</p>
+<ol>
+<li>Stored procedures are hard to unit test</li>
+<li>They bypass our Spring transaction management</li>
+<li>They're harder to version control and deploy</li>
+<li>We couldn't leverage our existing caching layer</li>
+</ol>
+<p><strong>Approach:</strong> I prepared benchmarks comparing both approaches with realistic data volumes. The Java implementation with Redis caching actually outperformed the stored procedure by 3x because the cache hit rate was 90%.</p>
+<p><strong>Outcome:</strong> We went with the Java approach. The developer appreciated the data-driven decision. We established a team guideline: keep business logic in the application layer, use stored procedures only for complex data migrations.&quot;</p>
+<hr>
+<h3 id="q260-q266-leadership-deadline-learning-failure-architecture-impact-growth">Q260-Q266. Leadership, Deadline, Learning, Failure, Architecture, Impact, Growth</h3>
+<p><strong>Q260. Taking initiative:</strong>
+&quot;I noticed our deployment process was manual and error-prone — 2 hours per service. I proposed and implemented Jenkins CI/CD pipelines with automated testing. Deployment time reduced to 15 minutes. This was adopted across all services.&quot;</p>
+<p><strong>Q261. Handling tight deadlines:</strong>
+&quot;During the annual return filing (GSTR-9) launch, we had 3 weeks to implement and test major validation changes. I broke the work into daily milestones, coordinated parallel work across 4 developers, and ran daily testing sessions. We delivered 2 days early.&quot;</p>
+<p><strong>Q262. Learning a new technology:</strong>
+&quot;When GSTN migrated from Spring 4 to Spring Boot 2, I spent weekends learning the auto-configuration mechanism. I created the <code>gst-spring-boot2-starter</code> custom starter with spring.factories, helping the team migrate 20+ services. I documented the migration guide and conducted knowledge-sharing sessions.&quot;</p>
+<p><strong>Q263. A mistake and what you learned:</strong>
+&quot;I once deployed a Redis caching change to production that didn't include proper TTL settings. The cache grew unbounded and eventually caused OOM. Lesson: Always set TTL on cached data. I added a code review checklist item for cache TTL and created a utility method <code>setWithTTL()</code> that enforces TTL as a required parameter.&quot;</p>
+<p><strong>Q264. Architecture decision:</strong>
+&quot;I drove the decision to implement state-based database routing using <code>RoutingDataSource</code>. Instead of one massive database, we route queries based on GSTIN prefix (state code). This improved query performance by 5x and enabled horizontal scaling per state.&quot;</p>
+<p><strong>Q265. Biggest impact:</strong>
+&quot;Implementing the distributed caching layer with <code>DistCacheUtil</code>. It had the single biggest impact on system performance — reduced database load by 60%, improved average response time by 3x, and saved significant infrastructure cost by requiring fewer database read replicas.&quot;</p>
+<p><strong>Q266. Where do you see yourself in 3-5 years:</strong>
+&quot;I want to grow into a <strong>Technical Architect</strong> role. I'm actively building depth in distributed systems, cloud architecture, and system design. At GSTN, I've already started architecting solutions end-to-end. I'm looking for a role where I can own the technical direction of critical services while mentoring junior developers.&quot;</p>
+<hr>
+<h1 id="section-18-quick-fire--conceptual-q267q286">SECTION 18: QUICK-FIRE / CONCEPTUAL (Q267–Q286)</h1>
+<h3 id="q267-explain-polymorphism">Q267. Explain polymorphism?</h3>
+<p><strong>Runtime polymorphism:</strong> Method overriding — subclass provides specific implementation of parent class method. <code>List&lt;Animal&gt; animals</code> can contain Dog, Cat — calling <code>animal.speak()</code> invokes the correct implementation. <strong>Compile-time:</strong> Method overloading — same method name, different parameters.</p>
+<h3 id="q268-abstract-class-vs-interface">Q268. Abstract class vs Interface?</h3>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>Abstract Class</th>
+<th>Interface</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Methods</td>
+<td>Can have concrete methods</td>
+<td>All abstract (before Java 8), default methods (Java 8+)</td>
+</tr>
+<tr>
+<td>State</td>
+<td>Can have instance fields</td>
+<td>Only constants</td>
+</tr>
+<tr>
+<td>Multiple</td>
+<td>Single inheritance</td>
+<td>Multiple implementation</td>
+</tr>
+<tr>
+<td>Constructor</td>
+<td>Yes</td>
+<td>No</td>
+</tr>
+<tr>
+<td>Use</td>
+<td>&quot;IS-A&quot; + shared code</td>
+<td>&quot;CAN-DO&quot; capability</td>
+</tr>
+</tbody>
+</table>
+<h3 id="q269-solid-principles">Q269. SOLID Principles?</h3>
+<ul>
+<li><strong>S:</strong> Single Responsibility — <code>ReturnService</code> handles returns only, not payments</li>
+<li><strong>O:</strong> Open/Closed — Extend via new validators, don't modify existing ones</li>
+<li><strong>L:</strong> Liskov Substitution — Any <code>Validator</code> subtype works where <code>Validator</code> is expected</li>
+<li><strong>I:</strong> Interface Segregation — <code>Readable</code>, <code>Writable</code> instead of one fat <code>CRUD</code> interface</li>
+<li><strong>D:</strong> Dependency Inversion — Service depends on <code>Repository</code> interface, not <code>JdbcRepository</code> impl</li>
+</ul>
+<h3 id="q270-what-is-dependency-injection">Q270. What is dependency injection?</h3>
+<p>Instead of a class creating its own dependencies (<code>new JdbcUserRepo()</code>), the framework <strong>injects</strong> them. Spring does this via <code>@Autowired</code> / constructor injection. Benefits: testability (inject mocks), loose coupling, configurability.</p>
+<h3 id="q271-rest-constraints">Q271. REST constraints?</h3>
+<p>Client-Server, Stateless, Cacheable, Uniform Interface, Layered System, Code on Demand (optional).</p>
+<h3 id="q272-cap-theorem">Q272. CAP theorem?</h3>
+<p>In a network partition (P), you must choose <strong>Consistency</strong> (C) or <strong>Availability</strong> (A). GSTN: CP for payment ledger (consistency critical), AP for dashboard reads (eventual consistency OK).</p>
+<h3 id="q273-acid-vs-base">Q273. ACID vs BASE?</h3>
+<table>
+<thead>
+<tr>
+<th>ACID</th>
+<th>BASE</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Atomicity, Consistency, Isolation, Durability</td>
+<td>Basically Available, Soft state, Eventually consistent</td>
+</tr>
+<tr>
+<td>Relational DB (MySQL)</td>
+<td>NoSQL (MongoDB, Redis)</td>
+</tr>
+<tr>
+<td>Strong consistency</td>
+<td>High availability</td>
+</tr>
+</tbody>
+</table>
+<h3 id="q274-microservices-vs-monolith">Q274. Microservices vs Monolith?</h3>
+<p>Monolith: Single deployable unit, simple. Microservices: Independent services, complex but scalable. GSTN evolved from monolith → ~20 microservices.</p>
+<h3 id="q275-circuit-breaker">Q275. Circuit Breaker?</h3>
+<p>Prevents cascading failures. States: <strong>Closed</strong> (flowing) → <strong>Open</strong> (blocked, return fallback) → <strong>Half-Open</strong> (test a few requests). Implemented via Resilience4j/Hystrix.</p>
+<h3 id="q276-event-sourcing">Q276. Event Sourcing?</h3>
+<p>Store <strong>events</strong> instead of current state. Replay to reconstruct state. Kafka topics as event log. Benefit: full audit trail, temporal queries. GSTN Kafka events for return filing status changes.</p>
+<h3 id="q277-cqrs">Q277. CQRS?</h3>
+<p>Command Query Responsibility Segregation — separate read and write models. Writes to MySQL, reads from Redis/Solr. GSTN's dashboard reads from cache while filing writes to DB.</p>
+<h3 id="q278-idempotency">Q278. Idempotency?</h3>
+<p>Same request executed multiple times produces same result. How: unique request ID, check before processing. Critical for payments — prevent double debit.</p>
+<h3 id="q279-12-factor-app-principles">Q279. 12-Factor App principles?</h3>
+<ol>
+<li>Codebase (git), 2. Dependencies (pom.xml), 3. Config (externalized), 4. Backing services (treat as resources), 5. Build/release/run, 6. Stateless processes, 7. Port binding, 8. Concurrency, 9. Disposability, 10. Dev/prod parity, 11. Logs (streams), 12. Admin processes.</li>
+</ol>
+<h3 id="q280-blue-green-deployment">Q280. Blue-Green Deployment?</h3>
+<p>Two identical environments. Deploy to Green (inactive). Test. Switch traffic. If issues, switch back to Blue. Zero-downtime deployment.</p>
+<h3 id="q281-canary-deployment">Q281. Canary Deployment?</h3>
+<p>Route 5% traffic to new version. Monitor errors/latency. If OK, gradually increase to 100%. If problems, route all traffic back to old version.</p>
+<h3 id="q282-feature-flags">Q282. Feature Flags?</h3>
+<p>Toggle features without deployment. <code>if (featureFlags.isEnabled(&quot;new-gstr1-validation&quot;))</code>. Enable for specific states first, then nationally.</p>
+<h3 id="q283-strangler-pattern">Q283. Strangler Pattern?</h3>
+<p>Migrate monolith to microservices incrementally. Route specific endpoints to new service while rest stays in monolith. Eventually, monolith is fully replaced.</p>
+<h3 id="q284-saga-pattern">Q284. Saga Pattern?</h3>
+<p>Distributed transaction across microservices. Choreography: events trigger next step. Orchestration: central coordinator manages steps. Compensating transactions on failure.</p>
+<h3 id="q285-bulkhead-pattern">Q285. Bulkhead Pattern?</h3>
+<p>Isolate failures. Separate thread pools per dependency. If PaymentService is slow, it uses its own thread pool — doesn't affect ReturnService thread pool.</p>
+<h3 id="q286-sidecar-pattern">Q286. Sidecar Pattern?</h3>
+<p>Attach a helper container alongside main container. Handles cross-cutting: logging, monitoring, proxy (Envoy/Istio). Main container focuses on business logic.</p>
+<hr>
+<h1 id="section-19-scenario-based-q287q296">SECTION 19: SCENARIO-BASED (Q287–Q296)</h1>
+<h3 id="q287-production-memory-leak--how-do-you-debug">Q287. Production memory leak — how do you debug?</h3>
+<p><strong>Answer:</strong></p>
+<pre><code>Step 1: DETECT
+  - Monitor: GC time increasing, heap usage growing, OOM errors
+  - Alert: CloudWatch/Prometheus alert on JVM heap &gt; 85%
+
+Step 2: CAPTURE
+  - jmap -dump:live,format=b,file=heap.hprof &lt;PID&gt;
+  - Or: -XX:+HeapDumpOnOutOfMemoryError (preconfigured)
+  
+Step 3: ANALYZE
+  - Load heap dump in Eclipse MAT (Memory Analyzer Tool)
+  - Check &quot;Leak Suspects&quot; report
+  - Look for: retained heap, dominator tree
+
+Step 4: COMMON CAUSES
+  - Unclosed streams/connections (DB, HTTP)
+  - Growing collections (unbounded cache without TTL)
+  - Static collections holding references
+  - ThreadLocal not cleaned up
+  - Listeners/callbacks not deregistered
+
+Step 5: FIX (GSTN example)
+  - Found: DistCacheUtil local map growing without eviction
+  - Fix: Added TTL + max-size eviction policy
+  - Verify: Monitor heap after deployment
+</code></pre>
+<hr>
+<h3 id="q288-api-response-time-degraded-from-200ms-to-5-seconds">Q288. API response time degraded from 200ms to 5 seconds?</h3>
+<p><strong>Answer:</strong></p>
+<pre><code>1. NARROW THE SCOPE
+   - Is it one API or all APIs? → Check if common dependency (DB, Redis)
+   - Is it one pod or all pods? → If one, likely pod-level issue
+   - When did it start? → Correlate with recent deployment
+
+2. CHECK EACH LAYER (top to bottom)
+   - Network: Any DNS issues, timeouts?
+   - Load Balancer: Uneven distribution?
+   - Application: Thread dumps — where are threads blocked?
+   - Database: Slow query log (queries &gt; 1s)
+   - Cache: Redis latency, connection count
+   - External services: Any dependency degraded?
+
+3. GSTN-SPECIFIC ACTIONS
+   - Check HikariCP pool: GET /actuator/hikaricp → active/idle/waiting
+   - Check Redis: redis-cli info → connected_clients, used_memory
+   - Check Kafka consumer lag: if events backing up
+   - Check GC: -Xloggc → is GC pausing the application?
+
+4. TYPICAL RESOLUTION
+   - Missing index: EXPLAIN query → add index
+   - Connection pool exhausted: adjust pool size + timeout
+   - N+1 query: add @BatchSize or JOIN FETCH
+   - Cache miss storm: warm cache before peak
+</code></pre>
+<hr>
+<h3 id="q289-database-connection-pool-exhaustion">Q289. Database connection pool exhaustion?</h3>
+<p><strong>Answer:</strong></p>
+<pre><code class="language-java"><span class="hljs-comment">// Symptoms: &quot;HikariPool-1 - Connection is not available, request timed out&quot;</span>
+
+<span class="hljs-comment">// Diagnosis:</span>
+<span class="hljs-comment">// 1. Check active connections</span>
+SELECT * FROM information_schema.processlist <span class="hljs-type">WHERE</span> <span class="hljs-variable">db</span> <span class="hljs-operator">=</span> <span class="hljs-string">&#x27;gstn_db&#x27;</span>;
+
+<span class="hljs-comment">// 2. Check pool metrics via actuator</span>
+<span class="hljs-comment">// HikariCP metrics: active=50, idle=0, pending=200, total=50</span>
+
+<span class="hljs-comment">// Root Causes:</span>
+<span class="hljs-comment">// a) Long-running queries holding connections</span>
+<span class="hljs-comment">// b) Missing @Transactional causing connection not returned</span>
+<span class="hljs-comment">// c) Pool too small for traffic</span>
+
+<span class="hljs-comment">// Fix:</span>
+spring:
+  datasource:
+    hikari:
+      maximum-pool-size: <span class="hljs-number">100</span>      # Was <span class="hljs-number">50</span>
+      connection-timeout: <span class="hljs-number">5000</span>     # Fail fast instead of waiting forever
+      max-lifetime: <span class="hljs-number">1800000</span>        # <span class="hljs-number">30</span> minutes
+      leak-detection-threshold: <span class="hljs-number">30000</span>  # Log warning <span class="hljs-keyword">if</span> connection held &gt; 30s
+</code></pre>
+<hr>
+<h3 id="q290-kafka-consumer-lag-increasing">Q290. Kafka consumer lag increasing?</h3>
+<p><strong>Answer:</strong></p>
+<pre><code>1. CHECK LAG
+   kafka-consumer-groups.sh --describe --group return-filing-group
+   → Shows: CURRENT-OFFSET, LOG-END-OFFSET, LAG
+
+2. ROOT CAUSES
+   a) Slow processing (DB calls in consumer loop)
+   b) Too few partitions/consumers
+   c) Large message size
+   d) Consumer rebalancing storm
+
+3. FIXES
+   a) Batch processing: poll 500 messages, batch-insert into DB
+   b) Increase partitions + consumer instances (1:1 mapping)
+   c) Compress messages (snappy/lz4)
+   d) increase max.poll.interval.ms to prevent unnecessary rebalance
+   e) Move heavy processing to async: consume → put in local queue → process in separate thread pool
+</code></pre>
+<hr>
+<h3 id="q291-redis-cache-inconsistency-with-database">Q291. Redis cache inconsistency with database?</h3>
+<p><strong>Answer:</strong></p>
+<pre><code>Problem: User updates profile in DB, but cache still has old data.
+
+Strategies:
+1. CACHE-ASIDE (GSTN uses this):
+   Write: Update DB → Delete cache key (don't update cache)
+   Read: Check cache → miss → query DB → write to cache
+
+   Why delete not update? Prevents race condition where stale data overwrites.
+
+2. Write-Through: Write DB + cache atomically. Consistent but slower.
+
+3. TTL as safety net: Even if invalidation fails, data expires in X minutes.
+
+4. Event-driven invalidation:
+   DB change → Kafka event → Cache invalidation consumer
+   
+GSTN implementation: DistCacheUtil.remove(key) after DB update + TTL of 15 minutes.
+</code></pre>
+<hr>
+<h3 id="q292-q296-deployment-failure-concurrent-filing-cross-team-integration-security-breach-scale-10x">Q292-Q296. Deployment Failure, Concurrent Filing, Cross-team Integration, Security Breach, Scale 10x</h3>
+<p><strong>Q292. Deployment caused production issues?</strong></p>
+<ol>
+<li>Detect: Monitoring alerts (5xx spike, error rate &gt; 1%)</li>
+<li><strong>Immediate rollback:</strong> Switch ALB to previous version (Blue-Green)</li>
+<li>Investigate in staging: Reproduce with production traffic sample</li>
+<li>Fix, add regression test, deploy to staging first</li>
+<li>Post-mortem: Document root cause, add to checklist</li>
+</ol>
+<p><strong>Q293. Two taxpayers filing simultaneously for same GSTIN?</strong></p>
+<pre><code>Problem: Race condition — both read &quot;no return filed&quot;, both submit.
+Solution:
+1. Distributed lock: Redis SETNX on key &quot;filing:{gstin}:{period}&quot;
+2. Lock TTL: 5 minutes (auto-expire on crash)
+3. Optimistic locking: @Version field on return entity
+4. DB unique constraint: (gstin, return_period, return_type)
+</code></pre>
+<p><strong>Q294. Cross-team Integration challenges?</strong></p>
+<ul>
+<li>API contract first: Define OpenAPI spec before implementation</li>
+<li>Consumer-driven contracts: Each team writes tests against expected API</li>
+<li>Integration environment: Shared staging for cross-service testing</li>
+<li>Regular sync meetings + Slack channel for integration issues</li>
+</ul>
+<p><strong>Q295. Security breach response?</strong></p>
+<pre><code>1. CONTAIN: Isolate affected service, revoke compromised credentials
+2. ASSESS: Determine scope — what data was accessed?
+3. BLOCK: Block attacker IPs, rotate API keys
+4. NOTIFY: Inform security team, management, affected users (per compliance)
+5. FIX: Patch vulnerability, add WAF rules
+6. POST-MORTEM: Root cause analysis, strengthen security controls
+7. AUDIT: Review access logs, check for lateral movement
+</code></pre>
+<p><strong>Q296. Scale system to handle 10x traffic?</strong></p>
+<pre><code>Current: 200K concurrent users
+Target: 2M concurrent users
+
+Horizontal scaling:
+  - Auto-scale pods from 50 → 500 (HPA based on CPU/custom metrics)
+  - Scale DB read replicas from 2 → 10
+  - Scale Redis cluster from 6 → 30 nodes
+
+Vertical optimization:
+  - Add database indexes for hot queries
+  - Increase cache TTL to reduce DB hits
+  - Connection pool tuning (maxPool per service)
+  - Async processing: move non-critical operations to Kafka
+
+Architecture changes:
+  - CDN for static assets (offload 40% of requests)
+  - Rate limiting per GSTIN (prevent abuse)
+  - Read/write separation (CQRS)
+  - Database sharding by state (already implemented)
+  - Pre-compute dashboard data (materialized views)
+  - Queue-based load leveling for burst traffic
+</code></pre>
+<hr>
+<h2 id="end-of-all-296-questions">END OF ALL 296 QUESTIONS</h2>
+<p><strong>Files created:</strong></p>
+<ol>
+<li><code>Section_01_Java_Core.md</code> — Q1-Q25</li>
+<li><code>Section_02_Spring_Boot.md</code> — Q26-Q75</li>
+<li><code>Section_03_Hibernate_JPA.md</code> — Q76-Q90</li>
+<li><code>Section_04_05_06_Microservices_Kafka_Redis.md</code> — Q91-Q135</li>
+<li><code>Section_07_08_Database_DistributedSystems.md</code> — Q136-Q165</li>
+<li><code>Section_09_10_11_Patterns_Docker_CICD.md</code> — Q166-Q205</li>
+<li><code>Section_12_13_14_15_Cloud_Network_Design_Go.md</code> — Q206-Q248</li>
+<li><code>Section_16_17_18_19_Testing_Behavioral_Scenarios.md</code> — Q249-Q296</li>
+</ol>
+
+            
+            
+        </body>
+        </html>

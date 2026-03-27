@@ -1,0 +1,1204 @@
+<!DOCTYPE html>
+        <html>
+        <head>
+            <meta charset="UTF-8">
+            <title>SECTIONS 4-6&colon; MICROSERVICES&comma; KAFKA&comma; REDIS &mdash; Interview Answers &lpar;Q91&ndash;Q135&rpar;</title>
+            <style>
+/* From extension vscode.github */
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+
+.vscode-dark img[src$=\#gh-light-mode-only],
+.vscode-light img[src$=\#gh-dark-mode-only],
+.vscode-high-contrast:not(.vscode-high-contrast-light) img[src$=\#gh-light-mode-only],
+.vscode-high-contrast-light img[src$=\#gh-dark-mode-only] {
+	display: none;
+}
+
+</style>
+            
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Microsoft/vscode/extensions/markdown-language-features/media/markdown.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Microsoft/vscode/extensions/markdown-language-features/media/highlight.css">
+<style>
+            body {
+                font-family: -apple-system, BlinkMacSystemFont, 'Segoe WPC', 'Segoe UI', system-ui, 'Ubuntu', 'Droid Sans', sans-serif;
+                font-size: 14px;
+                line-height: 1.6;
+            }
+        </style>
+        <style>
+.task-list-item {
+    list-style-type: none;
+}
+
+.task-list-item-checkbox {
+    margin-left: -20px;
+    vertical-align: middle;
+    pointer-events: none;
+}
+</style>
+<style>
+:root {
+  --color-note: #0969da;
+  --color-tip: #1a7f37;
+  --color-warning: #9a6700;
+  --color-severe: #bc4c00;
+  --color-caution: #d1242f;
+  --color-important: #8250df;
+}
+
+</style>
+<style>
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-note: #2f81f7;
+    --color-tip: #3fb950;
+    --color-warning: #d29922;
+    --color-severe: #db6d28;
+    --color-caution: #f85149;
+    --color-important: #a371f7;
+  }
+}
+
+</style>
+<style>
+.markdown-alert {
+  padding: 0.5rem 1rem;
+  margin-bottom: 16px;
+  color: inherit;
+  border-left: .25em solid #888;
+}
+
+.markdown-alert>:first-child {
+  margin-top: 0
+}
+
+.markdown-alert>:last-child {
+  margin-bottom: 0
+}
+
+.markdown-alert .markdown-alert-title {
+  display: flex;
+  font-weight: 500;
+  align-items: center;
+  line-height: 1
+}
+
+.markdown-alert .markdown-alert-title .octicon {
+  margin-right: 0.5rem;
+  display: inline-block;
+  overflow: visible !important;
+  vertical-align: text-bottom;
+  fill: currentColor;
+}
+
+.markdown-alert.markdown-alert-note {
+  border-left-color: var(--color-note);
+}
+
+.markdown-alert.markdown-alert-note .markdown-alert-title {
+  color: var(--color-note);
+}
+
+.markdown-alert.markdown-alert-important {
+  border-left-color: var(--color-important);
+}
+
+.markdown-alert.markdown-alert-important .markdown-alert-title {
+  color: var(--color-important);
+}
+
+.markdown-alert.markdown-alert-warning {
+  border-left-color: var(--color-warning);
+}
+
+.markdown-alert.markdown-alert-warning .markdown-alert-title {
+  color: var(--color-warning);
+}
+
+.markdown-alert.markdown-alert-tip {
+  border-left-color: var(--color-tip);
+}
+
+.markdown-alert.markdown-alert-tip .markdown-alert-title {
+  color: var(--color-tip);
+}
+
+.markdown-alert.markdown-alert-caution {
+  border-left-color: var(--color-caution);
+}
+
+.markdown-alert.markdown-alert-caution .markdown-alert-title {
+  color: var(--color-caution);
+}
+
+</style>
+        
+        </head>
+        <body class="vscode-body vscode-light">
+            <h1 id="sections-4-6-microservices-kafka-redis--interview-answers-q91q135">SECTIONS 4-6: MICROSERVICES, KAFKA, REDIS — Interview Answers (Q91–Q135)</h1>
+<h2 id="with-gstn-codebase-references">With GSTN Codebase References</h2>
+<hr>
+<h1 id="section-4-microservices-architecture-q91q110">SECTION 4: MICROSERVICES ARCHITECTURE (Q91–Q110)</h1>
+<h3 id="q91-how-did-you-decompose-gstn-into-microservices">Q91. How did you decompose GSTN into microservices?</h3>
+<p><strong>Answer:</strong></p>
+<p>GSTN is decomposed by <strong>business domain (bounded context)</strong>, following Domain-Driven Design principles:</p>
+<pre><code>GSTN Microservice Architecture:
+├── Core-API/
+│   ├── RegistrationAPI      — Taxpayer registration, amendment, cancellation
+│   ├── ReturnAPI             — GSTR1, GSTR3B filing and processing
+│   ├── Return2API            — GSTR2 (inward supplies)
+│   ├── Anx1API / Anx2API     — New Return annexures
+│   ├── LedgerAPI             — Cash/ITC/Liability ledgers
+│   ├── PaymentAPI / PmtAPI   — GST payment processing
+│   ├── RefundAPI             — Refund claims and processing
+│   ├── LitigationAPI         — Legal proceedings
+│   ├── EinvoiceAPI           — E-Invoice generation
+│   ├── ServicesAPI           — Common taxpayer services
+│   ├── UserMastersAPI        — User management
+│   ├── AuditAPI              — Audit trail
+│   ├── CommunicationAPI      — Notifications (email/SMS)
+│   ├── DashboardAPI          — Analytics and reporting
+│   ├── MobileAPI             — Mobile app backend
+│   ├── IMSAPI               — Invoice Management System
+│   └── WelcomeLetterMS       — Welcome letter generation
+├── BO-Web/ (Back Office)
+│   ├── BOServicesWeb         — BO common services
+│   ├── BOAuditWeb            — Audit operations
+│   ├── BOLitigationWeb       — Litigation management
+│   ├── BOMISWeb              — Management Information System
+│   └── BOReturnsWeb          — Return processing
+├── Commons/ (Shared Frameworks)
+│   ├── AuthenticationFwk     — Authentication framework
+│   ├── KafkaConsumerFwk      — Kafka consumer framework
+│   ├── DistCacheFwk          — Distributed caching (Redis)
+│   ├── WorkFlowFwk           — Workflow engine
+│   ├── GstExceptionFwk       — Exception handling
+│   └── gst-spring-boot2-starter — Custom Spring Boot starter
+└── Common-Web/
+    └── CommonServicesWeb     — Shared web services
+</code></pre>
+<p><strong>Each service has:</strong></p>
+<ul>
+<li>Its own database schema (or shared with routing)</li>
+<li>Its own pom.xml with specific dependencies</li>
+<li>Independent deployment</li>
+<li>Communication via REST (sync) or Kafka (async)</li>
+</ul>
+<hr>
+<h3 id="q92-monolith-vs-microservices--trade-offs">Q92. Monolith vs Microservices — trade-offs?</h3>
+<p><strong>Answer:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Aspect</th>
+<th>Monolith</th>
+<th>Microservices</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Deployment</td>
+<td>Single unit</td>
+<td>Independent per service</td>
+</tr>
+<tr>
+<td>Complexity</td>
+<td>Simple start, complex growth</td>
+<td>Complex start, manageable growth</td>
+</tr>
+<tr>
+<td>Team scaling</td>
+<td>Merge conflicts, bottlenecks</td>
+<td>Independent teams per service</td>
+</tr>
+<tr>
+<td>Data management</td>
+<td>Shared DB, ACID easy</td>
+<td>Distributed data, eventual consistency</td>
+</tr>
+<tr>
+<td>Debugging</td>
+<td>Stack trace, easy</td>
+<td>Distributed tracing needed</td>
+</tr>
+<tr>
+<td>Latency</td>
+<td>In-process calls</td>
+<td>Network calls (latency)</td>
+</tr>
+<tr>
+<td>Technology</td>
+<td>Single stack</td>
+<td>Polyglot possible</td>
+</tr>
+</tbody>
+</table>
+<p><strong>When NOT to use microservices:</strong></p>
+<ul>
+<li>Small team (&lt; 5 developers)</li>
+<li>Simple domain with low complexity</li>
+<li>Startup with unclear domain boundaries</li>
+<li>When you can't afford operational overhead (K8s, monitoring, tracing)</li>
+</ul>
+<p><strong>GSTN Choice:</strong> GSTN handles 1B+ invoices/month, 14M+ taxpayers, filing deadline spikes. Microservices allow:</p>
+<ul>
+<li><strong>Independent scaling</strong>: ReturnAPI scales 10x during deadlines while RegistrationAPI stays at 2x</li>
+<li><strong>Independent deployment</strong>: Critical fix to PaymentAPI doesn't require redeploying everything</li>
+<li><strong>Team autonomy</strong>: 40+ developers across teams, each owning their services</li>
+</ul>
+<hr>
+<h3 id="q93-synchronous-vs-asynchronous-communication">Q93. Synchronous vs Asynchronous communication?</h3>
+<p><strong>Answer:</strong></p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>Synchronous (REST)</th>
+<th>Asynchronous (Kafka)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Pattern</td>
+<td>Request-Response</td>
+<td>Fire-and-Forget / Event-Driven</td>
+</tr>
+<tr>
+<td>Coupling</td>
+<td><strong>Temporal</strong> — both must be running</td>
+<td><strong>Decoupled</strong> — producer doesn't wait</td>
+</tr>
+<tr>
+<td>Latency</td>
+<td>Immediate response</td>
+<td>Eventual processing</td>
+</tr>
+<tr>
+<td>Failure</td>
+<td>Cascading failures possible</td>
+<td>Buffered — consumer retries</td>
+</tr>
+<tr>
+<td>Use when</td>
+<td>Need immediate response</td>
+<td>Can tolerate delay</td>
+</tr>
+</tbody>
+</table>
+<p><strong>GSTN Examples:</strong></p>
+<p><strong>Synchronous (REST):</strong></p>
+<ul>
+<li>Filing return → real-time validation → immediate response (valid/invalid)</li>
+<li>Taxpayer login → authentication check → immediate token</li>
+<li>Dashboard data → aggregate from multiple services → immediate display</li>
+</ul>
+<p><strong>Asynchronous (Kafka):</strong></p>
+<ul>
+<li>Return filed → Send notification (email/SMS) → doesn't need immediate</li>
+<li>Return filed → Update ledger → can be eventually consistent</li>
+<li>E-invoice generated → propagate to return system → async processing</li>
+</ul>
+<pre><code class="language-java"><span class="hljs-comment">// Async — Kafka producer in GSTN</span>
+<span class="hljs-meta">@Autowired</span>
+<span class="hljs-keyword">private</span> CommonKafkaProducerUtil commonKafkaProducerUtil;
+
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">sendMessage</span><span class="hljs-params">(String topic, String kafkaMsg, String key)</span> {
+    commonKafkaProducerUtil.syncProducedWKey(topic, kafkaMsg, key);
+}
+</code></pre>
+<hr>
+<h3 id="q94-what-is-an-api-gateway">Q94. What is an API Gateway?</h3>
+<p><strong>Answer:</strong></p>
+<p>API Gateway is a <strong>single entry point</strong> for all client requests. It handles cross-cutting concerns:</p>
+<table>
+<thead>
+<tr>
+<th>Responsibility</th>
+<th>How</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Routing</strong></td>
+<td>Route <code>/v1/returns/*</code> → ReturnAPI, <code>/v1/registration/*</code> → RegistrationAPI</td>
+</tr>
+<tr>
+<td><strong>Authentication</strong></td>
+<td>Validate JWT before forwarding</td>
+</tr>
+<tr>
+<td><strong>Rate limiting</strong></td>
+<td>Throttle requests per client</td>
+</tr>
+<tr>
+<td><strong>Load balancing</strong></td>
+<td>Distribute across service instances</td>
+</tr>
+<tr>
+<td><strong>SSL termination</strong></td>
+<td>Handle HTTPS, forward HTTP internally</td>
+</tr>
+<tr>
+<td><strong>Request/Response transformation</strong></td>
+<td>Add headers, modify payloads</td>
+</tr>
+<tr>
+<td><strong>Circuit breaking</strong></td>
+<td>Protect against cascading failures</td>
+</tr>
+</tbody>
+</table>
+<p><strong>GSTN Architecture:</strong></p>
+<pre><code>Internet → CDN → API Gateway → Internal Services
+                    │
+                    ├── /v1.0/taxpayerapi/anx1a/* → Anx1API
+                    ├── /auth/api/case/*          → BOAuditWeb
+                    ├── /auth/api/returns/*        → ReturnAPI
+                    └── /auth/api/ledger/*         → LedgerAPI
+</code></pre>
+<hr>
+<h3 id="q95-service-discovery">Q95. Service Discovery?</h3>
+<p><strong>Answer:</strong></p>
+<p><strong>Kubernetes DNS</strong> — GSTN uses K8s-based service discovery:</p>
+<ul>
+<li>Each K8s Service gets a DNS name: <code>return-api.gstn-namespace.svc.cluster.local</code></li>
+<li>No need for Eureka/Consul — K8s provides built-in discovery</li>
+<li>kube-proxy handles load balancing across pod replicas</li>
+</ul>
+<p><strong>Spring Cloud alternatives:</strong></p>
+<ul>
+<li><strong>Eureka</strong> — Netflix OSS, Java-native, heartbeat-based</li>
+<li><strong>Consul</strong> — HashiCorp, multi-DC, health checking</li>
+<li><strong>K8s DNS</strong> — simplest in K8s environment (GSTN's approach)</li>
+</ul>
+<hr>
+<h3 id="q96-circuit-breaker-pattern--resilience4j">Q96. Circuit Breaker pattern — Resilience4j?</h3>
+<p><strong>Answer:</strong></p>
+<p><strong>Three states:</strong></p>
+<pre><code>CLOSED (normal) 
+    → failure rate &gt; threshold (50%) 
+    → OPEN (reject all requests, return fallback)
+    → after wait duration (60s)
+    → HALF-OPEN (allow N trial requests)
+    → if trial succeeds → CLOSED
+    → if trial fails → OPEN
+</code></pre>
+<pre><code class="language-java"><span class="hljs-comment">// Resilience4j Circuit Breaker</span>
+<span class="hljs-meta">@CircuitBreaker(name = &quot;paymentGateway&quot;, fallbackMethod = &quot;paymentFallback&quot;)</span>
+<span class="hljs-keyword">public</span> PaymentResponse <span class="hljs-title function_">processPayment</span><span class="hljs-params">(PaymentRequest request)</span> {
+    <span class="hljs-keyword">return</span> paymentGatewayClient.pay(request); <span class="hljs-comment">// External call</span>
+}
+
+<span class="hljs-keyword">public</span> PaymentResponse <span class="hljs-title function_">paymentFallback</span><span class="hljs-params">(PaymentRequest request, Exception e)</span> {
+    LOGGER.warn(<span class="hljs-string">&quot;Payment gateway unavailable, queuing for retry&quot;</span>, e);
+    kafkaProducer.send(<span class="hljs-string">&quot;payment-retry-topic&quot;</span>, request);
+    <span class="hljs-keyword">return</span> PaymentResponse.queued(<span class="hljs-string">&quot;Payment queued for processing&quot;</span>);
+}
+</code></pre>
+<p><strong>GSTN scenario:</strong> During filing deadline, if the payment gateway becomes slow:</p>
+<ol>
+<li>Circuit opens → stops calling failing gateway</li>
+<li>Returns fallback response → &quot;Payment processing delayed, will be retried&quot;</li>
+<li>Queues request to Kafka for retry</li>
+<li>After gateway recovers → circuit half-opens → tests → closes</li>
+</ol>
+<hr>
+<h3 id="q97-saga-pattern--choreography-vs-orchestration">Q97. Saga Pattern — Choreography vs Orchestration?</h3>
+<p><strong>Answer:</strong></p>
+<p><strong>GSTN Filing Saga Example:</strong></p>
+<pre><code>Filing → Validation → Payment → Ledger Update → Acknowledgment
+</code></pre>
+<p><strong>Choreography (event-driven):</strong></p>
+<pre><code>Filing Service publishes &quot;RETURN_FILED&quot; event
+    → Validation Service consumes, validates, publishes &quot;VALIDATED&quot;
+        → Payment Service consumes, processes payment, publishes &quot;PAID&quot;
+            → Ledger Service consumes, updates ledger, publishes &quot;LEDGER_UPDATED&quot;
+                → Acknowledgment Service sends confirmation
+                
+Compensating: If Payment fails → publishes &quot;PAYMENT_FAILED&quot;
+    → Validation Service rolls back validation status
+    → Filing Service marks return as &quot;FAILED&quot;
+</code></pre>
+<p><strong>Orchestration (central coordinator):</strong></p>
+<pre><code class="language-java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">FilingSagaOrchestrator</span> {
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">executeFilingSaga</span><span class="hljs-params">(ReturnVO returnVO)</span> {
+        <span class="hljs-keyword">try</span> {
+            validationService.validate(returnVO);     <span class="hljs-comment">// Step 1</span>
+            paymentService.processPayment(returnVO);  <span class="hljs-comment">// Step 2</span>
+            ledgerService.updateLedger(returnVO);      <span class="hljs-comment">// Step 3</span>
+            ackService.sendAcknowledgment(returnVO);   <span class="hljs-comment">// Step 4</span>
+        } <span class="hljs-keyword">catch</span> (PaymentException e) {
+            <span class="hljs-comment">// Compensate: undo validation</span>
+            validationService.undoValidation(returnVO);
+        }
+    }
+}
+</code></pre>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>Choreography</th>
+<th>Orchestration</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Coordination</td>
+<td>Events between services</td>
+<td>Central orchestrator</td>
+</tr>
+<tr>
+<td>Coupling</td>
+<td>Loose — services don't know each other</td>
+<td>Tighter — orchestrator knows all steps</td>
+</tr>
+<tr>
+<td>Complexity</td>
+<td>Harder to track flow</td>
+<td>Easier to understand and debug</td>
+</tr>
+<tr>
+<td>Single point of failure</td>
+<td>No</td>
+<td>Yes (orchestrator)</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h3 id="q98-eventual-consistency">Q98. Eventual consistency?</h3>
+<p><strong>Answer:</strong></p>
+<p><strong>Strong consistency required (GSTN):</strong></p>
+<ul>
+<li>Payment processing → immediate balance deduction</li>
+<li>Ledger balance → must be accurate for next operation</li>
+<li>Filing status → must be consistent for duplicate check</li>
+</ul>
+<p><strong>Eventual consistency acceptable (GSTN):</strong></p>
+<ul>
+<li>Notification after filing → email can be delayed by minutes</li>
+<li>Dashboard/MIS reports → can show slightly stale data</li>
+<li>Search indexes → can take seconds to update</li>
+<li>Cross-service data propagation → ledger reflects filing after Kafka processing</li>
+</ul>
+<p><strong>Pattern:</strong> Use strong consistency within a service (ACID transactions). Accept eventual consistency between services (Kafka events).</p>
+<hr>
+<h3 id="q99-bulkhead-pattern">Q99. Bulkhead pattern?</h3>
+<p><strong>Answer:</strong></p>
+<p><strong>Isolate resources</strong> so one slow service doesn't exhaust all resources:</p>
+<pre><code class="language-java"><span class="hljs-comment">// Thread pool bulkhead — separate thread pools per service call</span>
+<span class="hljs-meta">@Bulkhead(name = &quot;paymentService&quot;, type = Bulkhead.Type.THREADPOOL,
+          fallbackMethod = &quot;paymentFallback&quot;)</span>
+<span class="hljs-keyword">public</span> PaymentResponse <span class="hljs-title function_">pay</span><span class="hljs-params">(PaymentRequest req)</span> { ... }
+
+<span class="hljs-comment">// Configuration</span>
+resilience4j.bulkhead.instances.paymentService:
+  maxConcurrentCalls: <span class="hljs-number">25</span>        # Max <span class="hljs-number">25</span> concurrent calls
+  maxWaitDuration: 500ms        # Wait 500ms before rejecting
+
+resilience4j.thread-pool-bulkhead.instances.paymentService:
+  maxThreadPoolSize: <span class="hljs-number">10</span>
+  coreThreadPoolSize: <span class="hljs-number">5</span>
+  queueCapacity: <span class="hljs-number">20</span>
+</code></pre>
+<p><strong>GSTN:</strong> Without bulkhead, if Payment Gateway slows down, all 200 Tomcat threads could be waiting for payment → entire service unresponsive. With bulkhead, only 25 threads are allocated to payment calls → remaining 175 threads serve other requests.</p>
+<hr>
+<h3 id="q100-retry-pattern-with-exponential-backoff">Q100. Retry pattern with exponential backoff?</h3>
+<p><strong>Answer:</strong></p>
+<pre><code class="language-java"><span class="hljs-meta">@Retry(name = &quot;paymentRetry&quot;, fallbackMethod = &quot;paymentFallback&quot;)</span>
+<span class="hljs-keyword">public</span> PaymentResponse <span class="hljs-title function_">processPayment</span><span class="hljs-params">(PaymentRequest request)</span> {
+    <span class="hljs-keyword">return</span> paymentGateway.pay(request);
+}
+
+<span class="hljs-comment">// Configuration</span>
+resilience4j.retry.instances.paymentRetry:
+  maxAttempts: <span class="hljs-number">3</span>
+  waitDuration: 1s
+  enableExponentialBackoff: <span class="hljs-literal">true</span>
+  exponentialBackoffMultiplier: <span class="hljs-number">2</span>  # 1s, 2s, 4s
+  randomizedWaitFactor: <span class="hljs-number">0.5</span>       # Jitter: adds <span class="hljs-number">0</span>-<span class="hljs-number">50</span>% random delay
+  retryExceptions:
+    - java.net.ConnectException
+    - java.net.SocketTimeoutException
+  ignoreExceptions:
+    - org.gst.excep.GSTLogicalException  # Don<span class="hljs-string">&#x27;t retry business errors
+</span></code></pre>
+<p><strong>Why jitter?</strong> Without it, if 1000 requests fail simultaneously, they ALL retry at the same time → thundering herd → service overwhelmed again. Jitter spreads retries over time.</p>
+<hr>
+<h3 id="q101q105-strangler-fig-api-versioning-anti-corruption-layer-cqrs-event-sourcing">Q101–Q105. Strangler Fig, API Versioning, Anti-corruption Layer, CQRS, Event Sourcing</h3>
+<p><strong>Q101. Strangler Fig Pattern:</strong>
+Gradually replace monolith by routing requests to new microservices one endpoint at a time. Use API gateway to route: old endpoints → monolith, migrated endpoints → new service. Eventually, monolith is &quot;strangled&quot; and can be decommissioned.</p>
+<p><strong>Q102. API Versioning across microservices:</strong>
+GSTN uses URI versioning: <code>/v1.0/taxpayerapi/anx1a/getrecords</code>. Each service manages its own version independently. API Gateway routes to correct version.</p>
+<p><strong>Q103. Anti-corruption Layer:</strong>
+A translation layer between your service and a legacy/external system. Prevents legacy data models from &quot;corrupting&quot; your clean domain model.</p>
+<pre><code class="language-java"><span class="hljs-comment">// Adapter to convert legacy GSTN data format to new model</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">LegacyGstReturnAdapter</span> {
+    <span class="hljs-keyword">public</span> NewReturnModel <span class="hljs-title function_">convert</span><span class="hljs-params">(LegacyReturnFormat legacy)</span> {
+        <span class="hljs-type">NewReturnModel</span> <span class="hljs-variable">model</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">NewReturnModel</span>();
+        model.setGstin(legacy.getTIN());  <span class="hljs-comment">// TIN → GSTIN</span>
+        model.setPeriod(convertPeriod(legacy.getRetPrd()));
+        <span class="hljs-keyword">return</span> model;
+    }
+}
+</code></pre>
+<p><strong>Q104. CQRS:</strong>
+Separate read and write models. GSTN use case: Write model stores raw return data in MySQL. Read model stores pre-aggregated data in separate read-optimized tables or Solr (GSTN uses SolrDIHFwk for search). Dashboard queries read from optimized read models.</p>
+<p><strong>Q105. Event Sourcing:</strong>
+Store every state change as an immutable event instead of current state. Pros: complete audit trail, replay capability. Cons: complex queries, eventual consistency. GSTN stores audit events in <code>ALERT_DETL</code> tables and publishes to Kafka for event-driven processing.</p>
+<hr>
+<h3 id="q106-outbox-pattern">Q106. Outbox pattern?</h3>
+<p><strong>Answer:</strong></p>
+<pre><code>Service → Write to DB (business data + outbox table) → atomically (single TX)
+Outbox Poller → reads outbox table → publishes to Kafka → marks as published
+</code></pre>
+<pre><code class="language-java"><span class="hljs-meta">@Transactional</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">fileReturn</span><span class="hljs-params">(ReturnVO returnVO)</span> {
+    <span class="hljs-comment">// Step 1: Save return</span>
+    returnRepository.save(returnEntity);
+    
+    <span class="hljs-comment">// Step 2: Write to outbox table (same transaction!)</span>
+    <span class="hljs-type">OutboxEvent</span> <span class="hljs-variable">event</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">OutboxEvent</span>();
+    event.setAggregateId(returnVO.getGstin());
+    event.setType(<span class="hljs-string">&quot;RETURN_FILED&quot;</span>);
+    event.setPayload(toJson(returnVO));
+    event.setStatus(<span class="hljs-string">&quot;PENDING&quot;</span>);
+    outboxRepository.save(event);
+    <span class="hljs-comment">// Both are committed atomically — no data loss</span>
+}
+
+<span class="hljs-comment">// Separate scheduled job polls outbox and publishes to Kafka</span>
+<span class="hljs-meta">@Scheduled(fixedDelay = 1000)</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">publishOutboxEvents</span><span class="hljs-params">()</span> {
+    List&lt;OutboxEvent&gt; pending = outboxRepository.findByStatus(<span class="hljs-string">&quot;PENDING&quot;</span>);
+    <span class="hljs-keyword">for</span> (OutboxEvent event : pending) {
+        kafkaProducer.send(event.getType(), event.getPayload());
+        event.setStatus(<span class="hljs-string">&quot;PUBLISHED&quot;</span>);
+        outboxRepository.save(event);
+    }
+}
+</code></pre>
+<p><strong>Why?</strong> Avoids dual-write problem — writing to DB and Kafka separately can leave them inconsistent if one fails.</p>
+<hr>
+<h3 id="q107q110-service-mesh-testing-shared-libraries-distributed-tracing">Q107–Q110. Service Mesh, Testing, Shared Libraries, Distributed Tracing</h3>
+<p><strong>Q107. Service Mesh (Istio):</strong>
+A dedicated infrastructure layer for service-to-service communication. Handles mTLS, traffic management, observability without code changes. Each pod gets a sidecar proxy (Envoy). Needed for: zero-trust networking, canary deployments, traffic shifting.</p>
+<p><strong>Q108. Testing microservices:</strong></p>
+<ul>
+<li><strong>Contract Testing (Pact)</strong>: Consumer defines expected API → provider verifies</li>
+<li><strong>Integration Testing (TestContainers)</strong>: Real MySQL/Redis/Kafka in Docker containers</li>
+<li><strong>GSTN uses TestNG</strong> for unit and integration tests (testng.xml in each module)</li>
+</ul>
+<p><strong>Q109. Shared libraries (GSTN approach):</strong></p>
+<pre><code>Commons/ — shared frameworks
+├── GstExceptionFwk    — Common exception classes
+├── DistCacheFwk       — Redis caching utility
+├── KafkaConsumerFwk   — Kafka consumer framework
+├── AuthenticationFwk  — Auth utilities
+├── WorkFlowFwk        — Workflow engine
+├── gst-spring-boot2-starter — Auto-configuration
+└── CommonUtilFwk      — General utilities
+</code></pre>
+<p>Each is a Maven artifact with its own version. Services depend on specific versions via pom.xml. Breaking changes require version bump and coordinated migration.</p>
+<p><strong>Q110. Distributed Tracing:</strong>
+Pass correlation ID across services via HTTP header. Use MDC for logging:</p>
+<pre><code class="language-java">MDC.put(<span class="hljs-string">&quot;requestId&quot;</span>, request.getHeader(<span class="hljs-string">&quot;X-Request-ID&quot;</span>));
+<span class="hljs-comment">// All logs in this thread include requestId</span>
+<span class="hljs-comment">// Forward same requestId to downstream calls</span>
+</code></pre>
+<p>Tools: Zipkin, Jaeger, OpenTelemetry for end-to-end trace visualization.</p>
+<hr>
+<h1 id="section-5-kafka-q111q125">SECTION 5: KAFKA (Q111–Q125)</h1>
+<h3 id="q111-kafka-architecture">Q111. Kafka architecture?</h3>
+<p><strong>Answer:</strong></p>
+<pre><code>Producer → [Topic: return-filed-events]
+              ├── Partition 0 → Broker 1 (Leader), Broker 2 (Replica)
+              ├── Partition 1 → Broker 2 (Leader), Broker 3 (Replica)
+              └── Partition 2 → Broker 3 (Leader), Broker 1 (Replica)
+                                    ↓
+           Consumer Group: filing-processor-group
+              ├── Consumer 1 ← Partition 0
+              ├── Consumer 2 ← Partition 1
+              └── Consumer 3 ← Partition 2
+</code></pre>
+<p><strong>Key concepts:</strong></p>
+<ul>
+<li><strong>Broker</strong>: Kafka server that stores and serves data</li>
+<li><strong>Topic</strong>: Named category/feed (e.g., <code>return-filed-events</code>)</li>
+<li><strong>Partition</strong>: Ordered, immutable sequence of messages. Parallelism unit.</li>
+<li><strong>Replica</strong>: Copy of partition for fault tolerance</li>
+<li><strong>ISR (In-Sync Replicas)</strong>: Replicas that are fully caught up with leader</li>
+</ul>
+<p><strong>GSTN Kafka config:</strong></p>
+<pre><code class="language-java"><span class="hljs-comment">// From KafkaClientProperties — Spring Boot properties</span>
+<span class="hljs-meta">@Data</span>
+<span class="hljs-meta">@ConfigurationProperties(prefix = &quot;gst.kafka&quot;)</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">KafkaClientProperties</span> {
+    <span class="hljs-keyword">private</span> String bootstrapServers;   <span class="hljs-comment">// Broker addresses</span>
+    <span class="hljs-keyword">private</span> String clientId;           <span class="hljs-comment">// Client identifier</span>
+    <span class="hljs-keyword">private</span> <span class="hljs-type">Producer</span> <span class="hljs-variable">producer</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">Producer</span>();
+    <span class="hljs-keyword">private</span> <span class="hljs-type">Consumer</span> <span class="hljs-variable">consumer</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">Consumer</span>();
+}
+</code></pre>
+<hr>
+<h3 id="q112-how-does-kafka-guarantee-ordering">Q112. How does Kafka guarantee ordering?</h3>
+<p><strong>Answer:</strong></p>
+<p>Kafka guarantees ordering <strong>only within a single partition</strong>. Messages across partitions have no ordering guarantee.</p>
+<p><strong>GSTN approach — partition by GSTIN:</strong></p>
+<pre><code class="language-java"><span class="hljs-comment">// Use GSTIN as partition key</span>
+<span class="hljs-comment">// All events for same GSTIN go to same partition → ordered processing</span>
+commonKafkaProducerUtil.syncProducedWKey(topic, kafkaMsg, gstin);  <span class="hljs-comment">// gstin is the key</span>
+
+<span class="hljs-comment">// Partitioning: hash(gstin) % numPartitions = partition number</span>
+<span class="hljs-comment">// 29AAACG1234A1ZD → hash → partition 2</span>
+<span class="hljs-comment">// All subsequent events for this GSTIN → partition 2 → processed in order</span>
+</code></pre>
+<p><strong>Why this matters:</strong> A return filing event MUST be processed before its amendment event. Using GSTIN as key guarantees this order.</p>
+<hr>
+<h3 id="q113-producer-acks-configuration">Q113. Producer acks configuration?</h3>
+<p><strong>Answer:</strong></p>
+<table>
+<thead>
+<tr>
+<th>acks</th>
+<th>Durability</th>
+<th>Latency</th>
+<th>When to use</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>0</code></td>
+<td>None — fire and forget</td>
+<td>Fastest</td>
+<td>Metrics, logs (loss acceptable)</td>
+</tr>
+<tr>
+<td><code>1</code></td>
+<td>Leader acknowledged</td>
+<td>Medium</td>
+<td>Most use cases</td>
+</tr>
+<tr>
+<td><code>all</code> (-1)</td>
+<td>All ISR acknowledged</td>
+<td>Slowest</td>
+<td><strong>GSTN filing events</strong> (no data loss)</td>
+</tr>
+</tbody>
+</table>
+<pre><code class="language-java"><span class="hljs-comment">// GSTN Kafka Producer config</span>
+<span class="hljs-meta">@Data</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">Producer</span> {
+    <span class="hljs-keyword">private</span> String acks;            <span class="hljs-comment">// &quot;all&quot; for filing events</span>
+    <span class="hljs-keyword">private</span> String compressionType; <span class="hljs-comment">// &quot;snappy&quot; for performance</span>
+    <span class="hljs-keyword">private</span> Integer batchSize;      <span class="hljs-comment">// 16384 bytes</span>
+    <span class="hljs-keyword">private</span> Integer retries;        <span class="hljs-comment">// 3 retries on failure</span>
+}
+</code></pre>
+<p><strong>For GSTN filing events:</strong> <code>acks=all</code> because losing a return filing event is unacceptable. For metrics/logging events: <code>acks=1</code> is sufficient.</p>
+<hr>
+<h3 id="q114-partition-key-selection">Q114. Partition key selection?</h3>
+<p><strong>Answer:</strong></p>
+<p><strong>GSTN:</strong> Use <strong>GSTIN</strong> as partition key because:</p>
+<ol>
+<li>All events for one taxpayer go to same partition → ordered processing</li>
+<li>Even distribution — 14M+ GSTINs distribute well across partitions</li>
+<li>Consumer can aggregate all events for a GSTIN without cross-partition coordination</li>
+</ol>
+<pre><code class="language-java"><span class="hljs-comment">// From KafkaServiceImpl</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">sendMessage</span><span class="hljs-params">(String topic, String kafkaMsg, String key)</span> {
+    commonKafkaProducerUtil.syncProducedWKey(topic, kafkaMsg, key);
+    <span class="hljs-comment">// key = gstin → determines partition</span>
+}
+</code></pre>
+<p><strong>Bad partition keys:</strong></p>
+<ul>
+<li>State code (only 37 values → uneven distribution)</li>
+<li>Timestamp (sequential → all go to one partition)</li>
+<li>Random UUID (no ordering guarantee for same entity)</li>
+</ul>
+<hr>
+<h3 id="q115-consumer-groups-and-rebalancing">Q115. Consumer Groups and rebalancing?</h3>
+<p><strong>Answer:</strong></p>
+<p><strong>Consumer Group:</strong> Multiple consumers sharing the workload of a topic. Each partition is consumed by exactly ONE consumer in the group.</p>
+<pre><code>Topic: return-events (6 partitions)
+Consumer Group: filing-processor
+
+Consumer 1 → P0, P1    (2 partitions each if 3 consumers)
+Consumer 2 → P2, P3
+Consumer 3 → P4, P5
+</code></pre>
+<p><strong>Rebalancing triggers:</strong></p>
+<ul>
+<li>Consumer joins or leaves group</li>
+<li>Consumer heartbeat timeout (crashes)</li>
+<li>Topic partition count changes</li>
+<li>Consumer takes too long to process (exceeds <code>max.poll.interval.ms</code>)</li>
+</ul>
+<p><strong>Minimize rebalancing impact:</strong></p>
+<ol>
+<li><strong>Static membership</strong> (<code>group.instance.id</code>) — consumer restarts don't trigger rebalance</li>
+<li><strong>Incremental cooperative rebalancing</strong> — only revoke affected partitions</li>
+<li><strong>Tune timeouts</strong>: <code>session.timeout.ms</code>, <code>heartbeat.interval.ms</code>, <code>max.poll.interval.ms</code></li>
+</ol>
+<p><strong>GSTN KafkaConsumerFwk:</strong></p>
+<pre><code class="language-java"><span class="hljs-comment">// From KafkaConsumerConfig — singleton pattern for config</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">KafkaConsumerConfig</span> {
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> <span class="hljs-type">KafkaConsumerConfig</span> <span class="hljs-variable">instance</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">KafkaConsumerConfig</span>();
+    <span class="hljs-keyword">private</span> <span class="hljs-type">Properties</span> <span class="hljs-variable">props</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">Properties</span>();
+    <span class="hljs-keyword">private</span> List&lt;String&gt; topicList = <span class="hljs-literal">null</span>;
+    
+    <span class="hljs-keyword">public</span> KafkaConsumer&lt;Long, String&gt; <span class="hljs-title function_">getNewConsumer</span><span class="hljs-params">()</span> {
+        <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">KafkaConsumer</span>&lt;Long, String&gt;(props);
+    }
+}
+</code></pre>
+<hr>
+<h3 id="q116-offset-management">Q116. Offset management?</h3>
+<p><strong>Answer:</strong></p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>Auto Commit</th>
+<th>Manual Commit</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Config</td>
+<td><code>enable.auto.commit=true</code></td>
+<td><code>enable.auto.commit=false</code></td>
+</tr>
+<tr>
+<td>When</td>
+<td>Every <code>auto.commit.interval.ms</code></td>
+<td>After processing</td>
+</tr>
+<tr>
+<td>Risk</td>
+<td>Data loss (committed before processed)</td>
+<td>Duplicate processing (crash before commit)</td>
+</tr>
+<tr>
+<td>Use case</td>
+<td>Tolerant of loss</td>
+<td><strong>GSTN — must process everything</strong></td>
+</tr>
+</tbody>
+</table>
+<pre><code class="language-java"><span class="hljs-comment">// Manual commit (at-least-once)</span>
+<span class="hljs-keyword">while</span> (<span class="hljs-literal">true</span>) {
+    ConsumerRecords&lt;String, String&gt; records = consumer.poll(Duration.ofMillis(<span class="hljs-number">100</span>));
+    <span class="hljs-keyword">for</span> (ConsumerRecord&lt;String, String&gt; record : records) {
+        processRecord(record);  <span class="hljs-comment">// Process first</span>
+    }
+    consumer.commitSync();  <span class="hljs-comment">// Then commit — ensures at-least-once</span>
+}
+</code></pre>
+<hr>
+<h3 id="q117-exactly-once-semantics">Q117. Exactly-once semantics?</h3>
+<p><strong>Answer:</strong></p>
+<p><strong>Exactly-once = Idempotent producer + Transactional consumer</strong></p>
+<pre><code class="language-java"><span class="hljs-comment">// Producer — idempotent (no duplicates)</span>
+props.put(<span class="hljs-string">&quot;enable.idempotence&quot;</span>, <span class="hljs-literal">true</span>);
+props.put(<span class="hljs-string">&quot;acks&quot;</span>, <span class="hljs-string">&quot;all&quot;</span>);
+props.put(<span class="hljs-string">&quot;retries&quot;</span>, Integer.MAX_VALUE);
+
+<span class="hljs-comment">// Producer — transactional (atomic writes across partitions/topics)</span>
+props.put(<span class="hljs-string">&quot;transactional.id&quot;</span>, <span class="hljs-string">&quot;filing-producer-1&quot;</span>);
+producer.initTransactions();
+producer.beginTransaction();
+producer.send(record1);
+producer.send(record2);
+producer.commitTransaction(); <span class="hljs-comment">// Both or neither</span>
+
+<span class="hljs-comment">// Consumer — read committed + manual offset</span>
+props.put(<span class="hljs-string">&quot;isolation.level&quot;</span>, <span class="hljs-string">&quot;read_committed&quot;</span>); <span class="hljs-comment">// Only read committed messages</span>
+</code></pre>
+<p><strong>In practice:</strong> Exactly-once across systems is very hard. GSTN uses <strong>at-least-once + idempotency</strong> — process messages at least once, but design handlers to be idempotent (processing same message twice has no side effect).</p>
+<hr>
+<h3 id="q118-dead-letter-queue-dlq">Q118. Dead Letter Queue (DLQ)?</h3>
+<p><strong>Answer:</strong></p>
+<pre><code class="language-java"><span class="hljs-comment">// GSTN Kafka Consumer with error topic handling</span>
+<span class="hljs-comment">// From Consumer.java in KafkaConsumerFwk</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">scheduleErrorTopicConsumptionAt</span><span class="hljs-params">(<span class="hljs-type">int</span> startHr, <span class="hljs-type">int</span> startMin, <span class="hljs-type">int</span> startSec, 
+                                             <span class="hljs-type">long</span> stopInSecs)</span> {
+    <span class="hljs-type">ScheduledExecutorService</span> <span class="hljs-variable">scheduledExecutorService</span> <span class="hljs-operator">=</span> Executors.newScheduledThreadPool(<span class="hljs-number">2</span>);
+    scheduledExecutorService.scheduleAtFixedRate(<span class="hljs-comment">/* consume error topic */</span>);
+}
+</code></pre>
+<p><strong>DLQ pattern:</strong></p>
+<pre><code>Main Topic → Consumer tries processing
+    ↓ Failure (parse error, validation)
+Retry Topic → Retry 3 times with backoff
+    ↓ Still failing
+DLQ Topic → Stores permanently for manual investigation
+</code></pre>
+<pre><code class="language-java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">processMessage</span><span class="hljs-params">(ConsumerRecord&lt;String, String&gt; record)</span> {
+    <span class="hljs-keyword">try</span> {
+        businessLogic(record.value());
+    } <span class="hljs-keyword">catch</span> (TransientException e) {
+        <span class="hljs-comment">// Retryable — publish to retry topic</span>
+        kafkaProducer.send(<span class="hljs-string">&quot;FILING_RETRY_TOPIC&quot;</span>, record.value());
+    } <span class="hljs-keyword">catch</span> (PoisonMessageException e) {
+        <span class="hljs-comment">// Non-retryable — publish to DLQ</span>
+        kafkaProducer.send(<span class="hljs-string">&quot;FILING_DLQ_TOPIC&quot;</span>, record.value());
+        LOGGER.error(<span class="hljs-string">&quot;Poison message sent to DLQ: {}&quot;</span>, record.key());
+    }
+}
+</code></pre>
+<hr>
+<h3 id="q119q125-consumer-lag-kafka-vs-rabbitmq-streams-schema-registry-retention-back-pressure-connect">Q119–Q125. Consumer Lag, Kafka vs RabbitMQ, Streams, Schema Registry, Retention, Back-pressure, Connect</h3>
+<p><strong>Q119. Consumer lag monitoring:</strong></p>
+<ul>
+<li>Monitor with: <code>kafka-consumer-groups.sh --describe</code>, Burrow, Grafana dashboards</li>
+<li>During GSTN filing season: if lag increases → scale consumers (add more instances to consumer group) or increase partitions</li>
+<li>Alert thresholds: Warning at 10K lag, Critical at 100K lag</li>
+</ul>
+<p><strong>Q120. Kafka vs RabbitMQ vs SQS:</strong></p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>Kafka</th>
+<th>RabbitMQ</th>
+<th>SQS</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Model</td>
+<td>Log-based (pull)</td>
+<td>Message queue (push)</td>
+<td>Managed queue</td>
+</tr>
+<tr>
+<td>Throughput</td>
+<td><strong>Millions/sec</strong></td>
+<td>Thousands/sec</td>
+<td>Thousands/sec</td>
+</tr>
+<tr>
+<td>Replay</td>
+<td><strong>Yes</strong> (retention-based)</td>
+<td>No (consumed = gone)</td>
+<td>No</td>
+</tr>
+<tr>
+<td>Ordering</td>
+<td>Per-partition</td>
+<td>Per-queue</td>
+<td>FIFO queues</td>
+</tr>
+<tr>
+<td>Best for</td>
+<td>Event streaming, GSTN</td>
+<td>Task distribution, RPC</td>
+<td>AWS-native, simple queues</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Q121. Kafka Streams vs Flink:</strong></p>
+<ul>
+<li>Kafka Streams: Library (no separate cluster), simple stateful processing</li>
+<li>Flink: Standalone cluster, complex event processing, windowing, exactly-once</li>
+</ul>
+<p><strong>Q122. Schema evolution (Avro + Schema Registry):</strong></p>
+<ul>
+<li>Schema Registry stores Avro schemas centrally</li>
+<li>Backward/Forward compatibility checks prevent breaking changes</li>
+<li>GSTN could use for evolving return filing event schemas</li>
+</ul>
+<p><strong>Q123. Retention policies:</strong></p>
+<ul>
+<li>Time-based: <code>retention.ms=604800000</code> (7 days)</li>
+<li>Size-based: <code>retention.bytes=1073741824</code> (1GB per partition)</li>
+<li>Compacted: Keep only latest value per key (good for state stores)</li>
+</ul>
+<p><strong>Q124. Back-pressure handling:</strong></p>
+<ul>
+<li>Increase consumers (scale horizontally)</li>
+<li>Increase partitions (more parallelism)</li>
+<li><code>max.poll.records</code> — limit records per poll</li>
+<li>Pause/resume partitions based on processing capacity</li>
+</ul>
+<p><strong>Q125. Kafka Connect:</strong></p>
+<ul>
+<li>Source connectors: DB → Kafka (CDC with Debezium)</li>
+<li>Sink connectors: Kafka → DB/Elasticsearch/S3</li>
+<li>GSTN uses SolrDIHFwk for similar data ingestion patterns</li>
+</ul>
+<hr>
+<h1 id="section-6-redis-q126q135">SECTION 6: REDIS (Q126–Q135)</h1>
+<h3 id="q126-redis-data-structures">Q126. Redis data structures?</h3>
+<p><strong>Answer:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Data Structure</th>
+<th>Use Case in GSTN</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>String</strong></td>
+<td>Session tokens, simple key-value cache (<code>authToken → userId</code>)</td>
+</tr>
+<tr>
+<td><strong>Hash</strong></td>
+<td>Store taxpayer session data (<code>session:12345 → {gstin, role, loginTime}</code>)</td>
+</tr>
+<tr>
+<td><strong>List</strong></td>
+<td>Recent activity log, message queue</td>
+</tr>
+<tr>
+<td><strong>Set</strong></td>
+<td>Unique GSTIN tracking, deduplication</td>
+</tr>
+<tr>
+<td><strong>Sorted Set</strong></td>
+<td>Rate limiting (scored by timestamp), leaderboards</td>
+</tr>
+<tr>
+<td><strong>HyperLogLog</strong></td>
+<td>Count unique visitors/GSTINs (approximate)</td>
+</tr>
+</tbody>
+</table>
+<p><strong>GSTN DistCacheUtil methods:</strong></p>
+<pre><code class="language-java"><span class="hljs-comment">// String operations — simple caching</span>
+<span class="hljs-keyword">public</span> GSTMaster <span class="hljs-title function_">getGstMstrDetails</span><span class="hljs-params">(String uid)</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">addToEntityDetailsCache</span><span class="hljs-params">(String userName, List&lt;EntityDetails&gt; entityList)</span>
+
+<span class="hljs-comment">// Session management</span>
+<span class="hljs-keyword">public</span> EntityDetails <span class="hljs-title function_">getEntityDetails</span><span class="hljs-params">(String userName)</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">addToCaptchaCacheForAudio</span><span class="hljs-params">(String token, String captchaAnswer)</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">removeCaptchaForAudio</span><span class="hljs-params">(String token)</span>
+
+<span class="hljs-comment">// Risk assessment caching</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">addToRiskAssesmentCache</span><span class="hljs-params">(String key, RiskAssessment value)</span>
+<span class="hljs-keyword">public</span> RiskAssessment <span class="hljs-title function_">getRiskAssesmentCacheValue</span><span class="hljs-params">(String key)</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">removeFromRiskAssesmentCache</span><span class="hljs-params">(String key)</span>
+
+<span class="hljs-comment">// OTP caching</span>
+<span class="hljs-keyword">public</span> String <span class="hljs-title function_">getOtpCacheValue</span><span class="hljs-params">(String username)</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">removeFromOtpCache</span><span class="hljs-params">(String username)</span>
+</code></pre>
+<hr>
+<h3 id="q127-redis-eviction-policies">Q127. Redis eviction policies?</h3>
+<p><strong>Answer:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Policy</th>
+<th>Evicts From</th>
+<th>Algorithm</th>
+<th>Use Case</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>noeviction</code></td>
+<td>Nothing</td>
+<td>Return error</td>
+<td>When data loss is unacceptable</td>
+</tr>
+<tr>
+<td><code>allkeys-lru</code></td>
+<td>All keys</td>
+<td><strong>LRU</strong></td>
+<td>General-purpose cache</td>
+</tr>
+<tr>
+<td><code>volatile-lru</code></td>
+<td>Keys with TTL</td>
+<td>LRU</td>
+<td>Mixed: cache + persistent data</td>
+</tr>
+<tr>
+<td><code>allkeys-lfu</code></td>
+<td>All keys</td>
+<td><strong>LFU</strong></td>
+<td>Frequency-based (hot data stays)</td>
+</tr>
+<tr>
+<td><code>volatile-ttl</code></td>
+<td>Keys with TTL</td>
+<td>Shortest TTL first</td>
+<td>Time-sensitive data</td>
+</tr>
+</tbody>
+</table>
+<p><strong>For GSTN session cache:</strong> <code>volatile-lru</code> — sessions have TTL, evict least recently used when memory is full. Reference data (state codes, HSN codes) doesn't have TTL and is preserved.</p>
+<hr>
+<h3 id="q128-cache-aside-vs-write-through-vs-write-behind">Q128. Cache-aside vs Write-through vs Write-behind?</h3>
+<p><strong>Answer:</strong></p>
+<p><strong>Cache-Aside (Lazy Loading) — GSTN's pattern:</strong></p>
+<pre><code class="language-java"><span class="hljs-comment">// GSTN&#x27;s DistCacheUtil implements cache-aside</span>
+<span class="hljs-keyword">public</span> GSTMaster <span class="hljs-title function_">getGstMstrDetails</span><span class="hljs-params">(String uid)</span> {
+    <span class="hljs-comment">// 1. Check cache first</span>
+    <span class="hljs-type">GSTMaster</span> <span class="hljs-variable">cached</span> <span class="hljs-operator">=</span> cache.get(<span class="hljs-string">&quot;gstm:&quot;</span> + uid);
+    <span class="hljs-keyword">if</span> (cached != <span class="hljs-literal">null</span>) <span class="hljs-keyword">return</span> cached;
+    
+    <span class="hljs-comment">// 2. Cache miss → query database</span>
+    <span class="hljs-type">GSTMaster</span> <span class="hljs-variable">fromDb</span> <span class="hljs-operator">=</span> repository.findByUid(uid);
+    
+    <span class="hljs-comment">// 3. Put in cache for next time</span>
+    cache.put(<span class="hljs-string">&quot;gstm:&quot;</span> + uid, fromDb, TTL_SECONDS);
+    <span class="hljs-keyword">return</span> fromDb;
+}
+</code></pre>
+<table>
+<thead>
+<tr>
+<th>Pattern</th>
+<th>Write</th>
+<th>Read</th>
+<th>Consistency</th>
+<th>GSTN?</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Cache-Aside</strong></td>
+<td>Write to DB, invalidate cache</td>
+<td>Check cache → miss → read DB → cache</td>
+<td>Eventual</td>
+<td><strong>Yes</strong></td>
+</tr>
+<tr>
+<td>Write-Through</td>
+<td>Write to cache AND DB simultaneously</td>
+<td>Read from cache</td>
+<td>Strong</td>
+<td>No</td>
+</tr>
+<tr>
+<td>Write-Behind</td>
+<td>Write to cache → async write to DB</td>
+<td>Read from cache</td>
+<td>Eventual</td>
+<td>No</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Why Cache-Aside for GSTN:</strong> Simple, tolerant of cache failures (fallback to DB), no cache dependency for writes.</p>
+<hr>
+<h3 id="q129-cache-invalidation-strategies">Q129. Cache invalidation strategies?</h3>
+<p><strong>Answer:</strong></p>
+<ol>
+<li><strong>TTL (Time-To-Live)</strong>: Auto-expire after fixed time — simplest, used for sessions</li>
+<li><strong>Event-driven</strong>: When data changes, publish event → invalidate cache</li>
+<li><strong>Versioned keys</strong>: <code>gstm:v2:29AAACG1234A1ZD</code> — increment version on update</li>
+</ol>
+<pre><code class="language-java"><span class="hljs-comment">// GSTN pattern — TTL-based with explicit invalidation</span>
+<span class="hljs-comment">// Set with TTL</span>
+distCacheUtil.addToEntityDetailsCache(userName, entityList); <span class="hljs-comment">// Has TTL</span>
+
+<span class="hljs-comment">// Explicit removal when data changes</span>
+distCacheUtil.removeFromRiskAssesmentCache(key);
+distCacheUtil.removeFromOtpCache(username);
+distCacheUtil.removeCaptchaForAudio(token);
+</code></pre>
+<p><strong>When taxpayer data updates:</strong></p>
+<ol>
+<li>Save to DB → publish &quot;TAXPAYER_UPDATED&quot; to Kafka</li>
+<li>Cache invalidation consumer → removes cached entry from Redis</li>
+<li>Next read → cache miss → fresh data from DB → re-cached</li>
+</ol>
+<hr>
+<h3 id="q130-redis-cluster-vs-sentinel">Q130. Redis Cluster vs Sentinel?</h3>
+<p><strong>Answer:</strong></p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>Redis Sentinel</th>
+<th>Redis Cluster</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Purpose</td>
+<td><strong>High availability</strong> (failover)</td>
+<td><strong>Horizontal scaling</strong> (sharding + HA)</td>
+</tr>
+<tr>
+<td>Data distribution</td>
+<td>All data on ONE master</td>
+<td>Data <strong>sharded</strong> across masters</td>
+</tr>
+<tr>
+<td>Scaling</td>
+<td>Vertical only</td>
+<td>Horizontal (add nodes)</td>
+</tr>
+<tr>
+<td>Failover</td>
+<td>Monitor → detect failure → promote replica</td>
+<td>Built-in (gossip protocol)</td>
+</tr>
+<tr>
+<td>Storage</td>
+<td>Limited by single node RAM</td>
+<td>RAM of ALL nodes combined</td>
+</tr>
+</tbody>
+</table>
+<p><strong>GSTN:</strong> For large-scale distributed caching with 14M+ taxpayers, Redis Cluster provides both sharding and high availability.</p>
+<hr>
+<h3 id="q131-distributed-locking-with-redis-redissonredlock">Q131. Distributed locking with Redis (Redisson/RedLock)?</h3>
+<p><strong>Answer:</strong></p>
+<p><strong>Scenario:</strong> Prevent duplicate GST return processing when same return arrives from multiple queues.</p>
+<pre><code class="language-java"><span class="hljs-comment">// Using Redisson distributed lock</span>
+<span class="hljs-type">RLock</span> <span class="hljs-variable">lock</span> <span class="hljs-operator">=</span> redissonClient.getLock(<span class="hljs-string">&quot;return-lock:&quot;</span> + gstin + <span class="hljs-string">&quot;:&quot;</span> + period);
+<span class="hljs-keyword">try</span> {
+    <span class="hljs-keyword">if</span> (lock.tryLock(<span class="hljs-number">10</span>, <span class="hljs-number">60</span>, TimeUnit.SECONDS)) { <span class="hljs-comment">// Wait 10s, lock for 60s</span>
+        <span class="hljs-keyword">try</span> {
+            <span class="hljs-comment">// Check if already processed</span>
+            <span class="hljs-keyword">if</span> (!isAlreadyProcessed(gstin, period)) {
+                processReturn(gstin, period);
+            }
+        } <span class="hljs-keyword">finally</span> {
+            lock.unlock();
+        }
+    }
+} <span class="hljs-keyword">catch</span> (InterruptedException e) {
+    Thread.currentThread().interrupt();
+}
+</code></pre>
+<p><strong>RedLock (multi-node):</strong> Acquire lock on majority of Redis instances (N/2 + 1) → even if one Redis node fails, lock is still valid. Required for true distributed locking.</p>
+<hr>
+<h3 id="q132q135-pubsub-vs-kafka-persistence-cache-stampede-pipelining">Q132–Q135. Pub/Sub vs Kafka, Persistence, Cache Stampede, Pipelining</h3>
+<p><strong>Q132. Redis Pub/Sub vs Kafka:</strong></p>
+<ul>
+<li>Redis Pub/Sub: Fire-and-forget, no persistence, no replay, simple → notifications</li>
+<li>Kafka: Durable, replayable, consumer groups → event processing. GSTN uses Kafka for critical events.</li>
+</ul>
+<p><strong>Q133. Redis persistence:</strong></p>
+<ul>
+<li><strong>RDB</strong>: Point-in-time snapshots → fast recovery but data loss between snapshots</li>
+<li><strong>AOF</strong>: Log every write → slower but minimal data loss</li>
+<li><strong>GSTN</strong>: RDB + AOF combined for balance</li>
+</ul>
+<p><strong>Q134. Cache stampede:</strong>
+When cache key expires → many concurrent requests all hit DB simultaneously.
+Solutions:</p>
+<ul>
+<li><strong>Locking</strong>: First request fetches, others wait</li>
+<li><strong>Early expiry</strong>: Refresh before TTL expires</li>
+<li><strong>Probabilistic early expiry</strong>: Random chance to refresh before expiry</li>
+</ul>
+<p><strong>Q135. Redis pipelining:</strong>
+Send multiple commands without waiting for individual responses → reduces network round trips. Lua scripting for atomic multi-step operations (e.g., check-and-set for rate limiting).</p>
+
+            
+            
+        </body>
+        </html>

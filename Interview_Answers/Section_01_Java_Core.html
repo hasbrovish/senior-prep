@@ -1,0 +1,1368 @@
+<!DOCTYPE html>
+        <html>
+        <head>
+            <meta charset="UTF-8">
+            <title>SECTION 1&colon; JAVA CORE &mdash; Interview Answers &lpar;Q1&ndash;Q25&rpar;</title>
+            <style>
+/* From extension vscode.github */
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+
+.vscode-dark img[src$=\#gh-light-mode-only],
+.vscode-light img[src$=\#gh-dark-mode-only],
+.vscode-high-contrast:not(.vscode-high-contrast-light) img[src$=\#gh-light-mode-only],
+.vscode-high-contrast-light img[src$=\#gh-dark-mode-only] {
+	display: none;
+}
+
+</style>
+            
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Microsoft/vscode/extensions/markdown-language-features/media/markdown.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Microsoft/vscode/extensions/markdown-language-features/media/highlight.css">
+<style>
+            body {
+                font-family: -apple-system, BlinkMacSystemFont, 'Segoe WPC', 'Segoe UI', system-ui, 'Ubuntu', 'Droid Sans', sans-serif;
+                font-size: 14px;
+                line-height: 1.6;
+            }
+        </style>
+        <style>
+.task-list-item {
+    list-style-type: none;
+}
+
+.task-list-item-checkbox {
+    margin-left: -20px;
+    vertical-align: middle;
+    pointer-events: none;
+}
+</style>
+<style>
+:root {
+  --color-note: #0969da;
+  --color-tip: #1a7f37;
+  --color-warning: #9a6700;
+  --color-severe: #bc4c00;
+  --color-caution: #d1242f;
+  --color-important: #8250df;
+}
+
+</style>
+<style>
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-note: #2f81f7;
+    --color-tip: #3fb950;
+    --color-warning: #d29922;
+    --color-severe: #db6d28;
+    --color-caution: #f85149;
+    --color-important: #a371f7;
+  }
+}
+
+</style>
+<style>
+.markdown-alert {
+  padding: 0.5rem 1rem;
+  margin-bottom: 16px;
+  color: inherit;
+  border-left: .25em solid #888;
+}
+
+.markdown-alert>:first-child {
+  margin-top: 0
+}
+
+.markdown-alert>:last-child {
+  margin-bottom: 0
+}
+
+.markdown-alert .markdown-alert-title {
+  display: flex;
+  font-weight: 500;
+  align-items: center;
+  line-height: 1
+}
+
+.markdown-alert .markdown-alert-title .octicon {
+  margin-right: 0.5rem;
+  display: inline-block;
+  overflow: visible !important;
+  vertical-align: text-bottom;
+  fill: currentColor;
+}
+
+.markdown-alert.markdown-alert-note {
+  border-left-color: var(--color-note);
+}
+
+.markdown-alert.markdown-alert-note .markdown-alert-title {
+  color: var(--color-note);
+}
+
+.markdown-alert.markdown-alert-important {
+  border-left-color: var(--color-important);
+}
+
+.markdown-alert.markdown-alert-important .markdown-alert-title {
+  color: var(--color-important);
+}
+
+.markdown-alert.markdown-alert-warning {
+  border-left-color: var(--color-warning);
+}
+
+.markdown-alert.markdown-alert-warning .markdown-alert-title {
+  color: var(--color-warning);
+}
+
+.markdown-alert.markdown-alert-tip {
+  border-left-color: var(--color-tip);
+}
+
+.markdown-alert.markdown-alert-tip .markdown-alert-title {
+  color: var(--color-tip);
+}
+
+.markdown-alert.markdown-alert-caution {
+  border-left-color: var(--color-caution);
+}
+
+.markdown-alert.markdown-alert-caution .markdown-alert-title {
+  color: var(--color-caution);
+}
+
+</style>
+        
+        </head>
+        <body class="vscode-body vscode-light">
+            <h1 id="section-1-java-core--interview-answers-q1q25">SECTION 1: JAVA CORE — Interview Answers (Q1–Q25)</h1>
+<h2 id="with-gstn-codebase-references">With GSTN Codebase References</h2>
+<hr>
+<h3 id="q1-how-does-hashmap-work-internally-what-happens-during-hash-collision-what-changed-in-java-8">Q1. How does HashMap work internally? What happens during hash collision? What changed in Java 8?</h3>
+<p><strong>Answer:</strong></p>
+<p>HashMap internally uses an <strong>array of Node (bucket array)</strong>. Each Node contains: <code>hash</code>, <code>key</code>, <code>value</code>, <code>next</code>.</p>
+<p><strong>How put() works:</strong></p>
+<ol>
+<li>Compute <code>hash(key)</code> → <code>hashCode() ^ (hashCode &gt;&gt;&gt; 16)</code> (spreads higher bits)</li>
+<li>Calculate bucket index: <code>(n - 1) &amp; hash</code> where n = array length</li>
+<li>If bucket is empty → insert new Node</li>
+<li>If bucket occupied → <strong>hash collision</strong> → compare keys using <code>equals()</code>
+<ul>
+<li>Same key → overwrite value</li>
+<li>Different key → chain as linked list</li>
+</ul>
+</li>
+</ol>
+<p><strong>What changed in Java 8:</strong></p>
+<ul>
+<li><strong>Treeification</strong>: When a bucket's linked list exceeds <strong>8 nodes</strong> (and array size ≥ 64), the list converts to a <strong>Red-Black Tree</strong>, reducing worst-case lookup from O(n) to O(log n)</li>
+<li>When tree shrinks below <strong>6 nodes</strong>, it converts back to linked list</li>
+<li>Hash function was simplified (single XOR vs multiple in Java 7)</li>
+</ul>
+<p><strong>GSTN Example:</strong> In our codebase, we use <code>HashMap</code> extensively for building response maps. For example, in <code>DistCacheUtil</code>, we maintain <code>Map&lt;String, List&lt;String&gt;&gt; msgMap</code> for error code lookups — these maps are read-heavy and rarely have collisions since keys are well-distributed error codes.</p>
+<pre><code class="language-java"><span class="hljs-comment">// From GSTLogicalException.java — error message registry</span>
+<span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> Map&lt;String, List&lt;String&gt;&gt; msgMap;  <span class="hljs-comment">// HashMap for error code → message mapping</span>
+</code></pre>
+<p><strong>Interview Tip:</strong> Mention that the default initial capacity is 16, load factor is 0.75, and resizing doubles the array and rehashes all entries.</p>
+<hr>
+<h3 id="q2-difference-between-hashmap-linkedhashmap-treemap-and-concurrenthashmap-which-did-you-use-in-gstn-and-why">Q2. Difference between HashMap, LinkedHashMap, TreeMap, and ConcurrentHashMap? Which did you use in GSTN and why?</h3>
+<p><strong>Answer:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Feature</th>
+<th>HashMap</th>
+<th>LinkedHashMap</th>
+<th>TreeMap</th>
+<th>ConcurrentHashMap</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Ordering</td>
+<td>No order</td>
+<td><strong>Insertion order</strong></td>
+<td><strong>Sorted (natural/comparator)</strong></td>
+<td>No order</td>
+</tr>
+<tr>
+<td>Null keys</td>
+<td>1 null key</td>
+<td>1 null key</td>
+<td><strong>No null keys</strong></td>
+<td><strong>No null keys/values</strong></td>
+</tr>
+<tr>
+<td>Thread-safe</td>
+<td>No</td>
+<td>No</td>
+<td>No</td>
+<td><strong>Yes</strong></td>
+</tr>
+<tr>
+<td>Time complexity</td>
+<td>O(1) avg</td>
+<td>O(1) avg</td>
+<td><strong>O(log n)</strong></td>
+<td>O(1) avg</td>
+</tr>
+<tr>
+<td>Implementation</td>
+<td>Array + LinkedList/Tree</td>
+<td>Array + Doubly-linked list</td>
+<td><strong>Red-Black Tree</strong></td>
+<td>Segment-based (Java 7) / CAS + synchronized (Java 8)</td>
+</tr>
+</tbody>
+</table>
+<p><strong>GSTN Usage:</strong></p>
+<ul>
+<li><strong>HashMap</strong>: Most common — response building, request parameter mapping. In <code>Anx1aServiceImpl</code>, we use HashMap for building JSON response structures.</li>
+<li><strong>ConcurrentHashMap</strong>: Used in our Kafka configuration. <code>KafkaConsumerConfig</code> uses it as a singleton with concurrent access from multiple consumer threads. Also used in <code>DistCacheUtil</code> for thread-safe local caching.</li>
+<li><strong>LinkedHashMap</strong>: Used where we need insertion-order iteration — e.g., maintaining ordered list of GSTR sections for filing sequence.</li>
+<li><strong>TreeMap</strong>: Used in audit/reporting where sorted display of data (by date, by GSTIN) is required.</li>
+</ul>
+<pre><code class="language-java"><span class="hljs-comment">// ConcurrentHashMap example — from KafkaConsumerConfig (thread-safe config)</span>
+<span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> <span class="hljs-type">KafkaConsumerConfig</span> <span class="hljs-variable">instance</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">KafkaConsumerConfig</span>(); <span class="hljs-comment">// Singleton with thread-safe maps</span>
+
+<span class="hljs-comment">// HashMap example — response building in controllers</span>
+Map&lt;String, Object&gt; responseMap = <span class="hljs-keyword">new</span> <span class="hljs-title class_">HashMap</span>&lt;&gt;();
+responseMap.put(<span class="hljs-string">&quot;statusCode&quot;</span>, <span class="hljs-string">&quot;SUCCESS&quot;</span>);
+responseMap.put(<span class="hljs-string">&quot;data&quot;</span>, result);
+</code></pre>
+<hr>
+<h3 id="q3-how-does-concurrenthashmap-achieve-thread-safety-how-is-it-different-from-collectionssynchronizedmap">Q3. How does ConcurrentHashMap achieve thread safety? How is it different from Collections.synchronizedMap()?</h3>
+<p><strong>Answer:</strong></p>
+<p><strong>ConcurrentHashMap (Java 8+):</strong></p>
+<ul>
+<li>Uses <strong>CAS (Compare-And-Swap)</strong> operations for lock-free reads</li>
+<li><strong>synchronized block on individual bucket</strong> (node-level locking) for writes</li>
+<li>Multiple threads can <strong>read and write concurrently</strong> on different buckets</li>
+<li>No locking for reads at all — uses <code>volatile</code> reads</li>
+<li>Size computation uses <code>CounterCell</code> array (distributed counting)</li>
+</ul>
+<p><strong>Java 7 ConcurrentHashMap:</strong> Used <strong>Segment-based locking</strong> (16 segments by default), each segment was essentially a mini-HashMap with its own lock.</p>
+<p><strong>Collections.synchronizedMap():</strong></p>
+<ul>
+<li>Wraps every method with <code>synchronized(mutex)</code> — <strong>one global lock</strong></li>
+<li>Only <strong>one thread</strong> can access the map at any time (read OR write)</li>
+<li>Iterators are NOT thread-safe — need external synchronization</li>
+</ul>
+<p><strong>Key Differences:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Aspect</th>
+<th>ConcurrentHashMap</th>
+<th>synchronizedMap</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Lock granularity</td>
+<td>Per-bucket / CAS</td>
+<td>Entire map</td>
+</tr>
+<tr>
+<td>Read concurrency</td>
+<td><strong>Lock-free</strong></td>
+<td>Blocked by writes</td>
+</tr>
+<tr>
+<td>Iterator</td>
+<td><strong>Weakly consistent</strong></td>
+<td>Fail-fast</td>
+</tr>
+<tr>
+<td>Null keys/values</td>
+<td><strong>Not allowed</strong></td>
+<td>Allowed</td>
+</tr>
+<tr>
+<td>Performance</td>
+<td><strong>Much better</strong> under contention</td>
+<td>Poor under contention</td>
+</tr>
+</tbody>
+</table>
+<p><strong>GSTN Context:</strong> In GSTN where we handle 100K+ concurrent requests during filing season, we use ConcurrentHashMap in our framework components like <code>DistCacheUtil</code> and <code>KafkaConsumerConfig</code> — using synchronizedMap would create severe contention bottlenecks.</p>
+<hr>
+<h3 id="q4-arraylist-vs-linkedlist--when-to-use-each-internal-resizing-of-arraylist">Q4. ArrayList vs LinkedList — when to use each? Internal resizing of ArrayList?</h3>
+<p><strong>Answer:</strong></p>
+<p><strong>ArrayList:</strong></p>
+<ul>
+<li>Backed by <strong>dynamic array</strong> (<code>Object[] elementData</code>)</li>
+<li><strong>Fast random access</strong>: O(1) via index</li>
+<li><strong>Slow insert/delete in middle</strong>: O(n) — shifts elements</li>
+<li><strong>Memory</strong>: Contiguous, cache-friendly</li>
+</ul>
+<p><strong>LinkedList:</strong></p>
+<ul>
+<li><strong>Doubly-linked list</strong> — each node has <code>prev</code>, <code>item</code>, <code>next</code></li>
+<li><strong>Slow random access</strong>: O(n) — traverse from head/tail</li>
+<li><strong>Fast insert/delete at known position</strong>: O(1) if iterator positioned</li>
+<li><strong>More memory overhead</strong>: Each node = object overhead + 2 pointers + data</li>
+<li>Also implements <strong>Deque</strong> — can be used as stack/queue</li>
+</ul>
+<p><strong>ArrayList Resizing:</strong></p>
+<ol>
+<li>Default initial capacity: <strong>10</strong></li>
+<li>When full: new capacity = <strong>oldCapacity + (oldCapacity &gt;&gt; 1)</strong> = <strong>1.5x growth</strong></li>
+<li>Uses <code>Arrays.copyOf()</code> → creates new array and copies elements</li>
+<li>Best practice: <strong>pre-size</strong> with <code>new ArrayList&lt;&gt;(expectedSize)</code> to avoid resizing</li>
+</ol>
+<p><strong>GSTN Usage:</strong> We overwhelmingly use <code>ArrayList</code> because:</p>
+<ul>
+<li>Most operations are iteration and random access (building responses, processing lists of GSTINs)</li>
+<li>In our controllers, we receive and return <code>List&lt;CaseAllocationDetailsVO&gt;</code> — always ArrayList</li>
+<li>We use <code>subList()</code> for chunking large lists (CR27145 pattern in <code>CaseMgmtController</code>)</li>
+</ul>
+<pre><code class="language-java"><span class="hljs-comment">// From CaseMgmtController — chunking pattern with ArrayList</span>
+<span class="hljs-meta">@PostMapping(value = &quot;/auth/api/case/create&quot;)</span>
+<span class="hljs-keyword">public</span> <span class="hljs-meta">@ResponseBody</span> Object <span class="hljs-title function_">createCaseApp</span><span class="hljs-params">(
+    <span class="hljs-meta">@RequestBody</span> List&lt;CaseAllocationDetailsVO&gt; caseAllocationDetailsListVO)</span> {
+    <span class="hljs-comment">// Lists are ArrayList — used for iteration and chunking</span>
+}
+</code></pre>
+<hr>
+<h3 id="q5-how-does-hashset-work-internally-whats-the-relationship-between-equals-and-hashcode">Q5. How does HashSet work internally? What's the relationship between equals() and hashCode()?</h3>
+<p><strong>Answer:</strong></p>
+<p><strong>HashSet internally uses a HashMap!</strong></p>
+<pre><code class="language-java"><span class="hljs-comment">// JDK source</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">HashSet</span>&lt;E&gt; <span class="hljs-keyword">implements</span> <span class="hljs-title class_">Set</span>&lt;E&gt; {
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">transient</span> HashMap&lt;E, Object&gt; map;
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">final</span> <span class="hljs-type">Object</span> <span class="hljs-variable">PRESENT</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">Object</span>(); <span class="hljs-comment">// dummy value</span>
+    
+    <span class="hljs-keyword">public</span> <span class="hljs-type">boolean</span> <span class="hljs-title function_">add</span><span class="hljs-params">(E e)</span> {
+        <span class="hljs-keyword">return</span> map.put(e, PRESENT) == <span class="hljs-literal">null</span>; <span class="hljs-comment">// key = element, value = dummy</span>
+    }
+}
+</code></pre>
+<p><strong>equals() and hashCode() contract:</strong></p>
+<ol>
+<li>If <code>a.equals(b)</code> is true → <code>a.hashCode() == b.hashCode()</code> MUST be true</li>
+<li>If <code>a.hashCode() == b.hashCode()</code> → <code>a.equals(b)</code> MAY or MAY NOT be true (collision)</li>
+<li>If you override <code>equals()</code>, you MUST override <code>hashCode()</code></li>
+</ol>
+<p><strong>Why this matters:</strong></p>
+<ul>
+<li>HashMap/HashSet first checks <code>hashCode()</code> to find the bucket</li>
+<li>Then checks <code>equals()</code> to find exact match within the bucket</li>
+<li>If you break the contract: objects that are &quot;equal&quot; may land in different buckets → duplicates in Set, missed lookups in Map</li>
+</ul>
+<p><strong>GSTN Example:</strong> In our entity classes, we use Lombok's <code>@EqualsAndHashCode</code> for composite keys:</p>
+<pre><code class="language-java"><span class="hljs-comment">// From ApplnPK.java — composite key with proper equals/hashCode</span>
+<span class="hljs-meta">@Embeddable</span>
+<span class="hljs-meta">@EqualsAndHashCode</span>  <span class="hljs-comment">// Lombok generates consistent equals() and hashCode()</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">ApplnPK</span> <span class="hljs-keyword">implements</span> <span class="hljs-title class_">Serializable</span> {
+    <span class="hljs-meta">@ManyToOne</span>
+    <span class="hljs-meta">@JoinColumn(name = &quot;APPLN_DETL_ID&quot;)</span>
+    <span class="hljs-keyword">private</span> ApplnDraftDetlEntity applnDrftDetl;
+    
+    <span class="hljs-meta">@Column(name = &quot;VER_ID&quot;)</span>
+    <span class="hljs-keyword">private</span> Integer versionId;
+}
+</code></pre>
+<hr>
+<h3 id="q6-what-is-the-fail-fast-vs-fail-safe-iterator-which-collections-use-which">Q6. What is the fail-fast vs fail-safe iterator? Which collections use which?</h3>
+<p><strong>Answer:</strong></p>
+<p><strong>Fail-Fast Iterator:</strong></p>
+<ul>
+<li>Throws <code>ConcurrentModificationException</code> if collection is <strong>structurally modified</strong> during iteration</li>
+<li>Uses internal <code>modCount</code> — iterator checks if modCount changed</li>
+<li><strong>Collections</strong>: ArrayList, HashMap, HashSet, LinkedList, TreeMap</li>
+<li>Happens even in single-threaded context (e.g., modifying list inside for-each loop)</li>
+</ul>
+<pre><code class="language-java"><span class="hljs-comment">// Fails with ConcurrentModificationException</span>
+List&lt;String&gt; list = <span class="hljs-keyword">new</span> <span class="hljs-title class_">ArrayList</span>&lt;&gt;(Arrays.asList(<span class="hljs-string">&quot;A&quot;</span>, <span class="hljs-string">&quot;B&quot;</span>, <span class="hljs-string">&quot;C&quot;</span>));
+<span class="hljs-keyword">for</span> (String s : list) {
+    <span class="hljs-keyword">if</span> (s.equals(<span class="hljs-string">&quot;B&quot;</span>)) list.remove(s); <span class="hljs-comment">// BOOM!</span>
+}
+
+<span class="hljs-comment">// Correct way: use Iterator.remove()</span>
+Iterator&lt;String&gt; it = list.iterator();
+<span class="hljs-keyword">while</span> (it.hasNext()) {
+    <span class="hljs-keyword">if</span> (it.next().equals(<span class="hljs-string">&quot;B&quot;</span>)) it.remove(); <span class="hljs-comment">// Safe</span>
+}
+</code></pre>
+<p><strong>Fail-Safe Iterator:</strong></p>
+<ul>
+<li>Works on a <strong>clone/snapshot</strong> of the collection — never throws CME</li>
+<li>May not reflect latest modifications</li>
+<li><strong>Collections</strong>: <code>ConcurrentHashMap</code>, <code>CopyOnWriteArrayList</code>, <code>CopyOnWriteArraySet</code></li>
+<li>Called <strong>&quot;weakly consistent&quot;</strong> in Java docs</li>
+</ul>
+<p><strong>GSTN Context:</strong> In our multi-threaded Kafka consumer processing, we use ConcurrentHashMap with its weakly-consistent iterators. When multiple consumer threads update shared state, fail-safe iteration ensures no exceptions. For single-threaded response building, we use ArrayList with fail-fast iterators since there's no concurrent modification risk.</p>
+<hr>
+<h3 id="q7-priorityqueue-internals--how-does-it-work-when-would-you-use-it-in-a-backend-service">Q7. PriorityQueue internals — how does it work? When would you use it in a backend service?</h3>
+<p><strong>Answer:</strong></p>
+<p><strong>Internals:</strong></p>
+<ul>
+<li>Backed by a <strong>binary min-heap</strong> (array-based)</li>
+<li><code>poll()</code> always returns the <strong>smallest element</strong> (or highest priority)</li>
+<li><code>offer()</code>: O(log n) — sift up</li>
+<li><code>poll()</code>: O(log n) — sift down</li>
+<li><code>peek()</code>: O(1) — just return root</li>
+<li>NOT thread-safe. Use <code>PriorityBlockingQueue</code> for multi-threaded scenarios</li>
+</ul>
+<p><strong>Array representation of heap:</strong></p>
+<ul>
+<li>Parent of index <code>i</code>: <code>(i - 1) / 2</code></li>
+<li>Left child: <code>2 * i + 1</code></li>
+<li>Right child: <code>2 * i + 2</code></li>
+</ul>
+<p><strong>Backend use cases:</strong></p>
+<ol>
+<li><strong>Task scheduling by priority</strong> — process high-priority GST returns before low-priority</li>
+<li><strong>Top-K queries</strong> — finding top K taxpayers by revenue without sorting entire dataset</li>
+<li><strong>Rate limiting</strong> — prioritize requests based on deadline proximity</li>
+<li><strong>Dijkstra's algorithm</strong> — shortest path in service routing</li>
+</ol>
+<p><strong>GSTN Example:</strong> During filing season, if we need to prioritize processing of returns, we could use PriorityQueue to process returns filed closer to the deadline first. In our Kafka consumer framework, the scheduled error topic consumption uses similar priority-based processing.</p>
+<hr>
+<h3 id="q8-thread-lifecycle-in-java-how-do-you-create-threads-thread-class-vs-runnable-vs-callable">Q8. Thread lifecycle in Java? How do you create threads (Thread class vs Runnable vs Callable)?</h3>
+<p><strong>Answer:</strong></p>
+<p><strong>Thread States (6 states):</strong></p>
+<pre><code>NEW → RUNNABLE → (BLOCKED | WAITING | TIMED_WAITING) → TERMINATED
+</code></pre>
+<ol>
+<li><strong>NEW</strong>: Thread created, not yet started</li>
+<li><strong>RUNNABLE</strong>: <code>start()</code> called — eligible to run (includes both ready and running)</li>
+<li><strong>BLOCKED</strong>: Waiting to acquire monitor lock (e.g., entering synchronized block)</li>
+<li><strong>WAITING</strong>: <code>wait()</code>, <code>join()</code>, <code>LockSupport.park()</code> — indefinite wait</li>
+<li><strong>TIMED_WAITING</strong>: <code>sleep(ms)</code>, <code>wait(ms)</code>, <code>join(ms)</code> — bounded wait</li>
+<li><strong>TERMINATED</strong>: <code>run()</code> completed or exception thrown</li>
+</ol>
+<p><strong>Three ways to create threads:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Approach</th>
+<th>Returns value?</th>
+<th>Throws checked exception?</th>
+<th>Usage</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>extends Thread</code></td>
+<td>No</td>
+<td>No</td>
+<td>Simple, but can't extend another class</td>
+</tr>
+<tr>
+<td><code>implements Runnable</code></td>
+<td>No</td>
+<td>No</td>
+<td>Preferred — separates task from thread</td>
+</tr>
+<tr>
+<td><code>implements Callable&lt;V&gt;</code></td>
+<td><strong>Yes (Future<V>)</strong></td>
+<td><strong>Yes</strong></td>
+<td>When you need result or exception</td>
+</tr>
+</tbody>
+</table>
+<p><strong>GSTN Usage:</strong> In our codebase, we primarily use:</p>
+<ul>
+<li><strong>Runnable with ExecutorService</strong> — Kafka consumer threads in <code>ConsumerService</code></li>
+<li><strong>@Async</strong> (Spring-managed) — which internally uses a <code>TaskExecutor</code> thread pool</li>
+</ul>
+<pre><code class="language-java"><span class="hljs-comment">// From AsyncServiceImpl — Spring @Async (Runnable under the hood)</span>
+<span class="hljs-meta">@EnableAsync</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">AsyncServiceImpl</span> {
+    <span class="hljs-meta">@Async</span>
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">addCaptcha</span><span class="hljs-params">(String token, String captchaAnswer)</span> {
+        distCacheUtil.addToCaptchaCacheForAudio(token, captchaAnswer);
+    }
+}
+
+<span class="hljs-comment">// From AsyncConfig — TaskExecutor (thread pool)</span>
+<span class="hljs-meta">@Bean(name = &quot;taskExecutor&quot;)</span>
+<span class="hljs-keyword">public</span> ThreadPoolTaskExecutor <span class="hljs-title function_">taskExecutor</span><span class="hljs-params">()</span> {
+    <span class="hljs-type">ThreadPoolTaskExecutor</span> <span class="hljs-variable">executor</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">ThreadPoolTaskExecutor</span>();
+    executor.setCorePoolSize(<span class="hljs-number">5</span>);
+    executor.setMaxPoolSize(<span class="hljs-number">10</span>);
+    executor.setQueueCapacity(<span class="hljs-number">100</span>);
+    executor.setThreadNamePrefix(<span class="hljs-string">&quot;AsyncThread-&quot;</span>);
+    <span class="hljs-keyword">return</span> executor;
+}
+</code></pre>
+<hr>
+<h3 id="q9-difference-between-synchronized-volatile-and-atomic-classes-when-to-use-each">Q9. Difference between synchronized, volatile, and Atomic classes? When to use each?</h3>
+<p><strong>Answer:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Feature</th>
+<th>synchronized</th>
+<th>volatile</th>
+<th>Atomic (AtomicInteger, etc.)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Mechanism</td>
+<td>Monitor lock (mutual exclusion)</td>
+<td>Memory visibility only</td>
+<td><strong>CAS (Compare-And-Swap)</strong></td>
+</tr>
+<tr>
+<td>Atomicity</td>
+<td>Yes (compound operations)</td>
+<td><strong>No</strong> (only read/write)</td>
+<td>Yes (single variable)</td>
+</tr>
+<tr>
+<td>Visibility</td>
+<td>Yes</td>
+<td>Yes</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td>Blocking</td>
+<td><strong>Yes</strong> (contended)</td>
+<td>No</td>
+<td><strong>No</strong> (lock-free, spin)</td>
+</tr>
+<tr>
+<td>Use case</td>
+<td>Protecting code blocks</td>
+<td>Flags, status variables</td>
+<td>Counters, accumulators</td>
+</tr>
+</tbody>
+</table>
+<p><strong>synchronized:</strong> Use when you need <strong>mutual exclusion</strong> — only one thread can execute the block.</p>
+<pre><code class="language-java"><span class="hljs-keyword">synchronized</span>(<span class="hljs-built_in">this</span>) {
+    count++;  <span class="hljs-comment">// Read + increment + write = atomic</span>
+}
+</code></pre>
+<p><strong>volatile:</strong> Use for <strong>single variable</strong> that one thread writes and others read. Prevents CPU caching (reads/writes go to main memory).</p>
+<pre><code class="language-java"><span class="hljs-keyword">private</span> <span class="hljs-keyword">volatile</span> <span class="hljs-type">boolean</span> <span class="hljs-variable">running</span> <span class="hljs-operator">=</span> <span class="hljs-literal">true</span>; <span class="hljs-comment">// Visibility guarantee</span>
+</code></pre>
+<p><strong>Atomic classes:</strong> Use for <strong>lock-free thread-safe operations</strong> on a single variable. Uses hardware CAS instruction.</p>
+<pre><code class="language-java"><span class="hljs-keyword">private</span> <span class="hljs-type">AtomicInteger</span> <span class="hljs-variable">counter</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">AtomicInteger</span>(<span class="hljs-number">0</span>);
+counter.incrementAndGet(); <span class="hljs-comment">// Atomic — no lock needed</span>
+</code></pre>
+<p><strong>GSTN Context:</strong> Our <code>KafkaConsumerConfig</code> uses the Singleton pattern with a static instance — thread safety is ensured at initialization. Our <code>DistCacheUtil</code> methods are synchronized where needed for cache operations. The <code>@Async</code> framework uses <code>ThreadPoolTaskExecutor</code> which internally uses atomic operations for queue management.</p>
+<hr>
+<h3 id="q10-what-is-executorservice-types-of-thread-pools-which-did-you-use-for-gstn-batch-processing">Q10. What is ExecutorService? Types of thread pools? Which did you use for GSTN batch processing?</h3>
+<p><strong>Answer:</strong></p>
+<p><strong>ExecutorService</strong> decouples <strong>task submission</strong> from <strong>thread management</strong>. You submit tasks, the pool manages threads.</p>
+<p><strong>Thread Pool Types:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Pool</th>
+<th>Factory Method</th>
+<th>Threads</th>
+<th>Queue</th>
+<th>Use Case</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Fixed</strong></td>
+<td><code>newFixedThreadPool(n)</code></td>
+<td>Fixed n</td>
+<td>Unbounded LinkedBlockingQueue</td>
+<td>Known workload, bounded concurrency</td>
+</tr>
+<tr>
+<td><strong>Cached</strong></td>
+<td><code>newCachedThreadPool()</code></td>
+<td>0 to Integer.MAX</td>
+<td>SynchronousQueue</td>
+<td>Short-lived tasks, bursty traffic</td>
+</tr>
+<tr>
+<td><strong>Single</strong></td>
+<td><code>newSingleThreadExecutor()</code></td>
+<td>1</td>
+<td>Unbounded LinkedBlockingQueue</td>
+<td>Sequential execution guarantee</td>
+</tr>
+<tr>
+<td><strong>Scheduled</strong></td>
+<td><code>newScheduledThreadPool(n)</code></td>
+<td>Fixed core</td>
+<td>DelayedWorkQueue</td>
+<td>Periodic/delayed tasks</td>
+</tr>
+</tbody>
+</table>
+<p><strong>GSTN Usage:</strong></p>
+<ol>
+<li><strong>Spring's ThreadPoolTaskExecutor</strong> (wraps Java's ThreadPoolExecutor):</li>
+</ol>
+<pre><code class="language-java"><span class="hljs-comment">// From AsyncConfig.java in GspAuthActivity</span>
+<span class="hljs-meta">@Bean(name = &quot;taskExecutor&quot;)</span>
+<span class="hljs-keyword">public</span> ThreadPoolTaskExecutor <span class="hljs-title function_">taskExecutor</span><span class="hljs-params">()</span> {
+    <span class="hljs-type">ThreadPoolTaskExecutor</span> <span class="hljs-variable">executor</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">ThreadPoolTaskExecutor</span>();
+    executor.setCorePoolSize(<span class="hljs-number">5</span>);    <span class="hljs-comment">// 5 threads always alive</span>
+    executor.setMaxPoolSize(<span class="hljs-number">10</span>);    <span class="hljs-comment">// Scale up to 10 under load</span>
+    executor.setQueueCapacity(<span class="hljs-number">100</span>); <span class="hljs-comment">// Queue 100 tasks before rejecting</span>
+    executor.setThreadNamePrefix(<span class="hljs-string">&quot;AsyncThread-&quot;</span>);
+    executor.initialize();
+    <span class="hljs-keyword">return</span> executor;
+}
+</code></pre>
+<ol start="2">
+<li><strong>ScheduledExecutorService</strong> for Kafka error topic consumption:</li>
+</ol>
+<pre><code class="language-java"><span class="hljs-comment">// From Consumer.java — KafkaConsumerFwk</span>
+<span class="hljs-type">ScheduledExecutorService</span> <span class="hljs-variable">scheduledExecutorService</span> <span class="hljs-operator">=</span> Executors.newScheduledThreadPool(<span class="hljs-number">2</span>);
+scheduledExecutorService.scheduleAtFixedRate(<span class="hljs-comment">/* consume error topic */</span>);
+</code></pre>
+<ol start="3">
+<li><strong>Batch processing</strong> uses Spring Batch with <code>GstBatchJobConfigurer</code> which configures <code>JobRepository</code> and <code>TaskExecutor</code> for parallel step execution.</li>
+</ol>
+<p><strong>Key concern:</strong> Always use <strong>bounded queues</strong> in production. Unbounded queues can cause OOM if producers outpace consumers. Our <code>taskExecutor</code> uses <code>queueCapacity(100)</code> — rejects tasks after 100 queued.</p>
+<hr>
+<h3 id="q11-what-is-completablefuture-how-did-you-use-it-for-parallel-api-calls-in-gstn">Q11. What is CompletableFuture? How did you use it for parallel API calls in GSTN?</h3>
+<p><strong>Answer:</strong></p>
+<p><strong>CompletableFuture</strong> is Java 8's improvement over <code>Future</code> — supports:</p>
+<ul>
+<li><strong>Asynchronous computation</strong> with callbacks (no blocking <code>get()</code>)</li>
+<li><strong>Chaining</strong>: <code>thenApply()</code>, <code>thenCompose()</code>, <code>thenCombine()</code></li>
+<li><strong>Error handling</strong>: <code>exceptionally()</code>, <code>handle()</code></li>
+<li><strong>Combining multiple futures</strong>: <code>allOf()</code>, <code>anyOf()</code></li>
+</ul>
+<p><strong>Key methods:</strong></p>
+<pre><code class="language-java"><span class="hljs-comment">// Run async, return result</span>
+CompletableFuture&lt;String&gt; future = CompletableFuture.supplyAsync(() -&gt; callReturnAPI(gstin));
+
+<span class="hljs-comment">// Chain transformations</span>
+future.thenApply(response -&gt; parseResponse(response))
+      .thenAccept(parsed -&gt; saveToCache(parsed))
+      .exceptionally(ex -&gt; { log.error(<span class="hljs-string">&quot;Failed&quot;</span>, ex); <span class="hljs-keyword">return</span> <span class="hljs-literal">null</span>; });
+
+<span class="hljs-comment">// Parallel calls — wait for all</span>
+CompletableFuture&lt;String&gt; returns = CompletableFuture.supplyAsync(() -&gt; getReturns(gstin));
+CompletableFuture&lt;String&gt; ledger = CompletableFuture.supplyAsync(() -&gt; getLedger(gstin));
+CompletableFuture&lt;String&gt; profile = CompletableFuture.supplyAsync(() -&gt; getProfile(gstin));
+
+CompletableFuture.allOf(returns, ledger, profile).join(); <span class="hljs-comment">// Wait for all 3</span>
+</code></pre>
+<p><strong>GSTN Usage Pattern:</strong> When building a taxpayer dashboard, we need data from multiple services (Returns, Ledger, Registration, Payment). Instead of calling them sequentially (4 × 200ms = 800ms), we call all in parallel:</p>
+<pre><code class="language-java"><span class="hljs-comment">// Parallel API calls pattern used in GSTN dashboard</span>
+CompletableFuture&lt;ReturnSummary&gt; returnsFuture = 
+    CompletableFuture.supplyAsync(() -&gt; returnService.getSummary(gstin), taskExecutor);
+CompletableFuture&lt;LedgerBalance&gt; ledgerFuture = 
+    CompletableFuture.supplyAsync(() -&gt; ledgerService.getBalance(gstin), taskExecutor);
+
+<span class="hljs-comment">// Wait for all, merge results</span>
+CompletableFuture.allOf(returnsFuture, ledgerFuture).join();
+<span class="hljs-type">DashboardResponse</span> <span class="hljs-variable">dashboard</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">DashboardResponse</span>(returnsFuture.get(), ledgerFuture.get());
+</code></pre>
+<p><strong>Important:</strong> Always pass a custom <code>Executor</code> — default uses <code>ForkJoinPool.commonPool()</code> which is shared across the JVM and can cause thread starvation.</p>
+<hr>
+<h3 id="q12-what-is-a-deadlock-how-do-you-detect-and-prevent-it-have-you-faced-one-in-production">Q12. What is a deadlock? How do you detect and prevent it? Have you faced one in production?</h3>
+<p><strong>Answer:</strong></p>
+<p><strong>Deadlock</strong> = Two or more threads are <strong>blocked forever</strong>, each waiting for a lock held by the other.</p>
+<p><strong>Four conditions (ALL must be true):</strong></p>
+<ol>
+<li><strong>Mutual Exclusion</strong> — resource can't be shared</li>
+<li><strong>Hold and Wait</strong> — thread holds one lock, waits for another</li>
+<li><strong>No Preemption</strong> — locks can't be forcibly taken</li>
+<li><strong>Circular Wait</strong> — T1 → waits for T2 → waits for T1</li>
+</ol>
+<p><strong>Detection:</strong></p>
+<ul>
+<li><code>jstack &lt;pid&gt;</code> — thread dump shows &quot;Found one Java-level deadlock&quot;</li>
+<li>JVisualVM / JConsole — &quot;Detect Deadlock&quot; button</li>
+<li><code>ThreadMXBean.findDeadlockedThreads()</code> programmatically</li>
+<li>Thread dump analysis tools (<a href="http://fastThread.io">fastThread.io</a>)</li>
+</ul>
+<p><strong>Prevention strategies:</strong></p>
+<ol>
+<li><strong>Lock ordering</strong> — always acquire locks in consistent order (e.g., by ID)</li>
+<li><strong>Lock timeout</strong> — <code>tryLock(timeout)</code> with <code>ReentrantLock</code> instead of <code>synchronized</code></li>
+<li><strong>Avoid nested locks</strong> — minimize synchronized scope</li>
+<li><strong>Use higher-level concurrency</strong> — <code>ConcurrentHashMap</code>, <code>AtomicReference</code>, <code>@Transactional</code></li>
+</ol>
+<p><strong>GSTN Production scenario:</strong> In a multi-datasource environment like GSTN, deadlocks typically occur at the <strong>database level</strong>, not Java level. For example, two concurrent return filings updating the same taxpayer's ledger in different order. We handle this with:</p>
+<ul>
+<li><code>@Transactional(propagation = Propagation.REQUIRES_NEW)</code> to isolate transactions</li>
+<li>Consistent update ordering by GSTIN</li>
+<li>Database-level deadlock detection (MySQL auto-detects and rolls back one transaction)</li>
+<li>Retry logic on <code>DeadlockLoserDataAccessException</code></li>
+</ul>
+<hr>
+<h3 id="q13-countdownlatch-vs-cyclicbarrier-vs-semaphore--differences-and-use-cases">Q13. CountDownLatch vs CyclicBarrier vs Semaphore — differences and use cases?</h3>
+<p><strong>Answer:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Feature</th>
+<th>CountDownLatch</th>
+<th>CyclicBarrier</th>
+<th>Semaphore</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Purpose</td>
+<td>Wait for N events</td>
+<td>Wait for N threads to arrive</td>
+<td>Limit concurrent access to N</td>
+</tr>
+<tr>
+<td>Reusable</td>
+<td><strong>No</strong> (one-time)</td>
+<td><strong>Yes</strong> (resets after each barrier)</td>
+<td><strong>Yes</strong></td>
+</tr>
+<tr>
+<td>Who counts down</td>
+<td><strong>Any thread</strong></td>
+<td><strong>Participating threads</strong></td>
+<td>acquire/release by any thread</td>
+</tr>
+<tr>
+<td>Action on complete</td>
+<td>Waiting threads unblocked</td>
+<td>Optional barrier action</td>
+<td>Next thread acquires permit</td>
+</tr>
+</tbody>
+</table>
+<p><strong>CountDownLatch:</strong> &quot;Wait for N things to finish&quot;</p>
+<pre><code class="language-java"><span class="hljs-type">CountDownLatch</span> <span class="hljs-variable">latch</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">CountDownLatch</span>(<span class="hljs-number">3</span>);
+<span class="hljs-comment">// 3 threads each call latch.countDown() when done</span>
+latch.await(); <span class="hljs-comment">// Main thread waits for count to reach 0</span>
+</code></pre>
+<p><strong>Use case:</strong> Wait for all microservice health checks to complete before starting the app.</p>
+<p><strong>CyclicBarrier:</strong> &quot;N threads wait for each other&quot;</p>
+<pre><code class="language-java"><span class="hljs-type">CyclicBarrier</span> <span class="hljs-variable">barrier</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">CyclicBarrier</span>(<span class="hljs-number">3</span>, () -&gt; System.out.println(<span class="hljs-string">&quot;All arrived!&quot;</span>));
+<span class="hljs-comment">// Each thread calls barrier.await() — all wait until 3 reach the barrier</span>
+</code></pre>
+<p><strong>Use case:</strong> Parallel batch processing — all worker threads finish chunk, then proceed to next phase.</p>
+<p><strong>Semaphore:</strong> &quot;Allow only N concurrent access&quot;</p>
+<pre><code class="language-java"><span class="hljs-type">Semaphore</span> <span class="hljs-variable">sem</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">Semaphore</span>(<span class="hljs-number">5</span>); <span class="hljs-comment">// 5 permits</span>
+sem.acquire(); <span class="hljs-comment">// Blocks if no permit available</span>
+<span class="hljs-keyword">try</span> { accessResource(); } 
+<span class="hljs-keyword">finally</span> { sem.release(); }
+</code></pre>
+<p><strong>Use case:</strong> Rate limiting — allow only 5 concurrent connections to a downstream service.</p>
+<p><strong>GSTN Context:</strong> Our connection pool configuration (HikariCP with <code>maxActive=10</code>) is conceptually similar to a Semaphore — limiting concurrent DB connections. Our Kafka consumer framework uses similar patterns for thread coordination.</p>
+<hr>
+<h3 id="q14-what-is-threadlocal-when-would-you-use-it-in-a-microservices-context">Q14. What is ThreadLocal? When would you use it in a microservices context?</h3>
+<p><strong>Answer:</strong></p>
+<p><strong>ThreadLocal</strong> provides <strong>per-thread isolated variables</strong>. Each thread has its own copy — no synchronization needed.</p>
+<pre><code class="language-java"><span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">final</span> ThreadLocal&lt;String&gt; requestId = <span class="hljs-keyword">new</span> <span class="hljs-title class_">ThreadLocal</span>&lt;&gt;();
+
+<span class="hljs-comment">// In filter/interceptor</span>
+requestId.set(UUID.randomUUID().toString());
+
+<span class="hljs-comment">// In any service method (same thread)</span>
+<span class="hljs-type">String</span> <span class="hljs-variable">id</span> <span class="hljs-operator">=</span> requestId.get(); <span class="hljs-comment">// Gets this thread&#x27;s value</span>
+
+<span class="hljs-comment">// MUST clean up to prevent memory leaks (especially with thread pools)</span>
+requestId.remove();
+</code></pre>
+<p><strong>Microservices use cases:</strong></p>
+<ol>
+<li><strong>Request context propagation</strong> — store user session, GSTIN, request ID</li>
+<li><strong>MDC (Mapped Diagnostic Context)</strong> for logging — internally uses ThreadLocal</li>
+<li><strong>Database routing</strong> — store which datasource shard to use for current request</li>
+<li><strong>Transaction context</strong> — Spring's TransactionSynchronizationManager uses ThreadLocal</li>
+</ol>
+<p><strong>GSTN Usage — Database Routing:</strong>
+In GSTN, we route database queries to different shards based on state code. This uses ThreadLocal:</p>
+<pre><code class="language-java"><span class="hljs-comment">// Database routing pattern used in GSTN</span>
+<span class="hljs-comment">// Set the DB routing context per request</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">setDbRouting</span><span class="hljs-params">(String stateCd)</span> {
+    DbType.setCurrentDb(stateCd);  <span class="hljs-comment">// ThreadLocal stores current shard</span>
+}
+
+<span class="hljs-comment">// RoutingDataSource reads ThreadLocal to determine which DataSource to use</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">RoutingDataSource</span> <span class="hljs-keyword">extends</span> <span class="hljs-title class_">AbstractRoutingDataSource</span> {
+    <span class="hljs-meta">@Override</span>
+    <span class="hljs-keyword">protected</span> Object <span class="hljs-title function_">determineCurrentLookupKey</span><span class="hljs-params">()</span> {
+        <span class="hljs-keyword">return</span> DbType.getCurrentDb(); <span class="hljs-comment">// Reads from ThreadLocal</span>
+    }
+}
+</code></pre>
+<p><strong>Warning:</strong> Always call <code>remove()</code> in a <code>finally</code> block — thread pools reuse threads, stale ThreadLocal values cause <strong>memory leaks</strong> and <strong>data corruption</strong>.</p>
+<hr>
+<h3 id="q15-what-is-the-forkjoin-framework-how-does-work-stealing-algorithm-work">Q15. What is the Fork/Join framework? How does work-stealing algorithm work?</h3>
+<p><strong>Answer:</strong></p>
+<p><strong>Fork/Join Framework</strong> (Java 7) is designed for <strong>divide-and-conquer parallelism</strong>:</p>
+<ul>
+<li><strong>Fork</strong>: Split task into smaller subtasks</li>
+<li><strong>Join</strong>: Wait for subtasks to complete, combine results</li>
+<li>Uses <code>ForkJoinPool</code> with <strong>work-stealing</strong></li>
+</ul>
+<p><strong>Work-Stealing Algorithm:</strong></p>
+<ol>
+<li>Each thread has its own <strong>deque (double-ended queue)</strong> of tasks</li>
+<li>Thread pushes/pops from <strong>tail</strong> of its own deque (LIFO — better cache locality)</li>
+<li>When a thread's deque is empty, it <strong>steals from the head</strong> of another thread's deque (FIFO — steals larger tasks)</li>
+<li>This ensures <strong>load balancing</strong> without explicit coordination</li>
+</ol>
+<p><strong>Key classes:</strong></p>
+<ul>
+<li><code>RecursiveTask&lt;V&gt;</code> — returns a result</li>
+<li><code>RecursiveAction</code> — no result (void)</li>
+<li><code>ForkJoinPool</code> — the thread pool</li>
+</ul>
+<pre><code class="language-java"><span class="hljs-keyword">class</span> <span class="hljs-title class_">SumTask</span> <span class="hljs-keyword">extends</span> <span class="hljs-title class_">RecursiveTask</span>&lt;Long&gt; {
+    <span class="hljs-keyword">protected</span> Long <span class="hljs-title function_">compute</span><span class="hljs-params">()</span> {
+        <span class="hljs-keyword">if</span> (array.length &lt;= THRESHOLD) {
+            <span class="hljs-keyword">return</span> sequentialSum(array);
+        }
+        <span class="hljs-type">SumTask</span> <span class="hljs-variable">left</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">SumTask</span>(leftHalf);
+        <span class="hljs-type">SumTask</span> <span class="hljs-variable">right</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">SumTask</span>(rightHalf);
+        left.fork();          <span class="hljs-comment">// Submit to pool</span>
+        <span class="hljs-type">Long</span> <span class="hljs-variable">rightResult</span> <span class="hljs-operator">=</span> right.compute();  <span class="hljs-comment">// Compute directly</span>
+        <span class="hljs-type">Long</span> <span class="hljs-variable">leftResult</span> <span class="hljs-operator">=</span> left.join();       <span class="hljs-comment">// Wait for forked task</span>
+        <span class="hljs-keyword">return</span> leftResult + rightResult;
+    }
+}
+</code></pre>
+<p><strong>GSTN Context:</strong> <code>CompletableFuture.supplyAsync()</code> without explicit executor uses <code>ForkJoinPool.commonPool()</code>. Our parallel stream operations also use Fork/Join internally. We're careful to NOT use parallel streams for I/O-bound operations (DB/API calls) since the common pool is shared and can cause starvation.</p>
+<hr>
+<h3 id="q16-explain-jvm-memory-model--heap-young-gen-old-gen-metaspace-vs-stack">Q16. Explain JVM memory model — Heap (Young Gen, Old Gen, Metaspace) vs Stack?</h3>
+<p><strong>Answer:</strong></p>
+<pre><code>JVM Memory
+├── Heap (shared across threads)
+│   ├── Young Generation
+│   │   ├── Eden Space (new objects allocated here)
+│   │   ├── Survivor S0 (From)
+│   │   └── Survivor S1 (To)
+│   └── Old Generation (Tenured — long-lived objects)
+├── Metaspace (class metadata, method info — native memory, not heap)
+├── Stack (per thread)
+│   ├── Method frames
+│   ├── Local variables
+│   └── Operand stack
+├── Code Cache (JIT compiled code)
+└── Direct Memory (NIO buffers)
+</code></pre>
+<p><strong>Heap:</strong></p>
+<ul>
+<li><strong>Eden</strong>: All new objects created here. Minor GC collects Eden.</li>
+<li><strong>Survivors S0/S1</strong>: Objects surviving Minor GC copy between survivors (aging)</li>
+<li><strong>Old Gen</strong>: Objects surviving multiple Minor GCs (age threshold, default 15) get promoted</li>
+<li><strong>Tuning</strong>: <code>-Xms</code> (initial heap), <code>-Xmx</code> (max heap), <code>-Xmn</code> (young gen size)</li>
+</ul>
+<p><strong>Metaspace (replaced PermGen in Java 8):</strong></p>
+<ul>
+<li>Stores class definitions, method metadata, constant pool</li>
+<li>Uses <strong>native memory</strong> (not limited by -Xmx)</li>
+<li><code>-XX:MaxMetaspaceSize</code> to set limit</li>
+<li>Grows dynamically</li>
+</ul>
+<p><strong>Stack (per thread):</strong></p>
+<ul>
+<li>Default size: 512KB-1MB (<code>-Xss</code> to configure)</li>
+<li>Stores: method call frames, local variables, return addresses</li>
+<li><code>StackOverflowError</code> on deep recursion</li>
+</ul>
+<p><strong>GSTN Context:</strong> For our high-throughput filing services handling 100K+ concurrent requests, we tune:</p>
+<ul>
+<li><code>-Xmx4g -Xms4g</code> (avoid heap resizing)</li>
+<li><code>-XX:NewRatio=2</code> (1/3 young gen, 2/3 old gen)</li>
+<li><code>-XX:+UseG1GC</code> for balanced latency/throughput</li>
+</ul>
+<hr>
+<h3 id="q17-types-of-garbage-collectors--serial-parallel-g1gc-zgc-which-is-best-for-a-low-latency-tax-filing-service">Q17. Types of Garbage Collectors — Serial, Parallel, G1GC, ZGC? Which is best for a low-latency tax filing service?</h3>
+<p><strong>Answer:</strong></p>
+<table>
+<thead>
+<tr>
+<th>GC</th>
+<th>Algorithm</th>
+<th>Pause</th>
+<th>Throughput</th>
+<th>Use Case</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Serial</strong></td>
+<td>Mark-Sweep-Compact</td>
+<td>Long STW</td>
+<td>Low</td>
+<td>Single-thread, small heaps (dev/testing)</td>
+</tr>
+<tr>
+<td><strong>Parallel (Throughput)</strong></td>
+<td>Parallel Mark-Sweep-Compact</td>
+<td>Medium STW</td>
+<td><strong>Highest</strong></td>
+<td>Batch processing, non-interactive</td>
+</tr>
+<tr>
+<td><strong>CMS</strong> (deprecated Java 14)</td>
+<td>Concurrent Mark-Sweep</td>
+<td>Short STW</td>
+<td>Good</td>
+<td>Low-latency (legacy)</td>
+</tr>
+<tr>
+<td><strong>G1GC</strong> (default Java 9+)</td>
+<td>Region-based, incremental</td>
+<td><strong>Predictable</strong></td>
+<td>Good</td>
+<td><strong>Best general-purpose</strong>, heaps 4GB+</td>
+</tr>
+<tr>
+<td><strong>ZGC</strong> (Java 15+)</td>
+<td>Colored pointers, load barriers</td>
+<td><strong>&lt; 10ms</strong></td>
+<td>Good</td>
+<td>Ultra-low-latency, heaps up to TB</td>
+</tr>
+<tr>
+<td><strong>Shenandoah</strong></td>
+<td>Brooks pointers, concurrent compaction</td>
+<td><strong>&lt; 10ms</strong></td>
+<td>Good</td>
+<td>Similar to ZGC, Red Hat</td>
+</tr>
+</tbody>
+</table>
+<p><strong>G1GC (Garbage First) — our choice for GSTN:</strong></p>
+<ul>
+<li>Divides heap into <strong>equal-sized regions</strong> (1-32MB each)</li>
+<li>Tracks <strong>&quot;garbage-first&quot;</strong> — collects regions with most garbage first</li>
+<li><strong>Predictable pauses</strong>: <code>-XX:MaxGCPauseMillis=200</code> (target, not guarantee)</li>
+<li>Mixed collections: can collect young + some old regions together</li>
+<li>Concurrent marking phase (mostly non-STW)</li>
+</ul>
+<p><strong>For GSTN filing service:</strong> G1GC is the best choice because:</p>
+<ol>
+<li>Filing deadlines create traffic spikes — need <strong>predictable</strong> response times</li>
+<li>Heap sizes are 4-8GB — G1GC optimized for this range</li>
+<li>Mix of short-lived objects (request/response) and long-lived (cached data)</li>
+<li>ZGC would be ideal for sub-10ms but requires Java 15+; our stack uses Java 8/11</li>
+</ol>
+<pre><code># GSTN JVM tuning flags
+-XX:+UseG1GC
+-XX:MaxGCPauseMillis=200
+-XX:G1HeapRegionSize=16m
+-XX:+ParallelRefProcEnabled
+</code></pre>
+<hr>
+<h3 id="q18-what-causes-outofmemoryerror-types-and-how-to-troubleshoot">Q18. What causes OutOfMemoryError? Types and how to troubleshoot?</h3>
+<p><strong>Answer:</strong></p>
+<p><strong>Types of OOM:</strong></p>
+<table>
+<thead>
+<tr>
+<th>OOM Type</th>
+<th>Cause</th>
+<th>Fix</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Java heap space</code></td>
+<td>Objects fill up heap</td>
+<td>Increase <code>-Xmx</code>, fix memory leaks</td>
+</tr>
+<tr>
+<td><code>Metaspace</code></td>
+<td>Too many classes loaded (classloader leak)</td>
+<td>Increase <code>-XX:MaxMetaspaceSize</code>, fix hot-deploy leaks</td>
+</tr>
+<tr>
+<td><code>GC overhead limit exceeded</code></td>
+<td>&gt;98% time in GC, &lt;2% heap freed</td>
+<td>Usually a memory leak — fix root cause</td>
+</tr>
+<tr>
+<td><code>Unable to create new native thread</code></td>
+<td>Too many threads</td>
+<td>Reduce thread count, increase OS limits</td>
+</tr>
+<tr>
+<td><code>Direct buffer memory</code></td>
+<td>NIO direct buffers exhausted</td>
+<td><code>-XX:MaxDirectMemorySize</code>, close buffers</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Troubleshooting steps:</strong></p>
+<ol>
+<li><strong>Heap dump on OOM</strong>: <code>-XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=/tmp/</code></li>
+<li><strong>Analyze with MAT (Memory Analyzer Tool)</strong> or JVisualVM</li>
+<li>Look for <strong>Dominator Tree</strong> — which objects hold most memory</li>
+<li>Check <strong>GC logs</strong>: <code>-XX:+PrintGCDetails -Xloggc:/path/gc.log</code></li>
+<li><strong>Common leak patterns:</strong>
+<ul>
+<li>Unbounded collections (Map growing forever)</li>
+<li>Static references not cleared</li>
+<li>ThreadLocal not <code>remove()</code>d in thread pools</li>
+<li>Unclosed resources (streams, connections)</li>
+<li>Listeners/callbacks not unregistered</li>
+</ul>
+</li>
+</ol>
+<p><strong>GSTN Production Scenario:</strong> During filing deadline, if a service starts throwing OOM:</p>
+<ol>
+<li>Take heap dump immediately</li>
+<li>Check if connection pool is leaking (HikariCP leak detection)</li>
+<li>Check Redis cache — are we caching too much data locally?</li>
+<li>In MAT, look for <code>DistCacheUtil</code> or large <code>HashMap</code> collections</li>
+<li>Common fix: add TTL to caches, add pagination to queries returning large datasets</li>
+</ol>
+<hr>
+<h3 id="q19-what-is-jit-compilation-how-does-the-jvm-optimize-hot-code-paths">Q19. What is JIT compilation? How does the JVM optimize hot code paths?</h3>
+<p><strong>Answer:</strong></p>
+<p><strong>JIT (Just-In-Time) Compilation:</strong> The JVM initially <strong>interprets</strong> bytecode. When it detects a method is called frequently (<strong>hot method</strong>), the JIT compiler <strong>compiles it to native machine code</strong> for much faster execution.</p>
+<p><strong>How it works:</strong></p>
+<ol>
+<li><strong>Interpreter</strong> executes bytecode initially</li>
+<li>JVM <strong>profiles</strong> code — counts method invocations and loop iterations</li>
+<li>When threshold reached (default: <code>-XX:CompileThreshold=10000</code>), JIT compiles method</li>
+<li>Future calls execute <strong>native code</strong> instead of bytecode</li>
+</ol>
+<p><strong>Two JIT compilers (Tiered Compilation — default since Java 8):</strong></p>
+<ul>
+<li><strong>C1 (Client)</strong>: Fast compilation, basic optimizations — for quick startup</li>
+<li><strong>C2 (Server)</strong>: Slower compilation, aggressive optimizations — for peak throughput</li>
+<li><strong>Tiered</strong>: C1 first (quick win), C2 later (max performance)</li>
+</ul>
+<p><strong>JIT Optimizations:</strong></p>
+<ul>
+<li><strong>Method inlining</strong> — replace method call with body (biggest optimization)</li>
+<li><strong>Loop unrolling</strong> — reduce loop overhead</li>
+<li><strong>Dead code elimination</strong> — remove unreachable code</li>
+<li><strong>Escape analysis</strong> — allocate objects on stack (no GC needed) if they don't escape method</li>
+<li><strong>Lock elision</strong> — remove synchronized if lock is never contended</li>
+<li><strong>Devirtualization</strong> — convert virtual method calls to direct calls</li>
+</ul>
+<p><strong>GSTN Impact:</strong> Our filing APIs handle millions of calls. The JIT compiler heavily optimizes:</p>
+<ul>
+<li>Validation methods (called millions of times with same patterns)</li>
+<li>JSON serialization/deserialization (Jackson methods become native code)</li>
+<li>Database query building methods</li>
+<li>This is why <strong>warmup time matters</strong> — first few thousand requests are slower until JIT kicks in. In production, we use warmup scripts after deployment.</li>
+</ul>
+<hr>
+<h3 id="q20-how-does-classloader-work-bootstrap--extension--application-classnotfoundexception-vs-noclassdeffounderror">Q20. How does ClassLoader work? Bootstrap → Extension → Application? ClassNotFoundException vs NoClassDefFoundError?</h3>
+<p><strong>Answer:</strong></p>
+<p><strong>ClassLoader Hierarchy (Delegation Model):</strong></p>
+<pre><code>Bootstrap ClassLoader (C++ code, loads rt.jar — java.lang.*, java.util.*)
+    ↑ delegates to parent first
+Extension ClassLoader (jre/lib/ext — javax.*, security)
+    ↑ delegates to parent first
+Application ClassLoader (classpath — your app classes)
+    ↑ delegates to parent first
+Custom ClassLoaders (Tomcat's WebAppClassLoader, Spring's LaunchedURLClassLoader)
+</code></pre>
+<p><strong>How it works (Parent Delegation):</strong></p>
+<ol>
+<li>Request to load <code>com.gst.api.ReturnService</code></li>
+<li>Application CL asks Extension CL → asks Bootstrap CL</li>
+<li>Bootstrap doesn't have it → Extension doesn't have it</li>
+<li>Application CL loads from classpath</li>
+<li><strong>Why?</strong> Prevents malicious <code>java.lang.String</code> replacement</li>
+</ol>
+<p><strong>ClassNotFoundException vs NoClassDefFoundError:</strong></p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>ClassNotFoundException</th>
+<th>NoClassDefFoundError</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Type</td>
+<td><strong>Checked Exception</strong></td>
+<td><strong>Error</strong> (unchecked)</td>
+</tr>
+<tr>
+<td>When</td>
+<td><code>Class.forName(&quot;com.X&quot;)</code> or ClassLoader.loadClass() fails at runtime</td>
+<td>Class was present at <strong>compile time</strong> but missing at <strong>runtime</strong></td>
+</tr>
+<tr>
+<td>Cause</td>
+<td>Class not on classpath</td>
+<td>Missing dependency JAR, failed static initializer</td>
+</tr>
+<tr>
+<td>Fix</td>
+<td>Add JAR to classpath</td>
+<td>Check deployment packaging, dependency conflicts</td>
+</tr>
+</tbody>
+</table>
+<p><strong>GSTN Context:</strong> Our multi-module project (30+ modules) frequently encounters classpath issues:</p>
+<ul>
+<li>Each API module (ReturnAPI, LedgerAPI, RegistrationAPI) has its own pom.xml with specific dependency versions</li>
+<li>The <code>gst-spring-boot2-starter</code> custom starter must be on classpath for auto-configuration to work</li>
+<li><code>NoClassDefFoundError</code> typically happens when a commons framework JAR version mismatch occurs between modules</li>
+</ul>
+<hr>
+<h3 id="q21-functional-interfaces--predicate-function-consumer-supplier-bifunction-give-a-real-code-example-from-gstn">Q21. Functional interfaces — Predicate, Function, Consumer, Supplier, BiFunction? Give a real code example from GSTN.</h3>
+<p><strong>Answer:</strong></p>
+<p>A <strong>functional interface</strong> has exactly <strong>one abstract method</strong> (can have default/static methods). Annotated with <code>@FunctionalInterface</code>.</p>
+<table>
+<thead>
+<tr>
+<th>Interface</th>
+<th>Method</th>
+<th>Input → Output</th>
+<th>Use Case</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Predicate&lt;T&gt;</code></td>
+<td><code>test(T)</code></td>
+<td>T → boolean</td>
+<td>Filtering, validation</td>
+</tr>
+<tr>
+<td><code>Function&lt;T,R&gt;</code></td>
+<td><code>apply(T)</code></td>
+<td>T → R</td>
+<td>Transformation, mapping</td>
+</tr>
+<tr>
+<td><code>Consumer&lt;T&gt;</code></td>
+<td><code>accept(T)</code></td>
+<td>T → void</td>
+<td>Side effects (logging, saving)</td>
+</tr>
+<tr>
+<td><code>Supplier&lt;T&gt;</code></td>
+<td><code>get()</code></td>
+<td>() → T</td>
+<td>Factory, lazy initialization</td>
+</tr>
+<tr>
+<td><code>BiFunction&lt;T,U,R&gt;</code></td>
+<td><code>apply(T,U)</code></td>
+<td>(T,U) → R</td>
+<td>Two-input transformation</td>
+</tr>
+<tr>
+<td><code>UnaryOperator&lt;T&gt;</code></td>
+<td><code>apply(T)</code></td>
+<td>T → T</td>
+<td>Same type transformation</td>
+</tr>
+</tbody>
+</table>
+<p><strong>GSTN Code Examples:</strong></p>
+<pre><code class="language-java"><span class="hljs-comment">// PREDICATE — Filter valid GSTINs</span>
+Predicate&lt;String&gt; isValidGstin = gstin -&gt; gstin != <span class="hljs-literal">null</span> &amp;&amp; gstin.length() == <span class="hljs-number">15</span>;
+List&lt;String&gt; validGstins = gstinList.stream()
+    .filter(isValidGstin)
+    .collect(Collectors.toList());
+
+<span class="hljs-comment">// FUNCTION — Transform entity to VO</span>
+Function&lt;WfTask, TaskVO&gt; entityToVo = task -&gt; {
+    <span class="hljs-type">TaskVO</span> <span class="hljs-variable">vo</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">TaskVO</span>();
+    vo.setTaskId(task.getTaskId());
+    vo.setStatus(task.getTaskStatus());
+    <span class="hljs-keyword">return</span> vo;
+};
+List&lt;TaskVO&gt; taskVOs = tasks.stream().map(entityToVo).collect(Collectors.toList());
+
+<span class="hljs-comment">// CONSUMER — Log and cache each result</span>
+Consumer&lt;GSTMaster&gt; cacheAndLog = master -&gt; {
+    distCacheUtil.addToEntityDetailsCache(master.getGstin(), master);
+    LOGGER.info(<span class="hljs-string">&quot;Cached: {}&quot;</span>, master.getGstin());
+};
+masters.forEach(cacheAndLog);
+
+<span class="hljs-comment">// SUPPLIER — Lazy default value</span>
+Supplier&lt;ErrorResponse&gt; defaultError = () -&gt; <span class="hljs-keyword">new</span> <span class="hljs-title class_">ErrorResponse</span>(<span class="hljs-string">&quot;UNKNOWN&quot;</span>, <span class="hljs-string">&quot;Unexpected error&quot;</span>);
+</code></pre>
+<hr>
+<h3 id="q22-stream-api--map-filter-reduce-collect-flatmap-parallel-streams--when-are-they-beneficial-and-when-dangerous">Q22. Stream API — map, filter, reduce, collect, flatMap? Parallel streams — when are they beneficial and when dangerous?</h3>
+<p><strong>Answer:</strong></p>
+<p><strong>Key Stream Operations:</strong></p>
+<pre><code class="language-java"><span class="hljs-comment">// filter — keep elements matching predicate</span>
+List&lt;ReturnVO&gt; filedReturns = returns.stream()
+    .filter(r -&gt; <span class="hljs-string">&quot;FILED&quot;</span>.equals(r.getStatus()))
+    .collect(Collectors.toList());
+
+<span class="hljs-comment">// map — transform elements</span>
+List&lt;String&gt; gstins = returns.stream()
+    .map(ReturnVO::getGstin)
+    .collect(Collectors.toList());
+
+<span class="hljs-comment">// flatMap — flatten nested collections</span>
+List&lt;ItemVO&gt; allItems = returns.stream()
+    .flatMap(r -&gt; r.getItems().stream())  <span class="hljs-comment">// List&lt;List&lt;Item&gt;&gt; → List&lt;Item&gt;</span>
+    .collect(Collectors.toList());
+
+<span class="hljs-comment">// reduce — aggregate to single value</span>
+<span class="hljs-type">BigDecimal</span> <span class="hljs-variable">totalTax</span> <span class="hljs-operator">=</span> returns.stream()
+    .map(ReturnVO::getTaxAmount)
+    .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+<span class="hljs-comment">// collect — terminal operation with Collectors</span>
+Map&lt;String, List&lt;ReturnVO&gt;&gt; byState = returns.stream()
+    .collect(Collectors.groupingBy(ReturnVO::getStateCode));
+</code></pre>
+<p><strong>Parallel Streams:</strong></p>
+<p><strong>Beneficial when:</strong></p>
+<ul>
+<li>CPU-bound computation (mathematical, parsing)</li>
+<li>Large dataset (&gt; 10,000 elements)</li>
+<li>No shared mutable state</li>
+<li>Splittable source (ArrayList — good, LinkedList — bad)</li>
+</ul>
+<p><strong>Dangerous when:</strong></p>
+<ul>
+<li><strong>I/O-bound</strong> operations (DB calls, API calls) — uses ForkJoinPool.commonPool() (limited threads)</li>
+<li><strong>Shared mutable state</strong> — race conditions</li>
+<li><strong>Order matters</strong> — parallelism breaks ordering without <code>forEachOrdered()</code></li>
+<li><strong>Small datasets</strong> — overhead &gt; benefit</li>
+</ul>
+<p><strong>GSTN Warning:</strong> Never use parallel streams for:</p>
+<pre><code class="language-java"><span class="hljs-comment">// BAD — I/O in parallel stream uses common pool, can starve other operations</span>
+returns.parallelStream()
+    .forEach(r -&gt; saveToDB(r));  <span class="hljs-comment">// DB calls in parallel stream = DANGEROUS</span>
+
+<span class="hljs-comment">// GOOD — Use ExecutorService for I/O parallelism</span>
+CompletableFuture.allOf(
+    returns.stream()
+        .map(r -&gt; CompletableFuture.runAsync(() -&gt; saveToDB(r), customExecutor))
+        .toArray(CompletableFuture[]::<span class="hljs-keyword">new</span>)
+).join();
+</code></pre>
+<hr>
+<h3 id="q23-optional--how-to-use-properly-why-is-it-better-than-returning-null">Q23. Optional — how to use properly? Why is it better than returning null?</h3>
+<p><strong>Answer:</strong></p>
+<p><strong>Optional</strong> is a container that may or may not contain a value. Introduced in Java 8 to avoid <code>NullPointerException</code>.</p>
+<pre><code class="language-java"><span class="hljs-comment">// Creating Optional</span>
+Optional&lt;String&gt; opt1 = Optional.of(<span class="hljs-string">&quot;value&quot;</span>);        <span class="hljs-comment">// NPE if null</span>
+Optional&lt;String&gt; opt2 = Optional.ofNullable(value);   <span class="hljs-comment">// empty if null</span>
+Optional&lt;String&gt; opt3 = Optional.empty();              <span class="hljs-comment">// explicitly empty</span>
+
+<span class="hljs-comment">// Using Optional (GOOD patterns)</span>
+<span class="hljs-type">String</span> <span class="hljs-variable">name</span> <span class="hljs-operator">=</span> optional.orElse(<span class="hljs-string">&quot;default&quot;</span>);                    <span class="hljs-comment">// Default value</span>
+<span class="hljs-type">String</span> <span class="hljs-variable">name</span> <span class="hljs-operator">=</span> optional.orElseGet(() -&gt; computeDefault());    <span class="hljs-comment">// Lazy default</span>
+<span class="hljs-type">String</span> <span class="hljs-variable">name</span> <span class="hljs-operator">=</span> optional.orElseThrow(() -&gt; <span class="hljs-keyword">new</span> <span class="hljs-title class_">NotFoundException</span>(<span class="hljs-string">&quot;Not found&quot;</span>));
+
+<span class="hljs-comment">// Chaining</span>
+optional.map(String::toUpperCase)
+        .filter(s -&gt; s.length() &gt; <span class="hljs-number">5</span>)
+        .ifPresent(s -&gt; LOGGER.info(<span class="hljs-string">&quot;Found: {}&quot;</span>, s));
+</code></pre>
+<p><strong>Anti-patterns (DON'T do these):</strong></p>
+<pre><code class="language-java"><span class="hljs-comment">// BAD: Checking isPresent() + get() — defeats the purpose</span>
+<span class="hljs-keyword">if</span> (optional.isPresent()) { <span class="hljs-keyword">return</span> optional.get(); }
+
+<span class="hljs-comment">// BAD: Optional as method parameter</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">process</span><span class="hljs-params">(Optional&lt;String&gt; param)</span> {} <span class="hljs-comment">// Use @Nullable or overloaded methods</span>
+
+<span class="hljs-comment">// BAD: Optional for fields</span>
+<span class="hljs-keyword">private</span> Optional&lt;String&gt; name; <span class="hljs-comment">// Use null for fields</span>
+
+<span class="hljs-comment">// BAD: Optional with collections</span>
+Optional&lt;List&lt;String&gt;&gt; list; <span class="hljs-comment">// Return empty list instead</span>
+</code></pre>
+<p><strong>GSTN Example:</strong></p>
+<pre><code class="language-java"><span class="hljs-comment">// From GspActiveAuthSessionRepository — Optional return</span>
+Optional&lt;GspActiveAuthSession&gt; <span class="hljs-title function_">findByAuthTokenAndUserName</span><span class="hljs-params">(String token, String userName)</span>;
+
+<span class="hljs-comment">// Usage</span>
+<span class="hljs-type">GspActiveAuthSession</span> <span class="hljs-variable">session</span> <span class="hljs-operator">=</span> sessionRepository
+    .findByAuthTokenAndUserName(token, userName)
+    .orElseThrow(() -&gt; <span class="hljs-keyword">new</span> <span class="hljs-title class_">GSTLogicalException</span>(LOGGER, <span class="hljs-string">&quot;AUTH_TOKEN_INVALID&quot;</span>));
+</code></pre>
+<hr>
+<h3 id="q24-default-and-static-methods-in-interfaces--why-were-they-added-how-do-they-help-backward-compatibility">Q24. Default and static methods in interfaces — why were they added? How do they help backward compatibility?</h3>
+<p><strong>Answer:</strong></p>
+<p><strong>Added in Java 8</strong> to evolve interfaces without breaking existing implementations.</p>
+<p><strong>Default methods:</strong></p>
+<pre><code class="language-java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">interface</span> <span class="hljs-title class_">ReturnProcessor</span> {
+    <span class="hljs-keyword">void</span> <span class="hljs-title function_">process</span><span class="hljs-params">(ReturnVO returnVO)</span>;  <span class="hljs-comment">// Abstract — must implement</span>
+    
+    <span class="hljs-keyword">default</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">validate</span><span class="hljs-params">(ReturnVO returnVO)</span> {  <span class="hljs-comment">// Default — optional override</span>
+        <span class="hljs-keyword">if</span> (returnVO.getGstin() == <span class="hljs-literal">null</span>) <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">ValidationException</span>(<span class="hljs-string">&quot;GSTIN required&quot;</span>);
+    }
+}
+<span class="hljs-comment">// Existing implementations DON&#x27;T need to change when validate() is added</span>
+</code></pre>
+<p><strong>Why added:</strong></p>
+<ul>
+<li><strong>Backward compatibility</strong> — Adding <code>stream()</code> and <code>forEach()</code> to <code>Collection</code> interface without breaking all implementations</li>
+<li><strong>Multiple inheritance of behavior</strong> — Java has no multiple class inheritance but allows multiple interface defaults</li>
+<li><strong>Reduce boilerplate</strong> — Common implementations once, override when needed</li>
+</ul>
+<p><strong>Static methods:</strong></p>
+<pre><code class="language-java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">interface</span> <span class="hljs-title class_">Validator</span> {
+    <span class="hljs-type">boolean</span> <span class="hljs-title function_">validate</span><span class="hljs-params">(String input)</span>;
+    
+    <span class="hljs-keyword">static</span> Validator <span class="hljs-title function_">combine</span><span class="hljs-params">(Validator... validators)</span> {  <span class="hljs-comment">// Factory method</span>
+        <span class="hljs-keyword">return</span> input -&gt; Arrays.stream(validators).allMatch(v -&gt; v.validate(input));
+    }
+}
+</code></pre>
+<p><strong>Diamond problem resolution:</strong></p>
+<pre><code class="language-java"><span class="hljs-keyword">interface</span> <span class="hljs-title class_">A</span> { <span class="hljs-keyword">default</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">greet</span><span class="hljs-params">()</span> { System.out.println(<span class="hljs-string">&quot;A&quot;</span>); } }
+<span class="hljs-keyword">interface</span> <span class="hljs-title class_">B</span> { <span class="hljs-keyword">default</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">greet</span><span class="hljs-params">()</span> { System.out.println(<span class="hljs-string">&quot;B&quot;</span>); } }
+<span class="hljs-keyword">class</span> <span class="hljs-title class_">C</span> <span class="hljs-keyword">implements</span> <span class="hljs-title class_">A</span>, B {
+    <span class="hljs-meta">@Override</span>
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">greet</span><span class="hljs-params">()</span> { A.<span class="hljs-built_in">super</span>.greet(); } <span class="hljs-comment">// MUST override — compiler error otherwise</span>
+}
+</code></pre>
+<p><strong>GSTN context:</strong> Our service interfaces (like <code>WFXAService</code>, <code>Anx1aService</code>) use default methods for common utility operations while keeping core business methods abstract.</p>
+<hr>
+<h3 id="q25-what-are-records-java-14-and-sealed-classes-java-17-have-you-used-them">Q25. What are Records (Java 14+) and Sealed classes (Java 17)? Have you used them?</h3>
+<p><strong>Answer:</strong></p>
+<p><strong>Records (Java 14+ / 16 stable):</strong></p>
+<ul>
+<li><strong>Immutable data carriers</strong> — replace boilerplate POJO/DTO code</li>
+<li>Auto-generates: constructor, getters, <code>equals()</code>, <code>hashCode()</code>, <code>toString()</code></li>
+</ul>
+<pre><code class="language-java"><span class="hljs-comment">// Before Records — 50+ lines with Lombok @Data</span>
+<span class="hljs-meta">@Data</span>
+<span class="hljs-meta">@AllArgsConstructor</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">GstinInfo</span> {
+    <span class="hljs-keyword">private</span> String gstin;
+    <span class="hljs-keyword">private</span> String legalName;
+    <span class="hljs-keyword">private</span> String stateCode;
+}
+
+<span class="hljs-comment">// With Records — 1 line!</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">record</span> <span class="hljs-title class_">GstinInfo</span><span class="hljs-params">(String gstin, String legalName, String stateCode)</span> {}
+
+<span class="hljs-comment">// Usage</span>
+<span class="hljs-type">GstinInfo</span> <span class="hljs-variable">info</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">GstinInfo</span>(<span class="hljs-string">&quot;29AAACG1234A1ZD&quot;</span>, <span class="hljs-string">&quot;Infosys&quot;</span>, <span class="hljs-string">&quot;29&quot;</span>);
+<span class="hljs-type">String</span> <span class="hljs-variable">gstin</span> <span class="hljs-operator">=</span> info.gstin(); <span class="hljs-comment">// getter (no &quot;get&quot; prefix)</span>
+</code></pre>
+<p><strong>Sealed Classes (Java 17):</strong></p>
+<ul>
+<li>Restrict which classes can extend/implement</li>
+<li>Enables exhaustive pattern matching in <code>switch</code></li>
+</ul>
+<pre><code class="language-java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">sealed</span> <span class="hljs-keyword">interface</span> <span class="hljs-title class_">ReturnType</span> permits GSTR1, GSTR3B, GSTR9 {}
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">record</span> <span class="hljs-title class_">GSTR1</span><span class="hljs-params">(String gstin, String period)</span> <span class="hljs-keyword">implements</span> <span class="hljs-title class_">ReturnType</span> {}
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">record</span> <span class="hljs-title class_">GSTR3B</span><span class="hljs-params">(String gstin, String period, BigDecimal liability)</span> <span class="hljs-keyword">implements</span> <span class="hljs-title class_">ReturnType</span> {}
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">record</span> <span class="hljs-title class_">GSTR9</span><span class="hljs-params">(String gstin, String year)</span> <span class="hljs-keyword">implements</span> <span class="hljs-title class_">ReturnType</span> {}
+
+<span class="hljs-comment">// Exhaustive switch (compiler checks all subtypes covered)</span>
+String <span class="hljs-title function_">getDescription</span><span class="hljs-params">(ReturnType type)</span> {
+    <span class="hljs-keyword">return</span> <span class="hljs-keyword">switch</span> (type) {
+        <span class="hljs-keyword">case</span> GSTR1 r -&gt; <span class="hljs-string">&quot;Outward supplies for &quot;</span> + r.period();
+        <span class="hljs-keyword">case</span> GSTR3B r -&gt; <span class="hljs-string">&quot;Summary return, liability: &quot;</span> + r.liability();
+        <span class="hljs-keyword">case</span> GSTR9 r -&gt; <span class="hljs-string">&quot;Annual return for &quot;</span> + r.year();
+    }; <span class="hljs-comment">// No default needed — compiler KNOWS all subtypes</span>
+}
+</code></pre>
+<p><strong>GSTN Context:</strong> Our current codebase uses Java 8/11 with Lombok (<code>@Data</code>, <code>@Builder</code>, <code>@AllArgsConstructor</code>) for DTO/VO classes like <code>HSNResponseDetailsVo</code>, <code>UnassignedArnSearchVO</code>. If we migrate to Java 17+, Records would replace many of these VOs, and Sealed classes would be perfect for our return type hierarchy (GSTR1, GSTR2, GSTR3B, GSTR9, etc.) where we want compile-time guarantees on type handling.</p>
+
+            
+            
+        </body>
+        </html>

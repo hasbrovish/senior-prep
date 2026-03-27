@@ -1,0 +1,2382 @@
+<!DOCTYPE html>
+        <html>
+        <head>
+            <meta charset="UTF-8">
+            <title>SECTION 2&colon; SPRING BOOT &mdash; Interview Answers &lpar;Q26&ndash;Q75&rpar;</title>
+            <style>
+/* From extension vscode.github */
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+
+.vscode-dark img[src$=\#gh-light-mode-only],
+.vscode-light img[src$=\#gh-dark-mode-only],
+.vscode-high-contrast:not(.vscode-high-contrast-light) img[src$=\#gh-light-mode-only],
+.vscode-high-contrast-light img[src$=\#gh-dark-mode-only] {
+	display: none;
+}
+
+</style>
+            <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex/dist/katex.min.css">
+<link href="https://cdn.jsdelivr.net/npm/katex-copytex@latest/dist/katex-copytex.min.css" rel="stylesheet" type="text/css">
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Microsoft/vscode/extensions/markdown-language-features/media/markdown.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Microsoft/vscode/extensions/markdown-language-features/media/highlight.css">
+<style>
+            body {
+                font-family: -apple-system, BlinkMacSystemFont, 'Segoe WPC', 'Segoe UI', system-ui, 'Ubuntu', 'Droid Sans', sans-serif;
+                font-size: 14px;
+                line-height: 1.6;
+            }
+        </style>
+        <style>
+.task-list-item {
+    list-style-type: none;
+}
+
+.task-list-item-checkbox {
+    margin-left: -20px;
+    vertical-align: middle;
+    pointer-events: none;
+}
+</style>
+<style>
+:root {
+  --color-note: #0969da;
+  --color-tip: #1a7f37;
+  --color-warning: #9a6700;
+  --color-severe: #bc4c00;
+  --color-caution: #d1242f;
+  --color-important: #8250df;
+}
+
+</style>
+<style>
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-note: #2f81f7;
+    --color-tip: #3fb950;
+    --color-warning: #d29922;
+    --color-severe: #db6d28;
+    --color-caution: #f85149;
+    --color-important: #a371f7;
+  }
+}
+
+</style>
+<style>
+.markdown-alert {
+  padding: 0.5rem 1rem;
+  margin-bottom: 16px;
+  color: inherit;
+  border-left: .25em solid #888;
+}
+
+.markdown-alert>:first-child {
+  margin-top: 0
+}
+
+.markdown-alert>:last-child {
+  margin-bottom: 0
+}
+
+.markdown-alert .markdown-alert-title {
+  display: flex;
+  font-weight: 500;
+  align-items: center;
+  line-height: 1
+}
+
+.markdown-alert .markdown-alert-title .octicon {
+  margin-right: 0.5rem;
+  display: inline-block;
+  overflow: visible !important;
+  vertical-align: text-bottom;
+  fill: currentColor;
+}
+
+.markdown-alert.markdown-alert-note {
+  border-left-color: var(--color-note);
+}
+
+.markdown-alert.markdown-alert-note .markdown-alert-title {
+  color: var(--color-note);
+}
+
+.markdown-alert.markdown-alert-important {
+  border-left-color: var(--color-important);
+}
+
+.markdown-alert.markdown-alert-important .markdown-alert-title {
+  color: var(--color-important);
+}
+
+.markdown-alert.markdown-alert-warning {
+  border-left-color: var(--color-warning);
+}
+
+.markdown-alert.markdown-alert-warning .markdown-alert-title {
+  color: var(--color-warning);
+}
+
+.markdown-alert.markdown-alert-tip {
+  border-left-color: var(--color-tip);
+}
+
+.markdown-alert.markdown-alert-tip .markdown-alert-title {
+  color: var(--color-tip);
+}
+
+.markdown-alert.markdown-alert-caution {
+  border-left-color: var(--color-caution);
+}
+
+.markdown-alert.markdown-alert-caution .markdown-alert-title {
+  color: var(--color-caution);
+}
+
+</style>
+        
+        </head>
+        <body class="vscode-body vscode-light">
+            <h1 id="section-2-spring-boot--interview-answers-q26q75">SECTION 2: SPRING BOOT — Interview Answers (Q26–Q75)</h1>
+<h2 id="with-gstn-codebase-references--highest-weightage">With GSTN Codebase References — HIGHEST WEIGHTAGE</h2>
+<hr>
+<h2 id="21-core-concepts">2.1 Core Concepts</h2>
+<h3 id="q26-how-does-spring-boot-auto-configuration-work-what-role-do-conditional-annotations-play">Q26. How does Spring Boot auto-configuration work? What role do @Conditional annotations play?</h3>
+<p><strong>Answer:</strong></p>
+<p>Spring Boot auto-configuration automatically configures beans based on <strong>what's on the classpath</strong> and <strong>what properties are set</strong>.</p>
+<p><strong>How it works internally:</strong></p>
+<ol>
+<li><code>@SpringBootApplication</code> includes <code>@EnableAutoConfiguration</code></li>
+<li>Spring reads <code>META-INF/spring.factories</code> file → lists all auto-configuration classes</li>
+<li>Each auto-config class uses <code>@Conditional</code> annotations to decide if it should activate</li>
+<li>Beans are registered only when conditions are met</li>
+</ol>
+<p><strong>GSTN's custom spring.factories:</strong></p>
+<pre><code class="language-properties"><span class="hljs-comment"># From gst-spring-boot2-starter/src/main/resources/META-INF/spring.factories</span>
+<span class="hljs-attr">org.springframework.boot.autoconfigure.EnableAutoConfiguration</span>=<span class="hljs-string">\
+  org.gst.framework.starter.autoconfigure.cache.CacheFrameworkAutoConfiguration,\
+  org.gst.framework.starter.autoconfigure.cache.CacheAutoConfiguration,\
+  org.gst.framework.starter.autoconfigure.datasource.CoreStaticMasterDataSourceAutoConfiguration,\
+  org.gst.framework.starter.autoconfigure.datasource.DataSourceAutoConfig,\
+  org.gst.framework.starter.autoconfigure.log.LogAutoConfiguration,\
+  org.gst.framework.starter.autoconfigure.security.FoSecurityAutoConfiguration,\
+  org.gst.framework.starter.autoconfigure.security.BoSecurityAutoConfiguration,\
+  org.gst.framework.starter.autoconfigure.kafka.KafkaClientAutoConfiguration,\
+  org.gst.framework.starter.autoconfigure.util.GstUtilsAutoConfiguration</span>
+
+<span class="hljs-attr">org.springframework.boot.env.EnvironmentPostProcessor</span>=<span class="hljs-string">\
+  org.gst.framework.starter.autoconfigure.env.GstEnvironmentPostProcessor</span>
+</code></pre>
+<p><strong>@Conditional annotations used in GSTN:</strong></p>
+<pre><code class="language-java"><span class="hljs-comment">// From DataSourceAutoConfig.java — only activate if DataSource and JPA are on classpath</span>
+<span class="hljs-meta">@ConditionalOnClass({DataSource.class, LocalContainerEntityManagerFactoryBean.class})</span>
+
+<span class="hljs-comment">// From BoSecurityAutoConfiguration.java — only if property is set</span>
+<span class="hljs-meta">@ConditionalOnProperty(prefix = &quot;gst.security.bo&quot;, name = &quot;enabled&quot;, 
+                       havingValue = &quot;true&quot;, matchIfMissing = false)</span>
+
+<span class="hljs-comment">// From LogAutoConfiguration.java — only if AspectJ is available</span>
+<span class="hljs-meta">@ConditionalOnClass({ Aspect.class })</span>
+<span class="hljs-meta">@ConditionalOnProperty(prefix = &quot;gst.logging&quot;, name = &quot;enabled&quot;, 
+                       havingValue = &quot;true&quot;, matchIfMissing = true)</span>
+
+<span class="hljs-comment">// From SessionRedisConfig.java — only if Redis session caching is enabled</span>
+<span class="hljs-meta">@ConditionalOnProperty(prefix = &quot;gst.cache.redis.session&quot;, name = &quot;enabled&quot;, 
+                       havingValue = &quot;true&quot;, matchIfMissing = false)</span>
+</code></pre>
+<p><strong>Key @Conditional annotations:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Annotation</th>
+<th>Condition</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>@ConditionalOnClass</code></td>
+<td>Class exists on classpath</td>
+</tr>
+<tr>
+<td><code>@ConditionalOnMissingClass</code></td>
+<td>Class NOT on classpath</td>
+</tr>
+<tr>
+<td><code>@ConditionalOnBean</code></td>
+<td>Bean already exists in context</td>
+</tr>
+<tr>
+<td><code>@ConditionalOnMissingBean</code></td>
+<td>Bean NOT in context (prevents duplicate)</td>
+</tr>
+<tr>
+<td><code>@ConditionalOnProperty</code></td>
+<td>Property has specific value</td>
+</tr>
+<tr>
+<td><code>@ConditionalOnWebApplication</code></td>
+<td>It's a web application</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Interview Key Point:</strong> &quot;In GSTN, we built a custom Spring Boot starter (<code>gst-spring-boot2-starter</code>) that auto-configures datasources, security, Kafka, caching, and logging. Each feature is conditionally enabled via properties like <code>gst.security.bo.enabled=true</code>. This allows each microservice to pick only what it needs.&quot;</p>
+<hr>
+<h3 id="q27-what-is-the-difference-between-component-service-repository-and-controller-are-they-functionally-different">Q27. What is the difference between @Component, @Service, @Repository, and @Controller? Are they functionally different?</h3>
+<p><strong>Answer:</strong></p>
+<p>All four are <strong>stereotype annotations</strong> that mark a class as a Spring-managed bean. They are all <strong>specializations of @Component</strong>.</p>
+<table>
+<thead>
+<tr>
+<th>Annotation</th>
+<th>Layer</th>
+<th>Special Behavior</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>@Component</code></td>
+<td>Generic</td>
+<td>Base annotation — no special behavior</td>
+</tr>
+<tr>
+<td><code>@Service</code></td>
+<td><strong>Business Logic</strong></td>
+<td>Semantic only — indicates service layer. Enables <code>@Transactional</code></td>
+</tr>
+<tr>
+<td><code>@Repository</code></td>
+<td><strong>Data Access</strong></td>
+<td><strong>Exception translation</strong>: Converts JDBC/JPA exceptions to Spring's <code>DataAccessException</code> hierarchy</td>
+</tr>
+<tr>
+<td><code>@Controller</code></td>
+<td><strong>Web/Presentation</strong></td>
+<td>Enables <code>@RequestMapping</code>. Returns view names (JSP, Thymeleaf)</td>
+</tr>
+<tr>
+<td><code>@RestController</code></td>
+<td><strong>Web/REST</strong></td>
+<td>= <code>@Controller</code> + <code>@ResponseBody</code>. Returns JSON/XML directly</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Functionally different?</strong> Only <code>@Repository</code> has real extra behavior (exception translation). <code>@Service</code> and <code>@Controller</code> are primarily <strong>semantic</strong> — but following the convention enables AOP pointcuts and better architecture.</p>
+<p><strong>GSTN Usage:</strong></p>
+<pre><code class="language-java"><span class="hljs-comment">// SERVICE layer — business logic with transaction management</span>
+<span class="hljs-meta">@Service</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">Anx1aServiceImpl</span> <span class="hljs-keyword">implements</span> <span class="hljs-title class_">Anx1aService</span> {
+    <span class="hljs-meta">@Transactional(value = &quot;transactionManagerAnx1aBatch&quot;, 
+                  propagation = Propagation.REQUIRED, rollbackFor = Exception.class)</span>
+    <span class="hljs-keyword">public</span> String <span class="hljs-title function_">getAnx1aRecords</span><span class="hljs-params">(Anx1aParamVO params, String type)</span> { ... }
+}
+
+<span class="hljs-comment">// REPOSITORY layer — data access with exception translation</span>
+<span class="hljs-meta">@Repository</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">interface</span> <span class="hljs-title class_">GspAuthToknLogRepository</span> <span class="hljs-keyword">extends</span> <span class="hljs-title class_">JpaRepository</span>&lt;GspAuthTokenLog, Long&gt; {
+    <span class="hljs-meta">@Modifying</span>
+    <span class="hljs-meta">@Query(&quot;UPDATE GspAuthTokenLog e SET e.authStatus = &#x27;X&#x27; ...&quot;)</span>
+    <span class="hljs-keyword">void</span> <span class="hljs-title function_">markAuthTokenExpired</span><span class="hljs-params">(<span class="hljs-meta">@Param(&quot;username&quot;)</span> String username, ...)</span>;
+}
+
+<span class="hljs-comment">// CONTROLLER layer — REST endpoints</span>
+<span class="hljs-meta">@RestController</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">Anx1aInternalController</span> {
+    <span class="hljs-meta">@GetMapping(value = &quot;/auth/internalapi/newreturns/getanx1aData&quot;)</span>
+    <span class="hljs-keyword">public</span> <span class="hljs-meta">@ResponseBody</span> String <span class="hljs-title function_">getAnx1aData</span><span class="hljs-params">(<span class="hljs-meta">@RequestParam</span> String gstin)</span> { ... }
+}
+
+<span class="hljs-comment">// Note: Some GSTN controllers use @Controller + @ResponseBody instead of @RestController</span>
+<span class="hljs-meta">@Controller</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">CaseMgmtController</span> {
+    <span class="hljs-meta">@PostMapping(value = &quot;/auth/api/case/create&quot;)</span>
+    <span class="hljs-keyword">public</span> <span class="hljs-meta">@ResponseBody</span> Object <span class="hljs-title function_">createCaseApp</span><span class="hljs-params">(...)</span> { ... }
+}
+</code></pre>
+<hr>
+<h3 id="q28-explain-dependency-injection--constructor-injection-vs-field-injection-vs-setter-injection-why-is-constructor-injection-recommended">Q28. Explain Dependency Injection — Constructor injection vs Field injection vs Setter injection? Why is constructor injection recommended?</h3>
+<p><strong>Answer:</strong></p>
+<p><strong>Dependency Injection (DI):</strong> Instead of an object creating its dependencies, the <strong>container injects them</strong> from the outside. This enables loose coupling, testability, and flexibility.</p>
+<p><strong>Three types:</strong></p>
+<pre><code class="language-java"><span class="hljs-comment">// 1. FIELD INJECTION (used extensively in GSTN codebase)</span>
+<span class="hljs-meta">@Service</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">Anx1aServiceImpl</span> {
+    <span class="hljs-meta">@Autowired</span>
+    OfflineAsynchFileGenDAO asyncDAO;
+    
+    <span class="hljs-meta">@Autowired</span>
+    DistCacheUtil distCacheUtil;
+    
+    <span class="hljs-meta">@Autowired</span>
+    Anx1aKafkaService anx1aKafkaService;
+}
+
+<span class="hljs-comment">// 2. CONSTRUCTOR INJECTION (recommended)</span>
+<span class="hljs-meta">@Service</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">Anx1aServiceImpl</span> {
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> OfflineAsynchFileGenDAO asyncDAO;
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> DistCacheUtil distCacheUtil;
+    
+    <span class="hljs-comment">// @Autowired is optional when only one constructor (Spring 4.3+)</span>
+    <span class="hljs-keyword">public</span> <span class="hljs-title function_">Anx1aServiceImpl</span><span class="hljs-params">(OfflineAsynchFileGenDAO asyncDAO, DistCacheUtil distCacheUtil)</span> {
+        <span class="hljs-built_in">this</span>.asyncDAO = asyncDAO;
+        <span class="hljs-built_in">this</span>.distCacheUtil = distCacheUtil;
+    }
+}
+
+<span class="hljs-comment">// 3. SETTER INJECTION</span>
+<span class="hljs-meta">@Service</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">Anx1aServiceImpl</span> {
+    <span class="hljs-keyword">private</span> DistCacheUtil distCacheUtil;
+    
+    <span class="hljs-meta">@Autowired</span>
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">setDistCacheUtil</span><span class="hljs-params">(DistCacheUtil distCacheUtil)</span> {
+        <span class="hljs-built_in">this</span>.distCacheUtil = distCacheUtil;
+    }
+}
+</code></pre>
+<p><strong>Why Constructor Injection is recommended:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Aspect</th>
+<th>Constructor</th>
+<th>Field</th>
+<th>Setter</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Immutability</strong></td>
+<td><code>final</code> fields possible</td>
+<td>No</td>
+<td>No</td>
+</tr>
+<tr>
+<td><strong>Required dependencies</strong></td>
+<td>Enforced at compile time</td>
+<td>NPE at runtime</td>
+<td>NPE at runtime</td>
+</tr>
+<tr>
+<td><strong>Testability</strong></td>
+<td>Easy — just pass mock in constructor</td>
+<td>Needs reflection or Spring</td>
+<td>Needs Spring or manual set</td>
+</tr>
+<tr>
+<td><strong>Circular dependency</strong></td>
+<td><strong>Fails fast</strong> at startup</td>
+<td>Hides circular dependency</td>
+<td>Hides it</td>
+</tr>
+<tr>
+<td><strong>Code readability</strong></td>
+<td>Clear what dependencies exist</td>
+<td>Hidden in fields</td>
+<td>Scattered setters</td>
+</tr>
+</tbody>
+</table>
+<p><strong>GSTN Current State:</strong> Our codebase predominantly uses <strong>field injection</strong> (<code>@Autowired</code> on fields). This is legacy and works but is harder to unit test. For new code and during refactoring, we should move to constructor injection. With Lombok, this is easy:</p>
+<pre><code class="language-java"><span class="hljs-meta">@Service</span>
+<span class="hljs-meta">@RequiredArgsConstructor</span>  <span class="hljs-comment">// Lombok generates constructor for final fields</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">Anx1aServiceImpl</span> {
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> OfflineAsynchFileGenDAO asyncDAO;
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> DistCacheUtil distCacheUtil;
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> Anx1aKafkaService anx1aKafkaService;
+}
+</code></pre>
+<hr>
+<h3 id="q29-what-is-the-spring-bean-lifecycle">Q29. What is the Spring Bean lifecycle?</h3>
+<p><strong>Answer:</strong></p>
+<pre><code>1. Bean Definition Loading (parse @Component, @Bean, XML)
+     ↓
+2. Bean Instantiation (constructor called)
+     ↓
+3. Dependency Injection (populate @Autowired fields)
+     ↓
+4. BeanNameAware.setBeanName() — if implemented
+     ↓
+5. BeanFactoryAware.setBeanFactory() — if implemented
+     ↓
+6. ApplicationContextAware.setApplicationContext() — if implemented
+     ↓
+7. BeanPostProcessor.postProcessBeforeInitialization()
+     ↓
+8. @PostConstruct method — JSR-250
+     ↓
+9. InitializingBean.afterPropertiesSet() — if implemented
+     ↓
+10. Custom init-method (specified in @Bean(initMethod=&quot;...&quot;))
+     ↓
+11. BeanPostProcessor.postProcessAfterInitialization()
+     ↓
+--- BEAN IS READY TO USE ---
+     ↓
+--- APPLICATION SHUTDOWN ---
+     ↓
+12. @PreDestroy method — JSR-250
+     ↓
+13. DisposableBean.destroy() — if implemented
+     ↓
+14. Custom destroy-method (specified in @Bean(destroyMethod=&quot;...&quot;))
+</code></pre>
+<p><strong>Most commonly used in GSTN:</strong></p>
+<ul>
+<li><code>@PostConstruct</code> — Initialize caches, load properties</li>
+<li><code>@PreDestroy</code> — Close connections, flush caches</li>
+<li><code>BeanPostProcessor</code> — Custom Spring Boot auto-configuration, AOP proxying</li>
+</ul>
+<p><strong>GSTN Example:</strong></p>
+<pre><code class="language-java"><span class="hljs-comment">// DataSourceAutoConfig uses ImportBeanDefinitionRegistrar (registration phase)</span>
+<span class="hljs-comment">// to dynamically register DataSource beans based on properties</span>
+<span class="hljs-meta">@Configuration</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">DataSourceAutoConfig</span> <span class="hljs-keyword">implements</span> <span class="hljs-title class_">ImportBeanDefinitionRegistrar</span>, EnvironmentAware {
+    <span class="hljs-meta">@Override</span>
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">registerBeanDefinitions</span><span class="hljs-params">(AnnotationMetadata metadata, BeanDefinitionRegistry registry)</span> {
+        <span class="hljs-comment">// Registers DataSource, EntityManagerFactory, TransactionManager beans dynamically</span>
+    }
+}
+</code></pre>
+<hr>
+<h3 id="q30-bean-scopes--singleton-prototype-request-session-default-when-to-use-prototype-in-gstn">Q30. Bean scopes — Singleton, Prototype, Request, Session? Default? When to use Prototype in GSTN?</h3>
+<p><strong>Answer:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Scope</th>
+<th>Instances</th>
+<th>Lifecycle</th>
+<th>Use Case</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>singleton</strong> (DEFAULT)</td>
+<td>1 per Spring context</td>
+<td>Context lifetime</td>
+<td>Services, repositories, config</td>
+</tr>
+<tr>
+<td><strong>prototype</strong></td>
+<td>New instance per injection</td>
+<td>Caller manages</td>
+<td>Stateful beans, per-request objects</td>
+</tr>
+<tr>
+<td><strong>request</strong></td>
+<td>1 per HTTP request</td>
+<td>Request lifetime</td>
+<td>Request-specific data</td>
+</tr>
+<tr>
+<td><strong>session</strong></td>
+<td>1 per HTTP session</td>
+<td>Session lifetime</td>
+<td>User session data</td>
+</tr>
+<tr>
+<td><strong>application</strong></td>
+<td>1 per ServletContext</td>
+<td>App lifetime</td>
+<td>Servlet context attributes</td>
+</tr>
+<tr>
+<td><strong>websocket</strong></td>
+<td>1 per WebSocket session</td>
+<td>WS lifetime</td>
+<td>WebSocket-specific data</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Default is Singleton</strong> — one shared instance. All <code>@Service</code>, <code>@Repository</code>, <code>@Controller</code> beans are singletons.</p>
+<p><strong>When to use Prototype in GSTN:</strong></p>
+<pre><code class="language-java"><span class="hljs-comment">// APIHeaderVO is request-scoped — different for each API call</span>
+<span class="hljs-meta">@Component</span>
+<span class="hljs-meta">@Scope(value = &quot;request&quot;, proxyMode = ScopedProxyMode.TARGET_CLASS)</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">APIHeaderVO</span> {
+    <span class="hljs-keyword">private</span> String gstin;
+    <span class="hljs-keyword">private</span> String authToken;
+    <span class="hljs-keyword">private</span> <span class="hljs-type">boolean</span> exception;
+    <span class="hljs-comment">// Each request gets its own instance</span>
+}
+</code></pre>
+<p><strong>Why Prototype-in-Singleton is tricky:</strong></p>
+<pre><code class="language-java"><span class="hljs-meta">@Service</span>  <span class="hljs-comment">// Singleton</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">MyService</span> {
+    <span class="hljs-meta">@Autowired</span>
+    <span class="hljs-keyword">private</span> PrototypeBean proto;  <span class="hljs-comment">// Injected ONCE at singleton creation</span>
+    <span class="hljs-comment">// proto is effectively singleton! </span>
+    
+    <span class="hljs-comment">// SOLUTION: Use Provider or ObjectFactory</span>
+    <span class="hljs-meta">@Autowired</span>
+    <span class="hljs-keyword">private</span> ObjectProvider&lt;PrototypeBean&gt; protoProvider;
+    
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">doWork</span><span class="hljs-params">()</span> {
+        <span class="hljs-type">PrototypeBean</span> <span class="hljs-variable">freshInstance</span> <span class="hljs-operator">=</span> protoProvider.getObject(); <span class="hljs-comment">// New instance each time</span>
+    }
+}
+</code></pre>
+<hr>
+<h3 id="q31-what-is-circular-dependency-how-does-spring-handle-it-how-do-you-resolve-it">Q31. What is circular dependency? How does Spring handle it? How do you resolve it?</h3>
+<p><strong>Answer:</strong></p>
+<p><strong>Circular Dependency:</strong> A depends on B, and B depends on A. During construction, both need the other to exist first → impossible.</p>
+<pre><code class="language-java"><span class="hljs-meta">@Service</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">ServiceA</span> {
+    <span class="hljs-meta">@Autowired</span> <span class="hljs-keyword">private</span> ServiceB serviceB;  <span class="hljs-comment">// Needs B</span>
+}
+
+<span class="hljs-meta">@Service</span>  
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">ServiceB</span> {
+    <span class="hljs-meta">@Autowired</span> <span class="hljs-keyword">private</span> ServiceA serviceA;  <span class="hljs-comment">// Needs A → Circular!</span>
+}
+</code></pre>
+<p><strong>How Spring handles it:</strong></p>
+<ul>
+<li><strong>Field/Setter injection</strong>: Spring creates partial beans (without dependencies), stores them in the &quot;early reference&quot; cache, then injects dependencies. This <strong>resolves</strong> circular dependency but hides a design problem.</li>
+<li><strong>Constructor injection</strong>: <strong>Fails immediately</strong> with <code>BeanCurrentlyInCreationException</code>. This is actually BETTER because it forces you to fix the design.</li>
+</ul>
+<p><strong>Spring's 3-level cache for resolving field injection circulars:</strong></p>
+<ol>
+<li><code>singletonObjects</code> — fully initialized beans</li>
+<li><code>earlySingletonObjects</code> — partially initialized (dependencies not yet injected)</li>
+<li><code>singletonFactories</code> — factory methods to create early references</li>
+</ol>
+<p><strong>Resolution strategies:</strong></p>
+<ol>
+<li><strong>@Lazy</strong> — Defer one dependency:</li>
+</ol>
+<pre><code class="language-java"><span class="hljs-meta">@Service</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">ServiceA</span> {
+    <span class="hljs-meta">@Autowired</span> <span class="hljs-meta">@Lazy</span> <span class="hljs-keyword">private</span> ServiceB serviceB;  <span class="hljs-comment">// Proxy created, actual bean loaded later</span>
+}
+</code></pre>
+<ol start="2">
+<li><strong>Redesign (BEST)</strong> — Extract common logic:</li>
+</ol>
+<pre><code class="language-java"><span class="hljs-meta">@Service</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">CommonService</span> { <span class="hljs-comment">/* shared logic */</span> }
+
+<span class="hljs-meta">@Service</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">ServiceA</span> {
+    <span class="hljs-meta">@Autowired</span> <span class="hljs-keyword">private</span> CommonService common;
+}
+
+<span class="hljs-meta">@Service</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">ServiceB</span> {
+    <span class="hljs-meta">@Autowired</span> <span class="hljs-keyword">private</span> CommonService common;
+}
+</code></pre>
+<ol start="3">
+<li><strong>Use events</strong> — Decouple with <code>ApplicationEventPublisher</code></li>
+</ol>
+<p><strong>GSTN Context:</strong> In our large codebase with 30+ modules, circular dependencies can occur between <code>AuthenticationUtil</code> and <code>DistCacheUtil</code>. We resolve them using <code>@Lazy</code> or by redesigning the dependency flow to be unidirectional.</p>
+<hr>
+<h3 id="q32-what-is-qualifier-and-when-do-you-need-it">Q32. What is @Qualifier and when do you need it?</h3>
+<p><strong>Answer:</strong></p>
+<p><code>@Qualifier</code> specifies <strong>which bean to inject</strong> when multiple beans of the same type exist.</p>
+<pre><code class="language-java"><span class="hljs-comment">// Two DataSource beans in GSTN</span>
+<span class="hljs-meta">@Bean(name = &quot;txDataSource&quot;)</span>
+<span class="hljs-keyword">public</span> DataSource <span class="hljs-title function_">txDataSource</span><span class="hljs-params">()</span> { ... }
+
+<span class="hljs-meta">@Bean(name = &quot;masterDataSource&quot;)</span>
+<span class="hljs-keyword">public</span> DataSource <span class="hljs-title function_">masterDataSource</span><span class="hljs-params">()</span> { ... }
+
+<span class="hljs-comment">// Without @Qualifier → NoUniqueBeanDefinitionException</span>
+<span class="hljs-meta">@Service</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">MyService</span> {
+    <span class="hljs-meta">@Autowired</span>
+    <span class="hljs-meta">@Qualifier(&quot;txDataSource&quot;)</span>  <span class="hljs-comment">// Specifies which DataSource</span>
+    <span class="hljs-keyword">private</span> DataSource dataSource;
+}
+</code></pre>
+<p><strong>GSTN Multi-DataSource Example:</strong></p>
+<pre><code class="language-java"><span class="hljs-comment">// From JpaTxRepositoryConfig.java — different transaction managers for different databases</span>
+<span class="hljs-meta">@EnableJpaRepositories(
+    basePackages = &quot;org.gst.common.repository.tx&quot;,
+    entityManagerFactoryRef = &quot;txEntityManagerFactory&quot;,      // Qualifier by reference
+    transactionManagerRef = &quot;txTransactionManager&quot;           // Qualifier by reference
+)</span>
+
+<span class="hljs-comment">// In service layer — specifying which transaction manager</span>
+<span class="hljs-meta">@Transactional(value = &quot;transactionManagerAnx1aBatch&quot;)</span>   <span class="hljs-comment">// Acts like @Qualifier</span>
+<span class="hljs-meta">@Transactional(value = &quot;transactionManagerReturns&quot;)</span>
+<span class="hljs-meta">@Transactional(value = &quot;transactionManagerItcLedger&quot;)</span>
+</code></pre>
+<p><strong>Alternative to @Qualifier:</strong></p>
+<pre><code class="language-java"><span class="hljs-comment">// @Primary — mark one bean as default</span>
+<span class="hljs-meta">@Bean</span> <span class="hljs-meta">@Primary</span>
+<span class="hljs-keyword">public</span> DataSource <span class="hljs-title function_">primaryDataSource</span><span class="hljs-params">()</span> { ... }
+
+<span class="hljs-comment">// Named beans with @Service(&quot;name&quot;)</span>
+<span class="hljs-meta">@Service(&quot;masterService&quot;)</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">UserMasterServiceImpl</span> <span class="hljs-keyword">implements</span> <span class="hljs-title class_">UserMasterService</span> { ... }
+</code></pre>
+<hr>
+<h3 id="q33-difference-between-bean-and-component-when-to-use-which">Q33. Difference between @Bean and @Component? When to use which?</h3>
+<p><strong>Answer:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Aspect</th>
+<th>@Component</th>
+<th>@Bean</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Declared on</td>
+<td><strong>Class</strong></td>
+<td><strong>Method</strong> (inside @Configuration)</td>
+</tr>
+<tr>
+<td>Detection</td>
+<td><strong>Classpath scanning</strong> (@ComponentScan)</td>
+<td><strong>Explicit method</strong> in config class</td>
+</tr>
+<tr>
+<td>Control</td>
+<td>Spring controls instantiation</td>
+<td><strong>You control</strong> instantiation logic</td>
+</tr>
+<tr>
+<td>Third-party classes</td>
+<td>Can't annotate (not your code)</td>
+<td><strong>Can wrap</strong> any class</td>
+</tr>
+<tr>
+<td>Conditional</td>
+<td>Limited</td>
+<td>Full control (if/else in method)</td>
+</tr>
+</tbody>
+</table>
+<p><strong>When to use @Bean:</strong></p>
+<ol>
+<li>Third-party library classes you can't annotate</li>
+<li>Complex instantiation logic</li>
+<li>Need multiple instances of same class with different config</li>
+</ol>
+<p><strong>GSTN Examples:</strong></p>
+<pre><code class="language-java"><span class="hljs-comment">// @Bean — for configuring thread pool (complex setup)</span>
+<span class="hljs-meta">@Configuration</span>
+<span class="hljs-meta">@EnableAsync</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">AsyncConfig</span> {
+    <span class="hljs-meta">@Bean(name = &quot;taskExecutor&quot;)</span>
+    <span class="hljs-keyword">public</span> ThreadPoolTaskExecutor <span class="hljs-title function_">taskExecutor</span><span class="hljs-params">()</span> {
+        <span class="hljs-type">ThreadPoolTaskExecutor</span> <span class="hljs-variable">executor</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">ThreadPoolTaskExecutor</span>();
+        executor.setCorePoolSize(<span class="hljs-number">5</span>);
+        executor.setMaxPoolSize(<span class="hljs-number">10</span>);
+        executor.setQueueCapacity(<span class="hljs-number">100</span>);
+        executor.setThreadNamePrefix(<span class="hljs-string">&quot;AsyncThread-&quot;</span>);
+        executor.initialize();
+        <span class="hljs-keyword">return</span> executor;
+    }
+}
+
+<span class="hljs-comment">// @Component — for your own class (simple, auto-detected)</span>
+<span class="hljs-meta">@Component</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">APIHeaderVO</span> { ... }
+
+<span class="hljs-comment">// @Bean — for DataSource (third-party HikariDataSource)</span>
+<span class="hljs-meta">@Bean</span>
+<span class="hljs-keyword">public</span> DataSource <span class="hljs-title function_">createDataSource</span><span class="hljs-params">(String dbIdentifier, String shard)</span> {
+    <span class="hljs-type">HikariDataSource</span> <span class="hljs-variable">ds</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">HikariDataSource</span>();
+    ds.setJdbcUrl(url);
+    ds.setUsername(username);
+    ds.setMaximumPoolSize(<span class="hljs-number">10</span>);
+    <span class="hljs-keyword">return</span> ds;
+}
+</code></pre>
+<hr>
+<h3 id="q34-what-is-spring-applicationcontext-vs-beanfactory">Q34. What is Spring ApplicationContext vs BeanFactory?</h3>
+<p><strong>Answer:</strong></p>
+<p><code>BeanFactory</code> is the basic container. <code>ApplicationContext</code> extends it with enterprise features.</p>
+<table>
+<thead>
+<tr>
+<th>Feature</th>
+<th>BeanFactory</th>
+<th>ApplicationContext</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Bean creation</td>
+<td><strong>Lazy</strong> (on first request)</td>
+<td><strong>Eager</strong> (at startup)</td>
+</tr>
+<tr>
+<td>Event publishing</td>
+<td>No</td>
+<td>Yes (ApplicationEvent)</td>
+</tr>
+<tr>
+<td>AOP support</td>
+<td>Basic</td>
+<td>Full</td>
+</tr>
+<tr>
+<td>Message i18n</td>
+<td>No</td>
+<td>Yes (MessageSource)</td>
+</tr>
+<tr>
+<td>Environment abstraction</td>
+<td>No</td>
+<td>Yes (profiles, properties)</td>
+</tr>
+<tr>
+<td>Annotation support</td>
+<td>Limited</td>
+<td>Full (@Autowired, @Value, etc.)</td>
+</tr>
+</tbody>
+</table>
+<p><strong>ApplicationContext is always preferred</strong> in production. It catches configuration errors at startup rather than at runtime. Spring Boot exclusively uses <code>ApplicationContext</code> implementations:</p>
+<ul>
+<li><code>AnnotationConfigApplicationContext</code> — standalone</li>
+<li><code>AnnotationConfigServletWebServerApplicationContext</code> — web app</li>
+</ul>
+<p><strong>GSTN:</strong> We use <code>ApplicationContext</code> through Spring Boot. The <code>GstEnvironmentPostProcessor</code> customizes the environment before the context fully refreshes.</p>
+<hr>
+<h2 id="22-configuration--properties">2.2 Configuration &amp; Properties</h2>
+<h3 id="q35-how-do-you-fetch-a-property-from-applicationpropertiesyml-value--how-to-set-default-values">Q35. How do you fetch a property from application.properties/yml? @Value — how to set default values?</h3>
+<p><strong>Answer:</strong></p>
+<pre><code class="language-java"><span class="hljs-comment">// Basic @Value injection</span>
+<span class="hljs-meta">@Value(&quot;${server.port}&quot;)</span>
+<span class="hljs-keyword">private</span> <span class="hljs-type">int</span> serverPort;
+
+<span class="hljs-comment">// With DEFAULT value (if property missing)</span>
+<span class="hljs-meta">@Value(&quot;${gst.cache.ttl:3600}&quot;)</span>  <span class="hljs-comment">// default 3600 if not set</span>
+<span class="hljs-keyword">private</span> <span class="hljs-type">int</span> cacheTtl;
+
+<span class="hljs-comment">// SpEL (Spring Expression Language)</span>
+<span class="hljs-meta">@Value(&quot;#{${gst.max.retry:3} * 2}&quot;)</span>  <span class="hljs-comment">// Expression: 3 * 2 = 6</span>
+<span class="hljs-keyword">private</span> <span class="hljs-type">int</span> maxAttempts;
+
+<span class="hljs-comment">// Inject list</span>
+<span class="hljs-meta">@Value(&quot;${gst.allowed.states:KA,MH,TN}&quot;)</span>
+<span class="hljs-keyword">private</span> List&lt;String&gt; allowedStates;
+
+<span class="hljs-comment">// From environment variable</span>
+<span class="hljs-meta">@Value(&quot;${DB_PASSWORD:defaultPass}&quot;)</span>
+<span class="hljs-keyword">private</span> String dbPassword;
+</code></pre>
+<p><strong>GSTN Usage:</strong></p>
+<pre><code class="language-java"><span class="hljs-comment">// From services — GSTPropertyReader pattern</span>
+<span class="hljs-meta">@Autowired</span>
+GSTPropertyReader gstProperty;
+
+<span class="hljs-comment">// Properties are read from externalized configuration</span>
+<span class="hljs-type">String</span> <span class="hljs-variable">maxRetry</span> <span class="hljs-operator">=</span> gstProperty.getProperty(<span class="hljs-string">&quot;gst.filing.max.retry&quot;</span>);
+</code></pre>
+<p><strong>application-test.properties in GSTN:</strong></p>
+<pre><code class="language-properties"><span class="hljs-comment"># From NgtpRegApi test properties</span>
+<span class="hljs-attr">hibernate.show_sql</span>=<span class="hljs-string">true</span>
+<span class="hljs-attr">db.driverClassName</span>=<span class="hljs-string">org.h2.Driver</span>
+<span class="hljs-attr">bo.db.url.R1</span>=<span class="hljs-string">jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1</span>
+<span class="hljs-attr">bo.db.username.R1</span>=<span class="hljs-string">su</span>
+<span class="hljs-attr">bo.db.initialSize.R1</span>=<span class="hljs-string">5</span>
+<span class="hljs-attr">bo.db.maxActive.R1</span>=<span class="hljs-string">10</span>
+</code></pre>
+<p><strong>Common mistakes:</strong></p>
+<ul>
+<li><code>@Value</code> won't work in static fields</li>
+<li><code>@Value</code> won't work if bean not managed by Spring</li>
+<li>Property must exist or have default — otherwise <code>BeanCreationException</code></li>
+</ul>
+<hr>
+<h3 id="q36-value-vs-configurationproperties--when-to-use-each">Q36. @Value vs @ConfigurationProperties — when to use each?</h3>
+<p><strong>Answer:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Feature</th>
+<th>@Value</th>
+<th>@ConfigurationProperties</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Binding</td>
+<td>Single property</td>
+<td><strong>Entire group</strong> of properties</td>
+</tr>
+<tr>
+<td>Type safety</td>
+<td>String-based</td>
+<td><strong>Type-safe binding</strong></td>
+</tr>
+<tr>
+<td>Validation</td>
+<td>No built-in</td>
+<td>Supports <code>@Validated</code>, <code>@NotNull</code></td>
+</tr>
+<tr>
+<td>Relaxed binding</td>
+<td>No</td>
+<td>Yes (<code>kebab-case</code>, <code>camelCase</code>, <code>UPPER_CASE</code>)</td>
+</tr>
+<tr>
+<td>IDE support</td>
+<td>Limited</td>
+<td><strong>Auto-complete</strong>, metadata</td>
+</tr>
+<tr>
+<td>Use case</td>
+<td>Simple, few properties</td>
+<td><strong>Complex configuration objects</strong></td>
+</tr>
+</tbody>
+</table>
+<p><strong>@ConfigurationProperties — GSTN Example:</strong></p>
+<pre><code class="language-java"><span class="hljs-comment">// From KafkaClientProperties.java in gst-spring-boot2-starter</span>
+<span class="hljs-meta">@Data</span>
+<span class="hljs-meta">@ConfigurationProperties(prefix = &quot;gst.kafka&quot;)</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">KafkaClientProperties</span> {
+    <span class="hljs-keyword">private</span> String bootstrapServers;
+    <span class="hljs-keyword">private</span> String clientId;
+    <span class="hljs-keyword">private</span> <span class="hljs-type">Producer</span> <span class="hljs-variable">producer</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">Producer</span>();
+    <span class="hljs-keyword">private</span> <span class="hljs-type">Consumer</span> <span class="hljs-variable">consumer</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">Consumer</span>();
+    
+    <span class="hljs-meta">@Data</span>
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">Producer</span> {
+        <span class="hljs-keyword">private</span> <span class="hljs-type">boolean</span> <span class="hljs-variable">enabled</span> <span class="hljs-operator">=</span> <span class="hljs-literal">false</span>;
+        <span class="hljs-keyword">private</span> String acks;
+        <span class="hljs-keyword">private</span> String compressionType;
+        <span class="hljs-keyword">private</span> Integer batchSize;
+        <span class="hljs-keyword">private</span> Integer retries;
+    }
+    
+    <span class="hljs-meta">@Data</span>
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">Consumer</span> {
+        <span class="hljs-keyword">private</span> <span class="hljs-type">boolean</span> <span class="hljs-variable">enabled</span> <span class="hljs-operator">=</span> <span class="hljs-literal">false</span>;
+        <span class="hljs-keyword">private</span> String groupId;
+        <span class="hljs-comment">// ... more nested properties</span>
+    }
+}
+</code></pre>
+<p><strong>Corresponding application.yml:</strong></p>
+<pre><code class="language-yaml"><span class="hljs-attr">gst:</span>
+  <span class="hljs-attr">kafka:</span>
+    <span class="hljs-attr">bootstrap-servers:</span> <span class="hljs-string">kafka-broker1:9092,kafka-broker2:9092</span>
+    <span class="hljs-attr">client-id:</span> <span class="hljs-string">gstn-filing-service</span>
+    <span class="hljs-attr">producer:</span>
+      <span class="hljs-attr">enabled:</span> <span class="hljs-literal">true</span>
+      <span class="hljs-attr">acks:</span> <span class="hljs-string">all</span>
+      <span class="hljs-attr">compression-type:</span> <span class="hljs-string">snappy</span>
+      <span class="hljs-attr">batch-size:</span> <span class="hljs-number">16384</span>
+    <span class="hljs-attr">consumer:</span>
+      <span class="hljs-attr">enabled:</span> <span class="hljs-literal">true</span>
+      <span class="hljs-attr">group-id:</span> <span class="hljs-string">filing-consumer-group</span>
+</code></pre>
+<p><strong>Rule of thumb:</strong> Use <code>@Value</code> for 1-3 simple properties. Use <code>@ConfigurationProperties</code> for structured configuration groups.</p>
+<hr>
+<h3 id="q37-how-do-you-manage-multiple-environments-spring-profiles">Q37. How do you manage multiple environments? Spring Profiles?</h3>
+<p><strong>Answer:</strong></p>
+<p><strong>Spring Profiles</strong> allow environment-specific configuration.</p>
+<p><strong>GSTN environment files:</strong></p>
+<pre><code>application.yml              # Common/default properties
+application-local.yml         # Local development
+application-test.yml          # Test environment (H2 in-memory DB)
+application-prod.yml          # Production (security hardened)
+</code></pre>
+<p><strong>GSTN's profile files:</strong></p>
+<pre><code class="language-yaml"><span class="hljs-comment"># application-prod.yml (from GspAuthActivity)</span>
+<span class="hljs-attr">springdoc:</span>
+  <span class="hljs-attr">api-docs:</span>
+    <span class="hljs-attr">enabled:</span> <span class="hljs-literal">false</span>      <span class="hljs-comment"># Disable Swagger in production</span>
+  <span class="hljs-attr">swagger-ui:</span>
+    <span class="hljs-attr">enabled:</span> <span class="hljs-literal">false</span>      <span class="hljs-comment"># Security: no API docs exposed</span>
+
+<span class="hljs-comment"># application-local.yml — local development with debugging</span>
+<span class="hljs-attr">spring:</span>
+  <span class="hljs-attr">jpa:</span>
+    <span class="hljs-attr">show-sql:</span> <span class="hljs-literal">true</span>
+</code></pre>
+<p><strong>Activation methods:</strong></p>
+<pre><code class="language-bash"><span class="hljs-comment"># 1. Command line argument</span>
+java -jar app.jar --spring.profiles.active=prod
+
+<span class="hljs-comment"># 2. Environment variable</span>
+<span class="hljs-built_in">export</span> SPRING_PROFILES_ACTIVE=prod
+
+<span class="hljs-comment"># 3. application.properties</span>
+spring.profiles.active=prod
+
+<span class="hljs-comment"># 4. In code (not recommended)</span>
+SpringApplication app = new SpringApplication(MyApp.class);
+app.setAdditionalProfiles(<span class="hljs-string">&quot;prod&quot;</span>);
+</code></pre>
+<p><strong>@Profile annotation:</strong></p>
+<pre><code class="language-java"><span class="hljs-meta">@Configuration</span>
+<span class="hljs-meta">@Profile(&quot;prod&quot;)</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">ProdSecurityConfig</span> { ... }  <span class="hljs-comment">// Only loads in prod</span>
+
+<span class="hljs-meta">@Configuration</span>
+<span class="hljs-meta">@Profile(&quot;!prod&quot;)</span>  <span class="hljs-comment">// NOT prod</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">DevSecurityConfig</span> { ... }   <span class="hljs-comment">// Loads in dev, qa, staging</span>
+</code></pre>
+<p><strong>GSTN pattern:</strong> We activate profiles per deployment environment. Each Kubernetes deployment passes <code>SPRING_PROFILES_ACTIVE</code> as environment variable.</p>
+<hr>
+<h3 id="q38-how-do-you-externalize-configuration-in-production">Q38. How do you externalize configuration in production?</h3>
+<p><strong>Answer:</strong></p>
+<p><strong>Priority order (highest wins):</strong></p>
+<ol>
+<li>Command-line arguments (<code>--server.port=8080</code>)</li>
+<li>JVM system properties (<code>-Dserver.port=8080</code>)</li>
+<li>Environment variables (<code>SERVER_PORT=8080</code>)</li>
+<li>External <code>application-{profile}.yml</code> (outside JAR)</li>
+<li>Internal <code>application-{profile}.yml</code> (inside JAR)</li>
+<li><code>application.yml</code> (default)</li>
+</ol>
+<p><strong>GSTN Production approach:</strong></p>
+<ol>
+<li><strong>Properties files on server</strong> — <code>GSTPropertyReader</code> loads from external paths</li>
+<li><strong>Environment variables</strong> — Kubernetes ConfigMaps/Secrets mounted as env vars</li>
+<li><strong>Spring Boot's EnvironmentPostProcessor</strong> — GSTN's <code>GstEnvironmentPostProcessor</code> customizes property sources before context loads</li>
+<li><strong>Secrets</strong> — Database passwords, API keys via Kubernetes Secrets (mounted as files or env vars)</li>
+</ol>
+<pre><code class="language-java"><span class="hljs-comment">// GSTN&#x27;s custom EnvironmentPostProcessor</span>
+<span class="hljs-comment">// From gst-spring-boot2-starter spring.factories</span>
+org.springframework.boot.env.EnvironmentPostProcessor=\
+  org.gst.framework.starter.autoconfigure.env.GstEnvironmentPostProcessor
+</code></pre>
+<p><strong>Never commit secrets to code.</strong> Use: Vault, K8s Secrets, or AWS Secrets Manager.</p>
+<hr>
+<h3 id="q39-what-is-propertysource-how-do-you-load-custom-property-files">Q39. What is @PropertySource? How do you load custom property files?</h3>
+<p><strong>Answer:</strong></p>
+<pre><code class="language-java"><span class="hljs-meta">@Configuration</span>
+<span class="hljs-meta">@PropertySource(&quot;classpath:kafka-config.properties&quot;)</span>       <span class="hljs-comment">// From classpath</span>
+<span class="hljs-meta">@PropertySource(&quot;file:/opt/config/gst-custom.properties&quot;)</span>  <span class="hljs-comment">// From filesystem</span>
+<span class="hljs-meta">@PropertySource(value = &quot;classpath:optional.properties&quot;, ignoreResourceNotFound = true)</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">CustomConfig</span> {
+    
+    <span class="hljs-meta">@Value(&quot;${custom.property}&quot;)</span>
+    <span class="hljs-keyword">private</span> String customProp;
+}
+</code></pre>
+<p><strong>GSTN uses <code>GSTPropertyReader</code></strong> — a custom utility that loads properties from configurable file paths. This predates Spring Boot's <code>@ConfigurationProperties</code> and provides backward compatibility with our older Spring Framework 4.x modules.</p>
+<hr>
+<h2 id="23-rest-apis">2.3 REST APIs</h2>
+<h3 id="q40-getmapping-postmapping-putmapping-patchmapping-deletemapping--when-to-use-each">Q40. @GetMapping, @PostMapping, @PutMapping, @PatchMapping, @DeleteMapping — when to use each?</h3>
+<p><strong>Answer:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th>Annotation</th>
+<th>Idempotent?</th>
+<th>Request Body?</th>
+<th>Use Case</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>GET</strong></td>
+<td><code>@GetMapping</code></td>
+<td>Yes</td>
+<td>No</td>
+<td>Fetch data</td>
+</tr>
+<tr>
+<td><strong>POST</strong></td>
+<td><code>@PostMapping</code></td>
+<td><strong>No</strong></td>
+<td>Yes</td>
+<td>Create resource</td>
+</tr>
+<tr>
+<td><strong>PUT</strong></td>
+<td><code>@PutMapping</code></td>
+<td>Yes</td>
+<td>Yes</td>
+<td><strong>Full update</strong> (replace entire resource)</td>
+</tr>
+<tr>
+<td><strong>PATCH</strong></td>
+<td><code>@PatchMapping</code></td>
+<td>Yes</td>
+<td>Yes</td>
+<td><strong>Partial update</strong> (update specific fields)</td>
+</tr>
+<tr>
+<td><strong>DELETE</strong></td>
+<td><code>@DeleteMapping</code></td>
+<td>Yes</td>
+<td>Usually no</td>
+<td>Delete resource</td>
+</tr>
+</tbody>
+</table>
+<p><strong>PUT vs PATCH:</strong></p>
+<ul>
+<li><strong>PUT</strong>: Send the COMPLETE resource → server replaces it entirely</li>
+<li><strong>PATCH</strong>: Send only CHANGED fields → server merges them</li>
+</ul>
+<p><strong>GSTN controller examples:</strong></p>
+<pre><code class="language-java"><span class="hljs-comment">// GET — Retrieve ANX1A data</span>
+<span class="hljs-meta">@GetMapping(value = &quot;/auth/internalapi/newreturns/getanx1aData&quot;,
+            produces = MediaType.APPLICATION_JSON_VALUE)</span>
+<span class="hljs-keyword">public</span> <span class="hljs-meta">@ResponseBody</span> String <span class="hljs-title function_">getAnx1aData</span><span class="hljs-params">(
+    <span class="hljs-meta">@RequestParam(name = &quot;gstin&quot;)</span> String gstin,
+    <span class="hljs-meta">@RequestParam(name = &quot;rtn_prd&quot;)</span> String returnPrd)</span> { ... }
+
+<span class="hljs-comment">// POST — Create case application</span>
+<span class="hljs-meta">@PostMapping(value = &quot;/auth/api/case/create&quot;,
+             produces = MediaType.APPLICATION_JSON_VALUE)</span>
+<span class="hljs-keyword">public</span> <span class="hljs-meta">@ResponseBody</span> Object <span class="hljs-title function_">createCaseApp</span><span class="hljs-params">(
+    <span class="hljs-meta">@RequestBody</span> List&lt;CaseAllocationDetailsVO&gt; caseDetailsList)</span> { ... }
+
+<span class="hljs-comment">// PUT — Save/update ANX1A data (full replacement)</span>
+<span class="hljs-meta">@RequestMapping(value = &quot;/v1.0/taxpayerapi/anx1a/saveanx1a&quot;,
+               method = RequestMethod.PUT,
+               consumes = MediaType.APPLICATION_JSON_VALUE)</span>
+<span class="hljs-keyword">public</span> String <span class="hljs-title function_">saveAnx1a</span><span class="hljs-params">(<span class="hljs-meta">@RequestBody</span> String request)</span> { ... }
+</code></pre>
+<hr>
+<h3 id="q41-pathvariable-vs-requestparam-vs-requestbody--differences-with-examples">Q41. @PathVariable vs @RequestParam vs @RequestBody — differences with examples?</h3>
+<p><strong>Answer:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Annotation</th>
+<th>Source</th>
+<th>Mandatory?</th>
+<th>Example URL</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>@PathVariable</code></td>
+<td><strong>URL path</strong> segment</td>
+<td>Yes (default)</td>
+<td><code>/api/returns/{gstin}</code></td>
+</tr>
+<tr>
+<td><code>@RequestParam</code></td>
+<td><strong>Query string</strong> parameter</td>
+<td>Yes (default), configurable</td>
+<td><code>/api/returns?gstin=29XXX&amp;period=042024</code></td>
+</tr>
+<tr>
+<td><code>@RequestBody</code></td>
+<td><strong>HTTP body</strong> (JSON/XML)</td>
+<td>Yes (default)</td>
+<td>POST body</td>
+</tr>
+</tbody>
+</table>
+<p><strong>GSTN codebase examples:</strong></p>
+<pre><code class="language-java"><span class="hljs-comment">// @PathVariable — extract from URL path</span>
+<span class="hljs-meta">@PostMapping(&quot;/auth/api/un/save/{unRegRefId}&quot;)</span>
+<span class="hljs-keyword">public</span> <span class="hljs-meta">@ResponseBody</span> Object <span class="hljs-title function_">saveUNBodyAuthorisedDtls</span><span class="hljs-params">(
+    <span class="hljs-meta">@PathVariable(&quot;unRegRefId&quot;)</span> String unRegRefId,
+    <span class="hljs-meta">@RequestBody</span> UnBodyVO unBodyVO)</span> { ... }
+
+<span class="hljs-meta">@GetMapping(&quot;/auth/api/temp/{tempRegRefId}&quot;)</span>
+<span class="hljs-keyword">public</span> <span class="hljs-meta">@ResponseBody</span> Object <span class="hljs-title function_">getTmpRegDtls</span><span class="hljs-params">(
+    <span class="hljs-meta">@PathVariable(&quot;tempRegRefId&quot;)</span> String tempRegRefId)</span> { ... }
+
+<span class="hljs-comment">// @RequestParam — query parameters with optional support</span>
+<span class="hljs-meta">@GetMapping(&quot;/auth/internalapi/newreturns/getanx1aData&quot;)</span>
+<span class="hljs-keyword">public</span> <span class="hljs-meta">@ResponseBody</span> String <span class="hljs-title function_">getAnx1aData</span><span class="hljs-params">(
+    <span class="hljs-meta">@RequestParam(name = &quot;gstin&quot;)</span> String gstin,                    // Required
+    <span class="hljs-meta">@RequestParam(name = &quot;sec_name&quot;, required = false)</span> String sec, // Optional
+    <span class="hljs-meta">@RequestParam(name = &quot;rtn_prd&quot;)</span> String returnPrd,             // Required  
+    <span class="hljs-meta">@RequestParam(name = &quot;from_date&quot;, required = false)</span> String fromDate,
+    <span class="hljs-meta">@RequestParam(name = &quot;to_date&quot;, required = false)</span> String toDate)</span> { ... }
+
+<span class="hljs-comment">// @RequestBody — JSON body for POST/PUT</span>
+<span class="hljs-meta">@PostMapping(&quot;/auth/api/case/assignCase&quot;)</span>
+<span class="hljs-keyword">public</span> <span class="hljs-meta">@ResponseBody</span> Object <span class="hljs-title function_">assignCaseApp</span><span class="hljs-params">(
+    <span class="hljs-meta">@RequestBody</span> CaseAssignDetailsVO caseAssignDetailsVO)</span> { ... }
+</code></pre>
+<hr>
+<h3 id="q42-how-do-you-implement-pagination-and-sorting-in-rest-apis-spring-datas-pageable">Q42. How do you implement pagination and sorting in REST APIs? Spring Data's Pageable?</h3>
+<p><strong>Answer:</strong></p>
+<pre><code class="language-java"><span class="hljs-comment">// Repository — accepts Pageable</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">interface</span> <span class="hljs-title class_">ReturnRepository</span> <span class="hljs-keyword">extends</span> <span class="hljs-title class_">JpaRepository</span>&lt;ReturnEntity, Long&gt; {
+    Page&lt;ReturnEntity&gt; <span class="hljs-title function_">findByGstin</span><span class="hljs-params">(String gstin, Pageable pageable)</span>;
+    
+    <span class="hljs-meta">@Query(&quot;SELECT r FROM ReturnEntity r WHERE r.period = :period&quot;)</span>
+    Page&lt;ReturnEntity&gt; <span class="hljs-title function_">findByPeriod</span><span class="hljs-params">(<span class="hljs-meta">@Param(&quot;period&quot;)</span> String period, Pageable pageable)</span>;
+}
+
+<span class="hljs-comment">// Controller — receives pagination params</span>
+<span class="hljs-meta">@GetMapping(&quot;/api/returns&quot;)</span>
+<span class="hljs-keyword">public</span> Page&lt;ReturnVO&gt; <span class="hljs-title function_">getReturns</span><span class="hljs-params">(
+    <span class="hljs-meta">@RequestParam</span> String gstin,
+    <span class="hljs-meta">@RequestParam(defaultValue = &quot;0&quot;)</span> <span class="hljs-type">int</span> page,
+    <span class="hljs-meta">@RequestParam(defaultValue = &quot;20&quot;)</span> <span class="hljs-type">int</span> size,
+    <span class="hljs-meta">@RequestParam(defaultValue = &quot;filingDate&quot;)</span> String sortBy,
+    <span class="hljs-meta">@RequestParam(defaultValue = &quot;desc&quot;)</span> String direction)</span> {
+    
+    <span class="hljs-type">Sort</span> <span class="hljs-variable">sort</span> <span class="hljs-operator">=</span> Sort.by(Sort.Direction.fromString(direction), sortBy);
+    <span class="hljs-type">Pageable</span> <span class="hljs-variable">pageable</span> <span class="hljs-operator">=</span> PageRequest.of(page, size, sort);
+    <span class="hljs-keyword">return</span> returnRepository.findByGstin(gstin, pageable);
+}
+</code></pre>
+<p><strong>Response structure (Page<T>):</strong></p>
+<pre><code class="language-json"><span class="hljs-punctuation">{</span>
+  <span class="hljs-attr">&quot;content&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">[</span>...<span class="hljs-punctuation">]</span><span class="hljs-punctuation">,</span>
+  <span class="hljs-attr">&quot;totalElements&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-number">1250</span><span class="hljs-punctuation">,</span>
+  <span class="hljs-attr">&quot;totalPages&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-number">63</span><span class="hljs-punctuation">,</span>
+  <span class="hljs-attr">&quot;size&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-number">20</span><span class="hljs-punctuation">,</span>
+  <span class="hljs-attr">&quot;number&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-number">0</span><span class="hljs-punctuation">,</span>
+  <span class="hljs-attr">&quot;first&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-keyword">true</span><span class="hljs-punctuation">,</span>
+  <span class="hljs-attr">&quot;last&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-keyword">false</span>
+<span class="hljs-punctuation">}</span>
+</code></pre>
+<p><strong>GSTN Context:</strong> For large datasets (millions of returns), pagination is critical. Our search APIs like WL History Search use pagination:</p>
+<pre><code class="language-java"><span class="hljs-meta">@PostMapping(&quot;/wlHistorySearch&quot;)</span>
+<span class="hljs-keyword">public</span> <span class="hljs-meta">@ResponseBody</span> Object <span class="hljs-title function_">searchWLHistory</span><span class="hljs-params">(<span class="hljs-meta">@RequestBody</span> SearchWLRequest request)</span> {
+    <span class="hljs-comment">// SearchWLRequest contains page number and size</span>
+    <span class="hljs-comment">// Service returns paginated results</span>
+}
+</code></pre>
+<hr>
+<h3 id="q43-how-do-you-version-rest-apis">Q43. How do you version REST APIs?</h3>
+<p><strong>Answer:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Strategy</th>
+<th>Example</th>
+<th>Pros</th>
+<th>Cons</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>URI versioning</strong></td>
+<td><code>/v1.0/taxpayerapi/anx1a/getrecords</code></td>
+<td>Simple, visible, cacheable</td>
+<td>URL pollution</td>
+</tr>
+<tr>
+<td>Header versioning</td>
+<td><code>Accept: application/vnd.gstn.v2+json</code></td>
+<td>Clean URLs</td>
+<td>Hidden, not cacheable</td>
+</tr>
+<tr>
+<td>Query param</td>
+<td><code>/api/returns?version=2</code></td>
+<td>Simple</td>
+<td>Ugly, not RESTful</td>
+</tr>
+</tbody>
+</table>
+<p><strong>GSTN uses URI versioning:</strong></p>
+<pre><code class="language-java"><span class="hljs-comment">// API version in URL path — standard GSTN pattern</span>
+<span class="hljs-meta">@RequestMapping(value = &quot;/v1.0/taxpayerapi/anx1a/getrecords&quot;,
+               method = RequestMethod.GET,
+               produces = MediaType.APPLICATION_JSON_VALUE)</span>
+<span class="hljs-keyword">public</span> String <span class="hljs-title function_">getAnx1aData</span><span class="hljs-params">(HttpServletRequest request)</span> { ... }
+
+<span class="hljs-meta">@RequestMapping(value = &quot;/v1.0/taxpayerapi/anx1a/saveanx1a&quot;,
+               method = RequestMethod.PUT)</span>
+<span class="hljs-keyword">public</span> String <span class="hljs-title function_">saveAnx1a</span><span class="hljs-params">(<span class="hljs-meta">@RequestBody</span> String request)</span> { ... }
+</code></pre>
+<p>URI versioning is the most common and practical approach — easy to route in API gateway, cacheable by CDN, and visible in logs.</p>
+<hr>
+<h3 id="q44-what-is-content-negotiation">Q44. What is content negotiation?</h3>
+<p><strong>Answer:</strong></p>
+<p>Content negotiation allows the <strong>same endpoint to return different formats</strong> (JSON, XML) based on the client's preference.</p>
+<p><strong>How Spring handles it:</strong></p>
+<ol>
+<li><strong>Accept header</strong>: Client sends <code>Accept: application/json</code> or <code>Accept: application/xml</code></li>
+<li><strong>URL suffix</strong>: <code>/api/returns.json</code> vs <code>/api/returns.xml</code> (deprecated)</li>
+<li><strong>Query parameter</strong>: <code>/api/returns?format=xml</code></li>
+</ol>
+<pre><code class="language-java"><span class="hljs-comment">// Spring auto-negotiates based on Accept header when Jackson + JAXB are on classpath</span>
+<span class="hljs-meta">@GetMapping(value = &quot;/api/returns&quot;, 
+            produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE})</span>
+<span class="hljs-keyword">public</span> ReturnVO <span class="hljs-title function_">getReturn</span><span class="hljs-params">(<span class="hljs-meta">@RequestParam</span> String gstin)</span> {
+    <span class="hljs-keyword">return</span> returnService.getReturn(gstin);
+}
+</code></pre>
+<p><strong>GSTN:</strong> Our APIs exclusively use <code>produces = MediaType.APPLICATION_JSON_VALUE</code> — JSON is the standard for all GSTN APIs.</p>
+<hr>
+<h3 id="q45-how-do-you-validate-request-bodies">Q45. How do you validate request bodies?</h3>
+<p><strong>Answer:</strong></p>
+<pre><code class="language-java"><span class="hljs-comment">// VO/DTO with validation annotations</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">ReturnFilingRequest</span> {
+    <span class="hljs-meta">@NotNull(message = &quot;GSTIN is required&quot;)</span>
+    <span class="hljs-meta">@Size(min = 15, max = 15, message = &quot;GSTIN must be 15 characters&quot;)</span>
+    <span class="hljs-meta">@Pattern(regexp = &quot;^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$&quot;,
+             message = &quot;Invalid GSTIN format&quot;)</span>
+    <span class="hljs-keyword">private</span> String gstin;
+    
+    <span class="hljs-meta">@NotNull(message = &quot;Return period is required&quot;)</span>
+    <span class="hljs-meta">@Pattern(regexp = &quot;^(0[1-9]|1[0-2])\\d{4}$&quot;, message = &quot;Period must be MMYYYY&quot;)</span>
+    <span class="hljs-keyword">private</span> String returnPeriod;
+    
+    <span class="hljs-meta">@NotNull</span> <span class="hljs-meta">@Min(0)</span> <span class="hljs-meta">@Max(999999999)</span>
+    <span class="hljs-keyword">private</span> BigDecimal taxableAmount;
+}
+
+<span class="hljs-comment">// Controller — trigger validation with @Valid</span>
+<span class="hljs-meta">@PostMapping(&quot;/api/returns/file&quot;)</span>
+<span class="hljs-keyword">public</span> ResponseEntity&lt;?&gt; fileReturn(<span class="hljs-meta">@Valid</span> <span class="hljs-meta">@RequestBody</span> ReturnFilingRequest request) {
+    <span class="hljs-comment">// Only reaches here if validation passes</span>
+    <span class="hljs-keyword">return</span> ResponseEntity.ok(returnService.file(request));
+}
+</code></pre>
+<p><strong>GSTN validation patterns:</strong></p>
+<pre><code class="language-java"><span class="hljs-comment">// Manual validation in controller (GSTN&#x27;s current approach)</span>
+<span class="hljs-keyword">if</span> (gstin == <span class="hljs-literal">null</span> || gstin.trim().isEmpty()) {
+    <span class="hljs-keyword">return</span> respGenerator.generateErrorResponse(
+        Anx1aErrorCode.HBASE01_Code, Anx1aErrorCode.HBASE01_MSG);
+}
+
+<span class="hljs-comment">// AOP-based validation (from UserMastersAPI)</span>
+<span class="hljs-meta">@Aspect</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">G2BApiValidator</span> {
+    <span class="hljs-meta">@Before(&quot;execution(* org.gst.masters.api.controller.G2BController.*(..))&quot;)</span>
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">validateRequest</span><span class="hljs-params">()</span> { 
+        <span class="hljs-comment">// Validate API headers, auth tokens before controller method executes</span>
+    }
+}
+</code></pre>
+<p><strong>Custom Validator:</strong></p>
+<pre><code class="language-java"><span class="hljs-meta">@Constraint(validatedBy = GstinValidator.class)</span>
+<span class="hljs-meta">@Target({ElementType.FIELD})</span>
+<span class="hljs-meta">@Retention(RetentionPolicy.RUNTIME)</span>
+<span class="hljs-keyword">public</span> <span class="hljs-meta">@interface</span> ValidGstin {
+    String <span class="hljs-title function_">message</span><span class="hljs-params">()</span> <span class="hljs-keyword">default</span> <span class="hljs-string">&quot;Invalid GSTIN&quot;</span>;
+    Class&lt;?&gt;[] groups() <span class="hljs-keyword">default</span> {};
+    Class&lt;? <span class="hljs-keyword">extends</span> <span class="hljs-title class_">Payload</span>&gt;[] payload() <span class="hljs-keyword">default</span> {};
+}
+
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">GstinValidator</span> <span class="hljs-keyword">implements</span> <span class="hljs-title class_">ConstraintValidator</span>&lt;ValidGstin, String&gt; {
+    <span class="hljs-meta">@Override</span>
+    <span class="hljs-keyword">public</span> <span class="hljs-type">boolean</span> <span class="hljs-title function_">isValid</span><span class="hljs-params">(String gstin, ConstraintValidatorContext ctx)</span> {
+        <span class="hljs-keyword">return</span> gstin != <span class="hljs-literal">null</span> &amp;&amp; gstin.matches(<span class="hljs-string">&quot;^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}...&quot;</span>);
+    }
+}
+</code></pre>
+<hr>
+<h3 id="q46-what-http-status-codes-do-you-use">Q46. What HTTP status codes do you use?</h3>
+<p><strong>Answer:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Code</th>
+<th>Meaning</th>
+<th>When to Use</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>200</strong> OK</td>
+<td>Successful GET/PUT/PATCH</td>
+<td>Return filing retrieved/updated</td>
+</tr>
+<tr>
+<td><strong>201</strong> Created</td>
+<td>Successful POST</td>
+<td>New return filed, new registration created</td>
+</tr>
+<tr>
+<td><strong>204</strong> No Content</td>
+<td>Successful DELETE</td>
+<td>Resource deleted, nothing to return</td>
+</tr>
+<tr>
+<td><strong>400</strong> Bad Request</td>
+<td>Validation failure</td>
+<td>Invalid GSTIN format, missing fields</td>
+</tr>
+<tr>
+<td><strong>401</strong> Unauthorized</td>
+<td>Authentication failed</td>
+<td>Invalid/expired JWT token</td>
+</tr>
+<tr>
+<td><strong>403</strong> Forbidden</td>
+<td>Authorized but not allowed</td>
+<td>Taxpayer trying to access another's data</td>
+</tr>
+<tr>
+<td><strong>404</strong> Not Found</td>
+<td>Resource doesn't exist</td>
+<td>GSTIN not registered</td>
+</tr>
+<tr>
+<td><strong>409</strong> Conflict</td>
+<td>Resource state conflict</td>
+<td>Return already filed for this period</td>
+</tr>
+<tr>
+<td><strong>429</strong> Too Many Requests</td>
+<td>Rate limit exceeded</td>
+<td>Filing season API throttling</td>
+</tr>
+<tr>
+<td><strong>500</strong> Internal Server Error</td>
+<td>Server-side failure</td>
+<td>Unexpected exception</td>
+</tr>
+<tr>
+<td><strong>502</strong> Bad Gateway</td>
+<td>Upstream failure</td>
+<td>Payment gateway down</td>
+</tr>
+<tr>
+<td><strong>503</strong> Service Unavailable</td>
+<td>Service maintenance</td>
+<td>Planned downtime</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h3 id="q47-how-do-you-implement-hateoas-have-you-used-it">Q47. How do you implement HATEOAS? Have you used it?</h3>
+<p><strong>Answer:</strong></p>
+<p>HATEOAS (Hypermedia As The Engine Of Application State) adds <strong>links</strong> to responses telling clients what actions are available next.</p>
+<pre><code class="language-java"><span class="hljs-comment">// With Spring HATEOAS</span>
+<span class="hljs-meta">@GetMapping(&quot;/api/returns/{id}&quot;)</span>
+<span class="hljs-keyword">public</span> EntityModel&lt;ReturnVO&gt; <span class="hljs-title function_">getReturn</span><span class="hljs-params">(<span class="hljs-meta">@PathVariable</span> Long id)</span> {
+    <span class="hljs-type">ReturnVO</span> <span class="hljs-variable">returnVO</span> <span class="hljs-operator">=</span> returnService.get(id);
+    <span class="hljs-keyword">return</span> EntityModel.of(returnVO,
+        linkTo(methodOn(ReturnController.class).getReturn(id)).withSelfRel(),
+        linkTo(methodOn(ReturnController.class).fileReturn(id)).withRel(<span class="hljs-string">&quot;file&quot;</span>),
+        linkTo(methodOn(ReturnController.class).getAll()).withRel(<span class="hljs-string">&quot;all-returns&quot;</span>));
+}
+</code></pre>
+<p><strong>GSTN:</strong> We don't currently use HATEOAS. Our APIs are straightforward JSON responses. HATEOAS adds complexity that isn't needed for our internal service-to-service communication — it's more valuable for public APIs with diverse client applications.</p>
+<hr>
+<h3 id="q48-how-do-you-handle-file-uploaddownload-in-rest-apis">Q48. How do you handle file upload/download in REST APIs?</h3>
+<p><strong>Answer:</strong></p>
+<pre><code class="language-java"><span class="hljs-comment">// FILE UPLOAD</span>
+<span class="hljs-meta">@PostMapping(&quot;/api/returns/upload&quot;)</span>
+<span class="hljs-keyword">public</span> ResponseEntity&lt;String&gt; <span class="hljs-title function_">uploadReturn</span><span class="hljs-params">(
+    <span class="hljs-meta">@RequestParam(&quot;file&quot;)</span> MultipartFile file,
+    <span class="hljs-meta">@RequestParam(&quot;gstin&quot;)</span> String gstin)</span> {
+    
+    <span class="hljs-keyword">if</span> (file.isEmpty()) <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">BadRequestException</span>(<span class="hljs-string">&quot;File is empty&quot;</span>);
+    <span class="hljs-keyword">if</span> (file.getSize() &gt; <span class="hljs-number">10_000_000</span>) <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">BadRequestException</span>(<span class="hljs-string">&quot;File too large&quot;</span>);
+    
+    <span class="hljs-comment">// Validate content type</span>
+    <span class="hljs-type">String</span> <span class="hljs-variable">contentType</span> <span class="hljs-operator">=</span> file.getContentType();
+    <span class="hljs-keyword">if</span> (!<span class="hljs-string">&quot;application/json&quot;</span>.equals(contentType)) {
+        <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">BadRequestException</span>(<span class="hljs-string">&quot;Only JSON files accepted&quot;</span>);
+    }
+    
+    <span class="hljs-type">byte</span>[] bytes = file.getBytes();
+    <span class="hljs-comment">// Process file...</span>
+    <span class="hljs-keyword">return</span> ResponseEntity.ok(<span class="hljs-string">&quot;Uploaded successfully&quot;</span>);
+}
+
+<span class="hljs-comment">// FILE DOWNLOAD</span>
+<span class="hljs-meta">@GetMapping(&quot;/api/returns/download/{id}&quot;)</span>
+<span class="hljs-keyword">public</span> ResponseEntity&lt;Resource&gt; <span class="hljs-title function_">downloadReturn</span><span class="hljs-params">(<span class="hljs-meta">@PathVariable</span> Long id)</span> {
+    <span class="hljs-type">byte</span>[] data = returnService.getReturnFile(id);
+    <span class="hljs-type">ByteArrayResource</span> <span class="hljs-variable">resource</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">ByteArrayResource</span>(data);
+    
+    <span class="hljs-keyword">return</span> ResponseEntity.ok()
+        .header(HttpHeaders.CONTENT_DISPOSITION, <span class="hljs-string">&quot;attachment; filename=return.json&quot;</span>)
+        .contentType(MediaType.APPLICATION_JSON)
+        .contentLength(data.length)
+        .body(resource);
+}
+</code></pre>
+<p><strong>GSTN:</strong> Our offline file generation (<code>OfflineAsynchFileGenDAO</code>) generates return files asynchronously and stores them. Taxpayers download generated returns via signed URLs.</p>
+<hr>
+<h2 id="24-exception-handling">2.4 Exception Handling</h2>
+<h3 id="q49-what-is-controlleradvice--exceptionhandler-how-did-you-implement-global-exception-handling-in-gstn">Q49. What is @ControllerAdvice + @ExceptionHandler? How did you implement global exception handling in GSTN?</h3>
+<p><strong>Answer:</strong></p>
+<p><code>@ControllerAdvice</code> is a <strong>global exception handler</strong> — catches exceptions from ALL controllers in one place.</p>
+<pre><code class="language-java"><span class="hljs-meta">@ControllerAdvice</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">GlobalExceptionHandler</span> {
+
+    <span class="hljs-meta">@ExceptionHandler(GSTLogicalException.class)</span>
+    <span class="hljs-keyword">public</span> ResponseEntity&lt;ErrorResponse&gt; <span class="hljs-title function_">handleBusinessException</span><span class="hljs-params">(GSTLogicalException ex)</span> {
+        <span class="hljs-type">ErrorResponse</span> <span class="hljs-variable">error</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">ErrorResponse</span>();
+        error.setErrorCode(ex.getErrorCode());
+        error.setMessage(ex.getMessage());
+        error.setTimestamp(System.currentTimeMillis());
+        <span class="hljs-keyword">return</span> ResponseEntity.badRequest().body(error);
+    }
+    
+    <span class="hljs-meta">@ExceptionHandler(GSTRuntimeException.class)</span>
+    <span class="hljs-keyword">public</span> ResponseEntity&lt;ErrorResponse&gt; <span class="hljs-title function_">handleRuntimeException</span><span class="hljs-params">(GSTRuntimeException ex)</span> {
+        <span class="hljs-type">ErrorResponse</span> <span class="hljs-variable">error</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">ErrorResponse</span>();
+        error.setErrorCode(ex.getErrorCode());
+        error.setMessage(<span class="hljs-string">&quot;Internal server error&quot;</span>);
+        <span class="hljs-keyword">return</span> ResponseEntity.status(<span class="hljs-number">500</span>).body(error);
+    }
+    
+    <span class="hljs-meta">@ExceptionHandler(Exception.class)</span>
+    <span class="hljs-keyword">public</span> ResponseEntity&lt;ErrorResponse&gt; <span class="hljs-title function_">handleGenericException</span><span class="hljs-params">(Exception ex)</span> {
+        LOGGER.error(<span class="hljs-string">&quot;Unexpected error&quot;</span>, ex);
+        <span class="hljs-keyword">return</span> ResponseEntity.status(<span class="hljs-number">500</span>)
+            .body(<span class="hljs-keyword">new</span> <span class="hljs-title class_">ErrorResponse</span>(<span class="hljs-string">&quot;INTERNAL_ERROR&quot;</span>, <span class="hljs-string">&quot;Unexpected error&quot;</span>));
+    }
+}
+</code></pre>
+<p><strong>GSTN Exception Hierarchy:</strong></p>
+<pre><code class="language-java"><span class="hljs-comment">// Checked — business logic errors (expected failures)</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">GSTLogicalException</span> <span class="hljs-keyword">extends</span> <span class="hljs-title class_">Exception</span> {
+    <span class="hljs-keyword">private</span> String errorCode;
+    <span class="hljs-keyword">private</span> String message;
+    <span class="hljs-keyword">private</span> <span class="hljs-type">int</span> httpStatusCode;
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> Map&lt;String, List&lt;String&gt;&gt; msgMap; <span class="hljs-comment">// Error registry</span>
+}
+
+<span class="hljs-comment">// Unchecked — system errors (unexpected failures)</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">GSTRuntimeException</span> <span class="hljs-keyword">extends</span> <span class="hljs-title class_">RuntimeException</span> {
+    <span class="hljs-keyword">private</span> String errorCode;
+    <span class="hljs-keyword">private</span> String message;
+    <span class="hljs-keyword">private</span> <span class="hljs-type">int</span> httpStatusCode;
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> Map&lt;String, List&lt;String&gt;&gt; runtimeExpMap;
+}
+
+<span class="hljs-comment">// Domain-specific exceptions</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">ValidationFwkException</span> <span class="hljs-keyword">extends</span> <span class="hljs-title class_">Exception</span> {}
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">ReplayCountExceededException</span> <span class="hljs-keyword">extends</span> <span class="hljs-title class_">Exception</span> {}
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">ReturnSystemException</span> <span class="hljs-keyword">extends</span> <span class="hljs-title class_">RuntimeException</span> {}
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">HBaseFwkIllegalArgumentException</span> <span class="hljs-keyword">extends</span> <span class="hljs-title class_">Exception</span> {}
+</code></pre>
+<hr>
+<h3 id="q50-how-do-you-create-a-custom-exception-hierarchy">Q50. How do you create a custom exception hierarchy?</h3>
+<p><strong>Answer:</strong></p>
+<pre><code>Exception (Checked)
+├── GSTLogicalException (Business logic errors)
+│   ├── ValidationFwkException (Input validation failures)
+│   ├── ReplayCountExceededException (Duplicate filing attempt)
+│   ├── HBaseFwkIllegalArgumentException (HBase query errors)
+│   └── ZdlException (ZDL processing errors)
+│
+RuntimeException (Unchecked)
+├── GSTRuntimeException (System errors)
+│   ├── GstUncheckedException (Generic runtime errors)
+│   └── ReturnSystemException (Return processing system failures)
+│   └── SpoutException (Kafka spout errors)
+</code></pre>
+<p><strong>Best Practice:</strong> Checked exceptions for recoverable conditions (validation, not found), Unchecked for programming errors and system failures.</p>
+<hr>
+<h3 id="q51-how-do-you-return-a-standardized-error-response">Q51. How do you return a standardized error response?</h3>
+<p><strong>Answer:</strong></p>
+<pre><code class="language-java"><span class="hljs-comment">// Standard error response VO</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">ErrorResponse</span> {
+    <span class="hljs-keyword">private</span> String errorCode;     <span class="hljs-comment">// &quot;GSTIN_INVALID&quot;, &quot;AUTH_EXPIRED&quot;</span>
+    <span class="hljs-keyword">private</span> String message;       <span class="hljs-comment">// Human-readable message</span>
+    <span class="hljs-keyword">private</span> <span class="hljs-type">long</span> timestamp;       <span class="hljs-comment">// When error occurred</span>
+    <span class="hljs-keyword">private</span> String path;          <span class="hljs-comment">// Request path</span>
+    <span class="hljs-keyword">private</span> <span class="hljs-type">int</span> status;           <span class="hljs-comment">// HTTP status code</span>
+    <span class="hljs-keyword">private</span> List&lt;FieldError&gt; fieldErrors;  <span class="hljs-comment">// Validation errors</span>
+}
+
+<span class="hljs-comment">// GSTN&#x27;s response pattern</span>
+<span class="hljs-comment">// From ResponseUtil — standardized error generation</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">ResponseUtil</span> {
+    <span class="hljs-keyword">public</span> String <span class="hljs-title function_">generateErrorResponse</span><span class="hljs-params">(String errorCode, String errorMessage)</span> {
+        <span class="hljs-type">ErrorResponse</span> <span class="hljs-variable">response</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">ErrorResponse</span>();
+        response.setStatusCode(errorCode);
+        response.setStatusMessage(errorMessage);
+        response.setTimestamp(System.currentTimeMillis());
+        <span class="hljs-keyword">return</span> gson.toJson(response);
+    }
+}
+
+<span class="hljs-comment">// Usage in controller</span>
+<span class="hljs-keyword">if</span> (gstin == <span class="hljs-literal">null</span> || gstin.trim().isEmpty()) {
+    <span class="hljs-keyword">return</span> respGenerator.generateErrorResponse(
+        Anx1aErrorCode.HBASE01_Code, Anx1aErrorCode.HBASE01_MSG);
+}
+</code></pre>
+<hr>
+<h3 id="q52-checked-vs-unchecked-exceptions-in-spring">Q52. Checked vs Unchecked exceptions in Spring?</h3>
+<p><strong>Answer:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Aspect</th>
+<th>Checked (extends Exception)</th>
+<th>Unchecked (extends RuntimeException)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Compiler</td>
+<td>Forces try-catch or throws</td>
+<td>No compile-time enforcement</td>
+</tr>
+<tr>
+<td>@Transactional rollback</td>
+<td><strong>Does NOT rollback</strong> by default</td>
+<td><strong>Rollbacks</strong> by default</td>
+</tr>
+<tr>
+<td>Use case</td>
+<td>Expected, recoverable errors</td>
+<td>Programming errors, system failures</td>
+</tr>
+<tr>
+<td>GSTN example</td>
+<td><code>GSTLogicalException</code></td>
+<td><code>GSTRuntimeException</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Critical Spring gotcha:</strong></p>
+<pre><code class="language-java"><span class="hljs-meta">@Transactional</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">fileReturn</span><span class="hljs-params">(ReturnVO returnVO)</span> <span class="hljs-keyword">throws</span> GSTLogicalException {
+    repository.save(returnVO);
+    <span class="hljs-keyword">if</span> (invalid) <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">GSTLogicalException</span>(<span class="hljs-string">&quot;INVALID&quot;</span>); 
+    <span class="hljs-comment">// Transaction will NOT rollback! GSTLogicalException is checked.</span>
+}
+
+<span class="hljs-comment">// Fix — explicitly specify rollbackFor</span>
+<span class="hljs-meta">@Transactional(rollbackFor = Exception.class)</span>  <span class="hljs-comment">// Rollback on ALL exceptions</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">fileReturn</span><span class="hljs-params">(ReturnVO returnVO)</span> <span class="hljs-keyword">throws</span> GSTLogicalException { ... }
+</code></pre>
+<p>This is exactly what GSTN does:</p>
+<pre><code class="language-java"><span class="hljs-meta">@Transactional(value = &quot;transactionManagerAnx1aBatch&quot;, 
+              propagation = Propagation.REQUIRED, 
+              rollbackFor = Exception.class)</span>  <span class="hljs-comment">// Always rollback!</span>
+</code></pre>
+<hr>
+<h2 id="25-logging--monitoring">2.5 Logging &amp; Monitoring</h2>
+<h3 id="q53-slf4j--logback-configuration">Q53. SLF4J + Logback configuration?</h3>
+<p><strong>Answer:</strong></p>
+<p><strong>SLF4J</strong> = API (facade). <strong>Logback</strong> = Implementation. This separation lets you switch implementations without code changes.</p>
+<pre><code class="language-java"><span class="hljs-comment">// In GSTN service classes</span>
+<span class="hljs-keyword">import</span> org.slf4j.Logger;
+<span class="hljs-keyword">import</span> org.slf4j.LoggerFactory;
+
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">Anx1aServiceImpl</span> {
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">final</span> <span class="hljs-type">Logger</span> <span class="hljs-variable">LOGGER</span> <span class="hljs-operator">=</span> LoggerFactory.getLogger(Anx1aServiceImpl.class);
+    
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">process</span><span class="hljs-params">()</span> {
+        LOGGER.info(<span class="hljs-string">&quot;Entering searchWLHistoryGSTIN : {} at {}&quot;</span>, searchVO, System.currentTimeMillis());
+        LOGGER.debug(<span class="hljs-string">&quot;Processing GSTIN: {}&quot;</span>, gstin);  <span class="hljs-comment">// Parameterized logging (no string concat)</span>
+        LOGGER.error(<span class="hljs-string">&quot;Error in searchWLHistoryGSTIN&quot;</span>, exception);
+    }
+}
+</code></pre>
+<p><strong>Log Levels:</strong> TRACE &lt; DEBUG &lt; INFO &lt; WARN &lt; ERROR</p>
+<p><strong>logback.xml configuration:</strong></p>
+<pre><code class="language-xml"><span class="hljs-tag">&lt;<span class="hljs-name">configuration</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">appender</span> <span class="hljs-attr">name</span>=<span class="hljs-string">&quot;CONSOLE&quot;</span> <span class="hljs-attr">class</span>=<span class="hljs-string">&quot;ch.qos.logback.core.ConsoleAppender&quot;</span>&gt;</span>
+        <span class="hljs-tag">&lt;<span class="hljs-name">encoder</span>&gt;</span>
+            <span class="hljs-tag">&lt;<span class="hljs-name">pattern</span>&gt;</span>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n<span class="hljs-tag">&lt;/<span class="hljs-name">pattern</span>&gt;</span>
+        <span class="hljs-tag">&lt;/<span class="hljs-name">encoder</span>&gt;</span>
+    <span class="hljs-tag">&lt;/<span class="hljs-name">appender</span>&gt;</span>
+    
+    <span class="hljs-tag">&lt;<span class="hljs-name">appender</span> <span class="hljs-attr">name</span>=<span class="hljs-string">&quot;FILE&quot;</span> <span class="hljs-attr">class</span>=<span class="hljs-string">&quot;ch.qos.logback.core.rolling.RollingFileAppender&quot;</span>&gt;</span>
+        <span class="hljs-tag">&lt;<span class="hljs-name">file</span>&gt;</span>/var/log/gstn/application.log<span class="hljs-tag">&lt;/<span class="hljs-name">file</span>&gt;</span>
+        <span class="hljs-tag">&lt;<span class="hljs-name">rollingPolicy</span> <span class="hljs-attr">class</span>=<span class="hljs-string">&quot;ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy&quot;</span>&gt;</span>
+            <span class="hljs-tag">&lt;<span class="hljs-name">fileNamePattern</span>&gt;</span>/var/log/gstn/application.%d{yyyy-MM-dd}.%i.log<span class="hljs-tag">&lt;/<span class="hljs-name">fileNamePattern</span>&gt;</span>
+            <span class="hljs-tag">&lt;<span class="hljs-name">maxFileSize</span>&gt;</span>100MB<span class="hljs-tag">&lt;/<span class="hljs-name">maxFileSize</span>&gt;</span>
+            <span class="hljs-tag">&lt;<span class="hljs-name">maxHistory</span>&gt;</span>30<span class="hljs-tag">&lt;/<span class="hljs-name">maxHistory</span>&gt;</span>
+        <span class="hljs-tag">&lt;/<span class="hljs-name">rollingPolicy</span>&gt;</span>
+    <span class="hljs-tag">&lt;/<span class="hljs-name">appender</span>&gt;</span>
+    
+    <span class="hljs-tag">&lt;<span class="hljs-name">root</span> <span class="hljs-attr">level</span>=<span class="hljs-string">&quot;INFO&quot;</span>&gt;</span>
+        <span class="hljs-tag">&lt;<span class="hljs-name">appender-ref</span> <span class="hljs-attr">ref</span>=<span class="hljs-string">&quot;CONSOLE&quot;</span>/&gt;</span>
+        <span class="hljs-tag">&lt;<span class="hljs-name">appender-ref</span> <span class="hljs-attr">ref</span>=<span class="hljs-string">&quot;FILE&quot;</span>/&gt;</span>
+    <span class="hljs-tag">&lt;/<span class="hljs-name">root</span>&gt;</span>
+<span class="hljs-tag">&lt;/<span class="hljs-name">configuration</span>&gt;</span>
+</code></pre>
+<p><strong>GSTN uses Logback 1.1.7</strong> as seen in pom.xml dependencies.</p>
+<hr>
+<h3 id="q54-what-is-mdc-mapped-diagnostic-context">Q54. What is MDC (Mapped Diagnostic Context)?</h3>
+<p><strong>Answer:</strong></p>
+<p>MDC uses <strong>ThreadLocal</strong> to store key-value pairs that are automatically included in every log statement within that thread.</p>
+<pre><code class="language-java"><span class="hljs-comment">// In Filter/Interceptor — set at request start</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">MdcFilter</span> <span class="hljs-keyword">implements</span> <span class="hljs-title class_">Filter</span> {
+    <span class="hljs-meta">@Override</span>
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">doFilter</span><span class="hljs-params">(ServletRequest req, ServletResponse res, FilterChain chain)</span> {
+        <span class="hljs-keyword">try</span> {
+            MDC.put(<span class="hljs-string">&quot;requestId&quot;</span>, UUID.randomUUID().toString());
+            MDC.put(<span class="hljs-string">&quot;gstin&quot;</span>, request.getHeader(<span class="hljs-string">&quot;gstin&quot;</span>));
+            MDC.put(<span class="hljs-string">&quot;userId&quot;</span>, extractUserId(request));
+            chain.doFilter(req, res);
+        } <span class="hljs-keyword">finally</span> {
+            MDC.clear();  <span class="hljs-comment">// MUST clear to prevent memory leak</span>
+        }
+    }
+}
+
+<span class="hljs-comment">// logback.xml — include MDC values in log pattern</span>
+<span class="hljs-comment">// %X{requestId} extracts from MDC</span>
+&lt;pattern&gt;%d [%thread] [requestId=%X{requestId}] [gstin=%X{gstin}] %-5level %logger - %msg%n&lt;/pattern&gt;
+
+<span class="hljs-comment">// Output: 2026-03-18 10:30:00 [http-nio-8080-1] [requestId=abc-123] [gstin=29AAACG1234A1ZD] INFO ReturnService - Filing return</span>
+</code></pre>
+<p><strong>Cross-service tracing:</strong> Pass requestId in HTTP header → downstream services put it in MDC → all logs across services have same requestId for end-to-end tracing.</p>
+<hr>
+<h3 id="q55-different-log-levels-per-environment">Q55. Different log levels per environment?</h3>
+<p><strong>Answer:</strong></p>
+<pre><code class="language-yaml"><span class="hljs-comment"># application-dev.yml</span>
+<span class="hljs-attr">logging:</span>
+  <span class="hljs-attr">level:</span>
+    <span class="hljs-attr">root:</span> <span class="hljs-string">INFO</span>
+    <span class="hljs-attr">org.gst:</span> <span class="hljs-string">DEBUG</span>           <span class="hljs-comment"># Debug our code</span>
+    <span class="hljs-attr">org.hibernate.SQL:</span> <span class="hljs-string">DEBUG</span>  <span class="hljs-comment"># See SQL queries</span>
+    <span class="hljs-attr">org.springframework:</span> <span class="hljs-string">INFO</span>
+
+<span class="hljs-comment"># application-prod.yml  </span>
+<span class="hljs-attr">logging:</span>
+  <span class="hljs-attr">level:</span>
+    <span class="hljs-attr">root:</span> <span class="hljs-string">WARN</span>
+    <span class="hljs-attr">org.gst:</span> <span class="hljs-string">INFO</span>            <span class="hljs-comment"># Only INFO in prod</span>
+    <span class="hljs-attr">org.hibernate.SQL:</span> <span class="hljs-string">WARN</span>  <span class="hljs-comment"># No SQL logging in prod</span>
+    <span class="hljs-attr">org.springframework:</span> <span class="hljs-string">WARN</span>
+</code></pre>
+<p><strong>GSTN:</strong> In test properties, <code>hibernate.show_sql=true</code> enables SQL logging. In prod, this is disabled for performance and security.</p>
+<hr>
+<h3 id="q56-spring-boot-actuator-endpoints">Q56. Spring Boot Actuator endpoints?</h3>
+<p><strong>Answer:</strong></p>
+<pre><code class="language-yaml"><span class="hljs-comment"># application.yml</span>
+<span class="hljs-attr">management:</span>
+  <span class="hljs-attr">endpoints:</span>
+    <span class="hljs-attr">web:</span>
+      <span class="hljs-attr">exposure:</span>
+        <span class="hljs-attr">include:</span> <span class="hljs-string">health,info,metrics,prometheus</span>  <span class="hljs-comment"># Expose specific endpoints</span>
+  <span class="hljs-attr">endpoint:</span>
+    <span class="hljs-attr">health:</span>
+      <span class="hljs-attr">show-details:</span> <span class="hljs-string">when-authorized</span>  <span class="hljs-comment"># Only show details to authenticated users</span>
+</code></pre>
+<p><strong>Key endpoints:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Endpoint</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>/actuator/health</code></td>
+<td>Application health status</td>
+</tr>
+<tr>
+<td><code>/actuator/metrics</code></td>
+<td>JVM, HTTP, DB metrics</td>
+</tr>
+<tr>
+<td><code>/actuator/info</code></td>
+<td>App info (version, build)</td>
+</tr>
+<tr>
+<td><code>/actuator/env</code></td>
+<td>Environment properties</td>
+</tr>
+<tr>
+<td><code>/actuator/loggers</code></td>
+<td>View/change log levels at runtime</td>
+</tr>
+<tr>
+<td><code>/actuator/prometheus</code></td>
+<td>Prometheus-format metrics</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Security:</strong> Always restrict actuator endpoints in production. GSTN disables Swagger in prod (<code>springdoc.api-docs.enabled=false</code>), and actuator endpoints should be similarly restricted.</p>
+<hr>
+<h3 id="q57-custom-health-indicators">Q57. Custom health indicators?</h3>
+<p><strong>Answer:</strong></p>
+<pre><code class="language-java"><span class="hljs-meta">@Component</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">PaymentGatewayHealthIndicator</span> <span class="hljs-keyword">implements</span> <span class="hljs-title class_">HealthIndicator</span> {
+    
+    <span class="hljs-meta">@Autowired</span>
+    <span class="hljs-keyword">private</span> PaymentGatewayClient client;
+    
+    <span class="hljs-meta">@Override</span>
+    <span class="hljs-keyword">public</span> Health <span class="hljs-title function_">health</span><span class="hljs-params">()</span> {
+        <span class="hljs-keyword">try</span> {
+            <span class="hljs-type">boolean</span> <span class="hljs-variable">reachable</span> <span class="hljs-operator">=</span> client.ping();
+            <span class="hljs-keyword">if</span> (reachable) {
+                <span class="hljs-keyword">return</span> Health.up()
+                    .withDetail(<span class="hljs-string">&quot;service&quot;</span>, <span class="hljs-string">&quot;Payment Gateway&quot;</span>)
+                    .withDetail(<span class="hljs-string">&quot;latency&quot;</span>, client.getLatency() + <span class="hljs-string">&quot;ms&quot;</span>)
+                    .build();
+            }
+            <span class="hljs-keyword">return</span> Health.down()
+                .withDetail(<span class="hljs-string">&quot;error&quot;</span>, <span class="hljs-string">&quot;Payment Gateway unreachable&quot;</span>)
+                .build();
+        } <span class="hljs-keyword">catch</span> (Exception e) {
+            <span class="hljs-keyword">return</span> Health.down(e).build();
+        }
+    }
+}
+
+<span class="hljs-comment">// Kubernetes readiness probe calls /actuator/health</span>
+<span class="hljs-comment">// If DOWN → pod removed from service → no traffic received</span>
+</code></pre>
+<hr>
+<h3 id="q58-prometheus--grafana-integration">Q58. Prometheus + Grafana integration?</h3>
+<p><strong>Answer:</strong></p>
+<pre><code class="language-xml"><span class="hljs-comment">&lt;!-- pom.xml --&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-name">dependency</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">groupId</span>&gt;</span>io.micrometer<span class="hljs-tag">&lt;/<span class="hljs-name">groupId</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">artifactId</span>&gt;</span>micrometer-registry-prometheus<span class="hljs-tag">&lt;/<span class="hljs-name">artifactId</span>&gt;</span>
+<span class="hljs-tag">&lt;/<span class="hljs-name">dependency</span>&gt;</span>
+</code></pre>
+<pre><code class="language-java"><span class="hljs-comment">// Custom metrics</span>
+<span class="hljs-meta">@Service</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">ReturnService</span> {
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> Counter filingCounter;
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> Timer filingTimer;
+    
+    <span class="hljs-keyword">public</span> <span class="hljs-title function_">ReturnService</span><span class="hljs-params">(MeterRegistry registry)</span> {
+        <span class="hljs-built_in">this</span>.filingCounter = Counter.builder(<span class="hljs-string">&quot;gstn.returns.filed&quot;</span>)
+            .tag(<span class="hljs-string">&quot;type&quot;</span>, <span class="hljs-string">&quot;GSTR1&quot;</span>)
+            .register(registry);
+        <span class="hljs-built_in">this</span>.filingTimer = Timer.builder(<span class="hljs-string">&quot;gstn.returns.processing.time&quot;</span>)
+            .register(registry);
+    }
+    
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">fileReturn</span><span class="hljs-params">(ReturnVO returnVO)</span> {
+        filingTimer.record(() -&gt; {
+            <span class="hljs-comment">// Processing logic</span>
+            filingCounter.increment();
+        });
+    }
+}
+</code></pre>
+<p>Prometheus scrapes <code>/actuator/prometheus</code> → Grafana dashboards visualize metrics.</p>
+<hr>
+<h2 id="26-transactions">2.6 Transactions</h2>
+<h3 id="q59-transactional--how-does-it-work-internally-same-class-method-call">Q59. @Transactional — how does it work internally? Same-class method call?</h3>
+<p><strong>Answer:</strong></p>
+<p><strong>Internally:</strong> Spring creates a <strong>proxy</strong> (JDK dynamic proxy or CGLIB) around the bean. The proxy intercepts method calls and manages transactions.</p>
+<pre><code>Client → Proxy → begin transaction → Actual Method → commit/rollback → return
+</code></pre>
+<p><strong>Same-class method call problem:</strong></p>
+<pre><code class="language-java"><span class="hljs-meta">@Service</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">ReturnService</span> {
+    
+    <span class="hljs-meta">@Transactional</span>
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">processReturn</span><span class="hljs-params">(ReturnVO vo)</span> {
+        <span class="hljs-comment">// This calls saveReturn directly — BYPASSES PROXY!</span>
+        saveReturn(vo);  <span class="hljs-comment">// @Transactional on saveReturn is IGNORED</span>
+    }
+    
+    <span class="hljs-meta">@Transactional(propagation = Propagation.REQUIRES_NEW)</span>
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">saveReturn</span><span class="hljs-params">(ReturnVO vo)</span> {
+        <span class="hljs-comment">// This method&#x27;s @Transactional won&#x27;t work when called from processReturn</span>
+        <span class="hljs-comment">// because Spring AOP uses proxy-based interception</span>
+    }
+}
+</code></pre>
+<p><strong>Solutions:</strong></p>
+<ol>
+<li><strong>Extract to another class</strong> (most common)</li>
+<li><strong>Self-injection</strong>: <code>@Autowired private ReturnService self;</code> then <code>self.saveReturn(vo);</code></li>
+<li><strong>Use <code>AopContext.currentProxy()</code></strong> (not recommended)</li>
+</ol>
+<hr>
+<h3 id="q60-transaction-propagation-types">Q60. Transaction propagation types?</h3>
+<p><strong>Answer:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Propagation</th>
+<th>Behavior</th>
+<th>GSTN Use Case</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>REQUIRED</strong> (default)</td>
+<td>Use existing TX; create new if none</td>
+<td>Normal service methods</td>
+</tr>
+<tr>
+<td><strong>REQUIRES_NEW</strong></td>
+<td><strong>Suspend</strong> current TX; create new</td>
+<td>Audit logging (must save even if main TX fails)</td>
+</tr>
+<tr>
+<td><strong>NESTED</strong></td>
+<td>Savepoint within current TX</td>
+<td>Partial rollback within a step</td>
+</tr>
+<tr>
+<td><strong>SUPPORTS</strong></td>
+<td>Use TX if exists; else run without</td>
+<td>Read-only queries</td>
+</tr>
+<tr>
+<td><strong>NOT_SUPPORTED</strong></td>
+<td>Suspend current TX; run without</td>
+<td>External API calls</td>
+</tr>
+<tr>
+<td><strong>MANDATORY</strong></td>
+<td>Must have existing TX; else exception</td>
+<td>Methods that must be part of larger TX</td>
+</tr>
+<tr>
+<td><strong>NEVER</strong></td>
+<td>Must NOT have TX; else exception</td>
+<td>Non-transactional operations</td>
+</tr>
+</tbody>
+</table>
+<p><strong>GSTN Examples:</strong></p>
+<pre><code class="language-java"><span class="hljs-comment">// REQUIRED — default, most service methods</span>
+<span class="hljs-meta">@Transactional(value = &quot;transactionManagerAnx1aBatch&quot;, 
+              propagation = Propagation.REQUIRED, 
+              rollbackFor = Exception.class)</span>
+<span class="hljs-keyword">public</span> String <span class="hljs-title function_">getAnx1aRecords</span><span class="hljs-params">(Anx1aParamVO params)</span> { ... }
+
+<span class="hljs-comment">// REQUIRES_NEW — Ledger operations need independent transactions</span>
+<span class="hljs-meta">@Transactional(value = &quot;transactionManagerItcLedger&quot;, 
+              propagation = Propagation.REQUIRES_NEW, 
+              rollbackFor = Exception.class)</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">updateLedgerBalance</span><span class="hljs-params">(LedgerVO ledger)</span> { ... }
+
+<span class="hljs-comment">// REQUIRES_NEW — Workflow operations independent of parent</span>
+<span class="hljs-meta">@Transactional(propagation = Propagation.REQUIRES_NEW)</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">createAuditEntry</span><span class="hljs-params">(AuditVO audit)</span> { ... }
+<span class="hljs-comment">// Even if parent TX rolls back, audit entry is saved</span>
+</code></pre>
+<hr>
+<h3 id="q61-transaction-isolation-levels">Q61. Transaction isolation levels?</h3>
+<p><strong>Answer:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Isolation</th>
+<th>Dirty Read</th>
+<th>Non-Repeatable Read</th>
+<th>Phantom Read</th>
+<th>Performance</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>READ_UNCOMMITTED</td>
+<td>Yes</td>
+<td>Yes</td>
+<td>Yes</td>
+<td>Fastest</td>
+</tr>
+<tr>
+<td><strong>READ_COMMITTED</strong></td>
+<td>No</td>
+<td>Yes</td>
+<td>Yes</td>
+<td><strong>MySQL default</strong></td>
+</tr>
+<tr>
+<td>REPEATABLE_READ</td>
+<td>No</td>
+<td>No</td>
+<td>Yes</td>
+<td>Good</td>
+</tr>
+<tr>
+<td>SERIALIZABLE</td>
+<td>No</td>
+<td>No</td>
+<td>No</td>
+<td>Slowest</td>
+</tr>
+</tbody>
+</table>
+<p><strong>For GSTN payment processing:</strong> Use <strong>REPEATABLE_READ</strong> or <strong>SERIALIZABLE</strong> to prevent:</p>
+<ul>
+<li>Two concurrent requests deducting from the same ledger balance</li>
+<li>Credit and debit race conditions</li>
+</ul>
+<pre><code class="language-java"><span class="hljs-meta">@Transactional(isolation = Isolation.REPEATABLE_READ)</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">processPayment</span><span class="hljs-params">(PaymentVO payment)</span> {
+    <span class="hljs-type">BigDecimal</span> <span class="hljs-variable">balance</span> <span class="hljs-operator">=</span> ledgerRepository.getBalance(payment.getGstin());
+    <span class="hljs-keyword">if</span> (balance.compareTo(payment.getAmount()) &gt;= <span class="hljs-number">0</span>) {
+        ledgerRepository.debit(payment.getGstin(), payment.getAmount());
+    }
+}
+</code></pre>
+<hr>
+<h3 id="q62-what-is-a-read-only-transaction">Q62. What is a read-only transaction?</h3>
+<p><strong>Answer:</strong></p>
+<pre><code class="language-java"><span class="hljs-meta">@Transactional(readOnly = true)</span>
+<span class="hljs-keyword">public</span> List&lt;ReturnVO&gt; <span class="hljs-title function_">getReturnsByGstin</span><span class="hljs-params">(String gstin)</span> {
+    <span class="hljs-keyword">return</span> returnRepository.findByGstin(gstin);
+}
+</code></pre>
+<p><strong>Optimizations:</strong></p>
+<ol>
+<li><strong>Hibernate skips dirty checking</strong> — doesn't track entity changes → less memory, faster</li>
+<li><strong>No flush at end</strong> — read-only transactions don't flush persistence context</li>
+<li><strong>JDBC driver optimization</strong> — some drivers optimize for read-only connections</li>
+<li><strong>Routing to read replica</strong> — application can route read-only TX to slave database</li>
+</ol>
+<p><strong>GSTN Context:</strong> Our read-heavy dashboard queries and search APIs should use <code>readOnly = true</code>. With our RoutingDataSource, we could route read-only transactions to read replicas.</p>
+<hr>
+<h3 id="q63-how-do-you-handle-distributed-transactions-xa-transactions">Q63. How do you handle distributed transactions? XA transactions?</h3>
+<p><strong>Answer:</strong></p>
+<p><strong>XA (eXtended Architecture)</strong> provides <strong>two-phase commit</strong> across multiple databases/resources.</p>
+<p><strong>Two-Phase Commit:</strong></p>
+<ol>
+<li><strong>Prepare phase</strong>: Transaction Manager asks all resources &quot;Can you commit?&quot; → each votes YES/NO</li>
+<li><strong>Commit phase</strong>: If all YES → TM sends COMMIT to all. If any NO → TM sends ROLLBACK to all.</li>
+</ol>
+<p><strong>GSTN WFXAServiceImpl:</strong></p>
+<pre><code class="language-java"><span class="hljs-comment">// From WorkFlowFwk — XA transaction across multiple databases</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">WFXAServiceImpl</span> <span class="hljs-keyword">implements</span> <span class="hljs-title class_">WFXAService</span> {
+    <span class="hljs-comment">// Manages transactions across workflow DB + business DB</span>
+    <span class="hljs-comment">// Both must commit or both rollback</span>
+}
+</code></pre>
+<p><strong>XA Limitations:</strong></p>
+<ul>
+<li><strong>Performance</strong>: Holds locks across prepare phase → slow</li>
+<li><strong>Availability</strong>: If TM crashes between prepare and commit → blocking</li>
+<li><strong>Not suitable for microservices</strong>: Tight coupling between services</li>
+</ul>
+<p><strong>Alternatives for microservices (GSTN):</strong></p>
+<ol>
+<li><strong>Saga Pattern</strong>: Chain of local transactions with compensating actions</li>
+<li><strong>Outbox Pattern</strong>: Write event to outbox table → publish to Kafka → other services consume</li>
+<li><strong>Eventual consistency</strong>: Accept temporary inconsistency, reconcile later</li>
+</ol>
+<hr>
+<h2 id="27-security">2.7 Security</h2>
+<h3 id="q64-how-does-spring-security-work">Q64. How does Spring Security work?</h3>
+<p><strong>Answer:</strong></p>
+<p><strong>Security Filter Chain</strong> — a chain of servlet filters that intercept every request:</p>
+<pre><code>Request → DelegatingFilterProxy → FilterChainProxy → Security Filters → Controller
+</code></pre>
+<p><strong>Key filters (in order):</strong></p>
+<ol>
+<li><code>SecurityContextPersistenceFilter</code> — Load SecurityContext from session</li>
+<li><code>UsernamePasswordAuthenticationFilter</code> — Process login</li>
+<li><code>BasicAuthenticationFilter</code> — HTTP Basic auth</li>
+<li><code>ExceptionTranslationFilter</code> — Convert security exceptions</li>
+<li><code>FilterSecurityInterceptor</code> — Authorization check (is user allowed?)</li>
+</ol>
+<p><strong>GSTN Security Configuration:</strong></p>
+<pre><code class="language-java"><span class="hljs-comment">// From gst-spring-boot2-starter — conditional security configs</span>
+<span class="hljs-meta">@ConditionalOnClass({HttpSecurity.class})</span>
+<span class="hljs-meta">@ConditionalOnProperty(prefix = &quot;gst.security.fo&quot;, name = &quot;enabled&quot;, havingValue = &quot;true&quot;)</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">FoSecurityAutoConfiguration</span> { ... }  <span class="hljs-comment">// Front-office security</span>
+
+<span class="hljs-meta">@ConditionalOnProperty(prefix = &quot;gst.security.bo&quot;, name = &quot;enabled&quot;, havingValue = &quot;true&quot;)</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">BoSecurityAutoConfiguration</span> { ... }  <span class="hljs-comment">// Back-office security</span>
+
+<span class="hljs-meta">@ConditionalOnProperty(prefix = &quot;gst.security.gsp&quot;, name = &quot;enabled&quot;, havingValue = &quot;true&quot;)</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">GspSecurityAutoConfiguration</span> { ... } <span class="hljs-comment">// GSP (third-party) security</span>
+</code></pre>
+<p><strong>GSTN's AuthorizationFilter:</strong></p>
+<pre><code class="language-java"><span class="hljs-comment">// Custom filter — implements javax.servlet.Filter</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">AuthorizationFilter</span> <span class="hljs-keyword">implements</span> <span class="hljs-title class_">Filter</span> {
+    <span class="hljs-meta">@Autowired</span>
+    <span class="hljs-keyword">private</span> AuthenticationUtil authenticateUtil;
+    
+    <span class="hljs-meta">@Autowired</span>
+    <span class="hljs-keyword">private</span> AuthorizationUtil authorizationUtil;
+    
+    <span class="hljs-meta">@Override</span>
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">doFilter</span><span class="hljs-params">(ServletRequest request, ServletResponse response, FilterChain chain)</span> {
+        <span class="hljs-comment">// 1. Extract auth token from request</span>
+        <span class="hljs-comment">// 2. Validate token via AuthenticationUtil</span>
+        <span class="hljs-comment">// 3. Check authorization via AuthorizationUtil</span>
+        <span class="hljs-comment">// 4. If valid → chain.doFilter() (continue)</span>
+        <span class="hljs-comment">// 5. If invalid → return 401/403</span>
+    }
+}
+</code></pre>
+<hr>
+<h3 id="q65-jwt-based-authentication-flow">Q65. JWT-based authentication flow?</h3>
+<p><strong>Answer:</strong></p>
+<pre><code>1. Login: Client → POST /auth/login (username + password)
+2. Server validates credentials → generates JWT → returns token
+3. Client stores JWT (localStorage/cookie)
+4. Subsequent requests: Client → sends JWT in Authorization header
+5. Server validates JWT signature → extracts claims → processes request
+
+JWT Structure: HEADER.PAYLOAD.SIGNATURE
+  Header:  {&quot;alg&quot;: &quot;HS256&quot;, &quot;typ&quot;: &quot;JWT&quot;}
+  Payload: {&quot;sub&quot;: &quot;user123&quot;, &quot;gstin&quot;: &quot;29AAACG1234A1ZD&quot;, &quot;role&quot;: &quot;TAXPAYER&quot;, &quot;exp&quot;: 1679000000}
+  Signature: HMACSHA256(base64(header) + &quot;.&quot; + base64(payload), secret)
+</code></pre>
+<p><strong>GSTN Token Management:</strong></p>
+<pre><code class="language-java"><span class="hljs-comment">// Token stored in database and cache</span>
+<span class="hljs-meta">@Repository</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">interface</span> <span class="hljs-title class_">GspAuthToknLogRepository</span> <span class="hljs-keyword">extends</span> <span class="hljs-title class_">JpaRepository</span>&lt;GspAuthTokenLog, Long&gt; {
+    
+    <span class="hljs-meta">@Modifying</span>
+    <span class="hljs-meta">@Query(&quot;UPDATE GspAuthTokenLog e SET e.authStatus = &#x27;X&#x27; &quot; +
+           &quot;WHERE e.userName = :username AND e.clientId = :clientId AND e.authToken = :authToken&quot;)</span>
+    <span class="hljs-keyword">void</span> <span class="hljs-title function_">markAuthTokenExpired</span><span class="hljs-params">(<span class="hljs-meta">@Param(&quot;username&quot;)</span> String username,
+                             <span class="hljs-meta">@Param(&quot;clientId&quot;)</span> String clientId,
+                             <span class="hljs-meta">@Param(&quot;authToken&quot;)</span> String authToken)</span>;
+}
+
+<span class="hljs-comment">// Session management via distributed cache</span>
+<span class="hljs-meta">@Async</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">keepAliveSession</span><span class="hljs-params">(String authToken)</span> {
+    authenticationUtil.keepAliveSession(authToken);  <span class="hljs-comment">// Extend session TTL in Redis</span>
+}
+</code></pre>
+<hr>
+<h3 id="q66-role-based-access-control-rbac">Q66. Role-based access control (RBAC)?</h3>
+<p><strong>Answer:</strong></p>
+<pre><code class="language-java"><span class="hljs-comment">// Spring Security annotations</span>
+<span class="hljs-meta">@PreAuthorize(&quot;hasRole(&#x27;TAX_OFFICER&#x27;)&quot;)</span>
+<span class="hljs-meta">@PostMapping(&quot;/auth/api/case/create&quot;)</span>
+<span class="hljs-keyword">public</span> Object <span class="hljs-title function_">createCase</span><span class="hljs-params">(<span class="hljs-meta">@RequestBody</span> CaseVO caseVO)</span> { ... }
+
+<span class="hljs-meta">@PreAuthorize(&quot;hasAnyRole(&#x27;ADMIN&#x27;, &#x27;SUPER_ADMIN&#x27;)&quot;)</span>
+<span class="hljs-meta">@DeleteMapping(&quot;/api/returns/{id}&quot;)</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">deleteReturn</span><span class="hljs-params">(<span class="hljs-meta">@PathVariable</span> Long id)</span> { ... }
+
+<span class="hljs-meta">@PreAuthorize(&quot;hasRole(&#x27;TAXPAYER&#x27;) and #gstin == authentication.principal.gstin&quot;)</span>
+<span class="hljs-meta">@GetMapping(&quot;/api/returns/{gstin}&quot;)</span>
+<span class="hljs-keyword">public</span> Object <span class="hljs-title function_">getReturns</span><span class="hljs-params">(<span class="hljs-meta">@PathVariable</span> String gstin)</span> { ... }
+</code></pre>
+<p><strong>GSTN RBAC pattern:</strong></p>
+<pre><code class="language-java"><span class="hljs-comment">// BOUserSession contains role information</span>
+<span class="hljs-type">BOUserSession</span> <span class="hljs-variable">boUserSession</span> <span class="hljs-operator">=</span> authenticationUtil.getBOUserSession(request);
+<span class="hljs-keyword">if</span> (<span class="hljs-literal">null</span> != boUserSession) {
+    <span class="hljs-comment">// Check role-based permissions</span>
+    caseAllocationDetailsVOList = caseMgmtService.createCaseApp(
+        caseAllocationDetailsListVO, boUserSession);
+}
+
+<span class="hljs-comment">// Role-access mapping entity</span>
+<span class="hljs-meta">@Getter</span> <span class="hljs-meta">@Setter</span> <span class="hljs-meta">@AllArgsConstructor</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">RoleAccessMapEntity</span> {
+    <span class="hljs-comment">// Maps roles to allowed operations</span>
+}
+</code></pre>
+<hr>
+<h3 id="q67q69-csrf-cors-oauth2">Q67–Q69. CSRF, CORS, OAuth2?</h3>
+<p><strong>CSRF Protection:</strong></p>
+<ul>
+<li>Protects against cross-site request forgery</li>
+<li>Enabled by default for browser-based apps</li>
+<li><strong>Disabled for REST APIs</strong> (stateless, JWT-based — no cookies)</li>
+</ul>
+<pre><code class="language-java">http.csrf().disable();  <span class="hljs-comment">// Disable for stateless REST API</span>
+</code></pre>
+<p><strong>CORS Configuration:</strong></p>
+<pre><code class="language-java"><span class="hljs-meta">@Configuration</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">CorsConfig</span> <span class="hljs-keyword">implements</span> <span class="hljs-title class_">WebMvcConfigurer</span> {
+    <span class="hljs-meta">@Override</span>
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">addCorsMappings</span><span class="hljs-params">(CorsRegistry registry)</span> {
+        registry.addMapping(<span class="hljs-string">&quot;/api/**&quot;</span>)
+            .allowedOrigins(<span class="hljs-string">&quot;https://gst.gov.in&quot;</span>, <span class="hljs-string">&quot;https://services.gst.gov.in&quot;</span>)
+            .allowedMethods(<span class="hljs-string">&quot;GET&quot;</span>, <span class="hljs-string">&quot;POST&quot;</span>, <span class="hljs-string">&quot;PUT&quot;</span>, <span class="hljs-string">&quot;DELETE&quot;</span>)
+            .allowedHeaders(<span class="hljs-string">&quot;*&quot;</span>)
+            .allowCredentials(<span class="hljs-literal">true</span>)
+            .maxAge(<span class="hljs-number">3600</span>);
+    }
+}
+</code></pre>
+<p><strong>OAuth2:</strong> GSTN uses token-based authentication. GSP (GST Suvidha Provider) integration uses OAuth2 client credentials flow for machine-to-machine authentication, as seen in <code>GspSecurityAutoConfiguration</code>.</p>
+<hr>
+<h2 id="28-advanced-spring-boot">2.8 Advanced Spring Boot</h2>
+<h3 id="q70-filters-interceptors-and-aop--differences">Q70. Filters, Interceptors, and AOP — differences?</h3>
+<p><strong>Answer:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Aspect</th>
+<th>Filter</th>
+<th>Interceptor</th>
+<th>AOP</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Level</td>
+<td><strong>Servlet</strong> (before Spring)</td>
+<td><strong>Spring MVC</strong></td>
+<td><strong>Any Spring bean</strong></td>
+</tr>
+<tr>
+<td>Interface</td>
+<td><code>javax.servlet.Filter</code></td>
+<td><code>HandlerInterceptor</code></td>
+<td><code>@Aspect</code></td>
+</tr>
+<tr>
+<td>Access to</td>
+<td>Request/Response only</td>
+<td>Handler method info</td>
+<td>Method args, return value</td>
+</tr>
+<tr>
+<td>Use case</td>
+<td>Auth, logging, CORS</td>
+<td>Timing, logging, auth</td>
+<td>Cross-cutting concerns</td>
+</tr>
+<tr>
+<td>Order</td>
+<td>Executes FIRST</td>
+<td>After Filter, before handler</td>
+<td>Around method execution</td>
+</tr>
+</tbody>
+</table>
+<p><strong>GSTN examples of all three:</strong></p>
+<pre><code class="language-java"><span class="hljs-comment">// FILTER — AuthorizationFilter (servlet level)</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">AuthorizationFilter</span> <span class="hljs-keyword">implements</span> <span class="hljs-title class_">Filter</span> {
+    <span class="hljs-meta">@Override</span>
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">doFilter</span><span class="hljs-params">(ServletRequest req, ServletResponse res, FilterChain chain)</span> {
+        <span class="hljs-comment">// Auth check BEFORE Spring MVC processing</span>
+        chain.doFilter(req, res);
+    }
+}
+
+<span class="hljs-comment">// INTERCEPTOR — WebContentInterceptor (Spring MVC level)</span>
+<span class="hljs-comment">// From servlet-context.xml</span>
+&lt;mvc:interceptors&gt;
+    &lt;mvc:interceptor&gt;
+        &lt;mvc:mapping path=<span class="hljs-string">&quot;/**&quot;</span>/&gt;
+        &lt;bean class=<span class="hljs-string">&quot;org.springframework.web.servlet.mvc.WebContentInterceptor&quot;</span>&gt;
+            &lt;property name=<span class="hljs-string">&quot;cacheSeconds&quot;</span> value=<span class="hljs-string">&quot;0&quot;</span>/&gt;
+        &lt;/bean&gt;
+    &lt;/mvc:interceptor&gt;
+&lt;/mvc:interceptors&gt;
+
+<span class="hljs-comment">// AOP — LoggingAspect (method level)</span>
+<span class="hljs-meta">@Aspect</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">LoggingAspect</span> {
+    <span class="hljs-meta">@Before(&quot;execution(* org.gst..*(..))&quot;)</span>
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">logMethodEntry</span><span class="hljs-params">(JoinPoint joinPoint)</span> {
+        LOGGER.info(<span class="hljs-string">&quot;Entering: {}&quot;</span>, joinPoint.getSignature().getName());
+    }
+    
+    <span class="hljs-meta">@AfterReturning(value = &quot;execution(* org.gst..*(..))&quot;, returning = &quot;result&quot;)</span>
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">logAfterSuccess</span><span class="hljs-params">(JoinPoint joinPoint, Object result)</span> {
+        LOGGER.info(<span class="hljs-string">&quot;Exiting: {}&quot;</span>, joinPoint.getSignature().getName());
+    }
+    
+    <span class="hljs-meta">@AfterThrowing(value = &quot;execution(* org.gst..*(..))&quot;, throwing = &quot;ex&quot;)</span>
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">logException</span><span class="hljs-params">(JoinPoint joinPoint, Throwable ex)</span> {
+        LOGGER.error(<span class="hljs-string">&quot;Exception in: {}&quot;</span>, joinPoint.getSignature().getName(), ex);
+    }
+}
+</code></pre>
+<hr>
+<h3 id="q71-rate-limiting-in-spring-boot">Q71. Rate limiting in Spring Boot?</h3>
+<p><strong>Answer:</strong></p>
+<pre><code class="language-java"><span class="hljs-comment">// Using Bucket4j (Token Bucket algorithm)</span>
+<span class="hljs-meta">@Component</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">RateLimitFilter</span> <span class="hljs-keyword">implements</span> <span class="hljs-title class_">Filter</span> {
+    
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> Map&lt;String, Bucket&gt; buckets = <span class="hljs-keyword">new</span> <span class="hljs-title class_">ConcurrentHashMap</span>&lt;&gt;();
+    
+    <span class="hljs-keyword">private</span> Bucket <span class="hljs-title function_">createBucket</span><span class="hljs-params">()</span> {
+        <span class="hljs-keyword">return</span> Bucket4j.builder()
+            .addLimit(Bandwidth.classic(<span class="hljs-number">100</span>, Refill.greedy(<span class="hljs-number">100</span>, Duration.ofMinutes(<span class="hljs-number">1</span>))))
+            .build();
+    }
+    
+    <span class="hljs-meta">@Override</span>
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">doFilter</span><span class="hljs-params">(ServletRequest req, ServletResponse res, FilterChain chain)</span> {
+        <span class="hljs-type">String</span> <span class="hljs-variable">clientId</span> <span class="hljs-operator">=</span> extractClientId(req);
+        <span class="hljs-type">Bucket</span> <span class="hljs-variable">bucket</span> <span class="hljs-operator">=</span> buckets.computeIfAbsent(clientId, k -&gt; createBucket());
+        
+        <span class="hljs-keyword">if</span> (bucket.tryConsume(<span class="hljs-number">1</span>)) {
+            chain.doFilter(req, res);
+        } <span class="hljs-keyword">else</span> {
+            <span class="hljs-type">HttpServletResponse</span> <span class="hljs-variable">response</span> <span class="hljs-operator">=</span> (HttpServletResponse) res;
+            response.setStatus(<span class="hljs-number">429</span>); <span class="hljs-comment">// Too Many Requests</span>
+            response.getWriter().write(<span class="hljs-string">&quot;Rate limit exceeded&quot;</span>);
+        }
+    }
+}
+</code></pre>
+<p><strong>For GSTN distributed rate limiting:</strong> Use Redis-based token bucket so rate limits are shared across all instances.</p>
+<hr>
+<h3 id="q72-async--how-to-use-it-error-handling">Q72. @Async — how to use it? Error handling?</h3>
+<p><strong>Answer:</strong></p>
+<p><strong>GSTN @Async usage:</strong></p>
+<pre><code class="language-java"><span class="hljs-comment">// From AsyncServiceImpl</span>
+<span class="hljs-meta">@EnableAsync</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">AsyncServiceImpl</span> {
+    
+    <span class="hljs-meta">@Async</span>
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">addCaptcha</span><span class="hljs-params">(String token, String captchaAnswer)</span> {
+        LOGGER.info(<span class="hljs-string">&quot;Entering async addCaptcha at {}&quot;</span>, System.currentTimeMillis());
+        <span class="hljs-keyword">try</span> {
+            distCacheUtil.addToCaptchaCacheForAudio(token, captchaAnswer);
+        } <span class="hljs-keyword">catch</span> (Exception e) {
+            LOGGER.error(<span class="hljs-string">&quot;Exception in async adding captcha to cache {}&quot;</span>, e);
+        } <span class="hljs-keyword">finally</span> {
+            LOGGER.info(<span class="hljs-string">&quot;Exiting async addCaptcha at {}&quot;</span>, System.currentTimeMillis());
+        }
+    }
+    
+    <span class="hljs-meta">@Async</span>
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">removeCaptcha</span><span class="hljs-params">(String token)</span> {
+        LOGGER.info(<span class="hljs-string">&quot;Entering async removeCaptcha at {}&quot;</span>, System.currentTimeMillis());
+        <span class="hljs-keyword">try</span> {
+            distCacheUtil.removeCaptchaForAudio(token);
+        } <span class="hljs-keyword">catch</span> (Exception e) {
+            LOGGER.error(<span class="hljs-string">&quot;Exception in async removing captcha to cache {}&quot;</span>, e);
+        }
+    }
+    
+    <span class="hljs-meta">@Async</span>
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">keepAliveSession</span><span class="hljs-params">(String authToken)</span> {
+        <span class="hljs-keyword">try</span> {
+            authenticationUtil.keepAliveSession(authToken);
+        } <span class="hljs-keyword">catch</span> (Exception e) {
+            LOGGER.error(<span class="hljs-string">&quot;Exception in async keepAliveSession {}&quot;</span>, e);
+        }
+    }
+}
+</code></pre>
+<p><strong>Error handling:</strong> @Async void methods → exceptions are lost unless you:</p>
+<ol>
+<li>Handle inside the method (GSTN's approach — try-catch)</li>
+<li>Configure <code>AsyncUncaughtExceptionHandler</code></li>
+<li>Return <code>CompletableFuture&lt;T&gt;</code> — caller can handle errors</li>
+</ol>
+<p><strong>TaskExecutor configuration:</strong></p>
+<pre><code class="language-java"><span class="hljs-comment">// From AsyncConfig.java</span>
+<span class="hljs-meta">@Bean(name = &quot;taskExecutor&quot;)</span>
+<span class="hljs-keyword">public</span> ThreadPoolTaskExecutor <span class="hljs-title function_">taskExecutor</span><span class="hljs-params">()</span> {
+    <span class="hljs-type">ThreadPoolTaskExecutor</span> <span class="hljs-variable">executor</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">ThreadPoolTaskExecutor</span>();
+    executor.setCorePoolSize(<span class="hljs-number">5</span>);
+    executor.setMaxPoolSize(<span class="hljs-number">10</span>);
+    executor.setQueueCapacity(<span class="hljs-number">100</span>);
+    executor.setThreadNamePrefix(<span class="hljs-string">&quot;AsyncThread-&quot;</span>);
+    executor.setRejectedExecutionHandler(<span class="hljs-keyword">new</span> <span class="hljs-title class_">ThreadPoolExecutor</span>.CallerRunsPolicy());
+    executor.initialize();
+    <span class="hljs-keyword">return</span> executor;
+}
+</code></pre>
+<hr>
+<h3 id="q73-scheduled--cron-expressions-fixedrate-vs-fixeddelay">Q73. @Scheduled — cron expressions, fixedRate vs fixedDelay?</h3>
+<p><strong>Answer:</strong></p>
+<pre><code class="language-java"><span class="hljs-comment">// fixedRate — runs every 5 seconds regardless of previous execution time</span>
+<span class="hljs-meta">@Scheduled(fixedRate = 5000)</span>
+
+<span class="hljs-comment">// fixedDelay — waits 5 seconds AFTER previous execution completes</span>
+<span class="hljs-meta">@Scheduled(fixedDelay = 5000)</span>
+
+<span class="hljs-comment">// Cron expressions — &quot;sec min hour dayOfMonth month dayOfWeek&quot;</span>
+<span class="hljs-meta">@Scheduled(cron = &quot;0 0 2 * * ?&quot;)</span>    <span class="hljs-comment">// Every day at 2:00 AM</span>
+<span class="hljs-meta">@Scheduled(cron = &quot;0 */15 * * * ?&quot;)</span> <span class="hljs-comment">// Every 15 minutes</span>
+<span class="hljs-meta">@Scheduled(cron = &quot;0 0 0 1 * ?&quot;)</span>    <span class="hljs-comment">// First day of every month at midnight</span>
+</code></pre>
+<p><strong>Preventing overlap in clustered environment:</strong></p>
+<ul>
+<li>Use <strong>ShedLock</strong> — distributed lock in Redis/DB</li>
+<li>Use <strong>Quartz Scheduler</strong> with DB-backed job store</li>
+<li>GSTN uses <code>JobLockAutoConfiguration</code> for batch job locking:</li>
+</ul>
+<pre><code class="language-java"><span class="hljs-comment">// From gst-spring-boot2-starter</span>
+<span class="hljs-meta">@ConditionalOnProperty(name = &quot;gst.batch.job.lock.cluster.enabled&quot;, havingValue = &quot;true&quot;)</span>
+<span class="hljs-comment">// Ensures only one instance runs the scheduled job across the cluster</span>
+</code></pre>
+<hr>
+<h3 id="q74-what-is-spring-webflux-reactive-programming">Q74. What is Spring WebFlux? Reactive programming?</h3>
+<p><strong>Answer:</strong></p>
+<p><strong>Spring WebFlux</strong> = non-blocking, reactive web framework. Uses <strong>Reactor</strong> (Mono/Flux) instead of blocking servlet model.</p>
+<table>
+<thead>
+<tr>
+<th>Spring MVC</th>
+<th>Spring WebFlux</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Thread-per-request</td>
+<td>Event loop (Netty)</td>
+</tr>
+<tr>
+<td>Blocking I/O</td>
+<td>Non-blocking I/O</td>
+</tr>
+<tr>
+<td>Servlet API</td>
+<td>Reactive Streams</td>
+</tr>
+<tr>
+<td>200 threads = 200 concurrent requests</td>
+<td>4 threads = 10K+ concurrent requests</td>
+</tr>
+<tr>
+<td>Better for CPU-bound</td>
+<td>Better for I/O-bound (many slow calls)</td>
+</tr>
+</tbody>
+</table>
+<p><strong>When to choose WebFlux:</strong></p>
+<ul>
+<li>High concurrency with slow downstream services</li>
+<li>Streaming data (SSE, WebSocket)</li>
+<li>Microgateway/proxy services</li>
+</ul>
+<p><strong>When NOT to choose (stay with MVC):</strong></p>
+<ul>
+<li>Blocking database drivers (JDBC) — unless using R2DBC</li>
+<li>Team not familiar with reactive paradigm</li>
+<li>Simple CRUD applications</li>
+<li>GSTN currently uses Spring MVC — the blocking model works well with our architecture</li>
+</ul>
+<hr>
+<h3 id="q75-integration-tests-in-spring-boot">Q75. Integration tests in Spring Boot?</h3>
+<p><strong>Answer:</strong></p>
+<pre><code class="language-java"><span class="hljs-comment">// Full application context test</span>
+<span class="hljs-meta">@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)</span>
+<span class="hljs-keyword">class</span> <span class="hljs-title class_">ReturnApiIntegrationTest</span> {
+    
+    <span class="hljs-meta">@Autowired</span>
+    <span class="hljs-keyword">private</span> TestRestTemplate restTemplate;
+    
+    <span class="hljs-meta">@Test</span>
+    <span class="hljs-keyword">void</span> <span class="hljs-title function_">testFileReturn</span><span class="hljs-params">()</span> {
+        <span class="hljs-type">ReturnVO</span> <span class="hljs-variable">returnVO</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">ReturnVO</span>(<span class="hljs-string">&quot;29AAACG1234A1ZD&quot;</span>, <span class="hljs-string">&quot;042024&quot;</span>);
+        ResponseEntity&lt;String&gt; response = restTemplate.postForEntity(
+            <span class="hljs-string">&quot;/api/returns/file&quot;</span>, returnVO, String.class);
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+    }
+}
+
+<span class="hljs-comment">// Controller-only test (no full context)</span>
+<span class="hljs-meta">@WebMvcTest(Anx1aInternalController.class)</span>
+<span class="hljs-keyword">class</span> <span class="hljs-title class_">Anx1aControllerTest</span> {
+    
+    <span class="hljs-meta">@Autowired</span>
+    <span class="hljs-keyword">private</span> MockMvc mockMvc;
+    
+    <span class="hljs-meta">@MockBean</span>
+    <span class="hljs-keyword">private</span> Anx1aService anx1aService;
+    
+    <span class="hljs-meta">@Test</span>
+    <span class="hljs-keyword">void</span> <span class="hljs-title function_">testGetAnx1aData</span><span class="hljs-params">()</span> <span class="hljs-keyword">throws</span> Exception {
+        when(anx1aService.getAnx1aRecords(any(), any())).thenReturn(<span class="hljs-string">&quot;{}&quot;</span>);
+        
+        mockMvc.perform(get(<span class="hljs-string">&quot;/auth/internalapi/newreturns/getanx1aData&quot;</span>)
+                .param(<span class="hljs-string">&quot;gstin&quot;</span>, <span class="hljs-string">&quot;29AAACG1234A1ZD&quot;</span>)
+                .param(<span class="hljs-string">&quot;rtn_prd&quot;</span>, <span class="hljs-string">&quot;042024&quot;</span>))
+            .andExpect(status().isOk())
+            .andExpect(content().json(<span class="hljs-string">&quot;{}&quot;</span>));
+    }
+}
+
+<span class="hljs-comment">// Repository test</span>
+<span class="hljs-meta">@DataJpaTest</span>
+<span class="hljs-keyword">class</span> <span class="hljs-title class_">ReturnRepositoryTest</span> {
+    <span class="hljs-meta">@Autowired</span>
+    <span class="hljs-keyword">private</span> TestEntityManager em;
+    <span class="hljs-meta">@Autowired</span>
+    <span class="hljs-keyword">private</span> ReturnRepository repo;
+}
+</code></pre>
+<p><strong>GSTN testing:</strong> Uses TestNG 6.8.7 (not JUnit) as seen in pom.xml files and testng.xml configurations across modules.</p>
+
+            <script async src="https://cdn.jsdelivr.net/npm/katex-copytex@latest/dist/katex-copytex.min.js"></script>
+            
+        </body>
+        </html>

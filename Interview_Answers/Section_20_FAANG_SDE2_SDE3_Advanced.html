@@ -1,0 +1,2424 @@
+<!DOCTYPE html>
+        <html>
+        <head>
+            <meta charset="UTF-8">
+            <title>FAANG &sol; Product-Based &sol; Startup &mdash; SDE-2&sol;SDE-3 Interview Questions &lpar;5&period;5 YOE&rpar;</title>
+            <style>
+/* From extension vscode.github */
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+
+.vscode-dark img[src$=\#gh-light-mode-only],
+.vscode-light img[src$=\#gh-dark-mode-only],
+.vscode-high-contrast:not(.vscode-high-contrast-light) img[src$=\#gh-light-mode-only],
+.vscode-high-contrast-light img[src$=\#gh-dark-mode-only] {
+	display: none;
+}
+
+</style>
+            <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex/dist/katex.min.css">
+<link href="https://cdn.jsdelivr.net/npm/katex-copytex@latest/dist/katex-copytex.min.css" rel="stylesheet" type="text/css">
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Microsoft/vscode/extensions/markdown-language-features/media/markdown.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Microsoft/vscode/extensions/markdown-language-features/media/highlight.css">
+<style>
+            body {
+                font-family: -apple-system, BlinkMacSystemFont, 'Segoe WPC', 'Segoe UI', system-ui, 'Ubuntu', 'Droid Sans', sans-serif;
+                font-size: 14px;
+                line-height: 1.6;
+            }
+        </style>
+        <style>
+.task-list-item {
+    list-style-type: none;
+}
+
+.task-list-item-checkbox {
+    margin-left: -20px;
+    vertical-align: middle;
+    pointer-events: none;
+}
+</style>
+<style>
+:root {
+  --color-note: #0969da;
+  --color-tip: #1a7f37;
+  --color-warning: #9a6700;
+  --color-severe: #bc4c00;
+  --color-caution: #d1242f;
+  --color-important: #8250df;
+}
+
+</style>
+<style>
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-note: #2f81f7;
+    --color-tip: #3fb950;
+    --color-warning: #d29922;
+    --color-severe: #db6d28;
+    --color-caution: #f85149;
+    --color-important: #a371f7;
+  }
+}
+
+</style>
+<style>
+.markdown-alert {
+  padding: 0.5rem 1rem;
+  margin-bottom: 16px;
+  color: inherit;
+  border-left: .25em solid #888;
+}
+
+.markdown-alert>:first-child {
+  margin-top: 0
+}
+
+.markdown-alert>:last-child {
+  margin-bottom: 0
+}
+
+.markdown-alert .markdown-alert-title {
+  display: flex;
+  font-weight: 500;
+  align-items: center;
+  line-height: 1
+}
+
+.markdown-alert .markdown-alert-title .octicon {
+  margin-right: 0.5rem;
+  display: inline-block;
+  overflow: visible !important;
+  vertical-align: text-bottom;
+  fill: currentColor;
+}
+
+.markdown-alert.markdown-alert-note {
+  border-left-color: var(--color-note);
+}
+
+.markdown-alert.markdown-alert-note .markdown-alert-title {
+  color: var(--color-note);
+}
+
+.markdown-alert.markdown-alert-important {
+  border-left-color: var(--color-important);
+}
+
+.markdown-alert.markdown-alert-important .markdown-alert-title {
+  color: var(--color-important);
+}
+
+.markdown-alert.markdown-alert-warning {
+  border-left-color: var(--color-warning);
+}
+
+.markdown-alert.markdown-alert-warning .markdown-alert-title {
+  color: var(--color-warning);
+}
+
+.markdown-alert.markdown-alert-tip {
+  border-left-color: var(--color-tip);
+}
+
+.markdown-alert.markdown-alert-tip .markdown-alert-title {
+  color: var(--color-tip);
+}
+
+.markdown-alert.markdown-alert-caution {
+  border-left-color: var(--color-caution);
+}
+
+.markdown-alert.markdown-alert-caution .markdown-alert-title {
+  color: var(--color-caution);
+}
+
+</style>
+        
+        </head>
+        <body class="vscode-body vscode-light">
+            <h1 id="faang--product-based--startup--sde-2sde-3-interview-questions-55-yoe">FAANG / Product-Based / Startup — SDE-2/SDE-3 Interview Questions (5.5 YOE)</h1>
+<h1 id="beyond-the-296--recently-asked-in-2025-2026-rounds">Beyond the 296 — Recently Asked in 2025-2026 Rounds</h1>
+<h1 id="companies-google-amazon-microsoft-flipkart-razorpay-phonepe-swiggy-uber-atlassian-stripe-meesho-cred-zerodha-goldman-sachs-morgan-stanley">Companies: Google, Amazon, Microsoft, Flipkart, Razorpay, PhonePe, Swiggy, Uber, Atlassian, Stripe, Meesho, Cred, Zerodha, Goldman Sachs, Morgan Stanley</h1>
+<hr>
+<h2 id="round-structure-typical-sde-2sde-3">ROUND STRUCTURE (Typical SDE-2/SDE-3)</h2>
+<pre><code>Round 1: DSA / Problem Solving (45-60 min) — LeetCode Medium/Hard
+Round 2: Low-Level Design (LLD) (45-60 min) — OOP, Design Patterns, SOLID
+Round 3: High-Level Design (HLD) (45-60 min) — System Design, Scalability
+Round 4: Deep Dive on Past Work + Java/Spring Internals (45-60 min)
+Round 5: Hiring Manager / Behavioral (30-45 min)
+</code></pre>
+<hr>
+<h2 id="part-a-java-deep-internals-asked-at-google-amazon-flipkart-goldman-sachs">PART A: JAVA DEEP INTERNALS (Asked at Google, Amazon, Flipkart, Goldman Sachs)</h2>
+<hr>
+<h3 id="aq1-explain-how-synchronized-works-at-the-jvm-level-what-is-monitor-biased-locking-thin-lock-fat-lock">AQ1. Explain how <code>synchronized</code> works at the JVM level. What is monitor, biased locking, thin lock, fat lock?</h3>
+<p><strong>Answer:</strong></p>
+<p>Every Java object has an <strong>object header</strong> containing a <strong>mark word</strong> that stores locking information.</p>
+<p><strong>Lock escalation path:</strong></p>
+<pre><code>No Lock → Biased Lock → Thin (Lightweight) Lock → Fat (Heavyweight) Lock
+</code></pre>
+<ol>
+<li>
+<p><strong>Biased Locking</strong> (Java 6+, removed in Java 15):</p>
+<ul>
+<li>First thread to acquire lock &quot;biases&quot; the object to itself</li>
+<li>No CAS operation needed for re-entry by same thread</li>
+<li>If another thread contends → revoke bias → escalate</li>
+</ul>
+</li>
+<li>
+<p><strong>Thin Lock (Lightweight)</strong>:</p>
+<ul>
+<li>Uses CAS (Compare-And-Swap) on mark word</li>
+<li>Thread copies mark word to its <strong>Lock Record</strong> on stack</li>
+<li>CAS replaces mark word with pointer to Lock Record</li>
+<li>If CAS fails (contention) → escalate to fat lock</li>
+</ul>
+</li>
+<li>
+<p><strong>Fat Lock (Heavyweight)</strong>:</p>
+<ul>
+<li>Uses OS-level <strong>mutex</strong> (via <code>ObjectMonitor</code> in JVM)</li>
+<li>Thread goes into BLOCKED state (context switch — expensive)</li>
+<li>Has a wait set (for <code>wait()</code>) and entry list (for contending threads)</li>
+</ul>
+</li>
+</ol>
+<pre><code class="language-java"><span class="hljs-comment">// What the JVM sees internally:</span>
+<span class="hljs-keyword">synchronized</span> (<span class="hljs-built_in">this</span>) {  <span class="hljs-comment">// → monitorenter bytecode</span>
+    <span class="hljs-comment">// critical section</span>
+}  <span class="hljs-comment">// → monitorexit bytecode</span>
+
+<span class="hljs-comment">// monitorenter:</span>
+<span class="hljs-comment">// 1. Try biased lock (is mark word biased to me?)</span>
+<span class="hljs-comment">// 2. Try CAS thin lock</span>
+<span class="hljs-comment">// 3. Inflate to fat lock, block thread</span>
+</code></pre>
+<p><strong>Interview tip:</strong> Mention that <code>synchronized</code> is <strong>reentrant</strong> — same thread can re-enter same lock (counter increments). This avoids self-deadlock.</p>
+<p><strong>GSTN context:</strong> We use <code>synchronized</code> sparingly. For high-concurrency caching in <code>DistCacheUtil</code>, we prefer <code>ConcurrentHashMap</code> and atomic operations. For Kafka consumer config, we use the singleton pattern with <code>private static</code> instance initialization (thread-safe by JVM class loading guarantee).</p>
+<hr>
+<h3 id="aq2-what-is-the-java-memory-model-jmm-explain-happens-before-relationship-why-is-volatile-not-enough-for-compound-operations">AQ2. What is the Java Memory Model (JMM)? Explain happens-before relationship. Why is <code>volatile</code> not enough for compound operations?</h3>
+<p><strong>Answer:</strong></p>
+<p>The <strong>JMM</strong> defines how threads interact through memory and what behaviors are allowed. Without JMM rules, compiler/CPU can reorder instructions.</p>
+<p><strong>Happens-before rules:</strong></p>
+<ol>
+<li><strong>Program order</strong>: Each action in a thread happens-before the next action in that thread</li>
+<li><strong>Monitor lock</strong>: Unlock happens-before subsequent lock of same monitor</li>
+<li><strong>Volatile</strong>: Write to volatile happens-before subsequent read of same volatile</li>
+<li><strong>Thread start</strong>: <code>thread.start()</code> happens-before any action in the started thread</li>
+<li><strong>Thread join</strong>: All actions in a thread happen-before <code>join()</code> returns</li>
+<li><strong>Transitivity</strong>: If A happens-before B and B happens-before C, then A happens-before C</li>
+</ol>
+<p><strong>Why volatile isn't enough for <code>count++</code>:</strong></p>
+<pre><code class="language-java"><span class="hljs-keyword">volatile</span> <span class="hljs-type">int</span> <span class="hljs-variable">count</span> <span class="hljs-operator">=</span> <span class="hljs-number">0</span>;
+
+<span class="hljs-comment">// Thread 1: count++  →  actually 3 steps:</span>
+<span class="hljs-comment">// 1. READ count (= 0)        ←  volatile guarantees visibility</span>
+<span class="hljs-comment">// 2. INCREMENT (0 + 1 = 1)   ←  NOT atomic</span>
+<span class="hljs-comment">// 3. WRITE count (= 1)       ←  volatile guarantees visibility</span>
+
+<span class="hljs-comment">// Thread 2 can READ between steps 1 and 3 → lost update!</span>
+
+<span class="hljs-comment">// Solution: Use AtomicInteger</span>
+<span class="hljs-type">AtomicInteger</span> <span class="hljs-variable">count</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">AtomicInteger</span>(<span class="hljs-number">0</span>);
+count.incrementAndGet();  <span class="hljs-comment">// Single CAS operation — atomic</span>
+</code></pre>
+<p><strong>When to use what:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Scenario</th>
+<th>Use</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Flag (boolean) shared between threads</td>
+<td><code>volatile</code></td>
+</tr>
+<tr>
+<td>Counter increment</td>
+<td><code>AtomicInteger</code></td>
+</tr>
+<tr>
+<td>Complex state update</td>
+<td><code>synchronized</code> or <code>Lock</code></td>
+</tr>
+<tr>
+<td>Read-heavy, write-rare</td>
+<td><code>ReadWriteLock</code></td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h3 id="aq3-how-does-concurrenthashmap-work-internally-in-java-8-what-is-the-cas--synchronized-approach-how-does-it-differ-from-java-7s-segment-locking">AQ3. How does <code>ConcurrentHashMap</code> work internally in Java 8? What is the CAS + synchronized approach? How does it differ from Java 7's segment locking?</h3>
+<p><strong>Answer:</strong></p>
+<p><strong>Java 7 — Segment locking:</strong></p>
+<pre><code>ConcurrentHashMap
+├── Segment[0] → Entry[] → lock per segment (ReentrantLock)
+├── Segment[1] → Entry[]
+├── ...
+└── Segment[15] → Entry[]   (default 16 segments = 16 concurrent writers)
+</code></pre>
+<p>Problem: Fixed concurrency level, extra memory for segments.</p>
+<p><strong>Java 8 — Node array + CAS + synchronized per bucket:</strong></p>
+<pre><code>ConcurrentHashMap
+├── Node[0] → null (CAS to insert first node)
+├── Node[1] → Node → Node (synchronized on first node for chain operations)
+├── Node[2] → TreeBin (Red-Black tree if &gt; 8 nodes)
+├── ...
+└── Node[n-1]
+</code></pre>
+<p><strong>Operations:</strong></p>
+<pre><code class="language-java"><span class="hljs-comment">// PUT operation:</span>
+<span class="hljs-comment">// 1. If bucket empty → CAS (lock-free, no synchronized)</span>
+<span class="hljs-comment">// 2. If bucket has nodes → synchronized(first_node_in_bucket) {</span>
+<span class="hljs-comment">//        insert/update in linked list or tree</span>
+<span class="hljs-comment">//    }</span>
+<span class="hljs-comment">// 3. If chain length &gt; 8 → treeify (like HashMap)</span>
+
+<span class="hljs-comment">// GET operation: </span>
+<span class="hljs-comment">// NO LOCKING AT ALL — volatile reads on Node.val and Node.next</span>
+<span class="hljs-comment">// Node class: volatile V val; volatile Node&lt;K,V&gt; next;</span>
+
+<span class="hljs-comment">// SIZE: Uses LongAdder internally (distributed counters) — O(1) approximate</span>
+</code></pre>
+<p><strong>Why this matters for GSTN:</strong>
+In <code>KafkaConsumerConfig</code> singleton, multiple consumer threads access shared configuration. <code>ConcurrentHashMap</code> allows lock-free reads (GET) while protecting concurrent writes with fine-grained per-bucket locking.</p>
+<hr>
+<h3 id="aq4-what-are-virtual-threads-project-loom-java-21-how-do-they-change-server-side-java-programming-would-you-use-them-for-gstn">AQ4. What are virtual threads (Project Loom, Java 21)? How do they change server-side Java programming? Would you use them for GSTN?</h3>
+<p><strong>Answer:</strong></p>
+<p><strong>Problem with platform threads:</strong></p>
+<ul>
+<li>Each Java thread = 1 OS thread (~1MB stack memory)</li>
+<li>10,000 concurrent requests = 10,000 OS threads = <strong>10GB RAM just for stacks</strong></li>
+<li>Thread creation/context switching is expensive</li>
+<li>Blocking I/O (DB calls, HTTP calls) wastes thread</li>
+</ul>
+<p><strong>Virtual threads (Java 21):</strong></p>
+<pre><code class="language-java"><span class="hljs-comment">// Old way — limited by thread pool size</span>
+<span class="hljs-type">ExecutorService</span> <span class="hljs-variable">executor</span> <span class="hljs-operator">=</span> Executors.newFixedThreadPool(<span class="hljs-number">200</span>);  <span class="hljs-comment">// max 200 concurrent</span>
+executor.submit(() -&gt; {
+    callDatabase();    <span class="hljs-comment">// thread blocked, wasted</span>
+    callExternalAPI(); <span class="hljs-comment">// thread blocked, wasted</span>
+});
+
+<span class="hljs-comment">// New way — millions of virtual threads</span>
+<span class="hljs-type">ExecutorService</span> <span class="hljs-variable">executor</span> <span class="hljs-operator">=</span> Executors.newVirtualThreadPerTaskExecutor();
+executor.submit(() -&gt; {
+    callDatabase();    <span class="hljs-comment">// virtual thread yields, carrier thread reused</span>
+    callExternalAPI(); <span class="hljs-comment">// virtual thread yields, carrier thread reused</span>
+});
+
+<span class="hljs-comment">// Or directly:</span>
+Thread.startVirtualThread(() -&gt; handleRequest(request));
+</code></pre>
+<p><strong>How they work:</strong></p>
+<ul>
+<li>Virtual threads are scheduled by the JVM on a small pool of <strong>carrier threads</strong> (platform threads)</li>
+<li>When a virtual thread hits a blocking operation (I/O, sleep, lock), the JVM <strong>unmounts</strong> it from the carrier thread</li>
+<li>Carrier thread is free to run another virtual thread</li>
+<li>When I/O completes, virtual thread is <strong>remounted</strong> on any available carrier</li>
+</ul>
+<p><strong>Would I use them for GSTN?</strong>
+Absolutely. GSTN services make heavy blocking calls:</p>
+<ul>
+<li>Database calls (MySQL via HikariCP)</li>
+<li>Redis cache calls (DistCacheUtil)</li>
+<li>Inter-service REST calls</li>
+<li>Kafka producer sends</li>
+</ul>
+<p>With virtual threads, we could handle 100K+ concurrent filing requests with just 16 carrier threads (one per CPU core) instead of 200+ platform threads.</p>
+<p><strong>Caveat:</strong> Don't use with <code>synchronized</code> (pins the carrier thread). Use <code>ReentrantLock</code> instead. This is why Spring Boot 3.2+ added virtual thread support with careful <code>synchronized</code> → <code>Lock</code> migration.</p>
+<hr>
+<h3 id="aq5-explain-gc-tuning-youve-done-how-do-you-choose-between-g1gc-zgc-and-shenandoah-what-gc-flags-do-you-use-in-production">AQ5. Explain GC tuning you've done. How do you choose between G1GC, ZGC, and Shenandoah? What GC flags do you use in production?</h3>
+<p><strong>Answer:</strong></p>
+<p><strong>G1GC (default since Java 9):</strong></p>
+<pre><code>Heap divided into ~2048 regions (each 1-32MB)
+Regions classified: Eden, Survivor, Old, Humongous
+
+Young GC: Copy live objects from Eden → Survivor (STW, but fast — young gen is small)
+Mixed GC: Collect young + some old regions (collects regions with most garbage first — &quot;Garbage First&quot;)
+Full GC: Fallback — collect everything (try to avoid)
+</code></pre>
+<p><strong>ZGC (Java 15+ production-ready):</strong></p>
+<ul>
+<li>Pause times &lt; 1ms regardless of heap size (even 16TB)</li>
+<li>Concurrent relocation using colored pointers (metadata in pointer bits)</li>
+<li>Best for: Low-latency services, large heaps</li>
+</ul>
+<p><strong>Production GC flags for GSTN-like service:</strong></p>
+<pre><code class="language-bash"><span class="hljs-comment"># G1GC for most services (balanced throughput + latency)</span>
+-XX:+UseG1GC
+-XX:MaxGCPauseMillis=200        <span class="hljs-comment"># Target max 200ms pause</span>
+-XX:G1HeapRegionSize=16m        <span class="hljs-comment"># Region size for 8GB+ heaps</span>
+-XX:InitiatingHeapOccupancyPercent=45  <span class="hljs-comment"># Start concurrent marking at 45%</span>
+-Xms4g -Xmx4g                  <span class="hljs-comment"># Fixed heap (no resizing overhead)</span>
+-XX:+UseStringDeduplication     <span class="hljs-comment"># Save memory on duplicate strings</span>
+
+<span class="hljs-comment"># ZGC for latency-critical services (payment, filing)</span>
+-XX:+UseZGC
+-XX:+ZGenerational              <span class="hljs-comment"># Generational ZGC (Java 21+)</span>
+-Xms8g -Xmx8g
+
+<span class="hljs-comment"># Debugging flags</span>
+-XX:+HeapDumpOnOutOfMemoryError
+-XX:HeapDumpPath=/var/log/heapdump.hprof
+-Xlog:gc*:file=/var/log/gc.log:time,level,tags
+</code></pre>
+<p><strong>Decision matrix:</strong></p>
+<table>
+<thead>
+<tr>
+<th>GC</th>
+<th>Use When</th>
+<th>GSTN Service</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>G1GC</td>
+<td>General purpose, 4-16GB heap</td>
+<td>Return filing, Registration</td>
+</tr>
+<tr>
+<td>ZGC</td>
+<td>Ultra-low latency, large heap</td>
+<td>Payment processing, real-time dashboard</td>
+</tr>
+<tr>
+<td>Shenandoah</td>
+<td>Low latency, RedHat JDK</td>
+<td>Alternative to ZGC</td>
+</tr>
+<tr>
+<td>Parallel GC</td>
+<td>Max throughput, batch jobs</td>
+<td>Batch return processing, reconciliation</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h3 id="aq6-what-is-a-memory-leak-in-java-how-do-you-detect-and-fix-it-walk-through-a-real-debugging-scenario">AQ6. What is a memory leak in Java? How do you detect and fix it? Walk through a real debugging scenario.</h3>
+<p><strong>Answer:</strong></p>
+<p><strong>Memory leak in Java:</strong> Objects that are no longer needed but are still referenced (cannot be GCed).</p>
+<p><strong>Common causes:</strong></p>
+<ol>
+<li><strong>Static collections</strong> that keep growing</li>
+<li><strong>Unclosed resources</strong> (streams, connections, ResultSet)</li>
+<li><strong>Listeners/callbacks</strong> not deregistered</li>
+<li><strong>ThreadLocal</strong> not cleaned up (especially in thread pools)</li>
+<li><strong>Inner class holding reference</strong> to outer class</li>
+<li><strong>Cache without eviction</strong> policy</li>
+</ol>
+<p><strong>Debugging scenario (step by step):</strong></p>
+<pre><code class="language-bash"><span class="hljs-comment"># Step 1: Observe symptoms</span>
+<span class="hljs-comment"># - OOM errors in logs</span>
+<span class="hljs-comment"># - Heap usage graph shows sawtooth going UP (GC can&#x27;t reclaim)</span>
+<span class="hljs-comment"># - gc.log shows Full GC frequency increasing</span>
+
+<span class="hljs-comment"># Step 2: Take heap dump</span>
+jmap -dump:live,format=b,file=heapdump.hprof &lt;PID&gt;
+<span class="hljs-comment"># OR use -XX:+HeapDumpOnOutOfMemoryError (already set in production)</span>
+
+<span class="hljs-comment"># Step 3: Analyze with Eclipse MAT (Memory Analyzer Tool)</span>
+<span class="hljs-comment"># → Open heapdump.hprof</span>
+<span class="hljs-comment"># → &quot;Leak Suspects&quot; report → shows suspicious objects</span>
+<span class="hljs-comment"># → &quot;Dominator Tree&quot; → shows biggest memory holders</span>
+<span class="hljs-comment"># → &quot;Histogram&quot; → shows object count by class</span>
+
+<span class="hljs-comment"># Step 4: Identify leak</span>
+<span class="hljs-comment"># Example: Found 500,000 instances of BOUserSession</span>
+<span class="hljs-comment"># Dominator: static HashMap in SessionCache class</span>
+<span class="hljs-comment"># Root cause: Sessions added but never removed on logout/timeout</span>
+
+<span class="hljs-comment"># Step 5: Fix</span>
+// Before (leak):
+public class SessionCache {
+    private static Map&lt;String, BOUserSession&gt; sessions = new HashMap&lt;&gt;();
+    public void addSession(String token, BOUserSession session) {
+        sessions.put(token, session);  // NEVER removed!
+    }
+}
+
+// After (fixed):
+public class SessionCache {
+    // Use WeakHashMap or explicit cleanup
+    private static Map&lt;String, BOUserSession&gt; sessions = new ConcurrentHashMap&lt;&gt;();
+    public void addSession(String token, BOUserSession session) {
+        sessions.put(token, session);
+    }
+    public void removeSession(String token) {
+        sessions.remove(token);  // Called on <span class="hljs-built_in">logout</span>/timeout
+    }
+    // OR use Cache with TTL (Guava/Caffeine)
+    private static Cache&lt;String, BOUserSession&gt; sessions = 
+        Caffeine.newBuilder().expireAfterAccess(30, TimeUnit.MINUTES).build();
+}
+</code></pre>
+<p><strong>GSTN context:</strong> Our <code>DistCacheUtil</code> uses Redis (external cache) so JVM memory leaks from caching are avoided. But <code>ThreadLocal</code> in request context tracking must always be cleaned up in a <code>finally</code> block or filter.</p>
+<hr>
+<h2 id="part-b-spring-boot-deep-dive-asked-at-amazon-flipkart-razorpay-phonepe-atlassian">PART B: SPRING BOOT DEEP DIVE (Asked at Amazon, Flipkart, Razorpay, PhonePe, Atlassian)</h2>
+<hr>
+<h3 id="bq1-how-does-spring-create-a-proxy-for-transactional-whats-the-difference-between-jdk-dynamic-proxy-and-cglib-when-does-transactional-not-work">BQ1. How does Spring create a proxy for @Transactional? What's the difference between JDK Dynamic Proxy and CGLIB? When does @Transactional NOT work?</h3>
+<p><strong>Answer:</strong></p>
+<p><strong>Proxy creation flow:</strong></p>
+<pre><code>1. Spring scans for @Transactional methods
+2. Creates proxy object wrapping the target bean
+3. When you @Autowire the service, you get the PROXY, not the real object
+4. Proxy intercepts method calls → begins TX → calls real method → commits/rollbacks TX
+</code></pre>
+<p><strong>JDK Dynamic Proxy vs CGLIB:</strong></p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>JDK Dynamic Proxy</th>
+<th>CGLIB</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Requires</td>
+<td>Interface</td>
+<td>No interface needed</td>
+</tr>
+<tr>
+<td>How</td>
+<td>Implements same interface, delegates</td>
+<td>Creates subclass, overrides methods</td>
+</tr>
+<tr>
+<td>Speed</td>
+<td>Slightly faster creation</td>
+<td>Slightly faster invocation</td>
+</tr>
+<tr>
+<td>Limitation</td>
+<td>Only proxies interface methods</td>
+<td>Can't proxy <code>final</code> classes/methods</td>
+</tr>
+<tr>
+<td>Spring default</td>
+<td>When interface exists (Spring Boot 2.x)</td>
+<td><strong>Default in Spring Boot 3.x</strong></td>
+</tr>
+</tbody>
+</table>
+<pre><code class="language-java"><span class="hljs-comment">// JDK proxy — works because UserService is an interface</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">interface</span> <span class="hljs-title class_">UserService</span> { <span class="hljs-keyword">void</span> <span class="hljs-title function_">save</span><span class="hljs-params">(User u)</span>; }
+
+<span class="hljs-meta">@Service</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">UserServiceImpl</span> <span class="hljs-keyword">implements</span> <span class="hljs-title class_">UserService</span> {
+    <span class="hljs-meta">@Transactional</span>
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">save</span><span class="hljs-params">(User u)</span> { ... }
+}
+<span class="hljs-comment">// Spring creates: Proxy implements UserService → delegates to UserServiceImpl</span>
+
+<span class="hljs-comment">// CGLIB proxy — no interface</span>
+<span class="hljs-meta">@Service</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">PaymentService</span> {  <span class="hljs-comment">// No interface</span>
+    <span class="hljs-meta">@Transactional</span>
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">processPayment</span><span class="hljs-params">(Payment p)</span> { ... }
+}
+<span class="hljs-comment">// Spring creates: PaymentService$$EnhancerByCGLIB extends PaymentService</span>
+</code></pre>
+<p><strong>When @Transactional DOES NOT work:</strong></p>
+<pre><code class="language-java"><span class="hljs-meta">@Service</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">ReturnService</span> {
+    
+    <span class="hljs-meta">@Transactional</span>
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">fileReturn</span><span class="hljs-params">(ReturnVO vo)</span> { ... }  <span class="hljs-comment">// TX works ✓</span>
+    
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">processReturn</span><span class="hljs-params">(ReturnVO vo)</span> {
+        <span class="hljs-comment">// PROBLEM: self-invocation bypasses proxy!</span>
+        fileReturn(vo);  <span class="hljs-comment">// ✗ NO TRANSACTION! Calls this.fileReturn() not proxy.fileReturn()</span>
+    }
+    
+    <span class="hljs-comment">// Fix 1: Inject self</span>
+    <span class="hljs-meta">@Autowired</span>
+    <span class="hljs-keyword">private</span> ReturnService self;  <span class="hljs-comment">// Get the proxy</span>
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">processReturn</span><span class="hljs-params">(ReturnVO vo)</span> {
+        self.fileReturn(vo);  <span class="hljs-comment">// ✓ Goes through proxy</span>
+    }
+    
+    <span class="hljs-comment">// Fix 2: Extract to another service</span>
+    <span class="hljs-comment">// Fix 3: Use AspectJ weaving (compile-time, not runtime proxy)</span>
+}
+
+<span class="hljs-comment">// Other cases where @Transactional doesn&#x27;t work:</span>
+<span class="hljs-comment">// 1. Private methods — proxy can&#x27;t override private (CGLIB)</span>
+<span class="hljs-comment">// 2. static methods — not intercepted</span>
+<span class="hljs-comment">// 3. Called from constructor — proxy not ready yet</span>
+<span class="hljs-comment">// 4. Exception swallowed in catch block — no rollback triggered</span>
+</code></pre>
+<p><strong>GSTN codebase:</strong> In <code>WFServiceImpl.java</code>, we see <code>@Transactional(propagation = Propagation.REQUIRES_NEW)</code> — this starts a NEW transaction even if called within an existing one. This is used for audit logging that must persist even if the main transaction rolls back.</p>
+<hr>
+<h3 id="bq2-explain-the-entire-lifecycle-of-a-spring-boot-http-request--from-tomcat-receiving-the-tcp-packet-to-your-controller-method-executing-and-response-going-back">BQ2. Explain the entire lifecycle of a Spring Boot HTTP request — from Tomcat receiving the TCP packet to your controller method executing and response going back.</h3>
+<p><strong>Answer:</strong></p>
+<pre><code>Client sends HTTP request
+         │
+         ▼
+┌─────────────────────────────┐
+│ 1. TOMCAT (Embedded Server) │
+│    - Accept TCP connection  │
+│    - Parse HTTP request     │
+│    - Create HttpServletRequest/Response │
+│    - Pick thread from pool (default 200)│
+└──────────┬──────────────────┘
+           ▼
+┌─────────────────────────────┐
+│ 2. FILTER CHAIN             │
+│    - CharacterEncodingFilter│
+│    - CorsFilter             │
+│    - AuthorizationFilter ←── GSTN custom filter
+│    - Spring Security filters│
+│    (chain.doFilter() passes │
+│     to next filter)         │
+└──────────┬──────────────────┘
+           ▼
+┌─────────────────────────────┐
+│ 3. DISPATCHER SERVLET       │
+│    (Front Controller)       │
+│    - Receives ALL requests  │
+└──────────┬──────────────────┘
+           ▼
+┌─────────────────────────────┐
+│ 4. HANDLER MAPPING          │
+│    - URL → Controller method│
+│    - Checks @RequestMapping │
+│    - Returns HandlerExecutionChain │
+└──────────┬──────────────────┘
+           ▼
+┌─────────────────────────────┐
+│ 5. INTERCEPTORS (preHandle) │
+│    - WebContentInterceptor  │
+│    - LocaleInterceptor      │
+└──────────┬──────────────────┘
+           ▼
+┌─────────────────────────────┐
+│ 6. HANDLER ADAPTER          │
+│    - Resolves method args   │
+│    - @RequestParam → String │
+│    - @RequestBody → Object  │
+│      (Jackson deserialization)│
+│    - @PathVariable → String │
+│    - @Valid → runs validators│
+└──────────┬──────────────────┘
+           ▼
+┌─────────────────────────────┐
+│ 7. CONTROLLER METHOD        │
+│    @GetMapping(&quot;/api/returns&quot;)│
+│    public Object getReturns()│
+│    → calls Service (via proxy)│
+│    → calls Repository (JPA) │
+│    → returns ResponseEntity │
+└──────────┬──────────────────┘
+           ▼
+┌─────────────────────────────┐
+│ 8. MESSAGE CONVERTER        │
+│    - Object → JSON          │
+│    (MappingJackson2HttpMessageConverter)│
+│    - Sets Content-Type header│
+└──────────┬──────────────────┘
+           ▼
+┌─────────────────────────────┐
+│ 9. INTERCEPTORS (afterCompletion)│
+│ 10. FILTERS (reverse order) │
+│ 11. TOMCAT writes response  │
+│     to TCP socket           │
+└─────────────────────────────┘
+</code></pre>
+<p><strong>GSTN flow specifically:</strong></p>
+<pre><code class="language-java"><span class="hljs-comment">// Request: GET /auth/internalapi/newreturns/getanx1aData?gstin=29AAACG1234A1ZD&amp;rtnPrd=072023</span>
+
+<span class="hljs-comment">// 1. Tomcat receives on port 8080</span>
+<span class="hljs-comment">// 2. AuthorizationFilter.doFilter() → validates auth token from header</span>
+<span class="hljs-comment">// 3. DispatcherServlet routes to Anx1aInternalController</span>
+<span class="hljs-comment">// 4. HandlerAdapter resolves @RequestParam gstin, rtnPrd</span>
+<span class="hljs-comment">// 5. Controller calls Anx1aServiceImpl.getAnx1aRecords()</span>
+<span class="hljs-comment">// 6. Service calls DistCacheUtil (Redis) or DAO (MySQL)</span>
+<span class="hljs-comment">// 7. Response object → Jackson serializes to JSON</span>
+<span class="hljs-comment">// 8. HTTP 200 + JSON body sent back</span>
+</code></pre>
+<hr>
+<h3 id="bq3-how-does-hikaricp-connection-pool-work-what-happens-when-all-connections-are-exhausted-how-do-you-tune-it-for-50k-concurrent-requests">BQ3. How does HikariCP connection pool work? What happens when all connections are exhausted? How do you tune it for 50K concurrent requests?</h3>
+<p><strong>Answer:</strong></p>
+<p><strong>HikariCP internals:</strong></p>
+<pre><code>Application Thread                     HikariPool
+      │                                    │
+      ├── getConnection() ──────────────►  │
+      │                                    ├── Check ConcurrentBag
+      │                                    │   ├── ThreadLocal list (fastest)
+      │                                    │   ├── Shared list (CAS)
+      │                                    │   └── Handoff queue (SynchronousQueue)
+      │  ◄── Connection returned ──────────┤
+      │                                    │
+      ├── Use connection (query)           │
+      │                                    │
+      ├── close() (returns to pool) ──────►│
+      │                                    ├── Return to ConcurrentBag
+</code></pre>
+<p><strong>When pool is exhausted:</strong></p>
+<pre><code>Thread calls getConnection()
+  → Pool full, all connections busy
+  → Thread waits on SynchronousQueue for connectionTimeout (default 30s)
+  → If timeout expires → throw SQLTransientConnectionException
+  → In GSTN → filing request fails → user sees &quot;Service temporarily unavailable&quot;
+</code></pre>
+<p><strong>Tuning for high load:</strong></p>
+<pre><code class="language-yaml"><span class="hljs-comment"># application.yml for GSTN services</span>
+<span class="hljs-attr">spring:</span>
+  <span class="hljs-attr">datasource:</span>
+    <span class="hljs-attr">hikari:</span>
+      <span class="hljs-comment"># Pool sizing (critical!)</span>
+      <span class="hljs-attr">maximum-pool-size:</span> <span class="hljs-number">20</span>        <span class="hljs-comment"># Rule: connections = (CPU cores * 2) + effective_spindle_count</span>
+      <span class="hljs-attr">minimum-idle:</span> <span class="hljs-number">10</span>             <span class="hljs-comment"># Pre-warmed connections</span>
+      
+      <span class="hljs-comment"># Timeouts</span>
+      <span class="hljs-attr">connection-timeout:</span> <span class="hljs-number">10000</span>    <span class="hljs-comment"># 10s — fail fast, don&#x27;t hang</span>
+      <span class="hljs-attr">idle-timeout:</span> <span class="hljs-number">300000</span>         <span class="hljs-comment"># 5 min — return idle connections</span>
+      <span class="hljs-attr">max-lifetime:</span> <span class="hljs-number">600000</span>         <span class="hljs-comment"># 10 min — recycle before DB timeout (MySQL wait_timeout=28800)</span>
+      
+      <span class="hljs-comment"># Leak detection</span>
+      <span class="hljs-attr">leak-detection-threshold:</span> <span class="hljs-number">30000</span>  <span class="hljs-comment"># 30s — log warning if connection held &gt; 30s</span>
+      
+      <span class="hljs-comment"># Validation</span>
+      <span class="hljs-attr">connection-test-query:</span> <span class="hljs-string">SELECT</span> <span class="hljs-number">1</span>
+</code></pre>
+<p><strong>Why NOT 500 connections for 50K requests?</strong></p>
+<ul>
+<li>More connections ≠ faster. Database has limited CPU/IO.</li>
+<li>PostgreSQL formula: <code>connections = (CPU cores * 2) + effective_spindle_count</code></li>
+<li>For 8-core DB server: ~20 connections is optimal</li>
+<li>50K concurrent requests with 20 connections → each connection serves 2,500 requests via queueing</li>
+<li>If queries average 5ms → 20 connections × 200 queries/sec = 4,000 queries/sec throughput</li>
+<li>For more throughput → use read replicas, caching, or async processing</li>
+</ul>
+<p><strong>GSTN config (from application-test.properties):</strong></p>
+<pre><code class="language-properties"><span class="hljs-attr">bo.db.initialSize.R1</span>=<span class="hljs-string">5        # initial pool size</span>
+<span class="hljs-attr">bo.db.maxActive.R1</span>=<span class="hljs-string">10         # max active connections</span>
+</code></pre>
+<hr>
+<h3 id="bq4-what-is-spring-boots-auto-configuration-order-how-do-autoconfigurebefore-autoconfigureafter-and-autoconfigureorder-work">BQ4. What is Spring Boot's auto-configuration order? How do @AutoConfigureBefore, @AutoConfigureAfter, and @AutoConfigureOrder work?</h3>
+<p><strong>Answer:</strong></p>
+<p>Spring Boot auto-configuration loading:</p>
+<ol>
+<li>Reads <code>META-INF/spring.factories</code> → list of all auto-config classes</li>
+<li>Filters by <code>@Conditional</code> annotations (remove non-matching)</li>
+<li>Sorts by ordering annotations</li>
+<li>Processes in order</li>
+</ol>
+<pre><code class="language-java"><span class="hljs-comment">// GSTN&#x27;s DataSourceAutoConfig runs BEFORE Spring&#x27;s default</span>
+<span class="hljs-meta">@AutoConfigureBefore(DataSourceAutoConfiguration.class)</span>
+<span class="hljs-meta">@ConditionalOnClass({DataSource.class, LocalContainerEntityManagerFactoryBean.class})</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">DataSourceAutoConfig</span> <span class="hljs-keyword">implements</span> <span class="hljs-title class_">ImportBeanDefinitionRegistrar</span> {
+    <span class="hljs-comment">// Registers dynamic datasources BEFORE Spring tries to auto-configure one</span>
+    <span class="hljs-comment">// This prevents &quot;multiple DataSource bean&quot; conflicts</span>
+}
+
+<span class="hljs-comment">// GSTN also uses EnvironmentPostProcessor — runs even BEFORE auto-config</span>
+org.springframework.boot.env.EnvironmentPostProcessor=\
+  org.gst.framework.starter.autoconfigure.env.GstEnvironmentPostProcessor
+<span class="hljs-comment">// This modifies Environment (properties) before any bean is created</span>
+</code></pre>
+<p><strong>Order of execution:</strong></p>
+<pre><code>1. EnvironmentPostProcessor (GstEnvironmentPostProcessor) — modify properties
+2. @AutoConfigureOrder(Ordered.HIGHEST_PRECEDENCE) — runs first
+3. @AutoConfigureBefore — runs before specified class
+4. Default order (alphabetical within same priority)
+5. @AutoConfigureAfter — runs after specified class
+</code></pre>
+<hr>
+<h3 id="bq5-you-mentioned-multi-datasource-in-gstn-how-do-you-implement-dynamic-datasource-routing-abstractroutingdatasource-how-does-gstn-route-queries-to-state-specific-databases">BQ5. You mentioned multi-datasource in GSTN. How do you implement dynamic datasource routing? AbstractRoutingDataSource? How does GSTN route queries to state-specific databases?</h3>
+<p><strong>Answer:</strong></p>
+<p><strong>Architecture:</strong></p>
+<pre><code>                    ┌─── Maharashtra DB (MH shard)
+Request (GSTIN) ──► RoutingDataSource ──┼─── Karnataka DB (KA shard)
+                    │                   ├─── Tamil Nadu DB (TN shard)
+                    │  ThreadLocal key  └─── ... (37 shards)
+                    │  determines route
+</code></pre>
+<p><strong>Implementation:</strong></p>
+<pre><code class="language-java"><span class="hljs-comment">// Step 1: Create Routing DataSource</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">RoutingDataSource</span> <span class="hljs-keyword">extends</span> <span class="hljs-title class_">AbstractRoutingDataSource</span> {
+    <span class="hljs-meta">@Override</span>
+    <span class="hljs-keyword">protected</span> Object <span class="hljs-title function_">determineCurrentLookupKey</span><span class="hljs-params">()</span> {
+        <span class="hljs-keyword">return</span> DbContextHolder.getDbType();  <span class="hljs-comment">// ThreadLocal value</span>
+    }
+}
+
+<span class="hljs-comment">// Step 2: ThreadLocal context holder</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">DbContextHolder</span> {
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">final</span> ThreadLocal&lt;String&gt; contextHolder = <span class="hljs-keyword">new</span> <span class="hljs-title class_">ThreadLocal</span>&lt;&gt;();
+    
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">setDbType</span><span class="hljs-params">(String dbType)</span> {
+        contextHolder.set(dbType);
+    }
+    
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> String <span class="hljs-title function_">getDbType</span><span class="hljs-params">()</span> {
+        <span class="hljs-keyword">return</span> contextHolder.get();
+    }
+    
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">clearDbType</span><span class="hljs-params">()</span> {
+        contextHolder.remove();  <span class="hljs-comment">// IMPORTANT: prevent memory leak in thread pool</span>
+    }
+}
+
+<span class="hljs-comment">// Step 3: Service sets routing before DB call</span>
+<span class="hljs-meta">@Service</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">WLHistoryServiceImpl</span> <span class="hljs-keyword">implements</span> <span class="hljs-title class_">WLHistoryService</span> {
+    <span class="hljs-meta">@Transactional</span>
+    <span class="hljs-keyword">public</span> Object <span class="hljs-title function_">searchWLHistoryGSTIN</span><span class="hljs-params">(SearchWLGSTNVO searchVO)</span> {
+        <span class="hljs-type">String</span> <span class="hljs-variable">stateCd</span> <span class="hljs-operator">=</span> findStateCode(searchVO.getGstin());
+        setDbRouting(stateCd);  <span class="hljs-comment">// Sets ThreadLocal → routes to state-specific DB</span>
+        
+        <span class="hljs-comment">// This DB call goes to the correct state database</span>
+        <span class="hljs-keyword">return</span> welcomeLetterDAO.getGstnDopAddrsHistEntity(gstnRefId);
+    }
+}
+
+<span class="hljs-comment">// Step 4: Auto-configuration creates routing datasource</span>
+<span class="hljs-comment">// From DataSourceAutoConfig.java</span>
+<span class="hljs-keyword">if</span> (<span class="hljs-string">&quot;ROUTING&quot;</span>.equalsIgnoreCase(config.getType())) {
+    <span class="hljs-type">DataSource</span> <span class="hljs-variable">routingDS</span> <span class="hljs-operator">=</span> dataSourceFactory.createRoutingDataSource(dbIdentifier);
+    <span class="hljs-comment">// Registers a RoutingDataSource bean with all shard datasources as targets</span>
+}
+</code></pre>
+<p><strong>GSTN uses the first 2 digits of GSTIN as state code:</strong></p>
+<pre><code>29AAACG1234A1ZD → State code = 29 (Karnataka) → Route to KA database
+27AAACM5678B1ZP → State code = 27 (Maharashtra) → Route to MH database
+</code></pre>
+<hr>
+<h3 id="bq6-how-do-you-handle-graceful-shutdown-in-spring-boot-what-happens-to-in-flight-requests">BQ6. How do you handle graceful shutdown in Spring Boot? What happens to in-flight requests?</h3>
+<p><strong>Answer:</strong></p>
+<pre><code class="language-java"><span class="hljs-comment">// application.yml</span>
+server:
+  shutdown: graceful                    # Enable graceful <span class="hljs-title function_">shutdown</span> <span class="hljs-params">(Spring Boot <span class="hljs-number">2.3</span>+)</span>
+spring:
+  lifecycle:
+    timeout-per-shutdown-phase: 30s     # Wait up to 30s <span class="hljs-keyword">for</span> in-flight requests
+
+<span class="hljs-comment">// What happens on SIGTERM:</span>
+<span class="hljs-comment">// 1. Stop accepting NEW requests (return 503)</span>
+<span class="hljs-comment">// 2. Wait for IN-FLIGHT requests to complete (up to 30s)</span>
+<span class="hljs-comment">// 3. Destroy Spring beans (@PreDestroy called)</span>
+<span class="hljs-comment">// 4. Close connection pools, Kafka producers, Redis connections</span>
+<span class="hljs-comment">// 5. JVM shuts down</span>
+
+<span class="hljs-comment">// Custom shutdown hook for GSTN services:</span>
+<span class="hljs-meta">@Component</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">GracefulShutdown</span> {
+    
+    <span class="hljs-meta">@Autowired</span>
+    <span class="hljs-keyword">private</span> KafkaProducer kafkaProducer;
+    
+    <span class="hljs-meta">@PreDestroy</span>
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">onShutdown</span><span class="hljs-params">()</span> {
+        LOGGER.info(<span class="hljs-string">&quot;Graceful shutdown initiated&quot;</span>);
+        kafkaProducer.flush();     <span class="hljs-comment">// Send any buffered messages</span>
+        kafkaProducer.close();     <span class="hljs-comment">// Close Kafka producer</span>
+        <span class="hljs-comment">// HikariCP auto-closes via Spring bean lifecycle</span>
+    }
+}
+</code></pre>
+<p><strong>K8s integration:</strong></p>
+<pre><code class="language-yaml"><span class="hljs-comment"># K8s sends SIGTERM → pod has terminationGracePeriodSeconds to finish</span>
+<span class="hljs-attr">spec:</span>
+  <span class="hljs-attr">terminationGracePeriodSeconds:</span> <span class="hljs-number">45</span>  <span class="hljs-comment"># Must be &gt; Spring&#x27;s timeout-per-shutdown-phase</span>
+  <span class="hljs-attr">containers:</span>
+    <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">filing-service</span>
+      <span class="hljs-attr">lifecycle:</span>
+        <span class="hljs-attr">preStop:</span>
+          <span class="hljs-attr">exec:</span>
+            <span class="hljs-attr">command:</span> [<span class="hljs-string">&quot;sh&quot;</span>, <span class="hljs-string">&quot;-c&quot;</span>, <span class="hljs-string">&quot;sleep 5&quot;</span>]  <span class="hljs-comment"># Wait for LB to deregister</span>
+</code></pre>
+<hr>
+<h2 id="part-c-system-design--recently-asked-amazon-google-uber-flipkart-razorpay">PART C: SYSTEM DESIGN — RECENTLY ASKED (Amazon, Google, Uber, Flipkart, Razorpay)</h2>
+<hr>
+<h3 id="cq1-design-a-distributed-rate-limiter-that-works-across-multiple-service-instances-asked-at-razorpay-stripe-phonepe">CQ1. Design a distributed rate limiter that works across multiple service instances (Asked at Razorpay, Stripe, PhonePe)</h3>
+<p><strong>Answer:</strong></p>
+<p><strong>Requirements:</strong></p>
+<ul>
+<li>Rate limit per API key / per user: 100 requests/minute</li>
+<li>Must work across 10 service instances (not just per-instance)</li>
+<li>Low latency (&lt; 5ms overhead per request)</li>
+<li>Handle burst traffic (GSTN filing deadline)</li>
+</ul>
+<p><strong>Approach: Sliding Window Counter with Redis</strong></p>
+<pre><code>┌──────────────────────────────────────────┐
+│              Redis Cluster               │
+│                                          │
+│  Key: rate:{userId}:{minute}             │
+│  Value: count (atomic increment)         │
+│  TTL: 60 seconds (auto-cleanup)          │
+│                                          │
+│  For sliding window:                     │
+│  Key: rate:{userId}                      │
+│  Type: Sorted Set (score = timestamp)    │
+└──────────────────────────────────────────┘
+         ▲              ▲              ▲
+         │              │              │
+    Instance 1     Instance 2     Instance 3
+</code></pre>
+<p><strong>Implementation (Token Bucket with Redis):</strong></p>
+<pre><code class="language-java"><span class="hljs-meta">@Component</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">DistributedRateLimiter</span> {
+    
+    <span class="hljs-meta">@Autowired</span>
+    <span class="hljs-keyword">private</span> RedisTemplate&lt;String, String&gt; redis;
+    
+    <span class="hljs-comment">// Lua script for atomic check-and-increment</span>
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">final</span> <span class="hljs-type">String</span> <span class="hljs-variable">LUA_SCRIPT</span> <span class="hljs-operator">=</span> <span class="hljs-string">&quot;&quot;&quot;
+        local key = KEYS[1]
+        local limit = tonumber(ARGV[1])
+        local window = tonumber(ARGV[2])
+        
+        local current = redis.call(&#x27;INCR&#x27;, key)
+        if current == 1 then
+            redis.call(&#x27;EXPIRE&#x27;, key, window)
+        end
+        
+        if current &gt; limit then
+            return 0  -- rate limited
+        end
+        return 1  -- allowed
+    &quot;&quot;&quot;</span>;
+    
+    <span class="hljs-keyword">public</span> <span class="hljs-type">boolean</span> <span class="hljs-title function_">isAllowed</span><span class="hljs-params">(String userId, <span class="hljs-type">int</span> limit, <span class="hljs-type">int</span> windowSeconds)</span> {
+        <span class="hljs-type">String</span> <span class="hljs-variable">key</span> <span class="hljs-operator">=</span> <span class="hljs-string">&quot;rate:&quot;</span> + userId + <span class="hljs-string">&quot;:&quot;</span> + (System.currentTimeMillis() / (windowSeconds * <span class="hljs-number">1000</span>));
+        <span class="hljs-type">Long</span> <span class="hljs-variable">result</span> <span class="hljs-operator">=</span> redis.execute(<span class="hljs-keyword">new</span> <span class="hljs-title class_">DefaultRedisScript</span>&lt;&gt;(LUA_SCRIPT, Long.class),
+            List.of(key), String.valueOf(limit), String.valueOf(windowSeconds));
+        <span class="hljs-keyword">return</span> result != <span class="hljs-literal">null</span> &amp;&amp; result == <span class="hljs-number">1</span>;
+    }
+}
+
+<span class="hljs-comment">// Usage in Filter/Interceptor:</span>
+<span class="hljs-meta">@Component</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">RateLimitFilter</span> <span class="hljs-keyword">implements</span> <span class="hljs-title class_">Filter</span> {
+    <span class="hljs-meta">@Autowired</span>
+    <span class="hljs-keyword">private</span> DistributedRateLimiter rateLimiter;
+    
+    <span class="hljs-meta">@Override</span>
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">doFilter</span><span class="hljs-params">(ServletRequest req, ServletResponse res, FilterChain chain)</span> {
+        <span class="hljs-type">String</span> <span class="hljs-variable">apiKey</span> <span class="hljs-operator">=</span> ((HttpServletRequest) req).getHeader(<span class="hljs-string">&quot;X-API-Key&quot;</span>);
+        <span class="hljs-keyword">if</span> (!rateLimiter.isAllowed(apiKey, <span class="hljs-number">100</span>, <span class="hljs-number">60</span>)) {  <span class="hljs-comment">// 100 req/min</span>
+            ((HttpServletResponse) res).setStatus(<span class="hljs-number">429</span>);  <span class="hljs-comment">// Too Many Requests</span>
+            <span class="hljs-keyword">return</span>;
+        }
+        chain.doFilter(req, res);
+    }
+}
+</code></pre>
+<p><strong>Algorithms comparison:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Algorithm</th>
+<th>Pros</th>
+<th>Cons</th>
+<th>Best For</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Fixed Window</td>
+<td>Simple, O(1)</td>
+<td>Burst at window edges</td>
+<td>Basic rate limiting</td>
+</tr>
+<tr>
+<td>Sliding Window Log</td>
+<td>Accurate</td>
+<td>Memory-heavy (store all timestamps)</td>
+<td>Small limits</td>
+</tr>
+<tr>
+<td>Sliding Window Counter</td>
+<td>Balanced</td>
+<td>Approximate</td>
+<td><strong>GSTN API rate limiting</strong></td>
+</tr>
+<tr>
+<td>Token Bucket</td>
+<td>Allows bursts</td>
+<td>Slightly complex</td>
+<td>API gateways</td>
+</tr>
+<tr>
+<td>Leaky Bucket</td>
+<td>Smooth output</td>
+<td>No burst allowed</td>
+<td>Stream processing</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h3 id="cq2-design-an-idempotent-payment-system-asked-at-razorpay-phonepe-stripe-goldman-sachs">CQ2. Design an idempotent payment system (Asked at Razorpay, PhonePe, Stripe, Goldman Sachs)</h3>
+<p><strong>Answer:</strong></p>
+<p><strong>Problem:</strong> Network failure after payment processed but before response → client retries → double charge.</p>
+<p><strong>Architecture:</strong></p>
+<pre><code>Client                    API Gateway              Payment Service            Bank API
+  │                           │                         │                       │
+  ├── POST /pay               │                         │                       │
+  │   Idempotency-Key: abc123 │                         │                       │
+  │   ─────────────────────►  │                         │                       │
+  │                           ├── Forward ──────────►   │                       │
+  │                           │                         ├── Check Redis         │
+  │                           │                         │   Key: idemp:abc123   │
+  │                           │                         │   Not found → proceed │
+  │                           │                         │                       │
+  │                           │                         ├── BEGIN TX            │
+  │                           │                         │   INSERT payment      │
+  │                           │                         │   INSERT outbox event │
+  │                           │                         ├── COMMIT TX           │
+  │                           │                         │                       │
+  │                           │                         ├── Call bank ─────────►│
+  │                           │                         │                       │
+  │              ◄── TIMEOUT ──┤                        │  ◄── Success ────────┤
+  │   (no response received)  │                         │                       │
+  │                           │                         ├── Update status=DONE  │
+  │                           │                         ├── Set Redis idemp:abc123 = response
+  │                           │                         │                       │
+  │── RETRY POST /pay         │                         │                       │
+  │   Idempotency-Key: abc123 │                         │                       │
+  │   ─────────────────────►  ├── Forward ──────────►   │                       │
+  │                           │                         ├── Check Redis         │
+  │                           │                         │   Key: idemp:abc123   │
+  │                           │                         │   FOUND → return cached response
+  │              ◄── 200 OK ──┤  ◄── Cached response ──┤                       │
+</code></pre>
+<pre><code class="language-java"><span class="hljs-meta">@Service</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">PaymentService</span> {
+    
+    <span class="hljs-meta">@Autowired</span>
+    <span class="hljs-keyword">private</span> DistCacheUtil distCacheUtil;  <span class="hljs-comment">// Redis</span>
+    
+    <span class="hljs-meta">@Autowired</span>
+    <span class="hljs-keyword">private</span> PaymentRepository paymentRepo;
+    
+    <span class="hljs-keyword">public</span> PaymentResponse <span class="hljs-title function_">processPayment</span><span class="hljs-params">(String idempotencyKey, PaymentRequest req)</span> {
+        <span class="hljs-comment">// Step 1: Check if already processed</span>
+        <span class="hljs-type">PaymentResponse</span> <span class="hljs-variable">cached</span> <span class="hljs-operator">=</span> distCacheUtil.getPaymentResponse(idempotencyKey);
+        <span class="hljs-keyword">if</span> (cached != <span class="hljs-literal">null</span>) {
+            <span class="hljs-keyword">return</span> cached;  <span class="hljs-comment">// Idempotent — return same response</span>
+        }
+        
+        <span class="hljs-comment">// Step 2: Acquire distributed lock to prevent concurrent duplicates</span>
+        <span class="hljs-type">boolean</span> <span class="hljs-variable">locked</span> <span class="hljs-operator">=</span> distCacheUtil.acquireLock(<span class="hljs-string">&quot;lock:pay:&quot;</span> + idempotencyKey, <span class="hljs-number">30</span>);
+        <span class="hljs-keyword">if</span> (!locked) {
+            <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">ConflictException</span>(<span class="hljs-string">&quot;Payment in progress&quot;</span>);
+        }
+        
+        <span class="hljs-keyword">try</span> {
+            <span class="hljs-comment">// Step 3: Double-check after lock</span>
+            cached = distCacheUtil.getPaymentResponse(idempotencyKey);
+            <span class="hljs-keyword">if</span> (cached != <span class="hljs-literal">null</span>) <span class="hljs-keyword">return</span> cached;
+            
+            <span class="hljs-comment">// Step 4: Process payment</span>
+            <span class="hljs-type">PaymentEntity</span> <span class="hljs-variable">payment</span> <span class="hljs-operator">=</span> createPayment(req);
+            paymentRepo.save(payment);
+            
+            <span class="hljs-type">PaymentResponse</span> <span class="hljs-variable">response</span> <span class="hljs-operator">=</span> callBankAPI(payment);
+            
+            <span class="hljs-comment">// Step 5: Cache response for idempotency (TTL = 24 hours)</span>
+            distCacheUtil.setPaymentResponse(idempotencyKey, response, <span class="hljs-number">86400</span>);
+            
+            <span class="hljs-keyword">return</span> response;
+        } <span class="hljs-keyword">finally</span> {
+            distCacheUtil.releaseLock(<span class="hljs-string">&quot;lock:pay:&quot;</span> + idempotencyKey);
+        }
+    }
+}
+</code></pre>
+<hr>
+<h3 id="cq3-design-a-notification-system-that-sends-10-million-notifications-during-gstn-filing-deadline-asked-at-swiggy-flipkart-amazon">CQ3. Design a notification system that sends 10 million notifications during GSTN filing deadline (Asked at Swiggy, Flipkart, Amazon)</h3>
+<p><strong>Answer:</strong></p>
+<pre><code>                              ┌─────────────────────┐
+                              │   Notification API   │
+                              │  (accepts requests)  │
+                              └──────────┬──────────┘
+                                         │
+                                         ▼
+                              ┌─────────────────────┐
+                              │   Kafka Topic:       │
+                              │   notification-events│
+                              │   (50 partitions)    │
+                              └──────────┬──────────┘
+                                         │
+                    ┌────────────────────┼────────────────────┐
+                    ▼                    ▼                    ▼
+          ┌─────────────────┐  ┌─────────────────┐  ┌─────────────────┐
+          │  Email Worker    │  │  SMS Worker      │  │  Push Worker    │
+          │  Consumer Group  │  │  Consumer Group   │  │  Consumer Group │
+          │  (10 instances)  │  │  (10 instances)   │  │  (5 instances)  │
+          └────────┬────────┘  └────────┬─────────┘  └────────┬────────┘
+                   ▼                    ▼                      ▼
+            SMTP Gateway          SMS Provider            FCM/APNs
+            (SES/SendGrid)        (Twilio/MSG91)          (Firebase)
+
+Deduplication: Redis SET — &quot;sent:{userId}:{notifId}&quot; with TTL
+Retry: Failed → retry topic (3 retries with exponential backoff) → DLQ
+Rate limiting: Per-provider rate limit (SES: 50/sec, SMS: 10/sec)
+Priority: P0 (OTP) &gt; P1 (filing deadline) &gt; P2 (marketing)
+</code></pre>
+<p><strong>Key design decisions:</strong></p>
+<ul>
+<li><strong>Fan-out:</strong> Single notification event → multiple channels (email + SMS + push)</li>
+<li><strong>Template engine:</strong> Notification templates in DB, parameterized with user data</li>
+<li><strong>Scheduling:</strong> For deadline reminders, use Kafka delayed topics or separate scheduler</li>
+<li><strong>Tracking:</strong> Each notification gets UUID, track status (QUEUED → SENT → DELIVERED → READ)</li>
+<li><strong>User preferences:</strong> Check DND, channel preference before sending</li>
+</ul>
+<hr>
+<h2 id="part-d-low-level-design-lld--asked-at-amazon-microsoft-atlassian-flipkart">PART D: LOW-LEVEL DESIGN (LLD) — Asked at Amazon, Microsoft, Atlassian, Flipkart</h2>
+<hr>
+<h3 id="dq1-design-a-parking-lot-system-classic-lld--still-asked-in-2025-2026">DQ1. Design a parking lot system (Classic LLD — still asked in 2025-2026)</h3>
+<p><strong>Answer:</strong></p>
+<pre><code class="language-java"><span class="hljs-comment">// Enums</span>
+<span class="hljs-keyword">enum</span> <span class="hljs-title class_">VehicleType</span> { MOTORCYCLE, CAR, TRUCK }
+<span class="hljs-keyword">enum</span> <span class="hljs-title class_">SpotType</span> { SMALL, MEDIUM, LARGE }
+<span class="hljs-keyword">enum</span> <span class="hljs-title class_">TicketStatus</span> { ACTIVE, PAID }
+
+<span class="hljs-comment">// Core entities</span>
+<span class="hljs-keyword">class</span> <span class="hljs-title class_">Vehicle</span> {
+    <span class="hljs-keyword">private</span> String licensePlate;
+    <span class="hljs-keyword">private</span> VehicleType type;
+}
+
+<span class="hljs-keyword">class</span> <span class="hljs-title class_">ParkingSpot</span> {
+    <span class="hljs-keyword">private</span> <span class="hljs-type">int</span> spotId;
+    <span class="hljs-keyword">private</span> <span class="hljs-type">int</span> floor;
+    <span class="hljs-keyword">private</span> SpotType type;
+    <span class="hljs-keyword">private</span> <span class="hljs-type">boolean</span> isAvailable;
+    <span class="hljs-keyword">private</span> Vehicle parkedVehicle;
+    
+    <span class="hljs-keyword">public</span> <span class="hljs-type">boolean</span> <span class="hljs-title function_">canFit</span><span class="hljs-params">(Vehicle vehicle)</span> {
+        <span class="hljs-keyword">return</span> <span class="hljs-keyword">switch</span> (vehicle.getType()) {
+            <span class="hljs-keyword">case</span> MOTORCYCLE -&gt; <span class="hljs-literal">true</span>;  <span class="hljs-comment">// fits anywhere</span>
+            <span class="hljs-keyword">case</span> CAR -&gt; type != SpotType.SMALL;
+            <span class="hljs-keyword">case</span> TRUCK -&gt; type == SpotType.LARGE;
+        };
+    }
+    
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">synchronized</span> <span class="hljs-type">boolean</span> <span class="hljs-title function_">park</span><span class="hljs-params">(Vehicle vehicle)</span> {
+        <span class="hljs-keyword">if</span> (!isAvailable || !canFit(vehicle)) <span class="hljs-keyword">return</span> <span class="hljs-literal">false</span>;
+        <span class="hljs-built_in">this</span>.parkedVehicle = vehicle;
+        <span class="hljs-built_in">this</span>.isAvailable = <span class="hljs-literal">false</span>;
+        <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span>;
+    }
+    
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">synchronized</span> Vehicle <span class="hljs-title function_">unpark</span><span class="hljs-params">()</span> {
+        <span class="hljs-type">Vehicle</span> <span class="hljs-variable">v</span> <span class="hljs-operator">=</span> <span class="hljs-built_in">this</span>.parkedVehicle;
+        <span class="hljs-built_in">this</span>.parkedVehicle = <span class="hljs-literal">null</span>;
+        <span class="hljs-built_in">this</span>.isAvailable = <span class="hljs-literal">true</span>;
+        <span class="hljs-keyword">return</span> v;
+    }
+}
+
+<span class="hljs-keyword">class</span> <span class="hljs-title class_">ParkingTicket</span> {
+    <span class="hljs-keyword">private</span> String ticketId;
+    <span class="hljs-keyword">private</span> Vehicle vehicle;
+    <span class="hljs-keyword">private</span> ParkingSpot spot;
+    <span class="hljs-keyword">private</span> LocalDateTime entryTime;
+    <span class="hljs-keyword">private</span> LocalDateTime exitTime;
+    <span class="hljs-keyword">private</span> TicketStatus status;
+    <span class="hljs-keyword">private</span> <span class="hljs-type">double</span> amount;
+}
+
+<span class="hljs-comment">// Strategy pattern for pricing</span>
+<span class="hljs-keyword">interface</span> <span class="hljs-title class_">PricingStrategy</span> {
+    <span class="hljs-type">double</span> <span class="hljs-title function_">calculate</span><span class="hljs-params">(ParkingTicket ticket)</span>;
+}
+
+<span class="hljs-keyword">class</span> <span class="hljs-title class_">HourlyPricingStrategy</span> <span class="hljs-keyword">implements</span> <span class="hljs-title class_">PricingStrategy</span> {
+    <span class="hljs-keyword">private</span> Map&lt;VehicleType, Double&gt; ratePerHour;
+    
+    <span class="hljs-keyword">public</span> <span class="hljs-type">double</span> <span class="hljs-title function_">calculate</span><span class="hljs-params">(ParkingTicket ticket)</span> {
+        <span class="hljs-type">long</span> <span class="hljs-variable">hours</span> <span class="hljs-operator">=</span> ChronoUnit.HOURS.between(ticket.getEntryTime(), ticket.getExitTime());
+        hours = Math.max(<span class="hljs-number">1</span>, hours);  <span class="hljs-comment">// minimum 1 hour</span>
+        <span class="hljs-keyword">return</span> hours * ratePerHour.get(ticket.getVehicle().getType());
+    }
+}
+
+<span class="hljs-comment">// Main service</span>
+<span class="hljs-keyword">class</span> <span class="hljs-title class_">ParkingLot</span> {
+    <span class="hljs-keyword">private</span> List&lt;List&lt;ParkingSpot&gt;&gt; floors;  <span class="hljs-comment">// floor → spots</span>
+    <span class="hljs-keyword">private</span> Map&lt;String, ParkingTicket&gt; activeTickets;  <span class="hljs-comment">// ticketId → ticket</span>
+    <span class="hljs-keyword">private</span> PricingStrategy pricingStrategy;
+    
+    <span class="hljs-comment">// Strategy: find nearest available spot</span>
+    <span class="hljs-keyword">public</span> ParkingTicket <span class="hljs-title function_">parkVehicle</span><span class="hljs-params">(Vehicle vehicle)</span> {
+        <span class="hljs-keyword">for</span> (List&lt;ParkingSpot&gt; floor : floors) {
+            <span class="hljs-keyword">for</span> (ParkingSpot spot : floor) {
+                <span class="hljs-keyword">if</span> (spot.park(vehicle)) {
+                    <span class="hljs-type">ParkingTicket</span> <span class="hljs-variable">ticket</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">ParkingTicket</span>(vehicle, spot);
+                    activeTickets.put(ticket.getTicketId(), ticket);
+                    <span class="hljs-keyword">return</span> ticket;
+                }
+            }
+        }
+        <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">ParkingFullException</span>(<span class="hljs-string">&quot;No spots available&quot;</span>);
+    }
+    
+    <span class="hljs-keyword">public</span> <span class="hljs-type">double</span> <span class="hljs-title function_">unparkVehicle</span><span class="hljs-params">(String ticketId)</span> {
+        <span class="hljs-type">ParkingTicket</span> <span class="hljs-variable">ticket</span> <span class="hljs-operator">=</span> activeTickets.remove(ticketId);
+        ticket.setExitTime(LocalDateTime.now());
+        ticket.getSpot().unpark();
+        <span class="hljs-keyword">return</span> pricingStrategy.calculate(ticket);
+    }
+}
+</code></pre>
+<p><strong>Design patterns used:</strong> Strategy (pricing), Observer (notify when spot freed), Singleton (ParkingLot instance)</p>
+<hr>
+<h3 id="dq2-design-a-loggerlogging-framework-asked-at-uber-atlassian-microsoft">DQ2. Design a Logger/Logging framework (Asked at Uber, Atlassian, Microsoft)</h3>
+<p><strong>Answer:</strong></p>
+<pre><code class="language-java"><span class="hljs-comment">// Log levels</span>
+<span class="hljs-keyword">enum</span> <span class="hljs-title class_">LogLevel</span> { TRACE, DEBUG, INFO, WARN, ERROR, FATAL;
+    <span class="hljs-keyword">public</span> <span class="hljs-type">boolean</span> <span class="hljs-title function_">isEnabled</span><span class="hljs-params">(LogLevel threshold)</span> {
+        <span class="hljs-keyword">return</span> <span class="hljs-built_in">this</span>.ordinal() &gt;= threshold.ordinal();
+    }
+}
+
+<span class="hljs-comment">// Sink interface — Strategy pattern</span>
+<span class="hljs-keyword">interface</span> <span class="hljs-title class_">LogSink</span> {
+    <span class="hljs-keyword">void</span> <span class="hljs-title function_">write</span><span class="hljs-params">(LogMessage message)</span>;
+}
+
+<span class="hljs-keyword">class</span> <span class="hljs-title class_">ConsoleSink</span> <span class="hljs-keyword">implements</span> <span class="hljs-title class_">LogSink</span> {
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">write</span><span class="hljs-params">(LogMessage msg)</span> {
+        System.out.println(format(msg));
+    }
+}
+
+<span class="hljs-keyword">class</span> <span class="hljs-title class_">FileSink</span> <span class="hljs-keyword">implements</span> <span class="hljs-title class_">LogSink</span> {
+    <span class="hljs-keyword">private</span> BufferedWriter writer;
+    <span class="hljs-keyword">private</span> <span class="hljs-type">long</span> maxFileSize;
+    <span class="hljs-keyword">private</span> <span class="hljs-type">int</span> maxFiles;  <span class="hljs-comment">// rotation</span>
+    
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">synchronized</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">write</span><span class="hljs-params">(LogMessage msg)</span> {
+        writer.write(format(msg));
+        <span class="hljs-keyword">if</span> (currentFileSize &gt; maxFileSize) {
+            rotate();  <span class="hljs-comment">// file.log → file.log.1, create new file.log</span>
+        }
+    }
+}
+
+<span class="hljs-keyword">class</span> <span class="hljs-title class_">AsyncSink</span> <span class="hljs-keyword">implements</span> <span class="hljs-title class_">LogSink</span> {
+    <span class="hljs-keyword">private</span> BlockingQueue&lt;LogMessage&gt; queue;
+    <span class="hljs-keyword">private</span> LogSink delegate;
+    
+    <span class="hljs-keyword">public</span> <span class="hljs-title function_">AsyncSink</span><span class="hljs-params">(LogSink delegate, <span class="hljs-type">int</span> queueSize)</span> {
+        <span class="hljs-built_in">this</span>.queue = <span class="hljs-keyword">new</span> <span class="hljs-title class_">ArrayBlockingQueue</span>&lt;&gt;(queueSize);
+        <span class="hljs-built_in">this</span>.delegate = delegate;
+        <span class="hljs-comment">// Background thread drains queue</span>
+        <span class="hljs-keyword">new</span> <span class="hljs-title class_">Thread</span>(() -&gt; {
+            <span class="hljs-keyword">while</span> (<span class="hljs-literal">true</span>) {
+                delegate.write(queue.take());
+            }
+        }).start();
+    }
+    
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">write</span><span class="hljs-params">(LogMessage msg)</span> {
+        <span class="hljs-keyword">if</span> (!queue.offer(msg)) {
+            <span class="hljs-comment">// Queue full — drop or write synchronously (configurable)</span>
+        }
+    }
+}
+
+<span class="hljs-comment">// Log message</span>
+<span class="hljs-meta">@Builder</span>
+<span class="hljs-keyword">class</span> <span class="hljs-title class_">LogMessage</span> {
+    <span class="hljs-keyword">private</span> LogLevel level;
+    <span class="hljs-keyword">private</span> String message;
+    <span class="hljs-keyword">private</span> String loggerName;
+    <span class="hljs-keyword">private</span> <span class="hljs-type">long</span> timestamp;
+    <span class="hljs-keyword">private</span> String threadName;
+    <span class="hljs-keyword">private</span> Map&lt;String, String&gt; mdc;  <span class="hljs-comment">// MDC context</span>
+    <span class="hljs-keyword">private</span> Throwable exception;
+}
+
+<span class="hljs-comment">// Logger</span>
+<span class="hljs-keyword">class</span> <span class="hljs-title class_">Logger</span> {
+    <span class="hljs-keyword">private</span> String name;
+    <span class="hljs-keyword">private</span> LogLevel threshold;
+    <span class="hljs-keyword">private</span> List&lt;LogSink&gt; sinks;
+    
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">info</span><span class="hljs-params">(String msg, Object... args)</span> {
+        <span class="hljs-keyword">if</span> (LogLevel.INFO.isEnabled(threshold)) {
+            <span class="hljs-type">LogMessage</span> <span class="hljs-variable">logMsg</span> <span class="hljs-operator">=</span> LogMessage.builder()
+                .level(LogLevel.INFO)
+                .message(String.format(msg, args))
+                .loggerName(name)
+                .timestamp(System.currentTimeMillis())
+                .threadName(Thread.currentThread().getName())
+                .mdc(MDC.getCopyOfContextMap())
+                .build();
+            sinks.forEach(sink -&gt; sink.write(logMsg));
+        }
+    }
+}
+
+<span class="hljs-comment">// Logger Factory — typical usage</span>
+<span class="hljs-keyword">class</span> <span class="hljs-title class_">LoggerFactory</span> {
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">final</span> Map&lt;String, Logger&gt; loggers = <span class="hljs-keyword">new</span> <span class="hljs-title class_">ConcurrentHashMap</span>&lt;&gt;();
+    
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> Logger <span class="hljs-title function_">getLogger</span><span class="hljs-params">(Class&lt;?&gt; clazz)</span> {
+        <span class="hljs-keyword">return</span> loggers.computeIfAbsent(clazz.getName(), 
+            name -&gt; <span class="hljs-keyword">new</span> <span class="hljs-title class_">Logger</span>(name, loadConfig(name)));
+    }
+}
+
+<span class="hljs-comment">// GSTN uses this exact pattern:</span>
+<span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">final</span> <span class="hljs-type">Logger</span> <span class="hljs-variable">LOGGER</span> <span class="hljs-operator">=</span> LoggerFactory.getLogger(Anx1aServiceImpl.class);
+LOGGER.info(<span class="hljs-string">&quot;Entering getAnx1aData at {}&quot;</span>, System.currentTimeMillis());
+</code></pre>
+<hr>
+<h2 id="part-e-concurrency--multithreading-deep-dive-amazon-google-goldman-sachs-morgan-stanley">PART E: CONCURRENCY &amp; MULTITHREADING DEEP DIVE (Amazon, Google, Goldman Sachs, Morgan Stanley)</h2>
+<hr>
+<h3 id="eq1-implement-a-thread-safe-bounded-blocking-queue-without-using-javautilconcurrent">EQ1. Implement a thread-safe bounded blocking queue (without using java.util.concurrent)</h3>
+<p><strong>Answer:</strong></p>
+<pre><code class="language-java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">BoundedBlockingQueue</span>&lt;T&gt; {
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> Object[] items;
+    <span class="hljs-keyword">private</span> <span class="hljs-type">int</span> head, tail, count;
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> <span class="hljs-type">Object</span> <span class="hljs-variable">lock</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">Object</span>();
+    
+    <span class="hljs-keyword">public</span> <span class="hljs-title function_">BoundedBlockingQueue</span><span class="hljs-params">(<span class="hljs-type">int</span> capacity)</span> {
+        items = <span class="hljs-keyword">new</span> <span class="hljs-title class_">Object</span>[capacity];
+    }
+    
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">put</span><span class="hljs-params">(T item)</span> <span class="hljs-keyword">throws</span> InterruptedException {
+        <span class="hljs-keyword">synchronized</span> (lock) {
+            <span class="hljs-keyword">while</span> (count == items.length) {
+                lock.wait();  <span class="hljs-comment">// Queue full — wait for consumer</span>
+            }
+            items[tail] = item;
+            tail = (tail + <span class="hljs-number">1</span>) % items.length;  <span class="hljs-comment">// circular buffer</span>
+            count++;
+            lock.notifyAll();  <span class="hljs-comment">// Wake up waiting consumers</span>
+        }
+    }
+    
+    <span class="hljs-meta">@SuppressWarnings(&quot;unchecked&quot;)</span>
+    <span class="hljs-keyword">public</span> T <span class="hljs-title function_">take</span><span class="hljs-params">()</span> <span class="hljs-keyword">throws</span> InterruptedException {
+        <span class="hljs-keyword">synchronized</span> (lock) {
+            <span class="hljs-keyword">while</span> (count == <span class="hljs-number">0</span>) {
+                lock.wait();  <span class="hljs-comment">// Queue empty — wait for producer</span>
+            }
+            <span class="hljs-type">T</span> <span class="hljs-variable">item</span> <span class="hljs-operator">=</span> (T) items[head];
+            items[head] = <span class="hljs-literal">null</span>;  <span class="hljs-comment">// Help GC</span>
+            head = (head + <span class="hljs-number">1</span>) % items.length;
+            count--;
+            lock.notifyAll();  <span class="hljs-comment">// Wake up waiting producers</span>
+            <span class="hljs-keyword">return</span> item;
+        }
+    }
+    
+    <span class="hljs-keyword">public</span> <span class="hljs-type">int</span> <span class="hljs-title function_">size</span><span class="hljs-params">()</span> {
+        <span class="hljs-keyword">synchronized</span> (lock) {
+            <span class="hljs-keyword">return</span> count;
+        }
+    }
+}
+</code></pre>
+<p><strong>Follow-ups typically asked:</strong></p>
+<ul>
+<li>Use <code>ReentrantLock</code> + <code>Condition</code> instead of <code>synchronized</code> (separate conditions for notFull and notEmpty)</li>
+<li>Make it work with timeout (timed wait)</li>
+<li>How does <code>ArrayBlockingQueue</code> differ? (uses ReentrantLock, fair/unfair option)</li>
+</ul>
+<hr>
+<h3 id="eq2-what-is-the-aba-problem-in-cas-compare-and-swap-how-does-java-solve-it">EQ2. What is the ABA problem in CAS (Compare-And-Swap)? How does Java solve it?</h3>
+<p><strong>Answer:</strong></p>
+<p><strong>ABA problem:</strong></p>
+<pre><code>Thread 1: Read value = A
+Thread 1: (preempted)
+Thread 2: Change A → B → A  (value is A again, but state changed!)
+Thread 1: CAS(expected=A, new=C) → SUCCEEDS (shouldn't!)
+</code></pre>
+<p><strong>Example:</strong> Lock-free stack. Thread 1 reads top=A. Thread 2 pops A, pops B, pushes A back. Thread 1's CAS succeeds, but B is now lost.</p>
+<p><strong>Java solution: <code>AtomicStampedReference</code></strong></p>
+<pre><code class="language-java">AtomicStampedReference&lt;String&gt; ref = <span class="hljs-keyword">new</span> <span class="hljs-title class_">AtomicStampedReference</span>&lt;&gt;(<span class="hljs-string">&quot;A&quot;</span>, <span class="hljs-number">0</span>);
+
+<span class="hljs-comment">// Read with stamp</span>
+<span class="hljs-type">int</span>[] stampHolder = <span class="hljs-keyword">new</span> <span class="hljs-title class_">int</span>[<span class="hljs-number">1</span>];
+<span class="hljs-type">String</span> <span class="hljs-variable">current</span> <span class="hljs-operator">=</span> ref.get(stampHolder);  <span class="hljs-comment">// current = &quot;A&quot;, stamp = 0</span>
+
+<span class="hljs-comment">// CAS checks BOTH value AND stamp</span>
+ref.compareAndSet(<span class="hljs-string">&quot;A&quot;</span>, <span class="hljs-string">&quot;C&quot;</span>, <span class="hljs-number">0</span>, <span class="hljs-number">1</span>);  <span class="hljs-comment">// Only succeeds if value=A AND stamp=0</span>
+
+<span class="hljs-comment">// If another thread changed A→B→A, stamp would be 2, so CAS fails</span>
+</code></pre>
+<hr>
+<h3 id="eq3-implement-a-simple-readwritelock-when-would-you-use-it-over-synchronized">EQ3. Implement a simple ReadWriteLock. When would you use it over synchronized?</h3>
+<p><strong>Answer:</strong></p>
+<pre><code class="language-java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">SimpleReadWriteLock</span> {
+    <span class="hljs-keyword">private</span> <span class="hljs-type">int</span> <span class="hljs-variable">readers</span> <span class="hljs-operator">=</span> <span class="hljs-number">0</span>;
+    <span class="hljs-keyword">private</span> <span class="hljs-type">boolean</span> <span class="hljs-variable">writerActive</span> <span class="hljs-operator">=</span> <span class="hljs-literal">false</span>;
+    <span class="hljs-keyword">private</span> <span class="hljs-type">int</span> <span class="hljs-variable">waitingWriters</span> <span class="hljs-operator">=</span> <span class="hljs-number">0</span>;
+    
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">synchronized</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">lockRead</span><span class="hljs-params">()</span> <span class="hljs-keyword">throws</span> InterruptedException {
+        <span class="hljs-keyword">while</span> (writerActive || waitingWriters &gt; <span class="hljs-number">0</span>) {
+            wait();  <span class="hljs-comment">// Writer preference to prevent writer starvation</span>
+        }
+        readers++;
+    }
+    
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">synchronized</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">unlockRead</span><span class="hljs-params">()</span> {
+        readers--;
+        <span class="hljs-keyword">if</span> (readers == <span class="hljs-number">0</span>) notifyAll();
+    }
+    
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">synchronized</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">lockWrite</span><span class="hljs-params">()</span> <span class="hljs-keyword">throws</span> InterruptedException {
+        waitingWriters++;
+        <span class="hljs-keyword">while</span> (readers &gt; <span class="hljs-number">0</span> || writerActive) {
+            wait();
+        }
+        waitingWriters--;
+        writerActive = <span class="hljs-literal">true</span>;
+    }
+    
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">synchronized</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">unlockWrite</span><span class="hljs-params">()</span> {
+        writerActive = <span class="hljs-literal">false</span>;
+        notifyAll();
+    }
+}
+</code></pre>
+<p><strong>Use over synchronized when:</strong> Read-heavy workloads (90%+ reads). Example: GSTN's reference data (state codes, HSN codes) — updated rarely, read by every request. Multiple readers can proceed concurrently with ReadWriteLock vs one at a time with synchronized.</p>
+<hr>
+<h2 id="part-f-recently-trending-questions-2025-2026-sde-2sde-3-interviews">PART F: RECENTLY TRENDING QUESTIONS (2025-2026 SDE-2/SDE-3 Interviews)</h2>
+<hr>
+<h3 id="fq1-explain-observability--metrics-logs-traces-how-do-you-set-up-monitoring-for-a-microservice">FQ1. Explain observability — metrics, logs, traces. How do you set up monitoring for a microservice?</h3>
+<p><strong>Answer:</strong></p>
+<p><strong>Three Pillars:</strong></p>
+<pre><code>1. LOGS — What happened (discrete events)
+   SLF4J + Logback → ELK Stack (Elasticsearch + Logstash + Kibana)
+   MDC for request correlation: MDC.put(&quot;requestId&quot;, uuid)
+
+2. METRICS — How much / how fast (aggregated numbers)
+   Micrometer → Prometheus → Grafana
+   - Counter: request_total (always increasing)
+   - Gauge: active_connections (goes up and down)
+   - Histogram: request_duration_seconds (distribution)
+   - Timer: api_response_time (count + total time)
+
+3. TRACES — The journey of a request across services
+   OpenTelemetry → Jaeger/Zipkin
+   - Trace = entire request journey
+   - Span = one service's contribution
+   - TraceId propagated via HTTP header
+</code></pre>
+<p><strong>Spring Boot setup:</strong></p>
+<pre><code class="language-yaml"><span class="hljs-comment"># application.yml</span>
+<span class="hljs-attr">management:</span>
+  <span class="hljs-attr">endpoints:</span>
+    <span class="hljs-attr">web:</span>
+      <span class="hljs-attr">exposure:</span>
+        <span class="hljs-attr">include:</span> <span class="hljs-string">health,</span> <span class="hljs-string">metrics,</span> <span class="hljs-string">prometheus,</span> <span class="hljs-string">info</span>
+  <span class="hljs-attr">metrics:</span>
+    <span class="hljs-attr">export:</span>
+      <span class="hljs-attr">prometheus:</span>
+        <span class="hljs-attr">enabled:</span> <span class="hljs-literal">true</span>
+    <span class="hljs-attr">tags:</span>
+      <span class="hljs-attr">application:</span> <span class="hljs-string">gstn-filing-service</span>
+      <span class="hljs-attr">environment:</span> <span class="hljs-string">production</span>
+</code></pre>
+<pre><code class="language-java"><span class="hljs-comment">// Custom business metric</span>
+<span class="hljs-meta">@Service</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">ReturnService</span> {
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> Counter filingCounter;
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> Timer filingTimer;
+    
+    <span class="hljs-keyword">public</span> <span class="hljs-title function_">ReturnService</span><span class="hljs-params">(MeterRegistry registry)</span> {
+        <span class="hljs-built_in">this</span>.filingCounter = Counter.builder(<span class="hljs-string">&quot;gstn.returns.filed&quot;</span>)
+            .tag(<span class="hljs-string">&quot;type&quot;</span>, <span class="hljs-string">&quot;GSTR1&quot;</span>)
+            .register(registry);
+        <span class="hljs-built_in">this</span>.filingTimer = Timer.builder(<span class="hljs-string">&quot;gstn.returns.filing.duration&quot;</span>)
+            .register(registry);
+    }
+    
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">fileReturn</span><span class="hljs-params">(ReturnVO vo)</span> {
+        filingTimer.record(() -&gt; {
+            <span class="hljs-comment">// Business logic</span>
+            filingCounter.increment();
+        });
+    }
+}
+</code></pre>
+<p><strong>GSTN Actuator config (from application-prod.yml):</strong></p>
+<pre><code class="language-yaml"><span class="hljs-comment"># Swagger disabled in prod, but actuator health exposed</span>
+<span class="hljs-attr">springdoc:</span>
+  <span class="hljs-attr">api-docs:</span>
+    <span class="hljs-attr">enabled:</span> <span class="hljs-literal">false</span>
+  <span class="hljs-attr">swagger-ui:</span>
+    <span class="hljs-attr">enabled:</span> <span class="hljs-literal">false</span>
+</code></pre>
+<hr>
+<h3 id="fq2-what-is-database-connection-leak-how-do-you-detect-and-prevent-it-asked-at-amazon-flipkart">FQ2. What is database connection leak? How do you detect and prevent it? (Asked at Amazon, Flipkart)</h3>
+<p><strong>Answer:</strong></p>
+<p><strong>Connection leak:</strong> Application gets a connection from pool but never returns it (missing <code>close()</code> or exception before close).</p>
+<p><strong>Symptoms:</strong></p>
+<ul>
+<li>Pool exhaustion → <code>ConnectionTimeoutException</code> after some time</li>
+<li>Active connections keep increasing, never decrease</li>
+<li>Application hangs under load</li>
+</ul>
+<p><strong>Detection with HikariCP:</strong></p>
+<pre><code class="language-yaml"><span class="hljs-attr">spring:</span>
+  <span class="hljs-attr">datasource:</span>
+    <span class="hljs-attr">hikari:</span>
+      <span class="hljs-attr">leak-detection-threshold:</span> <span class="hljs-number">30000</span>  <span class="hljs-comment"># Log WARNING if connection held &gt; 30s</span>
+      <span class="hljs-comment"># HikariCP logs: &quot;Connection leak detection triggered for {connection}&quot;</span>
+      <span class="hljs-comment"># with full stack trace showing WHERE the connection was acquired</span>
+</code></pre>
+<p><strong>Prevention:</strong></p>
+<pre><code class="language-java"><span class="hljs-comment">// BAD — connection leaked if exception thrown between get and close</span>
+<span class="hljs-type">Connection</span> <span class="hljs-variable">conn</span> <span class="hljs-operator">=</span> dataSource.getConnection();
+<span class="hljs-type">Statement</span> <span class="hljs-variable">stmt</span> <span class="hljs-operator">=</span> conn.createStatement();
+<span class="hljs-type">ResultSet</span> <span class="hljs-variable">rs</span> <span class="hljs-operator">=</span> stmt.executeQuery(<span class="hljs-string">&quot;SELECT ...&quot;</span>);
+<span class="hljs-comment">// If exception here → conn never closed!</span>
+conn.close();
+
+<span class="hljs-comment">// GOOD — try-with-resources (Java 7+)</span>
+<span class="hljs-keyword">try</span> (<span class="hljs-type">Connection</span> <span class="hljs-variable">conn</span> <span class="hljs-operator">=</span> dataSource.getConnection();
+     <span class="hljs-type">PreparedStatement</span> <span class="hljs-variable">stmt</span> <span class="hljs-operator">=</span> conn.prepareStatement(<span class="hljs-string">&quot;SELECT ...&quot;</span>);
+     <span class="hljs-type">ResultSet</span> <span class="hljs-variable">rs</span> <span class="hljs-operator">=</span> stmt.executeQuery()) {
+    <span class="hljs-comment">// Process results</span>
+}  <span class="hljs-comment">// Auto-closed even if exception — implements AutoCloseable</span>
+
+<span class="hljs-comment">// BEST — Use Spring JDBC/JPA</span>
+<span class="hljs-comment">// Spring manages connections automatically via @Transactional</span>
+<span class="hljs-comment">// Connection acquired at TX start, returned at TX end</span>
+<span class="hljs-meta">@Transactional</span>
+<span class="hljs-keyword">public</span> List&lt;Return&gt; <span class="hljs-title function_">getReturns</span><span class="hljs-params">(String gstin)</span> {
+    <span class="hljs-keyword">return</span> returnRepository.findByGstin(gstin);  <span class="hljs-comment">// Spring handles everything</span>
+}
+</code></pre>
+<p><strong>GSTN context:</strong> Our services use <code>@Transactional</code> on service methods, which ensures Spring manages connection lifecycle. Connection pooling via HikariCP with <code>maxActive=10</code> prevents runaway connection acquisition.</p>
+<hr>
+<h3 id="fq3-how-do-you-prevent-and-handle-distributed-deadlocks-across-microservices-asked-at-uber-amazon">FQ3. How do you prevent and handle distributed deadlocks across microservices? (Asked at Uber, Amazon)</h3>
+<p><strong>Answer:</strong></p>
+<p><strong>Distributed deadlock scenario:</strong></p>
+<pre><code>Service A: Lock resource X, then needs resource Y
+Service B: Lock resource Y, then needs resource X
+→ Both waiting forever (deadlock!)
+</code></pre>
+<p><strong>Prevention strategies:</strong></p>
+<ol>
+<li><strong>Lock ordering:</strong> Always acquire locks in the same global order</li>
+</ol>
+<pre><code class="language-java"><span class="hljs-comment">// Always lock by sorted resource ID</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">transferFunds</span><span class="hljs-params">(String fromAccount, String toAccount)</span> {
+    <span class="hljs-type">String</span> <span class="hljs-variable">first</span> <span class="hljs-operator">=</span> fromAccount.compareTo(toAccount) &lt; <span class="hljs-number">0</span> ? fromAccount : toAccount;
+    <span class="hljs-type">String</span> <span class="hljs-variable">second</span> <span class="hljs-operator">=</span> fromAccount.compareTo(toAccount) &lt; <span class="hljs-number">0</span> ? toAccount : fromAccount;
+    
+    redis.lock(<span class="hljs-string">&quot;account:&quot;</span> + first);   <span class="hljs-comment">// Always lock smaller ID first</span>
+    redis.lock(<span class="hljs-string">&quot;account:&quot;</span> + second);
+    <span class="hljs-keyword">try</span> {
+        <span class="hljs-comment">// Transfer logic</span>
+    } <span class="hljs-keyword">finally</span> {
+        redis.unlock(<span class="hljs-string">&quot;account:&quot;</span> + second);
+        redis.unlock(<span class="hljs-string">&quot;account:&quot;</span> + first);
+    }
+}
+</code></pre>
+<ol start="2">
+<li><strong>Lock timeout:</strong> Never wait indefinitely</li>
+</ol>
+<pre><code class="language-java"><span class="hljs-type">boolean</span> <span class="hljs-variable">locked</span> <span class="hljs-operator">=</span> redis.tryLock(<span class="hljs-string">&quot;resource:X&quot;</span>, <span class="hljs-number">5</span>, TimeUnit.SECONDS);
+<span class="hljs-keyword">if</span> (!locked) {
+    <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">ResourceBusyException</span>(<span class="hljs-string">&quot;Could not acquire lock, retry later&quot;</span>);
+}
+</code></pre>
+<ol start="3">
+<li><strong>Saga pattern:</strong> Don't hold locks across services — use compensating transactions</li>
+</ol>
+<pre><code>Filing Service → Payment Service → Acknowledgment Service
+   (if payment fails → compensate: undo filing)
+</code></pre>
+<ol start="4">
+<li><strong>Deadlock detection:</strong> Graph-based detection (wait-for graph), detect cycles, abort one participant.</li>
+</ol>
+<hr>
+<h3 id="fq4-whats-the-difference-between-optimistic-and-pessimistic-concurrency-control-when-to-use-each-asked-at-every-company">FQ4. What's the difference between optimistic and pessimistic concurrency control? When to use each? (Asked at every company)</h3>
+<p><strong>Answer:</strong></p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>Optimistic</th>
+<th>Pessimistic</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Assumption</td>
+<td>Conflicts are rare</td>
+<td>Conflicts are frequent</td>
+</tr>
+<tr>
+<td>Mechanism</td>
+<td>Version check at commit time</td>
+<td>Lock at read time</td>
+</tr>
+<tr>
+<td>JPA annotation</td>
+<td><code>@Version</code></td>
+<td><code>@Lock(LockModeType.PESSIMISTIC_WRITE)</code></td>
+</tr>
+<tr>
+<td>Blocking</td>
+<td>No blocking</td>
+<td>Blocks other threads</td>
+</tr>
+<tr>
+<td>Best for</td>
+<td>Read-heavy, low contention</td>
+<td>Write-heavy, high contention</td>
+</tr>
+<tr>
+<td>Failure mode</td>
+<td><code>OptimisticLockException</code> → retry</td>
+<td>Deadlock possible</td>
+</tr>
+</tbody>
+</table>
+<pre><code class="language-java"><span class="hljs-comment">// OPTIMISTIC — GSTN return filing (concurrent unlikely for same return)</span>
+<span class="hljs-meta">@Entity</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">GSTReturn</span> {
+    <span class="hljs-meta">@Id</span>
+    <span class="hljs-keyword">private</span> Long id;
+    
+    <span class="hljs-meta">@Version</span>  <span class="hljs-comment">// Hibernate auto-manages this</span>
+    <span class="hljs-keyword">private</span> Integer version;
+    
+    <span class="hljs-keyword">private</span> String gstin;
+    <span class="hljs-keyword">private</span> String status;
+}
+
+<span class="hljs-comment">// When two threads update same return:</span>
+<span class="hljs-comment">// Thread 1: reads version=1, updates, saves → version becomes 2 ✓</span>
+<span class="hljs-comment">// Thread 2: reads version=1, updates, saves → version mismatch → OptimisticLockException!</span>
+<span class="hljs-comment">// Thread 2 must retry with fresh data</span>
+
+<span class="hljs-comment">// PESSIMISTIC — GSTN payment processing (money involved, no retries)</span>
+<span class="hljs-meta">@Repository</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">interface</span> <span class="hljs-title class_">PaymentRepository</span> <span class="hljs-keyword">extends</span> <span class="hljs-title class_">JpaRepository</span>&lt;Payment, Long&gt; {
+    
+    <span class="hljs-meta">@Lock(LockModeType.PESSIMISTIC_WRITE)</span>  <span class="hljs-comment">// SELECT ... FOR UPDATE</span>
+    <span class="hljs-meta">@Query(&quot;SELECT p FROM Payment p WHERE p.paymentId = :id&quot;)</span>
+    Payment <span class="hljs-title function_">findByIdForUpdate</span><span class="hljs-params">(<span class="hljs-meta">@Param(&quot;id&quot;)</span> Long id)</span>;
+}
+
+<span class="hljs-comment">// Thread 1: SELECT FOR UPDATE → row LOCKED in DB</span>
+<span class="hljs-comment">// Thread 2: SELECT FOR UPDATE → BLOCKS until Thread 1 commits/rollbacks</span>
+<span class="hljs-comment">// No lost updates, no retries, but lower throughput</span>
+</code></pre>
+<p><strong>GSTN recommendation:</strong></p>
+<ul>
+<li>Filing status update → <strong>Optimistic</strong> (conflict rare, easy retry)</li>
+<li>Payment ledger update → <strong>Pessimistic</strong> (money-critical, must be correct)</li>
+</ul>
+<hr>
+<h3 id="fq5-explain-how-spring-boot-handles-circular-dependencies-why-is-it-a-design-smell-asked-at-atlassian-microsoft">FQ5. Explain how Spring Boot handles circular dependencies. Why is it a design smell? (Asked at Atlassian, Microsoft)</h3>
+<p><strong>Answer:</strong></p>
+<p><strong>Circular dependency:</strong> Bean A needs Bean B, Bean B needs Bean A.</p>
+<pre><code class="language-java"><span class="hljs-meta">@Service</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">OrderService</span> {
+    <span class="hljs-meta">@Autowired</span>
+    <span class="hljs-keyword">private</span> PaymentService paymentService;  <span class="hljs-comment">// OrderService → PaymentService</span>
+}
+
+<span class="hljs-meta">@Service</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">PaymentService</span> {
+    <span class="hljs-meta">@Autowired</span>
+    <span class="hljs-keyword">private</span> OrderService orderService;  <span class="hljs-comment">// PaymentService → OrderService ← CIRCULAR!</span>
+}
+</code></pre>
+<p><strong>Spring Boot behavior:</strong></p>
+<ul>
+<li><strong>Spring Boot 2.5 and earlier:</strong> Allowed with field injection (resolved via three-level cache: singletonObjects, earlySingletonObjects, singletonFactories)</li>
+<li><strong>Spring Boot 2.6+:</strong> <strong>Throws error by default!</strong> Must explicitly allow with <code>spring.main.allow-circular-references=true</code></li>
+<li><strong>Constructor injection:</strong> Always fails (cannot create either bean without the other)</li>
+</ul>
+<p><strong>Three-level cache (how Spring solved it):</strong></p>
+<pre><code>1. singletonObjects       — fully initialized beans
+2. earlySingletonObjects   — partially initialized (constructor done, not injected)
+3. singletonFactories      — factory to create early reference
+
+Steps:
+1. Create A (call constructor) → put A-factory in level 3
+2. A needs B → create B
+3. B needs A → find A-factory in level 3 → get early A reference
+4. B fully initialized → move B to level 1
+5. A injection completed → move A to level 1
+</code></pre>
+<p><strong>How to fix (proper way):</strong></p>
+<pre><code class="language-java"><span class="hljs-comment">// Option 1: Redesign — extract shared logic</span>
+<span class="hljs-meta">@Service</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">OrderPaymentMediator</span> {
+    <span class="hljs-meta">@Autowired</span> <span class="hljs-keyword">private</span> OrderRepository orderRepo;
+    <span class="hljs-meta">@Autowired</span> <span class="hljs-keyword">private</span> PaymentRepository paymentRepo;
+    <span class="hljs-comment">// Both services depend on mediator, not each other</span>
+}
+
+<span class="hljs-comment">// Option 2: Event-driven — decouple via events</span>
+<span class="hljs-meta">@Service</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">OrderService</span> {
+    <span class="hljs-meta">@Autowired</span> <span class="hljs-keyword">private</span> ApplicationEventPublisher publisher;
+    
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">createOrder</span><span class="hljs-params">(OrderVO vo)</span> {
+        <span class="hljs-comment">// Create order</span>
+        publisher.publishEvent(<span class="hljs-keyword">new</span> <span class="hljs-title class_">OrderCreatedEvent</span>(order));
+    }
+}
+
+<span class="hljs-meta">@Service</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">PaymentService</span> {
+    <span class="hljs-meta">@EventListener</span>
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">onOrderCreated</span><span class="hljs-params">(OrderCreatedEvent event)</span> {
+        processPayment(event.getOrder());
+    }
+}
+
+<span class="hljs-comment">// Option 3: @Lazy (quick fix, not ideal)</span>
+<span class="hljs-meta">@Service</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">OrderService</span> {
+    <span class="hljs-meta">@Autowired</span>
+    <span class="hljs-meta">@Lazy</span>  <span class="hljs-comment">// Creates proxy, resolves actual bean on first use</span>
+    <span class="hljs-keyword">private</span> PaymentService paymentService;
+}
+</code></pre>
+<hr>
+<h3 id="fq6-what-is-api-idempotency-and-how-do-you-implement-it-in-rest-apis-every-fintech-interview">FQ6. What is API idempotency and how do you implement it in REST APIs? (Every fintech interview)</h3>
+<p><strong>Answer:</strong></p>
+<pre><code class="language-java"><span class="hljs-comment">// Standard approach: Idempotency-Key header</span>
+
+<span class="hljs-meta">@RestController</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">FilingController</span> {
+    
+    <span class="hljs-meta">@Autowired</span>
+    <span class="hljs-keyword">private</span> DistCacheUtil distCacheUtil;
+    
+    <span class="hljs-meta">@PostMapping(&quot;/api/returns/file&quot;)</span>
+    <span class="hljs-keyword">public</span> ResponseEntity&lt;FilingResponse&gt; <span class="hljs-title function_">fileReturn</span><span class="hljs-params">(
+            <span class="hljs-meta">@RequestHeader(&quot;Idempotency-Key&quot;)</span> String idempotencyKey,
+            <span class="hljs-meta">@RequestBody</span> ReturnVO returnVO)</span> {
+        
+        <span class="hljs-comment">// 1. Check if this key was already processed</span>
+        <span class="hljs-type">String</span> <span class="hljs-variable">cachedResponse</span> <span class="hljs-operator">=</span> distCacheUtil.get(<span class="hljs-string">&quot;idemp:&quot;</span> + idempotencyKey);
+        <span class="hljs-keyword">if</span> (cachedResponse != <span class="hljs-literal">null</span>) {
+            <span class="hljs-keyword">return</span> ResponseEntity.ok(deserialize(cachedResponse));  <span class="hljs-comment">// Same response</span>
+        }
+        
+        <span class="hljs-comment">// 2. Process request</span>
+        <span class="hljs-type">FilingResponse</span> <span class="hljs-variable">response</span> <span class="hljs-operator">=</span> filingService.fileReturn(returnVO);
+        
+        <span class="hljs-comment">// 3. Cache response keyed by idempotency key (TTL 24h)</span>
+        distCacheUtil.set(<span class="hljs-string">&quot;idemp:&quot;</span> + idempotencyKey, serialize(response), <span class="hljs-number">86400</span>);
+        
+        <span class="hljs-keyword">return</span> ResponseEntity.status(<span class="hljs-number">201</span>).body(response);
+    }
+}
+
+<span class="hljs-comment">// HTTP methods and idempotency:</span>
+<span class="hljs-comment">// GET     — naturally idempotent (read-only)</span>
+<span class="hljs-comment">// PUT     — naturally idempotent (same input → same state)</span>
+<span class="hljs-comment">// DELETE  — naturally idempotent (delete once or many times → result is deleted)</span>
+<span class="hljs-comment">// POST    — NOT idempotent — needs Idempotency-Key</span>
+<span class="hljs-comment">// PATCH   — depends on implementation</span>
+</code></pre>
+<hr>
+<h3 id="fq7-what-is-back-pressure-how-do-you-implement-it-in-different-contexts-amazon-uber">FQ7. What is back-pressure? How do you implement it in different contexts? (Amazon, Uber)</h3>
+<p><strong>Answer:</strong></p>
+<p><strong>Back-pressure:</strong> When a downstream system is slower than upstream, signal upstream to slow down.</p>
+<pre><code>Producer (1000 msg/s) → Consumer (100 msg/s) → Consumer overwhelmed without back-pressure!
+</code></pre>
+<p><strong>Implementation by context:</strong></p>
+<pre><code class="language-java"><span class="hljs-comment">// 1. Kafka: Consumer controls its own pace (pull model = natural back-pressure)</span>
+consumer.poll(Duration.ofMillis(<span class="hljs-number">100</span>));
+<span class="hljs-comment">// Consumer only fetches when ready — Kafka retains messages on broker</span>
+
+<span class="hljs-comment">// 2. Reactive Streams (Spring WebFlux): Subscriber requests N items</span>
+Flux.range(<span class="hljs-number">1</span>, <span class="hljs-number">1000000</span>)
+    .onBackpressureBuffer(<span class="hljs-number">1000</span>)     <span class="hljs-comment">// Buffer up to 1000</span>
+    .onBackpressureDrop()           <span class="hljs-comment">// Drop if buffer full</span>
+    .subscribe(item -&gt; process(item));
+
+<span class="hljs-comment">// 3. Thread pool: Reject new tasks when queue full</span>
+<span class="hljs-type">ThreadPoolTaskExecutor</span> <span class="hljs-variable">executor</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">ThreadPoolTaskExecutor</span>();
+executor.setCorePoolSize(<span class="hljs-number">5</span>);
+executor.setMaxPoolSize(<span class="hljs-number">10</span>);
+executor.setQueueCapacity(<span class="hljs-number">100</span>);
+executor.setRejectedExecutionHandler(<span class="hljs-keyword">new</span> <span class="hljs-title class_">CallerRunsPolicy</span>());
+<span class="hljs-comment">// CallerRunsPolicy → caller thread runs the task → naturally slows down producer</span>
+
+<span class="hljs-comment">// 4. HTTP API: Return 429 Too Many Requests</span>
+<span class="hljs-keyword">if</span> (rateLimiter.isOverLimit()) {
+    <span class="hljs-keyword">return</span> ResponseEntity.status(<span class="hljs-number">429</span>)
+        .header(<span class="hljs-string">&quot;Retry-After&quot;</span>, <span class="hljs-string">&quot;60&quot;</span>)  <span class="hljs-comment">// Tell client to wait</span>
+        .build();
+}
+
+<span class="hljs-comment">// 5. Circuit Breaker: Stop sending requests to failing service</span>
+<span class="hljs-meta">@CircuitBreaker(name = &quot;paymentService&quot;, fallbackMethod = &quot;paymentFallback&quot;)</span>
+<span class="hljs-keyword">public</span> PaymentResponse <span class="hljs-title function_">processPayment</span><span class="hljs-params">(PaymentRequest req)</span> {
+    <span class="hljs-keyword">return</span> restTemplate.postForObject(PAYMENT_URL, req, PaymentResponse.class);
+}
+</code></pre>
+<hr>
+<h3 id="fq8-how-do-you-handle-database-schema-migration-in-a-zero-downtime-deployment-asked-at-flipkart-razorpay-atlassian">FQ8. How do you handle database schema migration in a zero-downtime deployment? (Asked at Flipkart, Razorpay, Atlassian)</h3>
+<p><strong>Answer:</strong></p>
+<p><strong>Rule: Schema changes must be backward-compatible during deployment.</strong></p>
+<pre><code>Old code (v1)  ──────►  Rolling deployment  ──────►  New code (v2)
+    ▲                        ▲                           ▲
+    │                   Both versions                    │
+    │                   running together                 │
+    └──── Must work with ────┘                          │
+          old AND new schema                            │
+</code></pre>
+<p><strong>Safe migration strategy (expand-contract):</strong></p>
+<pre><code class="language-sql"><span class="hljs-comment">-- Phase 1: EXPAND (add new column, don&#x27;t remove old)</span>
+<span class="hljs-comment">-- Deploy: Migration V1 runs</span>
+<span class="hljs-keyword">ALTER</span> <span class="hljs-keyword">TABLE</span> gst_returns <span class="hljs-keyword">ADD</span> <span class="hljs-keyword">COLUMN</span> filing_status_new <span class="hljs-type">VARCHAR</span>(<span class="hljs-number">20</span>);
+<span class="hljs-comment">-- Both v1 and v2 code work — v1 ignores new column, v2 writes to both</span>
+
+<span class="hljs-comment">-- Phase 2: MIGRATE DATA (backfill)</span>
+<span class="hljs-keyword">UPDATE</span> gst_returns <span class="hljs-keyword">SET</span> filing_status_new <span class="hljs-operator">=</span> filing_status <span class="hljs-keyword">WHERE</span> filing_status_new <span class="hljs-keyword">IS</span> <span class="hljs-keyword">NULL</span>;
+
+<span class="hljs-comment">-- Phase 3: CONTRACT (remove old column — only after ALL instances on v2)</span>
+<span class="hljs-keyword">ALTER</span> <span class="hljs-keyword">TABLE</span> gst_returns <span class="hljs-keyword">DROP</span> <span class="hljs-keyword">COLUMN</span> filing_status;
+<span class="hljs-keyword">ALTER</span> <span class="hljs-keyword">TABLE</span> gst_returns RENAME <span class="hljs-keyword">COLUMN</span> filing_status_new <span class="hljs-keyword">TO</span> filing_status;
+</code></pre>
+<p><strong>Flyway integration in GSTN:</strong></p>
+<pre><code>resources/
+├── db/migration/
+│   ├── V1__create_return_table.sql
+│   ├── V2__add_filing_status.sql         ← Phase 1
+│   ├── V3__backfill_filing_status.sql    ← Phase 2
+│   └── V4__cleanup_old_column.sql        ← Phase 3 (separate release)
+</code></pre>
+<p><strong>Dangerous operations (avoid during zero-downtime):</strong></p>
+<ul>
+<li>Renaming columns (old code can't find old name)</li>
+<li>Dropping columns (old code fails)</li>
+<li>Adding NOT NULL without default (old code inserts fail)</li>
+<li>Changing column type (incompatible data)</li>
+</ul>
+<hr>
+<h3 id="fq9-what-is-the-outbox-pattern-and-why-is-it-important-how-does-it-solve-the-dual-write-problem-every-system-design-round">FQ9. What is the Outbox Pattern and why is it important? How does it solve the dual-write problem? (Every system design round)</h3>
+<p><strong>Answer:</strong></p>
+<p><strong>Dual-write problem:</strong></p>
+<pre><code class="language-java"><span class="hljs-comment">// BAD — dual write</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">fileReturn</span><span class="hljs-params">(ReturnVO vo)</span> {
+    returnRepository.save(entity);              <span class="hljs-comment">// Write 1: Database ✓</span>
+    kafkaProducer.send(<span class="hljs-string">&quot;return-filed&quot;</span>, event);  <span class="hljs-comment">// Write 2: Kafka</span>
+    <span class="hljs-comment">// What if Kafka fails? DB has data, Kafka doesn&#x27;t → INCONSISTENT</span>
+    <span class="hljs-comment">// What if DB fails after Kafka send? Kafka has event, DB doesn&#x27;t → INCONSISTENT</span>
+}
+</code></pre>
+<p><strong>Outbox pattern solution:</strong></p>
+<pre><code class="language-java"><span class="hljs-comment">// GOOD — single write to DB (atomic), separate publisher reads outbox</span>
+<span class="hljs-meta">@Transactional</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">fileReturn</span><span class="hljs-params">(ReturnVO vo)</span> {
+    <span class="hljs-comment">// Both writes in SAME transaction → atomic</span>
+    returnRepository.save(entity);
+    
+    <span class="hljs-type">OutboxEvent</span> <span class="hljs-variable">outbox</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">OutboxEvent</span>();
+    outbox.setAggregateType(<span class="hljs-string">&quot;Return&quot;</span>);
+    outbox.setAggregateId(vo.getGstin());
+    outbox.setType(<span class="hljs-string">&quot;RETURN_FILED&quot;</span>);
+    outbox.setPayload(toJson(vo));
+    outboxRepository.save(outbox);
+    <span class="hljs-comment">// COMMIT → both saved or both rolled back</span>
+}
+
+<span class="hljs-comment">// Separate process reads outbox and publishes to Kafka</span>
+<span class="hljs-comment">// Option A: Polling publisher (simple)</span>
+<span class="hljs-meta">@Scheduled(fixedDelay = 500)</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">publishOutboxEvents</span><span class="hljs-params">()</span> {
+    List&lt;OutboxEvent&gt; events = outboxRepo.findUnpublished();
+    <span class="hljs-keyword">for</span> (OutboxEvent event : events) {
+        kafkaProducer.send(event.getType(), event.getPayload());
+        event.setPublished(<span class="hljs-literal">true</span>);
+        outboxRepo.save(event);
+    }
+}
+
+<span class="hljs-comment">// Option B: CDC (Change Data Capture) — Debezium reads DB binlog</span>
+<span class="hljs-comment">// Debezium → reads MySQL binlog → publishes to Kafka → no polling needed</span>
+</code></pre>
+<p><strong>Why not just use @TransactionalEventListener?</strong></p>
+<pre><code class="language-java"><span class="hljs-comment">// This is in-process — if app crashes between DB commit and event publish, event is lost</span>
+<span class="hljs-meta">@TransactionalEventListener(phase = AFTER_COMMIT)</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">onReturnFiled</span><span class="hljs-params">(ReturnFiledEvent event)</span> {
+    kafkaProducer.send(...);  <span class="hljs-comment">// If app crashes here → lost!</span>
+}
+</code></pre>
+<p>The outbox pattern persists the intent to publish, so even if the app crashes, the event will be published when the app restarts.</p>
+<hr>
+<h3 id="fq10-you-have-a-spring-boot-service-with-99th-percentile-latency-of-5-seconds-walk-through-your-debugging-approach-asked-at-every-sde-2-round">FQ10. You have a Spring Boot service with 99th percentile latency of 5 seconds. Walk through your debugging approach. (Asked at every SDE-2+ round)</h3>
+<p><strong>Answer:</strong></p>
+<p><strong>Systematic debugging approach:</strong></p>
+<pre><code>Step 1: WHERE is the time spent? (Latency breakdown)
+─────────────────────────────────────────────────────
+Request → Filter (5ms) → Controller (2ms) → Service (4800ms!) → Response (3ms)
+                                                 │
+                                    ├── DB Query 1: 2000ms ← SLOW QUERY
+                                    ├── External API call: 2500ms ← TIMEOUT
+                                    └── Business logic: 300ms ← OK
+
+Tools: Distributed tracing (Jaeger span breakdown)
+       Spring Boot Actuator /metrics (http.server.requests.percentile)
+       APM tools (New Relic, Datadog)
+
+Step 2: Is it the DATABASE?
+─────────────────────────
+☐ Check slow query log (MySQL: SET GLOBAL slow_query_log=ON)
+☐ EXPLAIN ANALYZE the suspicious query
+☐ Check if index is missing or not being used
+☐ Check connection pool metrics (HikariCP active/idle/waiting)
+☐ Check if N+1 query problem (Hibernate logs: hibernate.show_sql=true)
+
+Step 3: Is it an EXTERNAL SERVICE?
+─────────────────────────────────
+☐ Check circuit breaker state (is it open?)
+☐ Check timeout configuration (default RestTemplate = no timeout!)
+☐ Check if downstream service is slow (its metrics)
+☐ Add timeout: restTemplate.setConnectTimeout(3000); restTemplate.setReadTimeout(5000);
+
+Step 4: Is it GARBAGE COLLECTION?
+───────────────────────────────
+☐ Check GC logs: grep &quot;pause&quot; gc.log
+☐ If Full GC &gt; 1s → heap tuning needed
+☐ Check heap usage trend (Grafana)
+☐ Take heap dump if OOM suspected
+
+Step 5: Is it THREAD CONTENTION?
+──────────────────────────────
+☐ Thread dump: jstack &lt;PID&gt;
+☐ Look for BLOCKED threads (deadlock or contention)
+☐ Check synchronized blocks holding for too long
+☐ Check thread pool exhaustion (Tomcat 200 threads all busy)
+
+Step 6: Is it the NETWORK?
+─────────────────────────
+☐ Latency between pods (K8s service mesh metrics)
+☐ DNS resolution time
+☐ Connection reuse (keep-alive vs new connection per request)
+</code></pre>
+<pre><code class="language-java"><span class="hljs-comment">// Quick win: Add logging to pinpoint bottleneck</span>
+<span class="hljs-meta">@Service</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">ReturnService</span> {
+    <span class="hljs-keyword">public</span> ReturnResponse <span class="hljs-title function_">getReturn</span><span class="hljs-params">(String gstin)</span> {
+        <span class="hljs-type">long</span> <span class="hljs-variable">start</span> <span class="hljs-operator">=</span> System.currentTimeMillis();
+        
+        <span class="hljs-comment">// DB call</span>
+        <span class="hljs-type">long</span> <span class="hljs-variable">dbStart</span> <span class="hljs-operator">=</span> System.currentTimeMillis();
+        <span class="hljs-type">ReturnEntity</span> <span class="hljs-variable">entity</span> <span class="hljs-operator">=</span> returnRepo.findByGstin(gstin);
+        LOGGER.info(<span class="hljs-string">&quot;DB query took {}ms&quot;</span>, System.currentTimeMillis() - dbStart);
+        
+        <span class="hljs-comment">// External call</span>
+        <span class="hljs-type">long</span> <span class="hljs-variable">apiStart</span> <span class="hljs-operator">=</span> System.currentTimeMillis();
+        <span class="hljs-type">ValidationResult</span> <span class="hljs-variable">result</span> <span class="hljs-operator">=</span> validationService.validate(entity);
+        LOGGER.info(<span class="hljs-string">&quot;Validation API took {}ms&quot;</span>, System.currentTimeMillis() - apiStart);
+        
+        LOGGER.info(<span class="hljs-string">&quot;Total service time: {}ms&quot;</span>, System.currentTimeMillis() - start);
+        <span class="hljs-keyword">return</span> buildResponse(entity, result);
+    }
+}
+</code></pre>
+<hr>
+<h2 id="part-g-behavioral-questions--sde-2sde-3-specific-every-company">PART G: BEHAVIORAL QUESTIONS — SDE-2/SDE-3 SPECIFIC (Every Company)</h2>
+<hr>
+<h3 id="gq1-tell-me-about-a-time-you-had-to-make-a-critical-architectural-decision-what-trade-offs-did-you-evaluate">GQ1. Tell me about a time you had to make a critical architectural decision. What trade-offs did you evaluate?</h3>
+<p><strong>GSTN-based answer:</strong></p>
+<p>&quot;When we were migrating GSTN services from Spring Framework 4.3 to Spring Boot 2.x, I had to decide the migration strategy. The trade-offs were:</p>
+<p><strong>Option A: Big-bang migration</strong> — Migrate everything at once. Pro: clean break. Con: high risk, everything could break simultaneously during filing season.</p>
+<p><strong>Option B: Strangler Fig pattern</strong> — Migrate service by service. Pro: lower risk, progressive. Con: need to maintain both old and new systems temporarily, inter-service compatibility.</p>
+<p>I chose Option B. We created the <code>gst-spring-boot2-starter</code> as a shared foundation that standardized auto-configuration for datasources, security, Kafka, and logging. This allowed each team to migrate independently while the starter ensured consistency.</p>
+<p>The key trade-off was: we needed to maintain backward compatibility in our shared <code>Commons/</code> framework libraries — they had to work with BOTH Spring 4.3 (old services) and Spring Boot 2.x (new services) during the transition period. This meant we couldn't use Spring Boot-specific features in the shared libraries until all consumers migrated.&quot;</p>
+<hr>
+<h3 id="gq2-tell-me-about-a-time-you-improved-the-performance-of-a-system-significantly">GQ2. Tell me about a time you improved the performance of a system significantly.</h3>
+<p><strong>GSTN-based answer:</strong></p>
+<p>&quot;During the GSTR-1 filing deadline, our return retrieval API was hitting 3-second response times. I profiled the flow:</p>
+<ol>
+<li>
+<p><strong>Root cause:</strong> Each API call was making 12 separate database queries (N+1 problem) — fetching return header, then individual items, then amendments.</p>
+</li>
+<li>
+<p><strong>Solution:</strong></p>
+<ul>
+<li>Added <code>JOIN FETCH</code> to load related data in a single query</li>
+<li>Implemented Redis caching in <code>DistCacheUtil</code> for frequently accessed reference data (HSN codes, state codes)</li>
+<li>Changed the return data fetching from HBase to a batch read</li>
+</ul>
+</li>
+<li>
+<p><strong>Result:</strong> Response time dropped from 3s to 200ms — 15x improvement. We could handle the filing deadline surge without adding more instances.</p>
+</li>
+</ol>
+<p>The key learning: always profile before optimizing. My initial guess was network latency, but profiling showed it was all database round-trips.&quot;</p>
+<hr>
+<h3 id="gq3-how-do-you-handle-disagreements-in-code-reviews">GQ3. How do you handle disagreements in code reviews?</h3>
+<p><strong>Answer:</strong></p>
+<p>&quot;In GSTN, a colleague used field injection (<code>@Autowired</code>) everywhere while I advocated for constructor injection. Instead of blocking the PR, I:</p>
+<ol>
+<li>Shared the Spring team's own recommendation (constructor injection for required dependencies)</li>
+<li>Showed concrete issues: field injection makes unit testing harder — you can't create the object without reflection or Spring context</li>
+<li>Proposed a compromise: new code uses constructor injection, existing code migrates gradually</li>
+<li>Created a team ADR (Architecture Decision Record) documenting the decision</li>
+</ol>
+<p>The colleague agreed after seeing the testing benefit. Key principle: critique the code, not the person, and always show evidence over opinion.&quot;</p>
+<hr>
+<h3 id="gq4-describe-your-approach-to-mentoring-junior-developers">GQ4. Describe your approach to mentoring junior developers.</h3>
+<p><strong>Answer:</strong></p>
+<p>&quot;At GSTN, when a junior developer joined my team, I:</p>
+<ol>
+<li>
+<p><strong>Paired on first task:</strong> We implemented a new Kafka consumer together. I wrote the structure, they filled in the business logic. I explained WHY we use manual offset commits (reliability) vs auto-commit.</p>
+</li>
+<li>
+<p><strong>Code review as teaching:</strong> Instead of just approving/rejecting, I'd leave comments like 'This works, but consider using @Transactional(propagation = REQUIRES_NEW) here because...' — turning reviews into learning moments.</p>
+</li>
+<li>
+<p><strong>Gradually increased ownership:</strong> First they did bug fixes → then small features → then they designed a new API endpoint end-to-end while I reviewed.</p>
+</li>
+<li>
+<p><strong>The mistake I let happen:</strong> Once they put a <code>@Transactional</code> annotation on a method that called an external HTTP API. Instead of blocking the review, I asked them to think about what happens if the API takes 30 seconds — the database connection is held for 30 seconds. They realized the problem themselves and remembered it permanently.&quot;</p>
+</li>
+</ol>
+<hr>
+<h2 id="part-h-curveball--tricky-questions-2025-2026-trending">PART H: CURVEBALL / TRICKY QUESTIONS (2025-2026 Trending)</h2>
+<hr>
+<h3 id="hq1-what-happens-when-you-type-a-url-in-the-browser-and-press-enter-full-stack-answer-expected-for-sde-2">HQ1. What happens when you type a URL in the browser and press Enter? (Full stack answer expected for SDE-2+)</h3>
+<p><strong>Answer (interview-ready, cover all layers):</strong></p>
+<pre><code>1. URL Parsing: Browser parses https://gst.gov.in/returns?gstin=29AAACG1234A
+   → Protocol: HTTPS, Host: gst.gov.in, Path: /returns, Query: gstin=...
+
+2. DNS Resolution:
+   Browser cache → OS cache → Router cache → ISP DNS → Root DNS → .in TLD → gst.gov.in
+   → Returns IP: 103.100.xxx.xxx (multiple IPs for load balancing)
+
+3. TCP Connection:
+   Three-way handshake: SYN → SYN-ACK → ACK
+   → TCP connection established
+
+4. TLS Handshake (HTTPS):
+   ClientHello (cipher suites) → ServerHello (chosen cipher + certificate)
+   → Client verifies cert → Key exchange → Symmetric session key established
+   → All further data encrypted
+
+5. HTTP Request:
+   GET /returns?gstin=29AAACG1234A HTTP/2
+   Host: gst.gov.in
+   Authorization: Bearer &lt;JWT&gt;
+
+6. Load Balancer:
+   AWS ALB/NLB → health check → route to healthy K8s pod
+   → Based on: round-robin / least connections / IP hash
+
+7. K8s Ingress → Service → Pod:
+   Ingress controller → ClusterIP service → selected Pod
+
+8. Application Processing (Spring Boot):
+   Tomcat → Filter chain → DispatcherServlet → Controller → Service → DB/Cache
+   (full lifecycle as described in BQ2)
+
+9. Response:
+   HTTP/2 200 OK
+   Content-Type: application/json
+   { &quot;returns&quot;: [...] }
+
+10. Browser Rendering:
+    Parse JSON → JavaScript framework (Angular) renders UI
+    Subsequent AJAX calls for lazy-loaded data
+</code></pre>
+<hr>
+<h3 id="hq2-is-java-pass-by-value-or-pass-by-reference-prove-it-trick-question--still-asked">HQ2. Is Java pass-by-value or pass-by-reference? Prove it. (Trick question — still asked!)</h3>
+<p><strong>Answer:</strong></p>
+<p>&quot;Java is <strong>always pass-by-value</strong>. But the 'value' of an object variable is the <strong>reference (pointer) to the object</strong> — not the object itself.&quot;</p>
+<pre><code class="language-java"><span class="hljs-comment">// Proof 1: Primitive — clearly pass-by-value</span>
+<span class="hljs-keyword">void</span> <span class="hljs-title function_">modify</span><span class="hljs-params">(<span class="hljs-type">int</span> x)</span> { x = <span class="hljs-number">100</span>; }
+<span class="hljs-type">int</span> <span class="hljs-variable">a</span> <span class="hljs-operator">=</span> <span class="hljs-number">5</span>;
+modify(a);
+System.out.println(a);  <span class="hljs-comment">// 5 — unchanged</span>
+
+<span class="hljs-comment">// Proof 2: Object — the REFERENCE is passed by value</span>
+<span class="hljs-keyword">void</span> <span class="hljs-title function_">modify</span><span class="hljs-params">(StringBuilder sb)</span> {
+    sb.append(<span class="hljs-string">&quot; World&quot;</span>);  <span class="hljs-comment">// Modifies the object (same reference)</span>
+}
+<span class="hljs-type">StringBuilder</span> <span class="hljs-variable">s</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">StringBuilder</span>(<span class="hljs-string">&quot;Hello&quot;</span>);
+modify(s);
+System.out.println(s);  <span class="hljs-comment">// &quot;Hello World&quot; — object modified through shared reference</span>
+
+<span class="hljs-comment">// Proof 3: Reassigning the reference doesn&#x27;t affect caller</span>
+<span class="hljs-keyword">void</span> <span class="hljs-title function_">replace</span><span class="hljs-params">(StringBuilder sb)</span> {
+    sb = <span class="hljs-keyword">new</span> <span class="hljs-title class_">StringBuilder</span>(<span class="hljs-string">&quot;New&quot;</span>);  <span class="hljs-comment">// Reassigns LOCAL copy of reference</span>
+}
+<span class="hljs-type">StringBuilder</span> <span class="hljs-variable">s</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">StringBuilder</span>(<span class="hljs-string">&quot;Hello&quot;</span>);
+replace(s);
+System.out.println(s);  <span class="hljs-comment">// &quot;Hello&quot; — still original! Because reference was copied</span>
+</code></pre>
+<p>&quot;If Java were pass-by-reference, <code>replace()</code> would have changed <code>s</code> to point to 'New'. Since it didn't, Java passes the reference BY VALUE.&quot;</p>
+<hr>
+<h3 id="hq3-whats-the-difference-between-string-stringbuilder-and-stringbuffer-what-is-the-string-pool-why-is-string-immutable">HQ3. What's the difference between <code>String</code>, <code>StringBuilder</code>, and <code>StringBuffer</code>? What is the String pool? Why is String immutable?</h3>
+<p><strong>Answer:</strong></p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>String</th>
+<th>StringBuilder</th>
+<th>StringBuffer</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Mutability</td>
+<td><strong>Immutable</strong></td>
+<td>Mutable</td>
+<td>Mutable</td>
+</tr>
+<tr>
+<td>Thread-safe</td>
+<td>Yes (immutable)</td>
+<td><strong>No</strong></td>
+<td>Yes (synchronized)</td>
+</tr>
+<tr>
+<td>Performance</td>
+<td>Slow for concatenation</td>
+<td><strong>Fastest</strong></td>
+<td>Slower (sync overhead)</td>
+</tr>
+<tr>
+<td>Use case</td>
+<td>Constants, keys</td>
+<td><strong>Single-threaded string building</strong></td>
+<td>Multi-threaded (rare)</td>
+</tr>
+</tbody>
+</table>
+<p><strong>String Pool (Interning):</strong></p>
+<pre><code class="language-java"><span class="hljs-type">String</span> <span class="hljs-variable">s1</span> <span class="hljs-operator">=</span> <span class="hljs-string">&quot;GSTN&quot;</span>;        <span class="hljs-comment">// Goes to String Pool</span>
+<span class="hljs-type">String</span> <span class="hljs-variable">s2</span> <span class="hljs-operator">=</span> <span class="hljs-string">&quot;GSTN&quot;</span>;        <span class="hljs-comment">// Reuses from String Pool</span>
+<span class="hljs-type">String</span> <span class="hljs-variable">s3</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">String</span>(<span class="hljs-string">&quot;GSTN&quot;</span>);  <span class="hljs-comment">// Goes to Heap (NOT pool)</span>
+
+s1 == s2;     <span class="hljs-comment">// true (same object from pool)</span>
+s1 == s3;     <span class="hljs-comment">// false (different objects)</span>
+s1.equals(s3); <span class="hljs-comment">// true (same content)</span>
+
+s3.intern();  <span class="hljs-comment">// Moves s3 to pool (or returns existing pool reference)</span>
+</code></pre>
+<p><strong>Why is String immutable?</strong></p>
+<ol>
+<li><strong>String Pool:</strong> Multiple references share same object — mutation would affect all</li>
+<li><strong>Thread safety:</strong> Immutable = inherently thread-safe</li>
+<li><strong>Security:</strong> GSTIN strings, passwords, class names — mutation would be a security risk</li>
+<li><strong>HashMap key:</strong> hashCode() cached — if String mutated, map lookup would break</li>
+<li><strong>Class loading:</strong> Class names are Strings — mutating would break classloading</li>
+</ol>
+<hr>
+<h3 id="hq4-explain-the-equals-and-hashcode-contract-what-breaks-if-you-violate-it">HQ4. Explain the <code>equals()</code> and <code>hashCode()</code> contract. What breaks if you violate it?</h3>
+<p><strong>Answer:</strong></p>
+<p><strong>Contract:</strong></p>
+<ol>
+<li>If <code>a.equals(b)</code> is true → <code>a.hashCode() == b.hashCode()</code> MUST be true</li>
+<li>If <code>a.hashCode() != b.hashCode()</code> → <code>a.equals(b)</code> MUST be false</li>
+<li><code>hashCode()</code> being equal does NOT guarantee <code>equals()</code> (collisions are allowed)</li>
+</ol>
+<p><strong>What breaks if violated:</strong></p>
+<pre><code class="language-java"><span class="hljs-comment">// BAD: Override equals but NOT hashCode</span>
+<span class="hljs-keyword">class</span> <span class="hljs-title class_">TaxReturn</span> {
+    String gstin;
+    String period;
+    
+    <span class="hljs-meta">@Override</span>
+    <span class="hljs-keyword">public</span> <span class="hljs-type">boolean</span> <span class="hljs-title function_">equals</span><span class="hljs-params">(Object o)</span> {
+        <span class="hljs-type">TaxReturn</span> <span class="hljs-variable">other</span> <span class="hljs-operator">=</span> (TaxReturn) o;
+        <span class="hljs-keyword">return</span> gstin.equals(other.gstin) &amp;&amp; period.equals(other.period);
+    }
+    <span class="hljs-comment">// hashCode NOT overridden — uses default (memory address)</span>
+}
+
+<span class="hljs-type">TaxReturn</span> <span class="hljs-variable">r1</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">TaxReturn</span>(<span class="hljs-string">&quot;29AAA...&quot;</span>, <span class="hljs-string">&quot;072023&quot;</span>);
+<span class="hljs-type">TaxReturn</span> <span class="hljs-variable">r2</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">TaxReturn</span>(<span class="hljs-string">&quot;29AAA...&quot;</span>, <span class="hljs-string">&quot;072023&quot;</span>);
+
+r1.equals(r2);  <span class="hljs-comment">// true ✓</span>
+
+Set&lt;TaxReturn&gt; set = <span class="hljs-keyword">new</span> <span class="hljs-title class_">HashSet</span>&lt;&gt;();
+set.add(r1);
+set.contains(r2);  <span class="hljs-comment">// FALSE! ✗</span>
+<span class="hljs-comment">// Because hashCode differs → looks in wrong bucket → doesn&#x27;t find it</span>
+
+Map&lt;TaxReturn, String&gt; map = <span class="hljs-keyword">new</span> <span class="hljs-title class_">HashMap</span>&lt;&gt;();
+map.put(r1, <span class="hljs-string">&quot;filed&quot;</span>);
+map.get(r2);  <span class="hljs-comment">// NULL! ✗  Same problem</span>
+
+<span class="hljs-comment">// GSTN uses Lombok @EqualsAndHashCode to auto-generate correct implementations</span>
+<span class="hljs-meta">@EqualsAndHashCode</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">ApplnPK</span> <span class="hljs-keyword">implements</span> <span class="hljs-title class_">Serializable</span> { ... }
+</code></pre>
+<hr>
+<h3 id="hq5-what-is-the-difference-between-an-interface-and-an-abstract-class-in-java-8-when-to-use-each">HQ5. What is the difference between an interface and an abstract class in Java 8+? When to use each?</h3>
+<p><strong>Answer:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Feature</th>
+<th>Interface (Java 8+)</th>
+<th>Abstract Class</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Multiple inheritance</td>
+<td><strong>Yes</strong> (implements many)</td>
+<td>No (extends one)</td>
+</tr>
+<tr>
+<td>Constructors</td>
+<td>No</td>
+<td><strong>Yes</strong></td>
+</tr>
+<tr>
+<td>State (instance fields)</td>
+<td>No (only static final)</td>
+<td><strong>Yes</strong></td>
+</tr>
+<tr>
+<td>Access modifiers</td>
+<td>public only (until Java 9)</td>
+<td>Any</td>
+</tr>
+<tr>
+<td>Default methods</td>
+<td><strong>Yes</strong> (Java 8+)</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td>Static methods</td>
+<td><strong>Yes</strong> (Java 8+)</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td>Private methods</td>
+<td><strong>Yes</strong> (Java 9+)</td>
+<td>Yes</td>
+</tr>
+</tbody>
+</table>
+<p><strong>When to use interface:</strong></p>
+<ul>
+<li>Define a contract (what to do, not how)</li>
+<li>Need multiple inheritance: <code>class ReturnService implements FilingService, ValidationService</code></li>
+<li>Functional interface for lambdas: <code>@FunctionalInterface</code></li>
+</ul>
+<p><strong>When to use abstract class:</strong></p>
+<ul>
+<li>Share state (fields) among related classes</li>
+<li>Provide partial implementation (Template Method pattern)</li>
+<li>Need constructors for initialization</li>
+</ul>
+<p><strong>GSTN example:</strong></p>
+<pre><code class="language-java"><span class="hljs-comment">// Interface — define contract</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">interface</span> <span class="hljs-title class_">Anx1aService</span> {
+    String <span class="hljs-title function_">getAnx1aRecords</span><span class="hljs-params">(Anx1aParamVO params, String type)</span>;
+}
+
+<span class="hljs-comment">// Abstract class — share common workflow behavior</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">abstract</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">BaseReturnProcessor</span> {
+    <span class="hljs-keyword">protected</span> DistCacheUtil distCacheUtil;  <span class="hljs-comment">// Shared state</span>
+    
+    <span class="hljs-comment">// Template method</span>
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">final</span> ReturnResponse <span class="hljs-title function_">process</span><span class="hljs-params">(ReturnVO vo)</span> {
+        validate(vo);
+        <span class="hljs-type">ReturnEntity</span> <span class="hljs-variable">entity</span> <span class="hljs-operator">=</span> transform(vo);
+        save(entity);
+        notify(entity);
+        <span class="hljs-keyword">return</span> buildResponse(entity);
+    }
+    
+    <span class="hljs-keyword">protected</span> <span class="hljs-keyword">abstract</span> ReturnEntity <span class="hljs-title function_">transform</span><span class="hljs-params">(ReturnVO vo)</span>;  <span class="hljs-comment">// Subclass implements</span>
+    <span class="hljs-keyword">protected</span> <span class="hljs-keyword">abstract</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">validate</span><span class="hljs-params">(ReturnVO vo)</span>;
+}
+</code></pre>
+<hr>
+<h2 id="part-i-spring-boot-3x--java-21--latest-features-2025-2026-interviews">PART I: SPRING BOOT 3.x / JAVA 21 — LATEST FEATURES (2025-2026 Interviews)</h2>
+<hr>
+<h3 id="iq1-whats-new-in-spring-boot-3x-what-migration-challenges-exist-from-2x">IQ1. What's new in Spring Boot 3.x? What migration challenges exist from 2.x?</h3>
+<p><strong>Answer:</strong></p>
+<p><strong>Key changes in Spring Boot 3.x:</strong></p>
+<ol>
+<li><strong>Java 17 minimum</strong> (Jakarta EE 9+, not Java 8/11)</li>
+<li><strong><code>javax.*</code> → <code>jakarta.*</code></strong> namespace migration (biggest breaking change)</li>
+<li><strong>Native compilation</strong> with GraalVM (AOT — Ahead of Time compilation)</li>
+<li><strong>Observability</strong> built-in (Micrometer Observation API)</li>
+<li><strong>HTTP interfaces</strong> (<code>@HttpExchange</code> — declarative HTTP clients)</li>
+<li><strong>Problem Details</strong> (RFC 7807) for error responses</li>
+<li><strong>Virtual thread support</strong> (Java 21)</li>
+</ol>
+<p><strong>Migration challenges for GSTN:</strong></p>
+<pre><code class="language-java"><span class="hljs-comment">// 1. Package rename (affects EVERY Java file)</span>
+<span class="hljs-comment">// Before: import javax.persistence.Entity;</span>
+<span class="hljs-comment">// After:  import jakarta.persistence.Entity;</span>
+
+<span class="hljs-comment">// Before: import javax.servlet.http.HttpServletRequest;</span>
+<span class="hljs-comment">// After:  import jakarta.servlet.http.HttpServletRequest;</span>
+
+<span class="hljs-comment">// 2. Spring Security — completely rewritten API</span>
+<span class="hljs-comment">// Before:</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">SecurityConfig</span> <span class="hljs-keyword">extends</span> <span class="hljs-title class_">WebSecurityConfigurerAdapter</span> {
+    <span class="hljs-meta">@Override</span>
+    <span class="hljs-keyword">protected</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">configure</span><span class="hljs-params">(HttpSecurity http)</span> { ... }
+}
+
+<span class="hljs-comment">// After:</span>
+<span class="hljs-meta">@Configuration</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">SecurityConfig</span> {
+    <span class="hljs-meta">@Bean</span>
+    <span class="hljs-keyword">public</span> SecurityFilterChain <span class="hljs-title function_">filterChain</span><span class="hljs-params">(HttpSecurity http)</span> <span class="hljs-keyword">throws</span> Exception {
+        <span class="hljs-keyword">return</span> http
+            .authorizeHttpRequests(auth -&gt; auth
+                .requestMatchers(<span class="hljs-string">&quot;/api/public/**&quot;</span>).permitAll()
+                .anyRequest().authenticated()
+            )
+            .build();
+    }
+}
+
+<span class="hljs-comment">// 3. spring.factories deprecated → META-INF/spring/org.springframework.boot.autoconfigure.AutoConfiguration.imports</span>
+</code></pre>
+<hr>
+<h3 id="iq2-what-are-spring-boot-http-interface-clients-spring-6">IQ2. What are Spring Boot HTTP Interface Clients (Spring 6)?</h3>
+<p><strong>Answer:</strong></p>
+<pre><code class="language-java"><span class="hljs-comment">// Declarative HTTP client — like Feign but built into Spring</span>
+<span class="hljs-meta">@HttpExchange(&quot;/api/v1/returns&quot;)</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">interface</span> <span class="hljs-title class_">ReturnServiceClient</span> {
+    
+    <span class="hljs-meta">@GetExchange(&quot;/{gstin}&quot;)</span>
+    ReturnResponse <span class="hljs-title function_">getReturn</span><span class="hljs-params">(<span class="hljs-meta">@PathVariable</span> String gstin)</span>;
+    
+    <span class="hljs-meta">@PostExchange</span>
+    ReturnResponse <span class="hljs-title function_">fileReturn</span><span class="hljs-params">(<span class="hljs-meta">@RequestBody</span> ReturnVO vo)</span>;
+}
+
+<span class="hljs-comment">// Configuration</span>
+<span class="hljs-meta">@Configuration</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">ClientConfig</span> {
+    <span class="hljs-meta">@Bean</span>
+    ReturnServiceClient <span class="hljs-title function_">returnClient</span><span class="hljs-params">(RestClient.Builder builder)</span> {
+        <span class="hljs-type">RestClient</span> <span class="hljs-variable">restClient</span> <span class="hljs-operator">=</span> builder.baseUrl(<span class="hljs-string">&quot;http://return-service:8080&quot;</span>).build();
+        <span class="hljs-keyword">return</span> HttpServiceProxyFactory
+            .builderFor(RestClientAdapter.create(restClient))
+            .build()
+            .createClient(ReturnServiceClient.class);
+    }
+}
+
+<span class="hljs-comment">// Usage — clean and testable</span>
+<span class="hljs-meta">@Service</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">FilingService</span> {
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> ReturnServiceClient returnClient;
+    
+    <span class="hljs-keyword">public</span> <span class="hljs-title function_">FilingService</span><span class="hljs-params">(ReturnServiceClient returnClient)</span> {
+        <span class="hljs-built_in">this</span>.returnClient = returnClient;  <span class="hljs-comment">// Constructor injection</span>
+    }
+    
+    <span class="hljs-keyword">public</span> ReturnResponse <span class="hljs-title function_">getReturn</span><span class="hljs-params">(String gstin)</span> {
+        <span class="hljs-keyword">return</span> returnClient.getReturn(gstin);
+    }
+}
+</code></pre>
+<hr>
+<h3 id="iq3-what-is-graalvm-native-image-pros-and-cons-for-microservices">IQ3. What is GraalVM Native Image? Pros and cons for microservices?</h3>
+<p><strong>Answer:</strong></p>
+<p><strong>GraalVM Native Image:</strong> Compiles Java application Ahead-of-Time (AOT) into a standalone native binary.</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>JVM</th>
+<th>Native Image</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Startup time</td>
+<td>3-10 seconds</td>
+<td><strong>~50ms</strong></td>
+</tr>
+<tr>
+<td>Memory footprint</td>
+<td>200-500MB</td>
+<td><strong>50-100MB</strong></td>
+</tr>
+<tr>
+<td>Peak throughput</td>
+<td><strong>Higher</strong> (JIT optimizes hot paths)</td>
+<td>Lower (no runtime optimization)</td>
+</tr>
+<tr>
+<td>Build time</td>
+<td>Fast</td>
+<td><strong>Slow (5-10 min)</strong></td>
+</tr>
+<tr>
+<td>Reflection</td>
+<td>Full support</td>
+<td><strong>Requires configuration</strong></td>
+</tr>
+<tr>
+<td>Dynamic proxies</td>
+<td>Full support</td>
+<td><strong>Requires configuration</strong></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Best for:</strong> Serverless (Lambda), CLI tools, services with low traffic but need fast cold start</p>
+<p><strong>NOT best for:</strong> High-throughput services (GSTN filing), because JIT's runtime optimization produces faster code after warmup.</p>
+<pre><code class="language-bash"><span class="hljs-comment"># Build native image with Spring Boot 3</span>
+mvn -Pnative spring-boot:build-image
+<span class="hljs-comment"># or</span>
+./gradlew nativeCompile
+</code></pre>
+<hr>
+<h2 id="quick-reference-top-20-questions-for-each-company-type">QUICK REFERENCE: TOP 20 QUESTIONS FOR EACH COMPANY TYPE</h2>
+<h3 id="faang-google-amazon-meta-apple-netflix">FAANG (Google, Amazon, Meta, Apple, Netflix):</h3>
+<ol>
+<li>DSA (2 rounds): Trees, Graphs, Dynamic Programming, System Design</li>
+<li>System Design: Scale, CAP theorem, eventual consistency</li>
+<li>Java internals: JMM, GC, ConcurrentHashMap internals</li>
+<li>Behavioral: Leadership principles (Amazon), Googleyness</li>
+</ol>
+<h3 id="product-companies-flipkart-razorpay-phonepe-swiggy-cred">Product Companies (Flipkart, Razorpay, PhonePe, Swiggy, Cred):</h3>
+<ol>
+<li>Spring Boot DEEP: Auto-config internals, @Transactional pitfalls, HikariCP tuning</li>
+<li>Kafka: Exactly-once semantics, consumer lag, partition strategy</li>
+<li>System Design: Payment system, rate limiter, notification system</li>
+<li>Database: Sharding, indexing, query optimization</li>
+</ol>
+<h3 id="startups-meesho-zepto-jupiter-jar">Startups (Meesho, Zepto, Jupiter, Jar):</h3>
+<ol>
+<li>Full-stack capability: REST API design, DB schema design, deployment</li>
+<li>Practical problem-solving: &quot;How would you build X in 2 weeks?&quot;</li>
+<li>Trade-off discussions: Monolith vs microservices, SQL vs NoSQL</li>
+<li>Ownership mindset: &quot;Tell me about something you built end-to-end&quot;</li>
+</ol>
+<h3 id="banksfintech-goldman-sachs-morgan-stanley-jp-morgan">Banks/Fintech (Goldman Sachs, Morgan Stanley, JP Morgan):</h3>
+<ol>
+<li>Concurrency: Thread safety, deadlocks, lock-free data structures</li>
+<li>Low-latency: GC tuning, memory optimization, cache strategies</li>
+<li>Reliability: Idempotency, exactly-once processing, XA transactions</li>
+<li>Security: Encryption, JWT, OWASP, audit logging</li>
+</ol>
+<hr>
+<p><em>This file covers ~60 additional questions commonly asked at SDE-2/SDE-3 level (5.5 YOE) across FAANG, product companies, startups, and fintech firms in 2025-2026 interview rounds. Combined with the original 296 questions, this provides ~350+ questions for comprehensive preparation.</em></p>
+
+            <script async src="https://cdn.jsdelivr.net/npm/katex-copytex@latest/dist/katex-copytex.min.js"></script>
+            
+        </body>
+        </html>

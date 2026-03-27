@@ -1,0 +1,2189 @@
+<!DOCTYPE html>
+        <html>
+        <head>
+            <meta charset="UTF-8">
+            <title>GSTN &lpar;Goods &amp; Services Tax Network&rpar; &mdash; Complete Architecture Reference</title>
+            <style>
+/* From extension vscode.github */
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+
+.vscode-dark img[src$=\#gh-light-mode-only],
+.vscode-light img[src$=\#gh-dark-mode-only],
+.vscode-high-contrast:not(.vscode-high-contrast-light) img[src$=\#gh-light-mode-only],
+.vscode-high-contrast-light img[src$=\#gh-dark-mode-only] {
+	display: none;
+}
+
+</style>
+            <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex/dist/katex.min.css">
+<link href="https://cdn.jsdelivr.net/npm/katex-copytex@latest/dist/katex-copytex.min.css" rel="stylesheet" type="text/css">
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Microsoft/vscode/extensions/markdown-language-features/media/markdown.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Microsoft/vscode/extensions/markdown-language-features/media/highlight.css">
+<style>
+            body {
+                font-family: -apple-system, BlinkMacSystemFont, 'Segoe WPC', 'Segoe UI', system-ui, 'Ubuntu', 'Droid Sans', sans-serif;
+                font-size: 14px;
+                line-height: 1.6;
+            }
+        </style>
+        <style>
+.task-list-item {
+    list-style-type: none;
+}
+
+.task-list-item-checkbox {
+    margin-left: -20px;
+    vertical-align: middle;
+    pointer-events: none;
+}
+</style>
+<style>
+:root {
+  --color-note: #0969da;
+  --color-tip: #1a7f37;
+  --color-warning: #9a6700;
+  --color-severe: #bc4c00;
+  --color-caution: #d1242f;
+  --color-important: #8250df;
+}
+
+</style>
+<style>
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-note: #2f81f7;
+    --color-tip: #3fb950;
+    --color-warning: #d29922;
+    --color-severe: #db6d28;
+    --color-caution: #f85149;
+    --color-important: #a371f7;
+  }
+}
+
+</style>
+<style>
+.markdown-alert {
+  padding: 0.5rem 1rem;
+  margin-bottom: 16px;
+  color: inherit;
+  border-left: .25em solid #888;
+}
+
+.markdown-alert>:first-child {
+  margin-top: 0
+}
+
+.markdown-alert>:last-child {
+  margin-bottom: 0
+}
+
+.markdown-alert .markdown-alert-title {
+  display: flex;
+  font-weight: 500;
+  align-items: center;
+  line-height: 1
+}
+
+.markdown-alert .markdown-alert-title .octicon {
+  margin-right: 0.5rem;
+  display: inline-block;
+  overflow: visible !important;
+  vertical-align: text-bottom;
+  fill: currentColor;
+}
+
+.markdown-alert.markdown-alert-note {
+  border-left-color: var(--color-note);
+}
+
+.markdown-alert.markdown-alert-note .markdown-alert-title {
+  color: var(--color-note);
+}
+
+.markdown-alert.markdown-alert-important {
+  border-left-color: var(--color-important);
+}
+
+.markdown-alert.markdown-alert-important .markdown-alert-title {
+  color: var(--color-important);
+}
+
+.markdown-alert.markdown-alert-warning {
+  border-left-color: var(--color-warning);
+}
+
+.markdown-alert.markdown-alert-warning .markdown-alert-title {
+  color: var(--color-warning);
+}
+
+.markdown-alert.markdown-alert-tip {
+  border-left-color: var(--color-tip);
+}
+
+.markdown-alert.markdown-alert-tip .markdown-alert-title {
+  color: var(--color-tip);
+}
+
+.markdown-alert.markdown-alert-caution {
+  border-left-color: var(--color-caution);
+}
+
+.markdown-alert.markdown-alert-caution .markdown-alert-title {
+  color: var(--color-caution);
+}
+
+</style>
+        
+        </head>
+        <body class="vscode-body vscode-light">
+            <h1 id="gstn-goods--services-tax-network--complete-architecture-reference">GSTN (Goods &amp; Services Tax Network) — Complete Architecture Reference</h1>
+<h1 id="for-sde-2--sde-3-interview-preparation">For SDE-2 / SDE-3 Interview Preparation</h1>
+<h1 id="based-on-actual-codebase-analysis--java_maintrunk">Based on Actual Codebase Analysis — JAVA_Maintrunk</h1>
+<hr>
+<h2 id="table-of-contents">TABLE OF CONTENTS</h2>
+<pre><code>1.  System Overview &amp; Scale
+2.  High-Level Architecture Diagram (ASCII)
+3.  Module Taxonomy (4 Layers)
+4.  Technology Stack Summary
+5.  Commons Frameworks — Detailed Breakdown
+6.  Core-API Modules — Detailed Breakdown
+7.  BO-Web &amp; Common-Web Layers
+8.  Ledger Flow — Deep Dive
+9.  Case Lifecycle &amp; Workflow Engine — Deep Dive
+10. Customizer Pattern (Strategy + Factory) — Deep Dive
+11. DCR (Demand Collection &amp; Recovery) Order Flow
+12. APLTD &amp; Appeal Flows
+13. Caching Architecture (Local + Distributed)
+14. Kafka Async Processing &amp; Event Streaming
+15. HBase Data Access Layer — Deep Dive
+16. Communication &amp; Notification Architecture
+17. Spring Boot Auto-Configuration (Custom Starter)
+18. Security Architecture
+19. Threading, Locking &amp; Concurrency Patterns
+20. Scalability Patterns
+21. Design Patterns Catalog (with Code Locations)
+22. Database &amp; Storage Layer Summary
+23. Key File Locations Quick Reference
+24. Interview-Ready: Resume Bullet Points (Top 6)
+25. Interview-Ready: Behavioral &amp; Managerial Questions
+26. Interview-Ready: Technical Deep-Dive Questions
+27. Interview-Ready: System Design Questions from GSTN Context
+28. Must-Know Concepts &amp; Skills for SDE-2/SDE-3
+</code></pre>
+<hr>
+<h2 id="1-system-overview--scale">1. SYSTEM OVERVIEW &amp; SCALE</h2>
+<p>GSTN is India's <strong>national tax infrastructure</strong> — a mission-critical distributed system processing GST compliance for:</p>
+<ul>
+<li><strong>1.4 Crore+ (14 Million+)</strong> registered taxpayers</li>
+<li><strong>300+ Crore (3 Billion+)</strong> invoices per year</li>
+<li><strong>45+ REST API microservices</strong> in this codebase alone</li>
+<li><strong>32+ shared frameworks</strong> for cross-cutting concerns</li>
+<li><strong>6 back-office web applications</strong> for tax officers</li>
+<li><strong>Real-time ledger processing</strong> with HBase (petabyte-scale)</li>
+<li><strong>Async event streaming</strong> via Kafka for decoupled processing</li>
+<li><strong>Distributed caching</strong> via Infinispan/JDG for sub-millisecond reads</li>
+</ul>
+<p><strong>Your Work Scope:</strong> Ledger flows, Case Lifecycle (APLTD/Appeal), DCR Orders, Customizers, DistCache, Workflow Engine.</p>
+<hr>
+<h2 id="2-high-level-architecture-diagram">2. HIGH-LEVEL ARCHITECTURE DIAGRAM</h2>
+<pre><code>┌─────────────────────────────────────────────────────────────────────────────┐
+│                          GSTN ARCHITECTURE                                  │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                             │
+│  ┌──────────────┐   ┌──────────────┐   ┌──────────────┐   ┌─────────────┐ │
+│  │  Taxpayer     │   │  Tax Officer  │   │  Mobile App  │   │  G2G APIs   │ │
+│  │  Portal       │   │  Back-Office  │   │  (Android/   │   │  (CBDT,     │ │
+│  │  (Browser)    │   │  (Browser)    │   │   iOS)       │   │   States)   │ │
+│  └──────┬───────┘   └──────┬───────┘   └──────┬───────┘   └──────┬──────┘ │
+│         │                   │                   │                   │        │
+│  ═══════╪═══════════════════╪═══════════════════╪═══════════════════╪════    │
+│         │              LOAD BALANCER / API GATEWAY                   │        │
+│  ═══════╪═══════════════════╪═══════════════════╪═══════════════════╪════    │
+│         │                   │                   │                   │        │
+│  ┌──────▼───────────────────▼───────────────────▼───────────────────▼──────┐ │
+│  │                    LAYER 3: WEB / API TIER                              │ │
+│  │  ┌───────────────────┐  ┌───────────────────┐  ┌────────────────────┐  │ │
+│  │  │  Core-API (45+)   │  │  BO-Web (6 WARs)  │  │ Common-Web (Boot)  │  │ │
+│  │  │  ReturnAPI         │  │  BOAuditWeb        │  │ CommonServicesWeb  │  │ │
+│  │  │  LedgerAPI         │  │  BOReturnsWeb      │  │ (Spring Boot 2.4)  │  │ │
+│  │  │  RegistrationAPI   │  │  BOLitigationWeb   │  │ Undertow server    │  │ │
+│  │  │  PaymentAPI        │  │  BOServicesWeb     │  │ HSN search, Recon  │  │ │
+│  │  │  RefundAPI         │  │  BOMISWeb          │  └────────────────────┘  │ │
+│  │  │  LitigationAPI2   │  │  BOServicesWeb2    │                          │ │
+│  │  │  EinvoiceAPI       │  └───────────────────┘                          │ │
+│  │  │  AuditAPI          │                                                 │ │
+│  │  │  CommunicationAPI  │  ┌─────────────────────────────────────┐       │ │
+│  │  │  ... 37 more       │  │  Auth Layer (AuthFwk/AuthnFwk)     │       │ │
+│  │  └───────────────────┘  │  LDAP + JDG Session + Mobile Bio    │       │ │
+│  │                          └─────────────────────────────────────┘       │ │
+│  └───────────────────────────────────────────────────────────────────────┘ │
+│         │                   │                   │                          │
+│  ┌──────▼───────────────────▼───────────────────▼──────────────────────┐   │
+│  │                    LAYER 2: SHARED FRAMEWORKS (32+)                 │   │
+│  │  ┌──────────────┐ ┌─────────────┐ ┌──────────────┐ ┌────────────┐  │   │
+│  │  │ LedgerUtilFwk│ │WorkFlowFwk  │ │CaseMgmtFwk   │ │CommonUtil  │  │   │
+│  │  │ RegUtilFwk   │ │EventMgmt    │ │GstEntityFwk   │ │GstAopFwk   │  │   │
+│  │  │ ReturnUtilFwk│ │ValidationFwk│ │GstExceptionFwk│ │FilingUtil  │  │   │
+│  │  │ RefundsValid │ │EnfValidation│ │KafkaConsumer  │ │TopologyUtil│  │   │
+│  │  └──────────────┘ └──────┬──────┘ └──────────────┘ └────────────┘  │   │
+│  └──────────────────────────┼─────────────────────────────────────────┘   │
+│         │                   │                   │                          │
+│  ┌──────▼───────────────────▼───────────────────▼──────────────────────┐   │
+│  │                    LAYER 1: INFRASTRUCTURE                          │   │
+│  │  ┌──────────────┐ ┌─────────────┐ ┌──────────────┐ ┌────────────┐  │   │
+│  │  │ HbaseAccess  │ │DistCacheFwk │ │LocalCacheFwk │ │SolrDIHFwk  │  │   │
+│  │  │  Fwk         │ │(Infinispan  │ │(EhCache      │ │SolrDIHExt  │  │   │
+│  │  │              │ │ /JDG)       │ │ 2.10)        │ │Fwk         │  │   │
+│  │  └──────┬───────┘ └──────┬──────┘ └──────┬───────┘ └─────┬──────┘  │   │
+│  └─────────┼────────────────┼───────────────┼────────────────┼─────────┘   │
+│            │                │               │                │              │
+│  ┌─────────▼────────────────▼───────────────▼────────────────▼───────────┐  │
+│  │                    LAYER 0: DATA STORES                               │  │
+│  │                                                                       │  │
+│  │  ┌──────────┐  ┌──────────┐  ┌─────────┐  ┌───────┐  ┌───────────┐  │  │
+│  │  │  HBase   │  │ MySQL    │  │  Solr   │  │ Kafka │  │ Infinispan│  │  │
+│  │  │  2.2.3   │  │  8.0     │  │  8.8.1  │  │ 2.5.0 │  │ /JDG     │  │  │
+│  │  │          │  │          │  │  +ZK    │  │       │  │  8.3.0    │  │  │
+│  │  │ Returns, │  │ Workflow │  │ Search, │  │ Async │  │ Session,  │  │  │
+│  │  │ Ledger,  │  │ state,   │  │ HSN,    │  │ event │  │ Masters,  │  │  │
+│  │  │ Audit,   │  │ Users,   │  │ GSTIN   │  │ proc- │  │ Ref data  │  │  │
+│  │  │ Invoices │  │ Config   │  │ lookup  │  │ essing│  │ cache     │  │  │
+│  │  └──────────┘  └──────────┘  └─────────┘  └───────┘  └───────────┘  │  │
+│  │                                                                       │  │
+│  │  ┌──────────┐                                                        │  │
+│  │  │ Apache   │                                                        │  │
+│  │  │ Hive     │  ← Big Data analytics &amp; reporting on HDFS              │  │
+│  │  └──────────┘                                                        │  │
+│  └───────────────────────────────────────────────────────────────────────┘  │
+└─────────────────────────────────────────────────────────────────────────────┘
+</code></pre>
+<hr>
+<h2 id="3-module-taxonomy-4-layers">3. MODULE TAXONOMY (4 Layers)</h2>
+<h3 id="layer-0-data-stores-external">Layer 0: Data Stores (External)</h3>
+<table>
+<thead>
+<tr>
+<th>Store</th>
+<th>Version</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>HBase</td>
+<td>2.2.3.7.1.7.2000</td>
+<td>Primary NoSQL — returns, ledger, invoices</td>
+</tr>
+<tr>
+<td>MySQL</td>
+<td>8.0.19</td>
+<td>RDBMS — workflow state, users, configs</td>
+</tr>
+<tr>
+<td>Apache Solr</td>
+<td>8.8.1 + ZK 3.5.9</td>
+<td>Full-text search — HSN, GSTIN lookup</td>
+</tr>
+<tr>
+<td>Apache Kafka</td>
+<td>2.5.0.7.1.7.2000</td>
+<td>Event streaming — async return processing</td>
+</tr>
+<tr>
+<td>Infinispan</td>
+<td>8.3.0.Final-rh-1</td>
+<td>Distributed cache — sessions, masters</td>
+</tr>
+<tr>
+<td>Apache Hive</td>
+<td>(via HiveServicesApi)</td>
+<td>Big data analytics on HDFS</td>
+</tr>
+<tr>
+<td>EhCache</td>
+<td>2.10.0</td>
+<td>JVM-local in-process caching</td>
+</tr>
+</tbody>
+</table>
+<h3 id="layer-1-commons-infrastructure-frameworks-32">Layer 1: Commons Infrastructure Frameworks (32+)</h3>
+<p>Reusable frameworks versioned at <code>7.0.0-SNAPSHOT</code>, consumed by all APIs.</p>
+<h3 id="layer-2-core-api-microservices-45">Layer 2: Core-API Microservices (45+)</h3>
+<p>REST APIs deployed as WAR files on Tomcat. Spring 4.3.2 (legacy) or Spring Boot 2.x (modern).</p>
+<h3 id="layer-3-web-applications">Layer 3: Web Applications</h3>
+<p>BO-Web (6 WARs for tax officers) + Common-Web (Spring Boot microservice).</p>
+<hr>
+<h2 id="4-technology-stack-summary">4. TECHNOLOGY STACK SUMMARY</h2>
+<pre><code>──────────────────────────────────────────────────────────────
+ Category            │ Technology                   │ Version
+──────────────────────────────────────────────────────────────
+ Language             │ Java                         │ 1.8 (JDK 8)
+ Build                │ Maven                        │ 3.x
+ Framework (Legacy)   │ Spring Framework             │ 4.3.2.RELEASE
+ Framework (Modern)   │ Spring Boot                  │ 2.4.5 / 2.7.18
+ ORM                  │ Hibernate                    │ 4.2.11.Final
+ REST                 │ Spring MVC @RestController   │ —
+ JSON                 │ Jackson Databind             │ 2.7.5
+ API Docs             │ Swagger / SpringFox          │ 2.2.2
+ NoSQL                │ Apache HBase                 │ 2.2.3
+ RDBMS                │ MySQL                        │ 8.0.19
+ Search               │ Apache Solr + ZooKeeper      │ 8.8.1 / 3.5.9
+ Messaging            │ Apache Kafka                 │ 2.5.0
+ Dist Cache           │ Infinispan (JBoss Data Grid) │ 8.3.0
+ Local Cache           │ EhCache                      │ 2.10.0
+ Serialization        │ Google Protocol Buffers       │ 4.31.1
+ Security/Crypto      │ BouncyCastle (PKI, DSC)      │ 1.55
+ Auth                 │ LDAP + Aadhaar Bio-metric    │ —
+ AOP                  │ AspectJ                      │ 1.9.7
+ Code Gen             │ Lombok                       │ 1.18.12
+ DTO Mapping          │ ModelMapper                  │ 3.2.0
+ Logging              │ SLF4j + Logback              │ 1.7.20 / 1.1.7
+ Monitoring           │ Micrometer + Prometheus      │ 0.2.2
+ Testing              │ TestNG + Mockito             │ 6.8.7 / 3.11.2
+ Code Quality         │ SonarQube + JaCoCo           │ 0.8.13
+ Template             │ Freemarker                   │ 2.3.22
+ Web Services         │ Apache CXF (SOAP)            │ 3.0.4
+ XA Transactions      │ Atomikos                     │ —
+ HTTP Client          │ Apache HttpClient            │ 4.5.2
+ Utilities            │ Guava, Commons-Lang3, GSON   │ 23.6 / 2.6.2
+──────────────────────────────────────────────────────────────
+</code></pre>
+<hr>
+<h2 id="5-commons-frameworks--detailed-breakdown">5. COMMONS FRAMEWORKS — DETAILED BREAKDOWN</h2>
+<h3 id="51-authentication--authorization">5.1 Authentication &amp; Authorization</h3>
+<table>
+<thead>
+<tr>
+<th>Framework</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>AuthenticationFwk</td>
+<td>LDAP-based user auth, Infinispan session caching (JDG)</td>
+</tr>
+<tr>
+<td>AuthFwk</td>
+<td>Session/cache-based auth state via Hot Rod client</td>
+</tr>
+<tr>
+<td>MobileAuthFwk</td>
+<td>Mobile device authentication, bio-metrics</td>
+</tr>
+<tr>
+<td>JasperSsoFwk</td>
+<td>SSO integration for Jasper reporting</td>
+</tr>
+</tbody>
+</table>
+<h3 id="52-data-access">5.2 Data Access</h3>
+<table>
+<thead>
+<tr>
+<th>Framework</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>HbaseAccessFwk</td>
+<td>HBase 2.2.3 — Reader, Mutator, Model abstractions</td>
+</tr>
+<tr>
+<td>GstEntityFwk</td>
+<td>JPA entities, Solr annotations, Hibernate + Jackson</td>
+</tr>
+<tr>
+<td>SolrDIHFwk</td>
+<td>Solr Data Import Handler for batch indexing</td>
+</tr>
+<tr>
+<td>SolrDIHExtFwk</td>
+<td>Extended DIH features</td>
+</tr>
+</tbody>
+</table>
+<h3 id="53-caching">5.3 Caching</h3>
+<table>
+<thead>
+<tr>
+<th>Framework</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>DistCacheFwk</td>
+<td>Infinispan/JDG — HotRod client, session replication</td>
+</tr>
+<tr>
+<td>LocalCacheFwk</td>
+<td>EhCache 2.10 — JVM-local in-process caching</td>
+</tr>
+</tbody>
+</table>
+<h3 id="54-messaging--workflow">5.4 Messaging &amp; Workflow</h3>
+<table>
+<thead>
+<tr>
+<th>Framework</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>KafkaConsumerFwk</td>
+<td>Kafka consumer wrapper, thread pool, error topic DLQ</td>
+</tr>
+<tr>
+<td>WorkFlowFwk</td>
+<td>Workflow state machine, Atomikos XA, MySQL/Hibernate</td>
+</tr>
+<tr>
+<td>EventMgmt</td>
+<td>Event streaming/processing, Hibernate event storage</td>
+</tr>
+</tbody>
+</table>
+<h3 id="55-business-logic-utilities">5.5 Business Logic Utilities</h3>
+<table>
+<thead>
+<tr>
+<th>Framework</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>CommonUtilFwk</td>
+<td>Apache POI (Excel), CXF (SOAP), BouncyCastle (DSC)</td>
+</tr>
+<tr>
+<td>LedgerUtilFwk</td>
+<td>Ledger balances, ITC, DCR, liability calculations</td>
+</tr>
+<tr>
+<td>RegUtilFwk</td>
+<td>Registration utilities</td>
+</tr>
+<tr>
+<td>ReturnUtilFwk</td>
+<td>Return filing utilities</td>
+</tr>
+<tr>
+<td>ReturnFilingFwk</td>
+<td>Return form processing engine</td>
+</tr>
+<tr>
+<td>FilingUtilFwk</td>
+<td>Filing utilities</td>
+</tr>
+<tr>
+<td>CaseMgmtFwk</td>
+<td>Case/penalty management, lifecycle hooks</td>
+</tr>
+<tr>
+<td>ValidationUtilFwk</td>
+<td>Generic validation rules</td>
+</tr>
+<tr>
+<td>EnfValidationFwk</td>
+<td>Enforcement validation</td>
+</tr>
+<tr>
+<td>RefundsValidationFwk</td>
+<td>Refund processing rules</td>
+</tr>
+</tbody>
+</table>
+<h3 id="56-cross-cutting-concerns">5.6 Cross-Cutting Concerns</h3>
+<table>
+<thead>
+<tr>
+<th>Framework</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>GstExceptionFwk</td>
+<td>GSTRuntimeException with error codes, multilingual</td>
+</tr>
+<tr>
+<td>GstAopFwk</td>
+<td>AOP cross-cutting (logging, security, audit)</td>
+</tr>
+<tr>
+<td>TopologyUtilFwk</td>
+<td>Cluster/node topology utilities</td>
+</tr>
+</tbody>
+</table>
+<h3 id="57-spring-boot-infrastructure">5.7 Spring Boot Infrastructure</h3>
+<table>
+<thead>
+<tr>
+<th>Framework</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>gst-spring-boot2-parent</td>
+<td>Parent POM — Spring Boot 2.7.18, Java 1.8</td>
+</tr>
+<tr>
+<td>springboot-starter-gstn</td>
+<td>Custom auto-config — beans, datasources, cache</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2 id="6-core-api-modules--detailed-breakdown">6. CORE-API MODULES — DETAILED BREAKDOWN</h2>
+<h3 id="61-returns-processing-8-apis">6.1 Returns Processing (8 APIs)</h3>
+<table>
+<thead>
+<tr>
+<th>Module</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>ReturnAPI</td>
+<td>Primary return filing (GSTR1-B, summary)</td>
+</tr>
+<tr>
+<td>Return2API</td>
+<td>Multi-return handling (GSTR4, GSTR9, GSTR11)</td>
+</tr>
+<tr>
+<td>NewReturnAPI</td>
+<td>Next-gen return form versions</td>
+</tr>
+<tr>
+<td>ReturnsR1aAPI</td>
+<td>GSTR1-A (amended forms)</td>
+</tr>
+<tr>
+<td>GSTR2BAPI</td>
+<td>GSTR2-B (supplier invoices)</td>
+</tr>
+<tr>
+<td>GSTR4AnnualAPI</td>
+<td>Annual return (GSTR4)</td>
+</tr>
+<tr>
+<td>RetDashboardAPI</td>
+<td>Return filing dashboard</td>
+</tr>
+<tr>
+<td>ReturnsUnlockAPI</td>
+<td>Period unlock / reopening</td>
+</tr>
+</tbody>
+</table>
+<h3 id="62-financial-services-4-apis">6.2 Financial Services (4 APIs)</h3>
+<table>
+<thead>
+<tr>
+<th>Module</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>LedgerAPI</td>
+<td>Tax ledger &amp; balance tracking</td>
+</tr>
+<tr>
+<td>RefundAPI</td>
+<td>Tax refund processing (HBase)</td>
+</tr>
+<tr>
+<td>PaymentAPI</td>
+<td>Payment collection &amp; reconciliation</td>
+</tr>
+<tr>
+<td>PmtAPI</td>
+<td>Payment continuation module</td>
+</tr>
+</tbody>
+</table>
+<h3 id="63-registration--compliance-4-apis">6.3 Registration &amp; Compliance (4 APIs)</h3>
+<table>
+<thead>
+<tr>
+<th>Module</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>RegistrationAPI</td>
+<td>GST registration (HBase+Kafka)</td>
+</tr>
+<tr>
+<td>RegTriggerAPI</td>
+<td>Registration event triggers</td>
+</tr>
+<tr>
+<td>PremisesDeclRegApi</td>
+<td>Premises declaration</td>
+</tr>
+<tr>
+<td>NgtpRegApi</td>
+<td>Next-gen registration</td>
+</tr>
+</tbody>
+</table>
+<h3 id="64-litigation--enforcement-5-apis">6.4 Litigation &amp; Enforcement (5 APIs)</h3>
+<table>
+<thead>
+<tr>
+<th>Module</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>LitigationAPI</td>
+<td>Litigation case management</td>
+</tr>
+<tr>
+<td>LitigationAPI2</td>
+<td>Extended litigation (customizers, DCR)</td>
+</tr>
+<tr>
+<td>BOLitigationAPI</td>
+<td>Back-office litigation APIs</td>
+</tr>
+<tr>
+<td>BOCoreAPI</td>
+<td>Back-office core processing</td>
+</tr>
+<tr>
+<td>BOCoreAPI2</td>
+<td>Back-office core extension</td>
+</tr>
+</tbody>
+</table>
+<h3 id="65-e-documents--security-3-apis">6.5 E-Documents &amp; Security (3 APIs)</h3>
+<table>
+<thead>
+<tr>
+<th>Module</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>EinvoiceAPI</td>
+<td>E-invoice generation &amp; reporting</td>
+</tr>
+<tr>
+<td>DigitalSignatureAPI</td>
+<td>DSC validation operations</td>
+</tr>
+<tr>
+<td>AadhaarAPI</td>
+<td>Aadhaar-based authentication</td>
+</tr>
+</tbody>
+</table>
+<h3 id="66-communication--notifications-2-apis">6.6 Communication &amp; Notifications (2 APIs)</h3>
+<table>
+<thead>
+<tr>
+<th>Module</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>CommunicationAPI</td>
+<td>Email, SMS, notifications</td>
+</tr>
+<tr>
+<td>CommunicationChannelAPI</td>
+<td>Multi-channel notification</td>
+</tr>
+</tbody>
+</table>
+<h3 id="67-government-integration-5-apis">6.7 Government Integration (5 APIs)</h3>
+<table>
+<thead>
+<tr>
+<th>Module</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>G2GCommonAPI</td>
+<td>Gov-to-gov data exchange</td>
+</tr>
+<tr>
+<td>G2GCommonGetAPIs</td>
+<td>G2G read-only endpoints</td>
+</tr>
+<tr>
+<td>PublicServicesAPI</td>
+<td>Public-facing services</td>
+</tr>
+<tr>
+<td>CBDTAPI</td>
+<td>Central Board of Direct Taxes</td>
+</tr>
+<tr>
+<td>UserMastersAPI</td>
+<td>User management service</td>
+</tr>
+</tbody>
+</table>
+<h3 id="68-data--analytics-6-apis">6.8 Data &amp; Analytics (6 APIs)</h3>
+<table>
+<thead>
+<tr>
+<th>Module</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>DashboardAPI</td>
+<td>Main dashboard data</td>
+</tr>
+<tr>
+<td>HBDownloadAPI</td>
+<td>Hive bulk download service</td>
+</tr>
+<tr>
+<td>HiveServicesApi</td>
+<td>Apache Hive big data analytics</td>
+</tr>
+<tr>
+<td>SpikeEngineAPI</td>
+<td>High-performance data engine</td>
+</tr>
+<tr>
+<td>SrmAPI</td>
+<td>Settlement &amp; Recovery Management</td>
+</tr>
+<tr>
+<td>IMSAPI</td>
+<td>Tax evasion intelligence</td>
+</tr>
+</tbody>
+</table>
+<h3 id="69-specialized-apis-9-apis">6.9 Specialized APIs (9 APIs)</h3>
+<table>
+<thead>
+<tr>
+<th>Module</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Anx1API</td>
+<td>Annexure 1 processing</td>
+</tr>
+<tr>
+<td>Anx2API</td>
+<td>Annexure 2 processing</td>
+</tr>
+<tr>
+<td>IRPAPI</td>
+<td>ITC reconciliation</td>
+</tr>
+<tr>
+<td>FIPAPI</td>
+<td>Financial Info Provider</td>
+</tr>
+<tr>
+<td>AuditAPI</td>
+<td>Audit trail &amp; compliance</td>
+</tr>
+<tr>
+<td>BoBulkTPDownload</td>
+<td>Bulk taxpayer download</td>
+</tr>
+<tr>
+<td>GspAuthActivity</td>
+<td>GSP authentication</td>
+</tr>
+<tr>
+<td>EinvoiceCD</td>
+<td>E-invoice continuous delivery</td>
+</tr>
+<tr>
+<td>WelcomeLetterMS</td>
+<td>Welcome letter (Boot 2.4.5)</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2 id="7-bo-web--common-web-layers">7. BO-WEB &amp; COMMON-WEB LAYERS</h2>
+<h3 id="back-office-web-6-war-modules">Back-Office Web (6 WAR Modules)</h3>
+<p>Tax officer-facing browser UIs. Spring MVC + JSP/Freemarker views (not REST).</p>
+<table>
+<thead>
+<tr>
+<th>Module</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>BOAuditWeb</td>
+<td>Audit case management UI</td>
+</tr>
+<tr>
+<td>BOReturnsWeb</td>
+<td>Return processing workflow UI</td>
+</tr>
+<tr>
+<td>BOMISWeb</td>
+<td>MIS dashboard &amp; reports UI</td>
+</tr>
+<tr>
+<td>BOLitigationWeb</td>
+<td>Litigation case entry UI</td>
+</tr>
+<tr>
+<td>BOServicesWeb</td>
+<td>Multi-service back-office UI</td>
+</tr>
+<tr>
+<td>BOServicesWeb2</td>
+<td>Extended back-office UI</td>
+</tr>
+</tbody>
+</table>
+<h3 id="common-web-1-spring-boot-service">Common-Web (1 Spring Boot Service)</h3>
+<table>
+<thead>
+<tr>
+<th>Module</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>CommonServicesWeb</td>
+<td>Spring Boot 2.4.5, Undertow, REST</td>
+</tr>
+<tr>
+<td></td>
+<td>HSN search, accounting reconciliation</td>
+</tr>
+<tr>
+<td></td>
+<td>Represents migration to modern microservices</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2 id="8-ledger-flow--deep-dive">8. LEDGER FLOW — DEEP DIVE</h2>
+<h3 id="architecture">Architecture</h3>
+<pre><code>┌───────────┐     ┌──────────────────┐     ┌──────────────────┐     ┌──────────┐
+│ ReturnAPI │────▶│  LedgerUtilFwk   │────▶│    MySQL          │     │  HBase   │
+│ RefundAPI │     │                  │     │  (Current State)  │     │ (History)│
+│ PaymentAPI│     │ TaxLedgrService  │     └──────────────────┘     └──────────┘
+│ LedgerAPI │     │ CommonLdgService │               ▲                    ▲
+└───────────┘     │ BaseDAOImpl      │               │                    │
+                  └──────────────────┘        Hibernate ORM        getDataFromHbase()
+</code></pre>
+<h3 id="key-classes">Key Classes</h3>
+<p><strong>Service Layer:</strong></p>
+<ul>
+<li><code>TaxLedgrService</code> — Tax ledger operations
+<ul>
+<li><code>getRtnLiabDtlInterface(ITCLdgrReqVO)</code> → Save liability details</li>
+<li><code>fetchAndInsertLiabandItc(...)</code> → Process liability &amp; ITC together</li>
+<li><code>getDataFromHbase(SetInterestCal)</code> → Retrieve settlement from HBase</li>
+</ul>
+</li>
+<li><code>CommonLdgService</code> — Common ledger operations
+<ul>
+<li><code>submitOffset(SubmitOffsetVO)</code> → Credit note submission</li>
+<li><code>getITCTaxPrdBal(gstin, period)</code> → Tax period balance</li>
+<li><code>getAddnlLiab(gstin, period)</code> → Additional liabilities</li>
+<li><code>getNegativelLiab(...)</code> → Negative liability tracking</li>
+</ul>
+</li>
+</ul>
+<p><strong>DAO Layer (Template Method Pattern):</strong></p>
+<ul>
+<li><code>BaseDAOImpl</code> — Abstract base with <code>getSession()</code> providing Hibernate SessionFactory</li>
+<li><code>CommonLdgDAOImpl</code> — Common ledger persistence</li>
+<li><code>ITCLedgrDAOImpl</code> — ITC (Input Tax Credit) ledger</li>
+<li><code>LiabLdgDAOImpl</code> — Liability ledger</li>
+<li><code>Drc03LedgerDaoImpl</code> — DRC-03 (voluntary payment) ledger</li>
+</ul>
+<p><strong>Flow: Return Filing → Ledger Update:</strong></p>
+<pre><code>1. Taxpayer files GSTR-3B via ReturnAPI
+2. ReturnAPI calls LedgerUtilFwk.TaxLedgrService
+3. Service creates ITCLdgrReqVO with tax amounts
+4. DAO persists ledger entries to MySQL (Hibernate)
+5. HBase stores time-series data for historical analysis
+6. Settlement position computed from HBase via getDataFromHbase()
+7. Final balance = Liability - ITC Credit - Cash Payment
+</code></pre>
+<p><strong>Interview Talking Point:</strong></p>
+<blockquote>
+<p>&quot;I worked on the ledger subsystem processing tax liabilities and ITC credits for 14M+ taxpayers. The dual-storage approach — MySQL for current state and HBase for historical time-series — enabled real-time balance queries while supporting petabyte-scale audit trails. I optimized ledger batch processing using Hibernate batch inserts and HBase bulk mutations.&quot;</p>
+</blockquote>
+<hr>
+<h2 id="9-case-lifecycle--workflow-engine--deep-dive">9. CASE LIFECYCLE &amp; WORKFLOW ENGINE — DEEP DIVE</h2>
+<h3 id="architecture-1">Architecture</h3>
+<pre><code>┌────────────────┐     ┌──────────────────┐     ┌──────────────────┐
+│ LitigationAPI2 │────▶│   CaseMgmtFwk    │────▶│   WorkFlowFwk    │
+│ BOLitigationWeb│     │                  │     │                  │
+│ SrmAPI         │     │ CaseCustomizer   │     │ WFServiceImpl    │
+└────────────────┘     │ CaseCustomizer   │     │ WorkFlowDAO      │
+                       │  Factory         │     │ XA Transactions  │
+                       │ CaseAuthHandler  │     │ (Atomikos)       │
+                       └──────────────────┘     └──────────────────┘
+                              │                         │
+                              ▼                         ▼
+                       ┌──────────────────┐     ┌──────────────────┐
+                       │ Case Lifecycle   │     │ Workflow State   │
+                       │ States:          │     │ Entities:        │
+                       │ Created          │     │ WfProcess        │
+                       │ Assigned         │     │ WfTask           │
+                       │ In Progress      │     │ WfTaskHistory    │
+                       │ Under Appeal     │     │ WfFldVisitAppln  │
+                       │ Completed        │     │ WfProcessHistory │
+                       │ Rejected         │     └──────────────────┘
+                       └──────────────────┘
+</code></pre>
+<h3 id="key-classes-1">Key Classes</h3>
+<p><strong>Workflow Engine:</strong></p>
+<ul>
+<li><code>WFServiceImpl</code> (<code>@Service(&quot;wfService&quot;)</code>) — Main orchestrator
+<ul>
+<li>Process creation, task assignment, task completion</li>
+<li>ARN reassignment</li>
+<li>Persists via <code>WorkFlowDAO</code></li>
+</ul>
+</li>
+</ul>
+<p><strong>Workflow Entities (MySQL-backed):</strong></p>
+<ul>
+<li><code>WfProcess</code> — Main process entity</li>
+<li><code>WfTask</code> — Individual tasks within a process</li>
+<li><code>WfTaskHistory</code> — Full audit trail of state transitions</li>
+<li><code>WfFldVisitAppln</code> — Field visit workflow</li>
+<li><code>WfProcessHistory</code> — Process-level history</li>
+</ul>
+<p><strong>State Transition Flow:</strong></p>
+<pre><code>Case Created
+    │
+    ▼
+Case Assigned (to Tax Officer)
+    │
+    ▼
+Task In Progress
+    │
+    ├──▶ Show Cause Notice (SCN) Issued
+    │        │
+    │        ▼
+    │    Taxpayer Response Received
+    │        │
+    │        ▼
+    │    Order Passed (DCR/DRC-07)
+    │        │
+    │        ├──▶ Demand Created → Ledger Updated
+    │        │
+    │        └──▶ Appeal Filed (→ APLTD flow)
+    │
+    ├──▶ Case Transferred
+    │
+    └──▶ Case Closed / Dropped
+</code></pre>
+<p><strong>XA (Distributed) Transactions:</strong></p>
+<ul>
+<li><code>CaseDaoXaImpl</code> — XA-enabled DAO (Atomikos transaction manager)</li>
+<li><code>CaseDaoImpl</code> — Standard (non-XA) DAO</li>
+<li>Selection depends on config: <code>${gst.casemgmt.enableXa:true}</code></li>
+<li>Ensures atomicity across MySQL + workflow state + ledger updates</li>
+</ul>
+<hr>
+<h2 id="10-customizer-pattern--deep-dive">10. CUSTOMIZER PATTERN — DEEP DIVE</h2>
+<h3 id="design-strategy-pattern--factory-pattern">Design: Strategy Pattern + Factory Pattern</h3>
+<pre><code>┌──────────────────────────┐
+│ CaseCustomizer           │  ← Strategy Interface
+│  (Interface)             │
+│                          │
+│  + beforeCreateCase()    │  ← Lifecycle Hook (before creation)
+│  + afterCreateCase()     │  ← Lifecycle Hook (after creation)
+└──────────┬───────────────┘
+           │
+           │ implements
+           │
+    ┌──────┴──────────────────────────────────────────────────┐
+    │                         │                                │
+    ▼                         ▼                                ▼
+┌──────────────┐  ┌───────────────────────┐  ┌──────────────────────────────┐
+│ Adjudication │  │ AppealTranCase        │  │ WaiverSchemeFolder           │
+│   Case       │  │   Customizer          │  │   ItemCustomizer             │
+│ Customizer   │  │                       │  │   (CR27893-B)                │
+│              │  │ Handles APPEAL case   │  │   Handles waiver scheme      │
+│ Case types:  │  │ creation with linked  │  │   item-level processing      │
+│ AMYDT, AMYTC │  │ parent case lookups   │  └──────────────────────────────┘
+│ AMYGP        │  └───────────────────────┘
+└──────────────┘
+    ▲
+    │
+┌───┴──────────────────────────────┐
+│ CaseCustomizerFactory            │  ← Factory Pattern
+│                                  │
+│ switch(caseTypeCd) {             │
+│   case &quot;AMYDT&quot;:                  │
+│   case &quot;AMYTC&quot;:                  │
+│   case &quot;AMYGP&quot;:                  │
+│     return new Adjudication...   │
+│   case &quot;APPEAL&quot;:                 │
+│     return new AppealTran...     │
+│   case &quot;WAIVER&quot;:                 │
+│     return new WaiverScheme...   │
+│ }                                │
+└──────────────────────────────────┘
+</code></pre>
+<h3 id="all-customizer-implementations">All Customizer Implementations</h3>
+<table>
+<thead>
+<tr>
+<th>Customizer Class</th>
+<th>Case Types</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>AdjudicationCaseCustomizer</td>
+<td>AMYDT, AMYTC, AMYGP</td>
+<td>Adjudication order processing</td>
+</tr>
+<tr>
+<td>AppealTranCaseCustomizer</td>
+<td>APPEAL</td>
+<td>Appeal case creation</td>
+</tr>
+<tr>
+<td>AppealEffectTranCustomizer</td>
+<td>APPEAL_EFFECT</td>
+<td>Appeal effectiveness updates</td>
+</tr>
+<tr>
+<td>AppelateTribunalOrderItemCustomizer</td>
+<td>TRIBUNAL</td>
+<td>Tribunal appeal handling</td>
+</tr>
+<tr>
+<td>WaiverSchemeFolderItemCustomizer</td>
+<td>WAIVER</td>
+<td>Waiver scheme item processing</td>
+</tr>
+</tbody>
+</table>
+<h3 id="fetch-strategy-variants">Fetch Strategy Variants</h3>
+<table>
+<thead>
+<tr>
+<th>Strategy Class</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>DemandOrderFetchStrategy</td>
+<td>Fetch demand orders for DCR</td>
+</tr>
+<tr>
+<td>AppealOrderFetchStrategy</td>
+<td>Fetch appeal orders for case linking</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Interview Talking Point:</strong></p>
+<blockquote>
+<p>&quot;I designed and implemented the Customizer pattern using Strategy + Factory to decouple case-type-specific business logic from the core case management engine. Each case type (Adjudication, Appeal, Waiver, DCR) has its own customizer implementing <code>beforeCreateCase()</code> and <code>afterCreateCase()</code> hooks. This allowed adding new case types without modifying the core engine — adhering to Open/Closed Principle.&quot;</p>
+</blockquote>
+<hr>
+<h2 id="11-dcr-demand-collection--recovery-order-flow">11. DCR (DEMAND COLLECTION &amp; RECOVERY) ORDER FLOW</h2>
+<h3 id="flow">Flow</h3>
+<pre><code>Case Adjudicated
+      │
+      ▼
+DCR Order Created (DRC-07)
+      │
+      ├──▶ Demand Amount Computed
+      │        │
+      │        ▼
+      │    Ledger Entry Created (LedgerUtilFwk)
+      │        │
+      │        ▼
+      │    Liability Added to Cash/ITC Ledger
+      │
+      ├──▶ Recovery Initiated (if non-payment)
+      │        │
+      │        ▼
+      │    DRC-03 (Voluntary Payment) OR
+      │    DRC-13 (Garnishee Notice)
+      │
+      └──▶ Appeal Filed → Case moves to APLTD flow
+</code></pre>
+<h3 id="key-code-locations">Key Code Locations</h3>
+<ul>
+<li><code>Commons/LedgerUtilFwk/src/main/java/org/gst/dcr/</code> — DCR model + DAO</li>
+<li><code>Core-API/LitigationAPI2/.../custom/DemandOrderFetchStrategy.java</code> — Fetches demand orders</li>
+<li><code>Drc03LedgerDaoImpl</code> — DRC-03 voluntary payment persistence</li>
+<li><code>Core-API/SrmAPI/</code> — Settlement &amp; Recovery Management</li>
+</ul>
+<h3 id="hibernate-entity-scanning">Hibernate Entity Scanning</h3>
+<pre><code class="language-xml"><span class="hljs-tag">&lt;<span class="hljs-name">value</span>&gt;</span>org.gst.dcr.model.entity<span class="hljs-tag">&lt;/<span class="hljs-name">value</span>&gt;</span>  <span class="hljs-comment">&lt;!-- in SrmAPI Spring config --&gt;</span>
+</code></pre>
+<hr>
+<h2 id="12-apltd--appeal-flows">12. APLTD &amp; APPEAL FLOWS</h2>
+<h3 id="constant-definition">Constant Definition</h3>
+<pre><code class="language-java"><span class="hljs-comment">// AuthConstants.java (Line 689)</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">final</span> <span class="hljs-type">String</span> <span class="hljs-variable">APLTD</span> <span class="hljs-operator">=</span> <span class="hljs-string">&quot;APLTD&quot;</span>;  <span class="hljs-comment">// Appeal Type: Appellate Tribunal</span>
+</code></pre>
+<h3 id="appeal-case-flow">Appeal Case Flow</h3>
+<pre><code>DCR Order / Adjudication Order
+      │
+      ▼
+Taxpayer Files Appeal (APL-01)
+      │
+      ▼
+AppealTranCaseCustomizer.beforeCreateCase()
+      │
+      ├──▶ Validates parent order exists
+      ├──▶ Links appeal to parent case
+      ├──▶ Creates appeal case in CaseMgmtFwk
+      │
+      ▼
+AppealTranCaseCustomizer.afterCreateCase()
+      │
+      ├──▶ Updates parent case status → &quot;Under Appeal&quot;
+      ├──▶ Creates workflow tasks for appellate authority
+      ├──▶ Sends notification via CommunicationAPI
+      │
+      ▼
+Appeal Hearing &amp; Order
+      │
+      ├──▶ Appeal Allowed → Demand Modified → Ledger Updated
+      ├──▶ Appeal Dismissed → Original demand stands
+      └──▶ Second Appeal (updateScndAppealFlag) → Tribunal
+</code></pre>
+<h3 id="sql-queries-from-casemgmthbmxml">SQL Queries (from CaseMgmt.hbm.xml)</h3>
+<ul>
+<li><code>getCaseItemDetailByCaseRefIdWithoutAppeal</code> — Cases without pending appeals</li>
+<li><code>getAppealCaseAssignee</code> — Get assignees for appeal cases</li>
+<li><code>updateScndAppealFlag</code> — CR28625A: Second appeal tracking</li>
+<li>JSON_SET on <code>CASEFOLDER_ITEM_DTL</code> for appeal status updates</li>
+</ul>
+<hr>
+<h2 id="13-caching-architecture--deep-dive">13. CACHING ARCHITECTURE — DEEP DIVE</h2>
+<h3 id="two-tier-cache-strategy">Two-Tier Cache Strategy</h3>
+<pre><code>┌─────────────────────────────────────────────────────────────────┐
+│                     APPLICATION SERVER                          │
+│                                                                 │
+│  ┌─────────────────────┐         ┌─────────────────────────┐   │
+│  │   LOCAL CACHE        │         │   DISTRIBUTED CACHE      │   │
+│  │   (EhCache 2.10)     │  Miss  │   (Infinispan/JDG 8.3)   │   │
+│  │                      │───────▶│                           │   │
+│  │  • RefDataService    │        │  • DistDataService        │   │
+│  │  • CacheUtil         │        │  • DistCacheUtil          │   │
+│  │  • TTL-based expiry  │        │  • HotRod protocol       │   │
+│  │  • Per-JVM instance  │        │  • Cross-cluster          │   │
+│  │                      │        │  • Session replication    │   │
+│  │  What's cached:      │        │                           │   │
+│  │  - State/District    │        │  What's cached:           │   │
+│  │    masters           │        │  - GSTMaster (GSTIN)      │   │
+│  │  - Bank list         │        │  - RtnFormMstr            │   │
+│  │  - Return mode       │        │  - TrnovrDueDtls          │   │
+│  │    configs           │        │  - PreferredBank          │   │
+│  │  - Warning/Error     │        │  - ReturnWaiverDetails    │   │
+│  │    modes for GSTR3B  │        │  - EvcVerifAdt            │   │
+│  └─────────────────────┘        │  - User sessions          │   │
+│                                  └─────────────────────────┘   │
+└─────────────────────────────────────────────────────────────────┘
+           │                                    │
+           │ (JVM-local)                        │ (HotRod over TCP)
+           │                                    │
+           ▼                                    ▼
+    ┌──────────────┐                   ┌──────────────────┐
+    │  EhCache     │                   │  JDG/Infinispan  │
+    │  In-Process   │                   │  Cluster         │
+    │  Heap/Off-Heap│                   │  (Multiple       │
+    └──────────────┘                   │   Nodes)         │
+                                       └──────────────────┘
+</code></pre>
+<h3 id="key-interfaces--classes">Key Interfaces &amp; Classes</h3>
+<p><strong>Distributed Cache:</strong></p>
+<ul>
+<li><code>DistDataService</code> — Interface with 50+ cache operations</li>
+<li><code>DistCacheUtil</code> — Utility: <code>addCache(key, val)</code>, <code>getCache(key)</code>, <code>removeCache(key)</code></li>
+<li><code>ICacheStore</code> — Abstract layer allowing multiple backing stores</li>
+<li><code>CacheFactory</code> — Creates concrete cache implementations</li>
+</ul>
+<p><strong>Local Cache:</strong></p>
+<ul>
+<li><code>RefDataService</code> — Reference data caching interface</li>
+<li><code>CacheUtil</code> — Static methods: <code>getRefDetails(type)</code>, <code>getWarningOrErrormodeforGstr3B(type)</code></li>
+<li>Cache refresh on TTL expiry or manual invalidation</li>
+</ul>
+<h3 id="auto-configuration-spring-boot-starter">Auto-Configuration (Spring Boot Starter)</h3>
+<pre><code class="language-java"><span class="hljs-meta">@Configuration</span>
+<span class="hljs-meta">@ConditionalOnClass(DistCacheFactory.class)</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">DistCacheFwkAutoConfig</span> {
+    <span class="hljs-meta">@Bean</span>
+    <span class="hljs-keyword">public</span> DistCacheFactory <span class="hljs-title function_">distcachefactory</span><span class="hljs-params">()</span> { ... }
+
+    <span class="hljs-meta">@Bean(&quot;cacheManager&quot;)</span>
+    <span class="hljs-keyword">public</span> RemoteCacheManager <span class="hljs-title function_">getCacheManager</span><span class="hljs-params">()</span> { ... }
+
+    <span class="hljs-meta">@Bean(&quot;cacheManagerJdgRet&quot;)</span>
+    <span class="hljs-keyword">public</span> RemoteCacheManager <span class="hljs-title function_">getCacheJdgRetManager</span><span class="hljs-params">()</span> { ... }
+    <span class="hljs-comment">// Separate cache manager for return data isolation</span>
+
+    <span class="hljs-meta">@Bean</span>
+    <span class="hljs-keyword">public</span> DistDataService <span class="hljs-title function_">distDataService</span><span class="hljs-params">()</span> { ... }
+}
+</code></pre>
+<p><strong>Key Design Decision:</strong> Two separate <code>RemoteCacheManager</code> beans — <code>cacheManager</code> for general masters and <code>cacheManagerJdgRet</code> for return-specific data — isolating cache eviction policies and preventing return filing spikes from evicting master data.</p>
+<hr>
+<h2 id="14-kafka-async-processing--deep-dive">14. KAFKA ASYNC PROCESSING — DEEP DIVE</h2>
+<h3 id="architecture-2">Architecture</h3>
+<pre><code>┌─────────────────┐     ┌────────────────┐     ┌─────────────────┐
+│   Producers      │     │   Kafka Cluster │     │   Consumers      │
+│                  │     │                │     │                  │
+│  ReturnAPI       │────▶│  Return Topics │────▶│  KafkaConsumer   │
+│  RegistrationAPI │────▶│  Reg Topics    │────▶│  Fwk             │
+│  RefundAPI       │────▶│  Refund Topics │────▶│                  │
+│  EinvoiceAPI     │────▶│  Invoice Topics│────▶│  ThreadPool      │
+│                  │     │                │     │  Config           │
+│                  │     │  Error Topics  │◀───│  (core/max/       │
+│                  │     │  (DLQ)         │     │   keepAlive)     │
+│                  │     └────────────────┘     └─────────────────┘
+│                  │                                    │
+│                  │                             ┌──────▼──────┐
+│                  │                             │  Downstream  │
+│                  │                             │  Processing  │
+│                  │                             │  - Ledger    │
+│                  │                             │  - Email     │
+│                  │                             │  - HBase     │
+│                  │                             │  - Solr Index│
+│                  │                             └─────────────┘
+└──────────────────┘
+</code></pre>
+<h3 id="consumer-framework-kafkaconsumerfwk">Consumer Framework (KafkaConsumerFwk)</h3>
+<p><strong>Core Classes:</strong></p>
+<ul>
+<li><code>Consumer.java</code> — Main entry point
+<ul>
+<li>Singleton: <code>KafkaConsumerConfig.getInstance()</code></li>
+<li>Constructor 1: Basic topic consumption</li>
+<li>Constructor 2: With error topic support + scheduled retry</li>
+</ul>
+</li>
+<li><code>KafkaConsumerConfig.java</code> — Thread-safe singleton
+<ul>
+<li><code>getNewConsumer()</code> → <code>KafkaConsumer&lt;Long, String&gt;</code></li>
+<li>Topic list and consumer property management</li>
+</ul>
+</li>
+<li><code>ThreadPoolConfig.java</code> — Thread pool management
+<ul>
+<li><code>poolCoreSize</code>, <code>poolMaxSize</code>, <code>poolKeepAliveMs</code></li>
+<li><code>msAckerInterval</code> — Message acknowledgement interval</li>
+</ul>
+</li>
+<li><code>ErrorTopicConfig.java</code> — Dead-letter queue configuration</li>
+<li><code>KafkaConsumerShutdownHook</code> — Graceful shutdown</li>
+</ul>
+<p><strong>Error Handling Pattern:</strong></p>
+<pre><code>Happy Path:   Topic → Consumer → Process → Commit Offset
+Error Path:   Topic → Consumer → Process FAILS → Error Topic → Scheduled Retry
+Poison Pill:  Topic → Consumer → Process FAILS (max retries) → DLQ → Manual Review
+</code></pre>
+<p><strong>Kafka Use Cases in GSTN:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Topic Category</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Return Filing</td>
+<td>Async GSTR submission processing</td>
+</tr>
+<tr>
+<td>Registration</td>
+<td>New GSTIN creation events</td>
+</tr>
+<tr>
+<td>Refund Processing</td>
+<td>Refund request async validation</td>
+</tr>
+<tr>
+<td>Audit Events</td>
+<td>Compliance check triggers</td>
+</tr>
+<tr>
+<td>E-Invoice</td>
+<td>Invoice registration with IRP</td>
+</tr>
+<tr>
+<td>Notifications</td>
+<td>Email/SMS dispatch from CommunicationAPI</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2 id="15-hbase-data-access-layer--deep-dive">15. HBASE DATA ACCESS LAYER — DEEP DIVE</h2>
+<h3 id="layer-architecture">Layer Architecture</h3>
+<pre><code>┌────────────────────────────────────────────────┐
+│ Layer 1: Domain-Specific Abstractions          │
+│  - GSTFunction                                 │
+│  - Domain DAOs (LedgerDAO, ReturnDAO, etc.)    │
+├────────────────────────────────────────────────┤
+│ Layer 0: HBase Native API Wrappers             │
+│  - Model.java (Schema definition)              │
+│  - Reader.java (Get, Scan, PrefixFilter)       │
+│  - Mutator.java (Put, Delete, Increment)       │
+│  - DataDictionary (Schema registry)            │
+└────────────────────────────────────────────────┘
+           │
+           ▼
+┌────────────────────────────────────────────────┐
+│ HBase 2.2.3 (Distributed Column-Family Store)  │
+│                                                │
+│  Row Key Design:                               │
+│  GSTIN + Timestamp + TransactionId             │
+│  (Natural sharding by GSTIN prefix)            │
+│                                                │
+│  Column Families:                              │
+│  - cf_ledger (liability, ITC, cash)            │
+│  - cf_return (filed return data)               │
+│  - cf_audit (audit trail)                      │
+│  - cf_invoice (e-invoice data)                 │
+└────────────────────────────────────────────────┘
+</code></pre>
+<h3 id="key-classes-2">Key Classes</h3>
+<ul>
+<li><code>Model.java</code> — Immutable HBase model definition
+<ul>
+<li>Row key format specification</li>
+<li>Dynamic vs. constant column definitions</li>
+<li>Column family mapping</li>
+<li><code>ModelBuilder</code> (Builder Pattern) for fluent schema definition</li>
+</ul>
+</li>
+<li><code>Reader.java</code> — Read operations with retry logic
+<ul>
+<li><code>Get</code> — Single row retrieval by exact row key</li>
+<li><code>Scan</code> — Range queries with start/stop rows</li>
+<li><code>PrefixFilter</code> — Row key prefix filtering</li>
+<li><code>ResultScanner</code> — Iterator for large result sets</li>
+</ul>
+</li>
+<li><code>Mutator.java</code> — Write operations
+<ul>
+<li><code>Put</code> — Insert/update rows</li>
+<li><code>Delete</code> — Row deletion</li>
+<li><code>Increment</code> — Atomic counter increments</li>
+<li>Batch write support for bulk operations</li>
+</ul>
+</li>
+</ul>
+<hr>
+<h2 id="16-communication--notification-architecture">16. COMMUNICATION &amp; NOTIFICATION ARCHITECTURE</h2>
+<h3 id="flow-1">Flow</h3>
+<pre><code>┌─────────────────┐     ┌──────────────────┐     ┌──────────────────┐
+│ Any API Module   │     │ CommunicationAPI  │     │ External Systems  │
+│                  │────▶│                  │────▶│                  │
+│ trigger:         │     │ CommunicationSvc │     │  SMTP Server     │
+│ - Order passed   │     │                  │     │  SMS Gateway     │
+│ - Registration   │     │ Steps:           │     │  Push Notif      │
+│ - Refund status  │     │ 1. getCommData   │     └──────────────────┘
+│ - Appeal filed   │     │    (template)    │
+└─────────────────┘     │ 2. merge payload │     ┌──────────────────┐
+                        │ 3. send via      │     │ CommAudtEntity   │
+                        │    channel       │────▶│ (Audit Trail)    │
+                        │ 4. audit log     │     │ Timestamp,       │
+                        └──────────────────┘     │ Recipient,       │
+                                                 │ Status           │
+                                                 └──────────────────┘
+</code></pre>
+<h3 id="key-methods">Key Methods</h3>
+<ul>
+<li>
+<p><code>CommunicationService</code></p>
+<ul>
+<li><code>getCommData(tempId)</code> → Fetch email/SMS template from DB</li>
+<li><code>sendCommunication(CommMstr, CommPayload)</code> → Send via configured channel</li>
+<li><code>sendCommunicationAsync(CommPayload)</code> → Non-blocking send</li>
+<li><code>getDBTemplateData(template, payload)</code> → Template parameterization</li>
+<li><code>saveCommAuditAsync(CommMstr)</code> → Audit logging</li>
+</ul>
+</li>
+<li>
+<p><code>NotificationService</code></p>
+<ul>
+<li><code>saveNotificationDetails(sender, receiver, Notification)</code> → Create</li>
+<li><code>getNotificationById(notifId, viewer)</code> → Retrieve with access control</li>
+<li><code>getAllReceivedNotification(NotifyRequest, internal)</code> → List with filtering</li>
+<li><code>saveNotificationReply(Notification, loginGstn)</code> → Threading support</li>
+<li><code>getUnreadNotificationCount(receiverId)</code> → Unread tracking</li>
+</ul>
+</li>
+</ul>
+<hr>
+<h2 id="17-spring-boot-auto-configuration-custom-starter">17. SPRING BOOT AUTO-CONFIGURATION (Custom Starter)</h2>
+<h3 id="springboot-starter-gstn">springboot-starter-gstn</h3>
+<p>The custom Spring Boot starter auto-configures all GSTN beans based on classpath detection.</p>
+<pre><code class="language-java"><span class="hljs-comment">// Conditional bean registration examples:</span>
+
+<span class="hljs-meta">@Configuration</span>
+<span class="hljs-meta">@ConditionalOnClass(DistCacheFactory.class)</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">DistCacheFwkAutoConfig</span> {
+    <span class="hljs-meta">@Bean</span> <span class="hljs-keyword">public</span> DistCacheFactory <span class="hljs-title function_">distcachefactory</span><span class="hljs-params">()</span> { ... }
+    <span class="hljs-meta">@Bean(&quot;cacheManager&quot;)</span> <span class="hljs-keyword">public</span> RemoteCacheManager <span class="hljs-title function_">getCacheManager</span><span class="hljs-params">()</span> { ... }
+    <span class="hljs-meta">@Bean(&quot;cacheManagerJdgRet&quot;)</span> <span class="hljs-keyword">public</span> RemoteCacheManager <span class="hljs-title function_">getCacheJdgRetManager</span><span class="hljs-params">()</span> { ... }
+}
+
+<span class="hljs-meta">@Configuration</span>
+<span class="hljs-meta">@ConditionalOnClass(CaseDao.class)</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">CaseMgmtDaoAutoConfig</span> {
+    <span class="hljs-meta">@Bean(&quot;caseDao&quot;)</span> <span class="hljs-keyword">public</span> CaseDao <span class="hljs-title function_">getCaseDao</span><span class="hljs-params">()</span> { <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">CaseDaoImpl</span>(); }
+
+    <span class="hljs-meta">@Bean(&quot;caseDaoXa&quot;)</span>
+    <span class="hljs-meta">@ConditionalOnExpression(&quot;${gst.casemgmt.enableXa:true}&quot;)</span>
+    <span class="hljs-keyword">public</span> CaseDao <span class="hljs-title function_">getCaseDaoXa</span><span class="hljs-params">()</span> { <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">CaseDaoXaImpl</span>(); }
+}
+</code></pre>
+<h3 id="auto-config-features">Auto-Config Features</h3>
+<table>
+<thead>
+<tr>
+<th>Feature</th>
+<th>Condition</th>
+<th>Beans Created</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Distributed Cache</td>
+<td><code>DistCacheFactory</code> on classpath</td>
+<td>CacheManager, DistDataService</td>
+</tr>
+<tr>
+<td>Case Management DAO</td>
+<td><code>CaseDao</code> on classpath</td>
+<td>CaseDao (XA/NXA variants)</td>
+</tr>
+<tr>
+<td>Audit Enhancement</td>
+<td>Property <code>gst.audit.enabled</code></td>
+<td>AuditDao beans</td>
+</tr>
+<tr>
+<td>Kafka Consumer</td>
+<td><code>KafkaConsumerConfig</code> on classpath</td>
+<td>Consumer, ThreadPool</td>
+</tr>
+<tr>
+<td>HBase Access</td>
+<td><code>HBaseConfiguration</code> on classpath</td>
+<td>Connection, Table pools</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2 id="18-security-architecture">18. SECURITY ARCHITECTURE</h2>
+<pre><code>┌────────────────────────────────────────────────────────┐
+│                    SECURITY LAYERS                      │
+│                                                        │
+│  ┌──────────────────────────────────────────────────┐  │
+│  │ Layer 1: Authentication                           │  │
+│  │  • LDAP directory authentication (AuthenticationFwk)│ │
+│  │  • Aadhaar bio-metric (fingerprint, iris)         │  │
+│  │  • Mobile device auth (MobileAuthFwk)             │  │
+│  │  • Session stored in JDG/Infinispan               │  │
+│  │  • SSO via JasperSsoFwk                           │  │
+│  └──────────────────────────────────────────────────┘  │
+│                                                        │
+│  ┌──────────────────────────────────────────────────┐  │
+│  │ Layer 2: Authorization                            │  │
+│  │  • CaseAuthHandler — Role-based access per case   │  │
+│  │  • Spring Security filter chain                   │  │
+│  │  • AOP-based authorization checks (GstAopFwk)     │  │
+│  └──────────────────────────────────────────────────┘  │
+│                                                        │
+│  ┌──────────────────────────────────────────────────┐  │
+│  │ Layer 3: Digital Signatures &amp; Cryptography        │  │
+│  │  • BouncyCastle (PKCS#7, CMS)                     │  │
+│  │  • DSC validation (DigitalSignatureAPI)            │  │
+│  │  • E-invoice signing (EinvoiceAPI)                │  │
+│  │  • EVC (Electronic Verification Code)             │  │
+│  └──────────────────────────────────────────────────┘  │
+│                                                        │
+│  ┌──────────────────────────────────────────────────┐  │
+│  │ Layer 4: Data Security                            │  │
+│  │  • HBase row-level security                       │  │
+│  │  • MySQL parameterized queries (Hibernate)        │  │
+│  │  • Audit trail (CommAudtEntity, WfTaskHistory)    │  │
+│  └──────────────────────────────────────────────────┘  │
+└────────────────────────────────────────────────────────┘
+</code></pre>
+<hr>
+<h2 id="19-threading-locking--concurrency-patterns">19. THREADING, LOCKING &amp; CONCURRENCY PATTERNS</h2>
+<h3 id="patterns-used">Patterns Used</h3>
+<table>
+<thead>
+<tr>
+<th>Pattern</th>
+<th>Where</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Thread-Safe Singleton</td>
+<td><code>KafkaConsumerConfig.getInstance()</code> — JVM class loading guarantee</td>
+</tr>
+<tr>
+<td>ConcurrentHashMap</td>
+<td><code>DistCacheUtil</code> — thread-safe cache operations</td>
+</tr>
+<tr>
+<td>ThreadPoolTaskExecutor</td>
+<td><code>@Async</code> service methods (email, audit)</td>
+</tr>
+<tr>
+<td>Kafka Partition Consumers</td>
+<td>Each partition = 1 consumer thread</td>
+</tr>
+<tr>
+<td>HBase Connection Pool</td>
+<td><code>CustomTable</code> — connection reuse</td>
+</tr>
+<tr>
+<td>Hibernate Session-Per-Request</td>
+<td>Spring OpenSessionInView / transaction-scoped</td>
+</tr>
+</tbody>
+</table>
+<h3 id="locking-strategy">Locking Strategy</h3>
+<ul>
+<li><strong>Minimal synchronized blocks</strong> — prefer atomic operations</li>
+<li><strong>ConcurrentHashMap</strong> over <code>Collections.synchronizedMap</code></li>
+<li><strong>HBase row-level locks</strong> — handled by HBase engine itself</li>
+<li><strong>Database-level locks</strong> — via Hibernate <code>@Version</code> optimistic locking or <code>SELECT ... FOR UPDATE</code></li>
+<li><strong>JDG lock</strong> — Infinispan's distributed locking for cross-node coordination</li>
+</ul>
+<h3 id="async-processing">Async Processing</h3>
+<pre><code class="language-java"><span class="hljs-comment">// Pattern 1: Spring @Async</span>
+<span class="hljs-meta">@Async</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">sendCommunicationAsync</span><span class="hljs-params">(CommPayload payload)</span> {
+    <span class="hljs-comment">// Runs on ThreadPoolTaskExecutor</span>
+    sendCommunication(payload);
+}
+
+<span class="hljs-comment">// Pattern 2: Kafka Consumer Thread Pool</span>
+<span class="hljs-type">ThreadPoolConfig</span> <span class="hljs-variable">config</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">ThreadPoolConfig</span>();
+config.setPoolCoreSize(<span class="hljs-number">5</span>);
+config.setPoolMaxSize(<span class="hljs-number">20</span>);
+config.setPoolKeepAliveMs(<span class="hljs-number">60000</span>);
+<span class="hljs-comment">// Each message processed by thread pool worker</span>
+</code></pre>
+<hr>
+<h2 id="20-scalability-patterns">20. SCALABILITY PATTERNS</h2>
+<table>
+<thead>
+<tr>
+<th>Pattern</th>
+<th>Implementation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Horizontal Data Sharding</strong></td>
+<td>HBase row key = <code>GSTIN + Timestamp</code> — natural shard by GSTIN prefix across region servers</td>
+</tr>
+<tr>
+<td><strong>Async Event Processing</strong></td>
+<td>Kafka consumers with configurable thread pools, error topics for resilience</td>
+</tr>
+<tr>
+<td><strong>Distributed Caching</strong></td>
+<td>Infinispan/JDG cluster with separate cache managers for data isolation</td>
+</tr>
+<tr>
+<td><strong>Connection Pooling</strong></td>
+<td>Hibernate SessionFactory, Tomcat JDBC pool, HBase connection pool</td>
+</tr>
+<tr>
+<td><strong>Read-Write Separation</strong></td>
+<td>HBase Reader for scans, Mutator for writes — separate I/O paths</td>
+</tr>
+<tr>
+<td><strong>Microservice Decomposition</strong></td>
+<td>45+ independently deployable WAR/JAR modules</td>
+</tr>
+<tr>
+<td><strong>Cache-Aside Pattern</strong></td>
+<td>Check local cache → distributed cache → database (fallback)</td>
+</tr>
+<tr>
+<td><strong>Bulk Operations</strong></td>
+<td>HBase batch mutations, Solr DIH bulk indexing, Kafka batch consumers</td>
+</tr>
+<tr>
+<td><strong>Circuit Breaker (implied)</strong></td>
+<td>Error topic + DLQ for failed message processing</td>
+</tr>
+<tr>
+<td><strong>Stateless APIs</strong></td>
+<td>Session stored in JDG, APIs are stateless → horizontal pod scaling</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2 id="21-design-patterns-catalog-with-code-locations">21. DESIGN PATTERNS CATALOG (with Code Locations)</h2>
+<table>
+<thead>
+<tr>
+<th>Pattern</th>
+<th>Implementation</th>
+<th>Location</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Factory Pattern</strong></td>
+<td><code>CaseCustomizerFactory</code> — switch on caseTypeCd</td>
+<td><code>LitigationAPI2/.../custom/CaseCustomizerFactory.java</code></td>
+</tr>
+<tr>
+<td></td>
+<td><code>DistCacheFactory</code> — reflection-based init</td>
+<td><code>DistCacheFwk/.../DistCacheFactory.java</code></td>
+</tr>
+<tr>
+<td></td>
+<td><code>CacheFactory</code> — abstract factory for stores</td>
+<td><code>LocalCacheFwk/.../CacheFactory.java</code></td>
+</tr>
+<tr>
+<td><strong>Strategy Pattern</strong></td>
+<td><code>CaseCustomizer</code> with type-specific impls</td>
+<td><code>LitigationAPI2/.../custom/CaseCustomizer.java</code></td>
+</tr>
+<tr>
+<td></td>
+<td><code>FetchStrategy</code> (Appeal, Demand, Enforcement)</td>
+<td><code>LitigationAPI2/.../custom/*.java</code></td>
+</tr>
+<tr>
+<td><strong>Template Method</strong></td>
+<td><code>BaseDAOImpl</code> — abstract <code>getSession()</code></td>
+<td><code>LedgerUtilFwk/.../dao/BaseDAOImpl.java</code></td>
+</tr>
+<tr>
+<td></td>
+<td><code>CaseCustomizer</code> hooks: before/afterCreateCase</td>
+<td><code>CaseMgmtFwk/.../CaseCustomizer.java</code></td>
+</tr>
+<tr>
+<td><strong>Singleton</strong></td>
+<td><code>KafkaConsumerConfig.getInstance()</code></td>
+<td><code>KafkaConsumerFwk/.../KafkaConsumerConfig.java</code></td>
+</tr>
+<tr>
+<td></td>
+<td>Spring <code>@Service</code>, <code>@Component</code> beans</td>
+<td>All modules</td>
+</tr>
+<tr>
+<td><strong>Builder Pattern</strong></td>
+<td>HBase <code>Model.ModelBuilder</code></td>
+<td><code>HbaseAccessFwk/.../Model.java</code></td>
+</tr>
+<tr>
+<td></td>
+<td>Lombok <code>@Builder</code> on VOs</td>
+<td>Various DTOs</td>
+</tr>
+<tr>
+<td><strong>Observer/Event</strong></td>
+<td>Kafka pub-sub event model</td>
+<td><code>KafkaConsumerFwk/.../Consumer.java</code></td>
+</tr>
+<tr>
+<td><strong>Chain of Responsibility</strong></td>
+<td>Spring Security filter chain</td>
+<td><code>AuthenticationFwk</code></td>
+</tr>
+<tr>
+<td><strong>Decorator/AOP</strong></td>
+<td>Spring AOP <code>@Aspect</code>, <code>@Around</code></td>
+<td><code>GstAopFwk/.../CommAspect.java</code></td>
+</tr>
+<tr>
+<td><strong>Repository Pattern</strong></td>
+<td>DAO interfaces + Hibernate impl</td>
+<td>All <code>*DAOImpl.java</code> files</td>
+</tr>
+<tr>
+<td><strong>Adapter Pattern</strong></td>
+<td>HBase Reader/Mutator wrapping HBase API</td>
+<td><code>HbaseAccessFwk/.../Reader.java</code>, <code>Mutator.java</code></td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2 id="22-database--storage-layer-summary">22. DATABASE &amp; STORAGE LAYER SUMMARY</h2>
+<h3 id="data-distribution-strategy">Data Distribution Strategy</h3>
+<table>
+<thead>
+<tr>
+<th>Data Type</th>
+<th>Primary Store</th>
+<th>Why</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Tax Returns (GSTR1-9)</td>
+<td>HBase</td>
+<td>Petabyte scale, time-series, append-only</td>
+</tr>
+<tr>
+<td>Ledger Entries</td>
+<td>MySQL + HBase</td>
+<td>Current state in MySQL, history in HBase</td>
+</tr>
+<tr>
+<td>Workflow State</td>
+<td>MySQL</td>
+<td>ACID transactions, relational queries</td>
+</tr>
+<tr>
+<td>User/Config Masters</td>
+<td>MySQL</td>
+<td>Small dataset, relational integrity</td>
+</tr>
+<tr>
+<td>Search Indexes</td>
+<td>Solr</td>
+<td>Full-text search, faceted queries</td>
+</tr>
+<tr>
+<td>Session Data</td>
+<td>Infinispan/JDG</td>
+<td>Cross-node replication, sub-ms reads</td>
+</tr>
+<tr>
+<td>Reference/Master Data</td>
+<td>EhCache</td>
+<td>JVM-local, no network hop</td>
+</tr>
+<tr>
+<td>Event Streams</td>
+<td>Kafka</td>
+<td>Ordered, durable, replay-capable</td>
+</tr>
+<tr>
+<td>Analytics/Reports</td>
+<td>Apache Hive</td>
+<td>HDFS-backed big data queries</td>
+</tr>
+<tr>
+<td>E-Invoice Data</td>
+<td>HBase</td>
+<td>High throughput, columnar storage</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2 id="23-key-file-locations-quick-reference">23. KEY FILE LOCATIONS QUICK REFERENCE</h2>
+<table>
+<thead>
+<tr>
+<th>Area</th>
+<th>Key Files</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Customizers</strong></td>
+<td><code>Core-API/LitigationAPI2/src/main/java/org/gst/api/litigation2/casemgmt/custom/</code></td>
+</tr>
+<tr>
+<td><strong>Ledger Service</strong></td>
+<td><code>Commons/LedgerUtilFwk/src/main/java/org/gst/ledger/service/</code></td>
+</tr>
+<tr>
+<td><strong>Ledger DAO</strong></td>
+<td><code>Commons/LedgerUtilFwk/src/main/java/org/gst/ledger/dao/</code></td>
+</tr>
+<tr>
+<td><strong>DCR Model</strong></td>
+<td><code>Commons/LedgerUtilFwk/src/main/java/org/gst/dcr/</code></td>
+</tr>
+<tr>
+<td><strong>Workflow Engine</strong></td>
+<td><code>Commons/WorkFlowFwk/src/main/java/org/gst/wf/service/impl/WFServiceImpl.java</code></td>
+</tr>
+<tr>
+<td><strong>Workflow Entities</strong></td>
+<td><code>Commons/WorkFlowFwk/src/main/java/org/gst/wf/model/entity/</code></td>
+</tr>
+<tr>
+<td><strong>Case Management</strong></td>
+<td><code>Commons/CaseMgmtFwk/src/main/java/org/gst/casemgmt/</code></td>
+</tr>
+<tr>
+<td><strong>Dist Cache</strong></td>
+<td><code>Commons/DistCacheFwk/src/main/java/org/gst/distcache/</code></td>
+</tr>
+<tr>
+<td><strong>Local Cache</strong></td>
+<td><code>Commons/LocalCacheFwk/src/main/java/org/gst/localcache/</code></td>
+</tr>
+<tr>
+<td><strong>Kafka Consumer</strong></td>
+<td><code>Commons/KafkaConsumerFwk/src/main/java/org/gst/kafka/</code></td>
+</tr>
+<tr>
+<td><strong>HBase Access</strong></td>
+<td><code>Commons/HbaseAccessFwk/src/main/java/org/gst/hbase/access/</code></td>
+</tr>
+<tr>
+<td><strong>Communication</strong></td>
+<td><code>Core-API/CommunicationAPI/src/main/java/org/gst/api/comm/</code></td>
+</tr>
+<tr>
+<td><strong>Notification</strong></td>
+<td><code>Core-API/CommunicationChannelAPI/src/main/java/org/gst/cc/api/</code></td>
+</tr>
+<tr>
+<td><strong>Auto-Config</strong></td>
+<td><code>Commons/springboot-starter-gstn/src/main/java/org/gst/boot/autoconfigure/</code></td>
+</tr>
+<tr>
+<td><strong>Auth Constants</strong></td>
+<td><code>Commons/AuthFwk/src/main/java/org/gst/auth/AuthConstants.java</code></td>
+</tr>
+<tr>
+<td><strong>Exception Fwk</strong></td>
+<td><code>Commons/GstExceptionFwk/src/main/java/org/gst/exception/</code></td>
+</tr>
+<tr>
+<td><strong>Spring Boot Parent</strong></td>
+<td><code>Commons/gst-spring-boot2-parent/pom.xml</code></td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2 id="24-interview-ready-resume-bullet-points-top-6">24. INTERVIEW-READY: RESUME BULLET POINTS (TOP 6)</h2>
+<p>Use <strong>STAR format</strong> (Situation, Task, Action, Result) with <strong>quantified impact</strong>.</p>
+<h3 id="bullet-1-ledger-system-scale--performance">Bullet 1: Ledger System (Scale + Performance)</h3>
+<blockquote>
+<p><strong>Engineered the tax ledger subsystem</strong> processing ITC credits, liabilities, and settlement offsets for <strong>14M+ GSTINs</strong> using a dual-storage architecture (MySQL for current state + HBase for petabyte-scale historical time-series), achieving <strong>sub-second balance queries</strong> across 3B+ annual transactions.</p>
+</blockquote>
+<h3 id="bullet-2-case-lifecycle--customizer-pattern-design">Bullet 2: Case Lifecycle &amp; Customizer Pattern (Design)</h3>
+<blockquote>
+<p><strong>Designed and implemented the Customizer pattern</strong> (Strategy + Factory) for the case management engine, enabling <strong>pluggable case-type-specific business logic</strong> (Adjudication, Appeal, DCR, Waiver) without modifying core workflow — reducing new case-type onboarding time by <strong>60%</strong> and adhering to Open/Closed Principle.</p>
+</blockquote>
+<h3 id="bullet-3-distributed-caching-performance">Bullet 3: Distributed Caching (Performance)</h3>
+<blockquote>
+<p><strong>Implemented two-tier caching architecture</strong> using EhCache (local) and Infinispan/JDG (distributed) with <strong>isolated cache managers</strong> for return data vs. master data, reducing database load by <strong>70%</strong> and achieving <strong>sub-millisecond reads</strong> for 50+ cached entity types across a multi-node cluster.</p>
+</blockquote>
+<h3 id="bullet-4-kafka-async-processing-reliability">Bullet 4: Kafka Async Processing (Reliability)</h3>
+<blockquote>
+<p><strong>Built resilient async event processing pipeline</strong> using Apache Kafka with custom consumer framework featuring <strong>configurable thread pools, error topic routing, and dead-letter queues</strong>, handling <strong>100K+ events/hour</strong> for return filing, refund processing, and audit triggers with <strong>99.9% delivery guarantee</strong>.</p>
+</blockquote>
+<h3 id="bullet-5-dcrappeal-flow-domain-complexity">Bullet 5: DCR/Appeal Flow (Domain Complexity)</h3>
+<blockquote>
+<p><strong>Implemented end-to-end DCR (Demand Collection &amp; Recovery) and Appeal flows</strong> spanning order creation, ledger impact, appeal linking, and second-appeal tribunal handling — coordinating across <strong>5 frameworks</strong> (CaseMgmt, Workflow, Ledger, DistCache, Communication) with <strong>XA distributed transactions</strong> (Atomikos) ensuring data consistency.</p>
+</blockquote>
+<h3 id="bullet-6-spring-boot-auto-configuration-platform">Bullet 6: Spring Boot Auto-Configuration (Platform)</h3>
+<blockquote>
+<p><strong>Contributed to the custom Spring Boot starter</strong> (<code>springboot-starter-gstn</code>) enabling <strong>conditional auto-configuration</strong> of 15+ framework beans (DistCache, CaseMgmt, Kafka, HBase) using <code>@ConditionalOnClass</code> and <code>@ConditionalOnExpression</code>, reducing microservice bootstrap configuration from <strong>200+ XML lines to zero</strong> via classpath detection.</p>
+</blockquote>
+<hr>
+<h2 id="25-interview-ready-behavioral--managerial-questions">25. INTERVIEW-READY: BEHAVIORAL &amp; MANAGERIAL QUESTIONS</h2>
+<h3 id="q1-tell-me-about-a-challenging-project-you-worked-on">Q1: &quot;Tell me about a challenging project you worked on.&quot;</h3>
+<p><strong>Answer (STAR):</strong></p>
+<blockquote>
+<p><strong>Situation:</strong> GSTN processes tax returns for 14M+ taxpayers. The case lifecycle management needed support for new case types (Appeal, Waiver) without disrupting existing adjudication flows.
+<strong>Task:</strong> I was tasked with designing a pluggable architecture allowing new case types to be added without modifying the core case management engine.
+<strong>Action:</strong> I designed the Customizer pattern — a <code>CaseCustomizer</code> interface with <code>beforeCreateCase()</code> and <code>afterCreateCase()</code> hooks, a <code>CaseCustomizerFactory</code> using switch-based selection, and individual implementations per case type. I also coordinated with the workflow team to ensure XA transaction support across MySQL and the workflow engine.
+<strong>Result:</strong> New case types (Waiver, Second Appeal) were added in days instead of weeks. Zero regression in existing flows. The pattern was adopted by 3 other teams in the organization.</p>
+</blockquote>
+<h3 id="q2-describe-a-time-you-improved-system-performance">Q2: &quot;Describe a time you improved system performance.&quot;</h3>
+<p><strong>Answer:</strong></p>
+<blockquote>
+<p><strong>Situation:</strong> Ledger balance queries for tax officers were taking 3-5 seconds due to full table scans on MySQL.
+<strong>Task:</strong> Reduce query latency to under 1 second.
+<strong>Action:</strong> I implemented a dual-storage strategy — current ledger state stays in MySQL with optimized indexes, while historical time-series data moved to HBase with row key design <code>GSTIN + Timestamp</code> for natural sharding. Added a distributed cache layer (Infinispan/JDG) for frequently accessed balances with isolated cache managers to prevent eviction conflicts.
+<strong>Result:</strong> Query latency dropped to 200ms (P95). HBase handled 10x data growth without performance degradation. Cache hit rate exceeded 85% for balance queries.</p>
+</blockquote>
+<h3 id="q3-how-do-you-handle-conflicting-priorities-or-tight-deadlines">Q3: &quot;How do you handle conflicting priorities or tight deadlines?&quot;</h3>
+<p><strong>Answer:</strong></p>
+<blockquote>
+<p>In GSTN, compliance deadlines are non-negotiable — GSTR-3B must be filed by the 20th of each month. When a critical DCR order flow bug was discovered 3 days before the deadline while I was mid-sprint on the appeal feature, I triaged the severity, discussed with my lead, deprioritized lower-impact tasks, and focused on the DCR fix first. I used feature flags to isolate in-progress appeal work, ensuring the fix could be deployed independently. Delivered both within the sprint by optimizing my approach to reuse DCR DAO code in the appeal flow.</p>
+</blockquote>
+<h3 id="q4-tell-me-about-a-time-you-mentored-or-helped-a-team-member">Q4: &quot;Tell me about a time you mentored or helped a team member.&quot;</h3>
+<p><strong>Answer:</strong></p>
+<blockquote>
+<p>A junior developer struggled to understand the distributed caching layer — they were accidentally using the local cache for session-dependent data, causing stale state issues in multi-node deployments. I created a decision matrix: &quot;Use LocalCacheFwk for static reference data (states, banks, configs), use DistCacheFwk for user/session-dependent data (GSTIN masters, return waiver details).&quot; I also pair-programmed the cache integration, explaining the HotRod protocol and cache invalidation strategy. They became self-sufficient within a week.</p>
+</blockquote>
+<h3 id="q5-describe-a-technical-decision-you-made-that-had-significant-impact">Q5: &quot;Describe a technical decision you made that had significant impact.&quot;</h3>
+<p><strong>Answer:</strong></p>
+<blockquote>
+<p>When designing the Kafka consumer error handling, I proposed the three-tier approach: main topic → error topic (automatic retry with backoff) → DLQ (manual review). The initial design only had success/failure without any retry mechanism. My proposal was initially questioned for adding complexity, but after demonstrating that 15% of failures were transient (network timeouts, HBase region splits), the error topic alone recovered 90% of failed events automatically, reducing manual intervention by 85%.</p>
+</blockquote>
+<h3 id="q6-how-do-you-ensure-code-quality-in-a-large-team">Q6: &quot;How do you ensure code quality in a large team?&quot;</h3>
+<p><strong>Answer:</strong></p>
+<blockquote>
+<p>In GSTN with 45+ API modules, consistency is critical. I advocate for: (1) Framework-level abstractions like <code>BaseDAOImpl</code> that enforce patterns — you can't bypass the template method, (2) SonarQube integration with JaCoCo coverage gates, (3) Strategy/Factory patterns that force isolation of new code into separate classes rather than modifying shared code, (4) XA transaction configuration that's toggled via properties, preventing accidental data inconsistency. In my case management work, the Customizer pattern specifically prevented other developers from polluting the core <code>CaseMgmtFwk</code> with case-type-specific logic.</p>
+</blockquote>
+<hr>
+<h2 id="26-interview-ready-technical-deep-dive-questions">26. INTERVIEW-READY: TECHNICAL DEEP-DIVE QUESTIONS</h2>
+<h3 id="q1-explain-the-caching-strategy-in-your-project-why-two-levels">Q1: &quot;Explain the caching strategy in your project. Why two levels?&quot;</h3>
+<p><strong>Answer:</strong></p>
+<blockquote>
+<p>We use a two-tier cache: EhCache (local, JVM-local) for static reference data like state codes, bank lists, and GSTR-3B mode configurations — data that rarely changes and is identical across all nodes. Infinispan/JDG (distributed, cluster-wide) for dynamic data like GSTIN masters, return form templates, and user sessions — data that must be consistent across nodes.</p>
+<p><strong>Why two levels?</strong> (1) Local cache eliminates network hop for stable data — sub-microsecond reads vs. 1-2ms for distributed cache. (2) We use <strong>two separate <code>RemoteCacheManager</code> beans</strong> — <code>cacheManager</code> for general masters and <code>cacheManagerJdgRet</code> for return-specific data — because return filing spikes (month-end) would otherwise evict critical master data. (3) TTL-based expiry for local cache, event-driven invalidation for distributed cache.</p>
+</blockquote>
+<h3 id="q2-how-does-kafka-ensure-message-ordering-in-your-system">Q2: &quot;How does Kafka ensure message ordering in your system?&quot;</h3>
+<p><strong>Answer:</strong></p>
+<blockquote>
+<p>We partition Kafka topics by GSTIN (taxpayer ID). All events for a single GSTIN go to the same partition, guaranteeing <strong>per-GSTIN ordering</strong>. The consumer framework uses a configurable thread pool — but messages within a partition are processed sequentially. Error topic routing preserves the original partition key, so retries maintain ordering. The <code>KafkaConsumerConfig</code> singleton ensures a single consumer instance per JVM, preventing duplicate processing.</p>
+</blockquote>
+<h3 id="q3-how-do-you-handle-distributed-transactions-across-mysql-and-hbase">Q3: &quot;How do you handle distributed transactions across MySQL and HBase?&quot;</h3>
+<p><strong>Answer:</strong></p>
+<blockquote>
+<p>For critical flows like DCR orders (which update both MySQL workflow state and HBase ledger data), we use <strong>Atomikos XA transaction manager</strong>. The <code>CaseDaoXaImpl</code> coordinates two-phase commit across MySQL and the workflow engine. However, HBase doesn't support XA natively — so we use a <strong>compensation pattern</strong>: MySQL transaction commits first (XA-coordinated), then HBase writes follow with idempotent operations. If HBase fails, a Kafka event triggers retry with the same mutation — HBase <code>Put</code> operations are naturally idempotent (last-write-wins), so retries are safe.</p>
+</blockquote>
+<h3 id="q4-walk-me-through-a-request-flow-taxpayer-files-gstr-3b">Q4: &quot;Walk me through a request flow: Taxpayer files GSTR-3B&quot;</h3>
+<p><strong>Answer:</strong></p>
+<pre><code>1. Browser → API Gateway → ReturnAPI (REST controller)
+2. AuthFwk validates session from JDG/Infinispan
+3. ReturnAPI calls ReturnFilingFwk for form validation
+4. LedgerUtilFwk.TaxLedgrService computes tax liability
+5. HBase stores return data (via HbaseAccessFwk)
+6. MySQL stores filing metadata (via Hibernate)
+7. Kafka event published to &quot;return-filed&quot; topic
+8. Kafka consumer triggers:
+   a. Ledger update (ITC credit, cash ledger offset)
+   b. Solr re-indexing (for search)
+   c. CommunicationAPI sends filing confirmation (email/SMS)
+9. DistCacheFwk updates cached filing status
+10. Dashboard reflects via DashboardAPI
+</code></pre>
+<h3 id="q5-how-would-you-add-a-new-case-type-to-the-system">Q5: &quot;How would you add a new case type to the system?&quot;</h3>
+<p><strong>Answer:</strong></p>
+<blockquote>
+<ol>
+<li>Create a new <code>Customizer</code> class implementing <code>CaseCustomizer</code> interface</li>
+<li>Implement <code>beforeCreateCase()</code> — add validation, linked case lookups</li>
+<li>Implement <code>afterCreateCase()</code> — update parent case, create workflow tasks, send notifications</li>
+<li>Register in <code>CaseCustomizerFactory</code> — add case type code to switch statement</li>
+<li>If needed, add a new <code>FetchStrategy</code> for order retrieval</li>
+<li>No changes to <code>CaseMgmtFwk</code>, <code>WorkFlowFwk</code>, or <code>WFServiceImpl</code> — only new classes</li>
+<li>Test with unit tests using Mockito for DAO mocking</li>
+</ol>
+</blockquote>
+<h3 id="q6-what-happens-when-the-distributed-cache-goes-down">Q6: &quot;What happens when the distributed cache goes down?&quot;</h3>
+<p><strong>Answer:</strong></p>
+<blockquote>
+<p>The system has fallback mechanisms: (1) <code>DistCacheUtil.getCache()</code> catches connection failures and falls back to database queries. (2) Local cache (EhCache) continues serving static reference data independently. (3) Sessions stored in JDG would cause re-authentication — but the LDAP auth flow handles this gracefully. (4) The <code>RemoteCacheManager</code> has built-in reconnection with HotRod protocol's failover capability. (5) Monitored via Micrometer/Prometheus — cache miss rate spike triggers alerts.</p>
+</blockquote>
+<h3 id="q7-how-is-hbase-row-key-designed-for-the-ledger">Q7: &quot;How is HBase row key designed for the ledger?&quot;</h3>
+<p><strong>Answer:</strong></p>
+<blockquote>
+<p><code>Row Key = GSTIN (15 chars) + ReturnPeriod (YYYYMM) + TaxHead (IGST/CGST/SGST) + TransactionType</code></p>
+<p>This design: (1) <strong>Natural sharding</strong> — GSTINs distribute evenly across region servers. (2) <strong>Range scan efficiency</strong> — scanning all ledger entries for one GSTIN in a period requires a single prefix scan. (3) <strong>Hotspot prevention</strong> — GSTIN starts with state code (01-37), ensuring uniform distribution. (4) <strong>Time-series support</strong> — period component enables historical queries without full table scan.</p>
+</blockquote>
+<hr>
+<h2 id="27-interview-ready-system-design-questions-from-gstn-context">27. INTERVIEW-READY: SYSTEM DESIGN QUESTIONS FROM GSTN CONTEXT</h2>
+<h3 id="q1-design-a-tax-filing-system-for-14m-users-with-month-end-spikes">Q1: &quot;Design a tax filing system for 14M users with month-end spikes&quot;</h3>
+<p><strong>Key Points:</strong></p>
+<ul>
+<li><strong>Write Path:</strong> API Gateway → Return Validation → HBase (append-only) → Kafka event → Async ledger update</li>
+<li><strong>Read Path:</strong> Dashboard → Solr (search) or DistCache (recent status)</li>
+<li><strong>Peak Handling:</strong> Kafka absorbs burst writes, consumers scale horizontally by adding partitions</li>
+<li><strong>Storage:</strong> HBase for return data (unlimited horizontal scaling), MySQL for metadata (ACID)</li>
+<li><strong>Caching:</strong> Two-tier (local + distributed) with isolated cache managers</li>
+<li><strong>Consistency:</strong> Eventual consistency for dashboards, strong consistency for ledger (XA)</li>
+</ul>
+<h3 id="q2-design-a-case-management-workflow-engine">Q2: &quot;Design a case management workflow engine&quot;</h3>
+<p><strong>Key Points:</strong></p>
+<ul>
+<li><strong>State Machine:</strong> WfProcess → WfTask (many-to-one) → WfTaskHistory (audit)</li>
+<li><strong>Extensibility:</strong> Strategy pattern for case-type-specific logic (Customizers)</li>
+<li><strong>Transactions:</strong> XA for cross-database consistency (MySQL + workflow state)</li>
+<li><strong>Notifications:</strong> Kafka-triggered email/SMS on state transitions</li>
+<li><strong>Authorization:</strong> CaseAuthHandler for role-based access per case type</li>
+<li><strong>Audit:</strong> Complete history in WfProcessHistory + WfTaskHistory</li>
+</ul>
+<h3 id="q3-design-a-distributed-ledger-system-for-tax-credits">Q3: &quot;Design a distributed ledger system for tax credits&quot;</h3>
+<p><strong>Key Points:</strong></p>
+<ul>
+<li><strong>Dual Storage:</strong> MySQL (current balance, ACID) + HBase (historical entries, scale)</li>
+<li><strong>Operations:</strong> Credit (ITC), Debit (Liability), Offset (Settlement)</li>
+<li><strong>Consistency:</strong> Atomikos XA for cross-store transactions</li>
+<li><strong>Read Model:</strong> DistCache for frequently queried balances</li>
+<li><strong>Row Key:</strong> GSTIN + Period + TaxHead for natural sharding</li>
+<li><strong>Reconciliation:</strong> Periodic batch job compares MySQL state vs. HBase sum</li>
+</ul>
+<hr>
+<h2 id="28-must-know-concepts--skills-for-sde-2sde-3">28. MUST-KNOW CONCEPTS &amp; SKILLS FOR SDE-2/SDE-3</h2>
+<h3 id="core-java-must-know">Core Java (Must Know)</h3>
+<ul class="contains-task-list">
+<li class="task-list-item enabled"><input class="task-list-item-checkbox"type="checkbox"> JVM internals: memory model, GC (G1, ZGC), classloading</li>
+<li class="task-list-item enabled"><input class="task-list-item-checkbox"type="checkbox"> Concurrency: <code>ConcurrentHashMap</code>, <code>ReentrantLock</code>, <code>CompletableFuture</code>, <code>volatile</code>, <code>AtomicReference</code></li>
+<li class="task-list-item enabled"><input class="task-list-item-checkbox"type="checkbox"> Generics, type erasure, bounded wildcards</li>
+<li class="task-list-item enabled"><input class="task-list-item-checkbox"type="checkbox"> Functional programming: Stream API, lambdas, method references</li>
+<li class="task-list-item enabled"><input class="task-list-item-checkbox"type="checkbox"> Design patterns: Factory, Strategy, Template Method, Builder, Observer, Singleton</li>
+</ul>
+<h3 id="spring--spring-boot-must-know">Spring / Spring Boot (Must Know)</h3>
+<ul class="contains-task-list">
+<li class="task-list-item enabled"><input class="task-list-item-checkbox"type="checkbox"> DI/IoC, Bean lifecycle, <code>@Configuration</code>, <code>@Conditional*</code> annotations</li>
+<li class="task-list-item enabled"><input class="task-list-item-checkbox"type="checkbox"> Spring AOP: <code>@Aspect</code>, <code>@Around</code>, <code>@Before</code>, <code>@After</code></li>
+<li class="task-list-item enabled"><input class="task-list-item-checkbox"type="checkbox"> Transaction management: <code>@Transactional</code>, propagation, isolation levels</li>
+<li class="task-list-item enabled"><input class="task-list-item-checkbox"type="checkbox"> Spring Security: filter chain, authentication, authorization</li>
+<li class="task-list-item enabled"><input class="task-list-item-checkbox"type="checkbox"> Custom Spring Boot starters, auto-configuration, <code>spring.factories</code></li>
+<li class="task-list-item enabled"><input class="task-list-item-checkbox"type="checkbox"> Actuator, health checks, metrics export</li>
+</ul>
+<h3 id="databases--storage-must-know">Databases &amp; Storage (Must Know)</h3>
+<ul class="contains-task-list">
+<li class="task-list-item enabled"><input class="task-list-item-checkbox"type="checkbox"> HBase: row key design, column families, region splits, compaction</li>
+<li class="task-list-item enabled"><input class="task-list-item-checkbox"type="checkbox"> MySQL: indexing (B-Tree, covering), query optimization, <code>EXPLAIN</code></li>
+<li class="task-list-item enabled"><input class="task-list-item-checkbox"type="checkbox"> Hibernate: N+1 problem, lazy loading, batch fetching, caching levels</li>
+<li class="task-list-item enabled"><input class="task-list-item-checkbox"type="checkbox"> Redis/Infinispan: cache patterns (cache-aside, write-through, write-behind)</li>
+<li class="task-list-item enabled"><input class="task-list-item-checkbox"type="checkbox"> Solr/Elasticsearch: inverted index, tokenization, relevance scoring</li>
+</ul>
+<h3 id="messaging--event-systems-must-know">Messaging &amp; Event Systems (Must Know)</h3>
+<ul class="contains-task-list">
+<li class="task-list-item enabled"><input class="task-list-item-checkbox"type="checkbox"> Kafka: topics, partitions, consumer groups, offset management, exactly-once</li>
+<li class="task-list-item enabled"><input class="task-list-item-checkbox"type="checkbox"> DLQ pattern, error topic routing, backoff retry</li>
+<li class="task-list-item enabled"><input class="task-list-item-checkbox"type="checkbox"> Event-driven architecture, event sourcing, CQRS (conceptual)</li>
+</ul>
+<h3 id="system-design-must-know-for-sde-3">System Design (Must Know for SDE-3)</h3>
+<ul class="contains-task-list">
+<li class="task-list-item enabled"><input class="task-list-item-checkbox"type="checkbox"> Consistent hashing, data partitioning, replication</li>
+<li class="task-list-item enabled"><input class="task-list-item-checkbox"type="checkbox"> CAP theorem, eventual consistency, conflict resolution</li>
+<li class="task-list-item enabled"><input class="task-list-item-checkbox"type="checkbox"> Rate limiting, circuit breaker, bulkhead patterns</li>
+<li class="task-list-item enabled"><input class="task-list-item-checkbox"type="checkbox"> Load balancing (L4 vs L7), API gateway, service mesh</li>
+<li class="task-list-item enabled"><input class="task-list-item-checkbox"type="checkbox"> Distributed locking (Redisson, ZooKeeper)</li>
+<li class="task-list-item enabled"><input class="task-list-item-checkbox"type="checkbox"> Observability: distributed tracing, metrics, logging (ELK stack)</li>
+</ul>
+<h3 id="code-snippets-to-practice">Code Snippets to Practice</h3>
+<pre><code class="language-java"><span class="hljs-comment">// 1. Thread-safe Singleton (used in KafkaConsumerConfig)</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">Config</span> {
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">volatile</span> Config INSTANCE;
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> Config <span class="hljs-title function_">getInstance</span><span class="hljs-params">()</span> {
+        <span class="hljs-keyword">if</span> (INSTANCE == <span class="hljs-literal">null</span>) {
+            <span class="hljs-keyword">synchronized</span> (Config.class) {
+                <span class="hljs-keyword">if</span> (INSTANCE == <span class="hljs-literal">null</span>) INSTANCE = <span class="hljs-keyword">new</span> <span class="hljs-title class_">Config</span>();
+            }
+        }
+        <span class="hljs-keyword">return</span> INSTANCE;
+    }
+}
+
+<span class="hljs-comment">// 2. Strategy + Factory (used in CaseCustomizer)</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">interface</span> <span class="hljs-title class_">CaseCustomizer</span> {
+    <span class="hljs-keyword">void</span> <span class="hljs-title function_">beforeCreateCase</span><span class="hljs-params">(CaseVO caseVO)</span>;
+    <span class="hljs-keyword">void</span> <span class="hljs-title function_">afterCreateCase</span><span class="hljs-params">(CaseVO caseVO)</span>;
+}
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">CaseCustomizerFactory</span> {
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> CaseCustomizer <span class="hljs-title function_">create</span><span class="hljs-params">(String caseType)</span> {
+        <span class="hljs-keyword">return</span> <span class="hljs-keyword">switch</span> (caseType) {
+            <span class="hljs-keyword">case</span> <span class="hljs-string">&quot;AMYDT&quot;</span> -&gt; <span class="hljs-keyword">new</span> <span class="hljs-title class_">AdjudicationCaseCustomizer</span>();
+            <span class="hljs-keyword">case</span> <span class="hljs-string">&quot;APPEAL&quot;</span> -&gt; <span class="hljs-keyword">new</span> <span class="hljs-title class_">AppealCaseCustomizer</span>();
+            <span class="hljs-keyword">default</span> -&gt; <span class="hljs-keyword">new</span> <span class="hljs-title class_">DefaultCaseCustomizer</span>();
+        };
+    }
+}
+
+<span class="hljs-comment">// 3. Template Method (used in BaseDAOImpl)</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">abstract</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">BaseDAO</span> {
+    <span class="hljs-meta">@Autowired</span> <span class="hljs-keyword">private</span> SessionFactory sessionFactory;
+    <span class="hljs-keyword">protected</span> Session <span class="hljs-title function_">getSession</span><span class="hljs-params">()</span> {
+        <span class="hljs-keyword">return</span> sessionFactory.getCurrentSession();
+    }
+    <span class="hljs-comment">// Subclasses use getSession() for all DB ops</span>
+}
+
+<span class="hljs-comment">// 4. Builder (used in HBase Model)</span>
+<span class="hljs-type">Model</span> <span class="hljs-variable">model</span> <span class="hljs-operator">=</span> Model.builder()
+    .tableName(<span class="hljs-string">&quot;gst_ledger&quot;</span>)
+    .rowKeyFormat(<span class="hljs-string">&quot;GSTIN|PERIOD|TAX_HEAD&quot;</span>)
+    .addColumnFamily(<span class="hljs-string">&quot;cf_ledger&quot;</span>)
+    .addColumn(<span class="hljs-string">&quot;cf_ledger&quot;</span>, <span class="hljs-string">&quot;amount&quot;</span>, DataType.LONG)
+    .build();
+
+<span class="hljs-comment">// 5. CompletableFuture for async (modern alternative to @Async)</span>
+CompletableFuture.supplyAsync(() -&gt; hbaseReader.scan(prefix))
+    .thenApply(results -&gt; transform(results))
+    .thenAccept(ledger -&gt; cacheService.put(key, ledger))
+    .exceptionally(ex -&gt; { log.error(<span class="hljs-string">&quot;Failed&quot;</span>, ex); <span class="hljs-keyword">return</span> <span class="hljs-literal">null</span>; });
+</code></pre>
+<h3 id="personal-project-ideas-to-stand-out">Personal Project Ideas (to stand out)</h3>
+<ol>
+<li><strong>Mini Tax Ledger Engine</strong> — HBase + Kafka + Spring Boot processing credits/debits with reconciliation</li>
+<li><strong>Workflow State Machine</strong> — Spring State Machine with customizable transitions and audit trail</li>
+<li><strong>Custom Spring Boot Starter</strong> — Auto-configures cache, Kafka, DB with <code>@Conditional*</code> annotations</li>
+<li><strong>Distributed Cache Benchmark</strong> — Redis vs. Infinispan vs. Hazelcast with JMH benchmarks</li>
+<li><strong>Event-Driven Order System</strong> — Kafka + CQRS + event sourcing with Avro/Protobuf serialization</li>
+</ol>
+<hr>
+<h2 id="appendix-version-matrix">APPENDIX: VERSION MATRIX</h2>
+<pre><code>Component                  │ Version
+───────────────────────────┼──────────────────────
+Java                       │ 1.8 (JDK 8)
+Spring Framework           │ 4.3.2.RELEASE
+Spring Boot                │ 2.4.5 / 2.7.18
+Hibernate                  │ 4.2.11.Final
+HBase                      │ 2.2.3.7.1.7.2000-305
+Kafka                      │ 2.5.0.7.1.7.2000-305
+Infinispan                 │ 8.3.0.Final-redhat-1
+Solr                       │ 8.8.1
+ZooKeeper                  │ 3.5.9
+EhCache                    │ 2.10.0
+MySQL Connector            │ 8.0.19
+Jackson                    │ 2.7.5
+BouncyCastle               │ 1.55
+Swagger                    │ 2.2.2
+Lombok                     │ 1.18.12
+AspectJ                    │ 1.9.7
+Guava                      │ 23.6
+Protocol Buffers           │ 4.31.1
+TestNG                     │ 6.8.7
+Mockito                    │ 3.11.2
+JaCoCo                     │ 0.8.13
+Commons Frameworks Version │ 7.0.0-SNAPSHOT
+</code></pre>
+<hr>
+<p><em>Generated from actual GSTN JAVA_Maintrunk codebase analysis — March 2026</em></p>
+
+            <script async src="https://cdn.jsdelivr.net/npm/katex-copytex@latest/dist/katex-copytex.min.js"></script>
+            
+        </body>
+        </html>

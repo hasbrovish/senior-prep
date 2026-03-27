@@ -1,0 +1,918 @@
+<!DOCTYPE html>
+        <html>
+        <head>
+            <meta charset="UTF-8">
+            <title>SECTIONS 7-8&colon; DATABASE &amp; DISTRIBUTED SYSTEMS &mdash; Interview Answers &lpar;Q136&ndash;Q165&rpar;</title>
+            <style>
+/* From extension vscode.github */
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+
+.vscode-dark img[src$=\#gh-light-mode-only],
+.vscode-light img[src$=\#gh-dark-mode-only],
+.vscode-high-contrast:not(.vscode-high-contrast-light) img[src$=\#gh-light-mode-only],
+.vscode-high-contrast-light img[src$=\#gh-dark-mode-only] {
+	display: none;
+}
+
+</style>
+            
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Microsoft/vscode/extensions/markdown-language-features/media/markdown.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Microsoft/vscode/extensions/markdown-language-features/media/highlight.css">
+<style>
+            body {
+                font-family: -apple-system, BlinkMacSystemFont, 'Segoe WPC', 'Segoe UI', system-ui, 'Ubuntu', 'Droid Sans', sans-serif;
+                font-size: 14px;
+                line-height: 1.6;
+            }
+        </style>
+        <style>
+.task-list-item {
+    list-style-type: none;
+}
+
+.task-list-item-checkbox {
+    margin-left: -20px;
+    vertical-align: middle;
+    pointer-events: none;
+}
+</style>
+<style>
+:root {
+  --color-note: #0969da;
+  --color-tip: #1a7f37;
+  --color-warning: #9a6700;
+  --color-severe: #bc4c00;
+  --color-caution: #d1242f;
+  --color-important: #8250df;
+}
+
+</style>
+<style>
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-note: #2f81f7;
+    --color-tip: #3fb950;
+    --color-warning: #d29922;
+    --color-severe: #db6d28;
+    --color-caution: #f85149;
+    --color-important: #a371f7;
+  }
+}
+
+</style>
+<style>
+.markdown-alert {
+  padding: 0.5rem 1rem;
+  margin-bottom: 16px;
+  color: inherit;
+  border-left: .25em solid #888;
+}
+
+.markdown-alert>:first-child {
+  margin-top: 0
+}
+
+.markdown-alert>:last-child {
+  margin-bottom: 0
+}
+
+.markdown-alert .markdown-alert-title {
+  display: flex;
+  font-weight: 500;
+  align-items: center;
+  line-height: 1
+}
+
+.markdown-alert .markdown-alert-title .octicon {
+  margin-right: 0.5rem;
+  display: inline-block;
+  overflow: visible !important;
+  vertical-align: text-bottom;
+  fill: currentColor;
+}
+
+.markdown-alert.markdown-alert-note {
+  border-left-color: var(--color-note);
+}
+
+.markdown-alert.markdown-alert-note .markdown-alert-title {
+  color: var(--color-note);
+}
+
+.markdown-alert.markdown-alert-important {
+  border-left-color: var(--color-important);
+}
+
+.markdown-alert.markdown-alert-important .markdown-alert-title {
+  color: var(--color-important);
+}
+
+.markdown-alert.markdown-alert-warning {
+  border-left-color: var(--color-warning);
+}
+
+.markdown-alert.markdown-alert-warning .markdown-alert-title {
+  color: var(--color-warning);
+}
+
+.markdown-alert.markdown-alert-tip {
+  border-left-color: var(--color-tip);
+}
+
+.markdown-alert.markdown-alert-tip .markdown-alert-title {
+  color: var(--color-tip);
+}
+
+.markdown-alert.markdown-alert-caution {
+  border-left-color: var(--color-caution);
+}
+
+.markdown-alert.markdown-alert-caution .markdown-alert-title {
+  color: var(--color-caution);
+}
+
+</style>
+        
+        </head>
+        <body class="vscode-body vscode-light">
+            <h1 id="sections-7-8-database--distributed-systems--interview-answers-q136q165">SECTIONS 7-8: DATABASE &amp; DISTRIBUTED SYSTEMS — Interview Answers (Q136–Q165)</h1>
+<h2 id="with-gstn-codebase-references">With GSTN Codebase References</h2>
+<hr>
+<h1 id="section-7-database--sql-q136q150">SECTION 7: DATABASE &amp; SQL (Q136–Q150)</h1>
+<h3 id="q136-indexing--b-tree-vs-hash-indexes-composite-indexes-covering-indexes">Q136. Indexing — B-tree vs Hash indexes? Composite indexes? Covering indexes?</h3>
+<p><strong>Answer:</strong></p>
+<p><strong>B-tree Index (default in MySQL InnoDB):</strong></p>
+<ul>
+<li>Balanced tree — O(log n) for search, range queries, sorting</li>
+<li>Supports: <code>=</code>, <code>&lt;</code>, <code>&gt;</code>, <code>BETWEEN</code>, <code>LIKE 'prefix%'</code>, <code>ORDER BY</code></li>
+<li><strong>GSTN</strong>: Index on <code>GSTIN</code>, <code>RETURN_PERIOD</code>, <code>FILING_DATE</code></li>
+</ul>
+<p><strong>Hash Index:</strong></p>
+<ul>
+<li>O(1) for exact match only</li>
+<li>No range queries, no sorting</li>
+<li>Used internally by MySQL for hash joins, Memory engine</li>
+</ul>
+<p><strong>Composite Index:</strong></p>
+<pre><code class="language-sql"><span class="hljs-comment">-- Left-most prefix rule: (gstin, return_period, status)</span>
+<span class="hljs-keyword">CREATE</span> INDEX idx_gst_prd_status <span class="hljs-keyword">ON</span> GST_RETURN(gstin, return_period, status);
+
+<span class="hljs-comment">-- This index helps:</span>
+<span class="hljs-keyword">WHERE</span> gstin <span class="hljs-operator">=</span> <span class="hljs-string">&#x27;29AAACG1234A1ZD&#x27;</span>                        <span class="hljs-comment">-- ✓ (leftmost)</span>
+<span class="hljs-keyword">WHERE</span> gstin <span class="hljs-operator">=</span> <span class="hljs-string">&#x27;29AAACG1234A1ZD&#x27;</span> <span class="hljs-keyword">AND</span> return_period <span class="hljs-operator">=</span> <span class="hljs-string">&#x27;042024&#x27;</span>  <span class="hljs-comment">-- ✓</span>
+<span class="hljs-keyword">WHERE</span> gstin <span class="hljs-operator">=</span> <span class="hljs-string">&#x27;29AAACG1234A1ZD&#x27;</span> <span class="hljs-keyword">AND</span> return_period <span class="hljs-operator">=</span> <span class="hljs-string">&#x27;042024&#x27;</span> <span class="hljs-keyword">AND</span> status <span class="hljs-operator">=</span> <span class="hljs-string">&#x27;FILED&#x27;</span> <span class="hljs-comment">-- ✓</span>
+
+<span class="hljs-comment">-- This index does NOT help:</span>
+<span class="hljs-keyword">WHERE</span> return_period <span class="hljs-operator">=</span> <span class="hljs-string">&#x27;042024&#x27;</span>    <span class="hljs-comment">-- ✗ (skipped leftmost)</span>
+<span class="hljs-keyword">WHERE</span> status <span class="hljs-operator">=</span> <span class="hljs-string">&#x27;FILED&#x27;</span>            <span class="hljs-comment">-- ✗ (skipped leftmost)</span>
+</code></pre>
+<p><strong>Covering Index:</strong> Index contains all columns needed by query → no table lookup needed.</p>
+<pre><code class="language-sql"><span class="hljs-comment">-- If query only needs gstin and status:</span>
+<span class="hljs-keyword">CREATE</span> INDEX idx_covering <span class="hljs-keyword">ON</span> GST_RETURN(gstin, status);
+<span class="hljs-comment">-- SELECT gstin, status FROM GST_RETURN WHERE gstin = &#x27;29XXX&#x27;</span>
+<span class="hljs-comment">-- Index-only scan — never touches table data!</span>
+</code></pre>
+<p><strong>GSTN with 100M+ records:</strong> Proper indexing is critical. Without index on GSTIN, a full table scan on 100M rows takes minutes. With B-tree index: milliseconds.</p>
+<hr>
+<h3 id="q137-explainanalyze--reading-execution-plans">Q137. EXPLAIN/ANALYZE — reading execution plans?</h3>
+<p><strong>Answer:</strong></p>
+<pre><code class="language-sql">EXPLAIN <span class="hljs-keyword">SELECT</span> <span class="hljs-operator">*</span> <span class="hljs-keyword">FROM</span> GST_RETURN <span class="hljs-keyword">WHERE</span> gstin <span class="hljs-operator">=</span> <span class="hljs-string">&#x27;29AAACG1234A1ZD&#x27;</span> <span class="hljs-keyword">AND</span> return_period <span class="hljs-operator">=</span> <span class="hljs-string">&#x27;042024&#x27;</span>;
+</code></pre>
+<table>
+<thead>
+<tr>
+<th>Key Column</th>
+<th>Meaning</th>
+<th>Good/Bad</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>type: const/eq_ref</code></td>
+<td>Primary key/unique lookup</td>
+<td><strong>Best</strong></td>
+</tr>
+<tr>
+<td><code>type: ref</code></td>
+<td>Non-unique index lookup</td>
+<td>Good</td>
+</tr>
+<tr>
+<td><code>type: range</code></td>
+<td>Index range scan</td>
+<td>Good</td>
+</tr>
+<tr>
+<td><code>type: index</code></td>
+<td>Full index scan</td>
+<td>OK</td>
+</tr>
+<tr>
+<td><code>type: ALL</code></td>
+<td><strong>Full table scan</strong></td>
+<td><strong>Bad — add index!</strong></td>
+</tr>
+<tr>
+<td><code>rows</code></td>
+<td>Estimated rows examined</td>
+<td>Lower = better</td>
+</tr>
+<tr>
+<td><code>Extra: Using index</code></td>
+<td>Covering index (index-only scan)</td>
+<td><strong>Best</strong></td>
+</tr>
+<tr>
+<td><code>Extra: Using filesort</code></td>
+<td>Additional sort needed</td>
+<td>Expensive</td>
+</tr>
+<tr>
+<td><code>Extra: Using temporary</code></td>
+<td>Temp table created</td>
+<td>Very expensive</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Optimization checklist:</strong></p>
+<ol>
+<li>Check <code>type</code> — if <code>ALL</code>, add index</li>
+<li>Check <code>rows</code> — if high, index isn't selective enough</li>
+<li>Check <code>Extra</code> — avoid filesort and temporary</li>
+<li>Use <code>EXPLAIN ANALYZE</code> (MySQL 8.0.18+) for actual execution times</li>
+</ol>
+<hr>
+<h3 id="q138-acid-properties-with-gstn-example">Q138. ACID properties with GSTN example?</h3>
+<p><strong>Answer:</strong></p>
+<p>Using GST payment processing as example:</p>
+<table>
+<thead>
+<tr>
+<th>Property</th>
+<th>Definition</th>
+<th>GSTN Example</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Atomicity</strong></td>
+<td>All or nothing</td>
+<td>Payment deduction from cash ledger + challan creation → both succeed or both rollback</td>
+</tr>
+<tr>
+<td><strong>Consistency</strong></td>
+<td>DB moves from one valid state to another</td>
+<td>Total tax collected = sum of all individual payments (invariant maintained)</td>
+</tr>
+<tr>
+<td><strong>Isolation</strong></td>
+<td>Concurrent transactions don't interfere</td>
+<td>Two simultaneous payments from same GSTIN don't double-deduct</td>
+</tr>
+<tr>
+<td><strong>Durability</strong></td>
+<td>Committed data survives crashes</td>
+<td>Once payment is confirmed, it persists even if server crashes</td>
+</tr>
+</tbody>
+</table>
+<pre><code class="language-java"><span class="hljs-comment">// GSTN ensures ACID with @Transactional</span>
+<span class="hljs-meta">@Transactional(value = &quot;transactionManagerItcLedger&quot;, 
+              propagation = Propagation.REQUIRES_NEW, 
+              rollbackFor = Exception.class)</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">processPayment</span><span class="hljs-params">(PaymentVO payment)</span> {
+    <span class="hljs-comment">// Atomicity: both operations in same transaction</span>
+    ledgerRepository.debitCashLedger(payment.getGstin(), payment.getAmount());
+    challanRepository.createChallan(payment);
+    <span class="hljs-comment">// If createChallan fails → debitCashLedger is also rolled back</span>
+}
+</code></pre>
+<hr>
+<h3 id="q139-normalization-vs-denormalization">Q139. Normalization vs Denormalization?</h3>
+<p><strong>Answer:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Normal Form</th>
+<th>Rule</th>
+<th>Example</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>1NF</strong></td>
+<td>Atomic values, no repeating groups</td>
+<td>Each column has single value</td>
+</tr>
+<tr>
+<td><strong>2NF</strong></td>
+<td>1NF + no partial dependency on composite key</td>
+<td>All non-key columns depend on full PK</td>
+</tr>
+<tr>
+<td><strong>3NF</strong></td>
+<td>2NF + no transitive dependency</td>
+<td>Non-key columns don't depend on other non-key columns</td>
+</tr>
+<tr>
+<td><strong>BCNF</strong></td>
+<td>Every determinant is a candidate key</td>
+<td>Stricter 3NF</td>
+</tr>
+</tbody>
+</table>
+<p><strong>When we denormalized in GSTN:</strong></p>
+<ul>
+<li><strong>Dashboard/MIS reports</strong>: Pre-aggregated tables for frequently queried metrics (total returns filed per state per month). Normalized query would JOIN 4+ tables.</li>
+<li><strong>Search optimization</strong>: Denormalized data in Solr indexes for full-text search (<code>SolrDIHFwk</code>)</li>
+<li><strong>Caching layer</strong>: Redis stores denormalized taxpayer profiles (joined from registration + returns + ledger tables)</li>
+</ul>
+<hr>
+<h3 id="q140-connection-pooling--hikaricp">Q140. Connection pooling — HikariCP?</h3>
+<p><strong>Answer:</strong></p>
+<pre><code class="language-yaml"><span class="hljs-comment"># application.yml — HikariCP configuration</span>
+<span class="hljs-attr">spring:</span>
+  <span class="hljs-attr">datasource:</span>
+    <span class="hljs-attr">hikari:</span>
+      <span class="hljs-attr">maximum-pool-size:</span> <span class="hljs-number">20</span>       <span class="hljs-comment"># Max connections</span>
+      <span class="hljs-attr">minimum-idle:</span> <span class="hljs-number">5</span>             <span class="hljs-comment"># Min idle connections</span>
+      <span class="hljs-attr">idle-timeout:</span> <span class="hljs-number">300000</span>        <span class="hljs-comment"># 5 min — close idle connections</span>
+      <span class="hljs-attr">connection-timeout:</span> <span class="hljs-number">30000</span>   <span class="hljs-comment"># 30s — wait for connection before error</span>
+      <span class="hljs-attr">max-lifetime:</span> <span class="hljs-number">1800000</span>       <span class="hljs-comment"># 30 min — recycle connections</span>
+      <span class="hljs-attr">leak-detection-threshold:</span> <span class="hljs-number">60000</span>  <span class="hljs-comment"># 60s — log warning if connection not returned</span>
+</code></pre>
+<p><strong>GSTN test configuration:</strong></p>
+<pre><code class="language-properties"><span class="hljs-comment"># From application-test.properties</span>
+<span class="hljs-attr">bo.db.initialSize.R1</span>=<span class="hljs-string">5    # Initial pool size</span>
+<span class="hljs-attr">bo.db.maxActive.R1</span>=<span class="hljs-string">10     # Max active connections</span>
+</code></pre>
+<p><strong>Pool size formula:</strong> <code>connections = (core_count * 2) + effective_spindle_count</code></p>
+<ul>
+<li>For 4-core server with SSD: (4 * 2) + 1 = <strong>9 connections</strong> per instance</li>
+<li>For 100K concurrent requests across 20 instances: 9 * 20 = <strong>180 total connections</strong> to DB</li>
+</ul>
+<p><strong>GSTN multi-datasource pooling:</strong></p>
+<pre><code class="language-java"><span class="hljs-comment">// DataSourceFactory creates HikariDataSource for each db/shard</span>
+<span class="hljs-keyword">public</span> DataSource <span class="hljs-title function_">createDataSource</span><span class="hljs-params">(String dbIdentifier, String shard)</span> {
+    <span class="hljs-type">HikariDataSource</span> <span class="hljs-variable">ds</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">HikariDataSource</span>();
+    ds.setJdbcUrl(url);
+    ds.setMaximumPoolSize(maxPoolSize);
+    <span class="hljs-keyword">return</span> ds;
+}
+</code></pre>
+<hr>
+<h3 id="q141-read-replicas--master-slave-replication">Q141. Read replicas — master-slave replication?</h3>
+<p><strong>Answer:</strong></p>
+<pre><code>                    ┌─────────────────┐
+     Writes ──────→│  Master (Primary) │
+                    └────────┬────────┘
+                    Replication (async/semi-sync)
+              ┌──────────────┼──────────────┐
+              ▼              ▼              ▼
+       ┌──────────┐  ┌──────────┐  ┌──────────┐
+       │ Replica 1 │  │ Replica 2 │  │ Replica 3 │
+       └──────────┘  └──────────┘  └──────────┘
+              ▲              ▲              ▲
+     Reads ───┴──────────────┴──────────────┘
+</code></pre>
+<p><strong>Routing in GSTN using RoutingDataSource:</strong></p>
+<pre><code class="language-java"><span class="hljs-comment">// GSTN&#x27;s routing datasource — routes reads/writes to appropriate shard</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">RoutingDataSource</span> <span class="hljs-keyword">extends</span> <span class="hljs-title class_">AbstractRoutingDataSource</span> {
+    <span class="hljs-meta">@Override</span>
+    <span class="hljs-keyword">protected</span> Object <span class="hljs-title function_">determineCurrentLookupKey</span><span class="hljs-params">()</span> {
+        <span class="hljs-keyword">return</span> DbType.getCurrentDb(); <span class="hljs-comment">// ThreadLocal determines shard</span>
+    }
+}
+
+<span class="hljs-comment">// Service sets routing before query</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">setDbRouting</span><span class="hljs-params">(String stateCd)</span> {
+    DbType.setCurrentDb(stateCd);  <span class="hljs-comment">// Route to state-specific DB</span>
+}
+
+<span class="hljs-comment">// DataSourceAutoConfig dynamically registers routing datasources</span>
+<span class="hljs-keyword">private</span> <span class="hljs-type">DataSource</span> <span class="hljs-variable">routingDS</span> <span class="hljs-operator">=</span> dataSourceFactory.createRoutingDataSource(dbIdentifier);
+</code></pre>
+<hr>
+<h3 id="q142-sharding-strategies">Q142. Sharding strategies?</h3>
+<p><strong>Answer:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Strategy</th>
+<th>How</th>
+<th>Pros</th>
+<th>Cons</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Range-based</strong></td>
+<td>GSTIN 01-09 → Shard 1, 10-19 → Shard 2</td>
+<td>Simple, range queries easy</td>
+<td><strong>Hotspots</strong> (some states busier)</td>
+</tr>
+<tr>
+<td><strong>Hash-based</strong></td>
+<td>hash(GSTIN) % N → Shard N</td>
+<td>Even distribution</td>
+<td>No range queries, resharding hard</td>
+</tr>
+<tr>
+<td><strong>Directory-based</strong></td>
+<td>Lookup table maps key → shard</td>
+<td>Flexible</td>
+<td>Single point of failure</td>
+</tr>
+</tbody>
+</table>
+<p><strong>GSTN approach:</strong> State-based sharding (a form of range-based):</p>
+<pre><code class="language-java"><span class="hljs-comment">// Each state has its own database/schema</span>
+<span class="hljs-comment">// GSTIN prefix = state code (first 2 digits)</span>
+<span class="hljs-comment">// 29AAACG1234A1ZD → State 29 (Karnataka) → DB shard for Karnataka</span>
+
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">setDbRouting</span><span class="hljs-params">(String stateCd)</span> {
+    DbType.setCurrentDb(stateCd); <span class="hljs-comment">// Routes to state-specific database</span>
+}
+</code></pre>
+<p>This makes sense because:</p>
+<ul>
+<li>GST is state-level — most queries are state-scoped</li>
+<li>Tax officers access their own state's data</li>
+<li>Cross-state queries are rare and handled by aggregation services</li>
+</ul>
+<hr>
+<h3 id="q143-table-partitioning">Q143. Table partitioning?</h3>
+<p><strong>Answer:</strong></p>
+<pre><code class="language-sql"><span class="hljs-comment">-- GSTN: Partition return data by filing period (monthly)</span>
+<span class="hljs-keyword">CREATE</span> <span class="hljs-keyword">TABLE</span> GST_RETURN (
+    id <span class="hljs-type">BIGINT</span>,
+    gstin <span class="hljs-type">VARCHAR</span>(<span class="hljs-number">15</span>),
+    return_period <span class="hljs-type">VARCHAR</span>(<span class="hljs-number">6</span>),
+    filed_date DATETIME,
+    status <span class="hljs-type">VARCHAR</span>(<span class="hljs-number">20</span>)
+) <span class="hljs-keyword">PARTITION</span> <span class="hljs-keyword">BY</span> <span class="hljs-keyword">RANGE</span> (<span class="hljs-keyword">YEAR</span>(filed_date) <span class="hljs-operator">*</span> <span class="hljs-number">100</span> <span class="hljs-operator">+</span> <span class="hljs-keyword">MONTH</span>(filed_date)) (
+    <span class="hljs-keyword">PARTITION</span> p202401 <span class="hljs-keyword">VALUES</span> LESS THAN (<span class="hljs-number">202402</span>),
+    <span class="hljs-keyword">PARTITION</span> p202402 <span class="hljs-keyword">VALUES</span> LESS THAN (<span class="hljs-number">202403</span>),
+    <span class="hljs-keyword">PARTITION</span> p202403 <span class="hljs-keyword">VALUES</span> LESS THAN (<span class="hljs-number">202404</span>),
+    <span class="hljs-comment">-- ... monthly partitions</span>
+);
+
+<span class="hljs-comment">-- Query with partition pruning:</span>
+<span class="hljs-keyword">SELECT</span> <span class="hljs-operator">*</span> <span class="hljs-keyword">FROM</span> GST_RETURN <span class="hljs-keyword">WHERE</span> filed_date <span class="hljs-keyword">BETWEEN</span> <span class="hljs-string">&#x27;2024-04-01&#x27;</span> <span class="hljs-keyword">AND</span> <span class="hljs-string">&#x27;2024-04-30&#x27;</span>;
+<span class="hljs-comment">-- Only scans p202404, ignores ALL other partitions!</span>
+</code></pre>
+<p><strong>Benefits for GSTN:</strong></p>
+<ul>
+<li>Queries for specific month only scan that month's partition</li>
+<li>Old data can be archived by dropping old partitions</li>
+<li>Improved INSERT performance (writes go to latest partition)</li>
+<li>Each partition can have separate indexes</li>
+</ul>
+<hr>
+<h3 id="q144-stored-procedures-vs-application-level-logic">Q144. Stored procedures vs application-level logic?</h3>
+<p><strong>Answer:</strong></p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>Stored Procedures</th>
+<th>Application Logic</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Performance</td>
+<td><strong>Less network roundtrips</strong></td>
+<td>More roundtrips</td>
+</tr>
+<tr>
+<td>Debugging</td>
+<td>Hard (DB-specific tools)</td>
+<td><strong>Easy</strong> (IDE, breakpoints, logs)</td>
+</tr>
+<tr>
+<td>Portability</td>
+<td><strong>DB vendor lock-in</strong></td>
+<td><strong>Portable</strong> across DBs</td>
+</tr>
+<tr>
+<td>Testing</td>
+<td>Difficult to unit test</td>
+<td><strong>Easy</strong> with JUnit/Mockito</td>
+</tr>
+<tr>
+<td>Versioning</td>
+<td>Hard in Git</td>
+<td><strong>Easy</strong> with Git</td>
+</tr>
+<tr>
+<td>Scalability</td>
+<td><strong>Vertical only</strong> (DB server)</td>
+<td><strong>Horizontal</strong> (add app servers)</td>
+</tr>
+</tbody>
+</table>
+<p><strong>GSTN:</strong> Primarily application-level logic in Java services. Critical for: testability, portability across database shards, and horizontal scaling. Some complex reporting queries may use stored procedures for performance.</p>
+<hr>
+<h3 id="q145-database-locking">Q145. Database locking?</h3>
+<p><strong>Answer:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Lock Type</th>
+<th>Scope</th>
+<th>Concurrency</th>
+<th>Use Case</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Row-level</strong></td>
+<td>Single row</td>
+<td><strong>High</strong></td>
+<td><code>SELECT ... FOR UPDATE</code></td>
+</tr>
+<tr>
+<td><strong>Table-level</strong></td>
+<td>Entire table</td>
+<td><strong>Low</strong></td>
+<td>DDL operations, LOCK TABLES</td>
+</tr>
+<tr>
+<td><strong>Shared (S)</strong></td>
+<td>Read lock</td>
+<td>Multiple readers OK</td>
+<td>SELECT with lock</td>
+</tr>
+<tr>
+<td><strong>Exclusive (X)</strong></td>
+<td>Write lock</td>
+<td>Only one holder</td>
+<td>INSERT, UPDATE, DELETE</td>
+</tr>
+</tbody>
+</table>
+<p><strong>MySQL deadlock detection:</strong></p>
+<ul>
+<li>InnoDB automatically detects deadlocks</li>
+<li>Rolls back the &quot;cheaper&quot; transaction (fewer locks held)</li>
+<li>Application catches <code>DeadlockLoserDataAccessException</code> and retries</li>
+</ul>
+<hr>
+<h3 id="q146-slow-query-optimization">Q146. Slow query optimization?</h3>
+<p><strong>Answer:</strong></p>
+<ol>
+<li><strong>Enable slow query log</strong>: <code>slow_query_log=1</code>, <code>long_query_time=1</code> (&gt;1 second)</li>
+<li><strong>EXPLAIN the query</strong> — check for full table scans</li>
+<li><strong>Add missing indexes</strong> — on WHERE, JOIN, ORDER BY columns</li>
+<li><strong>Optimize query</strong>:
+<ul>
+<li>Avoid <code>SELECT *</code> — only fetch needed columns</li>
+<li>Avoid <code>LIKE '%prefix'</code> — can't use index</li>
+<li>Avoid functions on indexed columns: <code>WHERE YEAR(date) = 2024</code> → <code>WHERE date BETWEEN '2024-01-01' AND '2024-12-31'</code></li>
+</ul>
+</li>
+<li><strong>Check for N+1</strong> — use JOIN FETCH in JPA</li>
+<li><strong>Pagination</strong> — don't fetch millions of rows</li>
+<li><strong>Denormalize</strong> — for complex reporting queries</li>
+<li><strong>Partition</strong> — for time-series data</li>
+</ol>
+<hr>
+<h3 id="q147-mysql-vs-postgresql">Q147. MySQL vs PostgreSQL?</h3>
+<p><strong>Answer:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Feature</th>
+<th>MySQL</th>
+<th>PostgreSQL</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>JSON support</td>
+<td>Basic</td>
+<td><strong>Advanced (JSONB, indexable)</strong></td>
+</tr>
+<tr>
+<td>Full-text search</td>
+<td>Built-in</td>
+<td><strong>Better (tsvector)</strong></td>
+</tr>
+<tr>
+<td>Concurrency</td>
+<td>MVCC (InnoDB)</td>
+<td><strong>MVCC (better implementation)</strong></td>
+</tr>
+<tr>
+<td>Replication</td>
+<td>Master-slave, Group</td>
+<td><strong>Logical replication, streaming</strong></td>
+</tr>
+<tr>
+<td>Extensions</td>
+<td>Limited</td>
+<td><strong>Rich (PostGIS, pg_trgm)</strong></td>
+</tr>
+<tr>
+<td>Performance</td>
+<td><strong>Faster for simple reads</strong></td>
+<td>Better for complex queries</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Why GSTN chose MySQL:</strong> Proven at scale, strong InnoDB engine, mature replication, broad team expertise, well-supported by cloud providers.</p>
+<hr>
+<h3 id="q148-sql-joins">Q148. SQL joins?</h3>
+<p><strong>Answer:</strong></p>
+<pre><code class="language-sql"><span class="hljs-comment">-- INNER JOIN — only matching rows from both tables</span>
+<span class="hljs-keyword">SELECT</span> r.gstin, r.period, p.amount
+<span class="hljs-keyword">FROM</span> GST_RETURN r <span class="hljs-keyword">INNER</span> <span class="hljs-keyword">JOIN</span> PAYMENT p <span class="hljs-keyword">ON</span> r.id <span class="hljs-operator">=</span> p.return_id;
+
+<span class="hljs-comment">-- LEFT JOIN — all from left + matching from right (NULL if no match)</span>
+<span class="hljs-keyword">SELECT</span> r.gstin, r.period, p.amount
+<span class="hljs-keyword">FROM</span> GST_RETURN r <span class="hljs-keyword">LEFT</span> <span class="hljs-keyword">JOIN</span> PAYMENT p <span class="hljs-keyword">ON</span> r.id <span class="hljs-operator">=</span> p.return_id;
+<span class="hljs-comment">-- Shows returns even without payment</span>
+
+<span class="hljs-comment">-- Self-join — table joins with itself</span>
+<span class="hljs-keyword">SELECT</span> e.name <span class="hljs-keyword">AS</span> employee, m.name <span class="hljs-keyword">AS</span> manager
+<span class="hljs-keyword">FROM</span> EMPLOYEE e <span class="hljs-keyword">JOIN</span> EMPLOYEE m <span class="hljs-keyword">ON</span> e.manager_id <span class="hljs-operator">=</span> m.id;
+</code></pre>
+<p><strong>Performance:</strong> JOINs on indexed foreign keys are efficient. JOIN is typically faster than correlated subquery.</p>
+<hr>
+<h3 id="q149-subqueries-vs-joins">Q149. Subqueries vs JOINs?</h3>
+<p><strong>Answer:</strong></p>
+<pre><code class="language-sql"><span class="hljs-comment">-- SUBQUERY (slower — executes inner query for each outer row)</span>
+<span class="hljs-keyword">SELECT</span> <span class="hljs-operator">*</span> <span class="hljs-keyword">FROM</span> GST_RETURN <span class="hljs-keyword">WHERE</span> gstin <span class="hljs-keyword">IN</span> (
+    <span class="hljs-keyword">SELECT</span> gstin <span class="hljs-keyword">FROM</span> REGISTRATION <span class="hljs-keyword">WHERE</span> state_code <span class="hljs-operator">=</span> <span class="hljs-string">&#x27;29&#x27;</span>
+);
+
+<span class="hljs-comment">-- JOIN (faster — single execution plan)</span>
+<span class="hljs-keyword">SELECT</span> r.<span class="hljs-operator">*</span> <span class="hljs-keyword">FROM</span> GST_RETURN r 
+<span class="hljs-keyword">JOIN</span> REGISTRATION reg <span class="hljs-keyword">ON</span> r.gstin <span class="hljs-operator">=</span> reg.gstin 
+<span class="hljs-keyword">WHERE</span> reg.state_code <span class="hljs-operator">=</span> <span class="hljs-string">&#x27;29&#x27;</span>;
+</code></pre>
+<p><strong>Rule:</strong> JOINs are usually faster because the optimizer can choose optimal join strategy. Subqueries are easier to read for EXISTS/NOT EXISTS patterns.</p>
+<hr>
+<h3 id="q150-materialized-views">Q150. Materialized views?</h3>
+<p><strong>Answer:</strong></p>
+<p>A <strong>pre-computed query result</strong> stored as a table. Must be manually refreshed.</p>
+<pre><code class="language-sql"><span class="hljs-comment">-- Create materialized view for GSTN MIS reporting</span>
+<span class="hljs-keyword">CREATE</span> MATERIALIZED <span class="hljs-keyword">VIEW</span> mv_monthly_filing_stats <span class="hljs-keyword">AS</span>
+<span class="hljs-keyword">SELECT</span> state_code, return_type, DATE_FORMAT(filed_date, <span class="hljs-string">&#x27;%Y-%m&#x27;</span>) <span class="hljs-keyword">as</span> filing_month,
+       <span class="hljs-built_in">COUNT</span>(<span class="hljs-operator">*</span>) <span class="hljs-keyword">as</span> total_filed, <span class="hljs-built_in">SUM</span>(tax_amount) <span class="hljs-keyword">as</span> total_tax
+<span class="hljs-keyword">FROM</span> GST_RETURN
+<span class="hljs-keyword">GROUP</span> <span class="hljs-keyword">BY</span> state_code, return_type, filing_month;
+
+<span class="hljs-comment">-- Refresh periodically</span>
+REFRESH MATERIALIZED <span class="hljs-keyword">VIEW</span> mv_monthly_filing_stats;
+</code></pre>
+<p><strong>Note:</strong> MySQL doesn't natively support materialized views. GSTN achieves this via:</p>
+<ul>
+<li>Pre-aggregated summary tables (refreshed by batch jobs)</li>
+<li>Solr indexes (via SolrDIHFwk) for search</li>
+<li>Redis cache for frequently accessed aggregations</li>
+</ul>
+<hr>
+<h1 id="section-8-distributed-systems-concepts-q151q165">SECTION 8: DISTRIBUTED SYSTEMS CONCEPTS (Q151–Q165)</h1>
+<h3 id="q151-cap-theorem">Q151. CAP Theorem?</h3>
+<p><strong>Answer:</strong></p>
+<p><strong>CAP:</strong> In a distributed system, during a network <strong>Partition</strong> (P), you must choose between <strong>Consistency</strong> (C) and <strong>Availability</strong> (A).</p>
+<table>
+<thead>
+<tr>
+<th>Priority</th>
+<th>Systems</th>
+<th>Behavior during partition</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>CP</strong> (Consistency + Partition tolerance)</td>
+<td>HBase, MongoDB (strong mode), ZooKeeper</td>
+<td>Rejects requests until consistency restored</td>
+</tr>
+<tr>
+<td><strong>AP</strong> (Availability + Partition tolerance)</td>
+<td>Cassandra, DynamoDB, DNS</td>
+<td>Returns potentially stale data</td>
+</tr>
+<tr>
+<td><strong>CA</strong></td>
+<td>Traditional RDBMS (single node)</td>
+<td>Not applicable for distributed systems</td>
+</tr>
+</tbody>
+</table>
+<p><strong>GSTN priorities:</strong></p>
+<ul>
+<li><strong>Filing/Payment</strong>: <strong>CP</strong> — cannot accept inconsistent data (duplicate filing, wrong balance)</li>
+<li><strong>Dashboard/MIS</strong>: <strong>AP</strong> — slightly stale data is acceptable for reports</li>
+<li><strong>Session cache (Redis)</strong>: <strong>AP</strong> — if cache is partitioned, serve from available node</li>
+</ul>
+<hr>
+<h3 id="q152-consistent-hashing">Q152. Consistent Hashing?</h3>
+<p><strong>Answer:</strong></p>
+<p><strong>Problem:</strong> Simple <code>hash(key) % N</code> → if N changes (add/remove server), ALL keys must be remapped.</p>
+<p><strong>Consistent Hashing:</strong> Arrange hash space in a ring. Each server owns a section. When a server is added/removed, only keys in that section are remapped (1/N of keys instead of all).</p>
+<pre><code>Hash Ring (0 to 2^32):
+    Server A at position 1000
+    Server B at position 5000
+    Server C at position 9000
+    
+    Key &quot;GSTIN-29XXX&quot; → hash = 3000 → clockwise → Server B
+    Key &quot;GSTIN-07XXX&quot; → hash = 7000 → clockwise → Server C
+    
+    Add Server D at position 7500:
+    Only keys between 7000-7500 move from C to D
+</code></pre>
+<p><strong>Used in:</strong> Redis Cluster (16384 hash slots), Kafka partition assignment, CDN caching.</p>
+<hr>
+<h3 id="q153q154-leader-election-and-consensus">Q153–Q154. Leader Election and Consensus?</h3>
+<p><strong>Leader Election:</strong> One node is &quot;leader&quot; that coordinates operations. Algorithms: Bully algorithm, Ring-based. Tools: ZooKeeper (<code>ZAB</code>), etcd (<code>Raft</code>).</p>
+<p><strong>GSTN Context:</strong> Kafka brokers elect partition leaders. ZooKeeper/KRaft manages Kafka cluster coordination.</p>
+<p><strong>Consensus (Raft):</strong> Ensures all nodes agree on the same state. Leader sends log entries → followers replicate → majority acknowledges → committed. Used by etcd (K8s state store), Kafka KRaft.</p>
+<hr>
+<h3 id="q155-idempotency">Q155. Idempotency?</h3>
+<p><strong>Answer:</strong></p>
+<p><strong>Idempotency:</strong> Processing the same request multiple times produces the same result as processing it once.</p>
+<pre><code class="language-java"><span class="hljs-comment">// GSTN: Prevent duplicate return filing</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">fileReturn</span><span class="hljs-params">(ReturnVO returnVO)</span> {
+    <span class="hljs-comment">// Idempotency key = GSTIN + period + return type</span>
+    <span class="hljs-type">String</span> <span class="hljs-variable">idempotencyKey</span> <span class="hljs-operator">=</span> returnVO.getGstin() + <span class="hljs-string">&quot;:&quot;</span> + returnVO.getPeriod() + <span class="hljs-string">&quot;:&quot;</span> + returnVO.getType();
+    
+    <span class="hljs-comment">// Check if already processed</span>
+    <span class="hljs-keyword">if</span> (redis.exists(<span class="hljs-string">&quot;filed:&quot;</span> + idempotencyKey)) {
+        LOGGER.info(<span class="hljs-string">&quot;Return already filed, skipping duplicate: {}&quot;</span>, idempotencyKey);
+        <span class="hljs-keyword">return</span>; <span class="hljs-comment">// Idempotent — no side effect</span>
+    }
+    
+    <span class="hljs-comment">// Process filing</span>
+    processReturn(returnVO);
+    
+    <span class="hljs-comment">// Mark as processed with TTL</span>
+    redis.setex(<span class="hljs-string">&quot;filed:&quot;</span> + idempotencyKey, <span class="hljs-number">86400</span>, <span class="hljs-string">&quot;FILED&quot;</span>);
+}
+</code></pre>
+<p><strong>Strategies:</strong></p>
+<ol>
+<li><strong>Idempotency key</strong> — client sends unique key, server checks before processing</li>
+<li><strong>Database unique constraint</strong> — <code>UNIQUE(gstin, period, return_type)</code> prevents duplicates</li>
+<li><strong>Status check</strong> — check current state before processing</li>
+<li><strong>Kafka consumer offset</strong> — manual commit after processing</li>
+</ol>
+<hr>
+<h3 id="q156-rate-limiting-algorithms">Q156. Rate Limiting algorithms?</h3>
+<p><strong>Answer:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Algorithm</th>
+<th>How</th>
+<th>Pros</th>
+<th>Cons</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Token Bucket</strong></td>
+<td>Tokens added at fixed rate, consumed per request</td>
+<td>Allows bursts</td>
+<td>Slightly complex</td>
+</tr>
+<tr>
+<td><strong>Leaky Bucket</strong></td>
+<td>Requests drain at fixed rate</td>
+<td>Smooth output</td>
+<td>No burst support</td>
+</tr>
+<tr>
+<td><strong>Fixed Window</strong></td>
+<td>Count requests in fixed time windows</td>
+<td>Simple</td>
+<td>Boundary spike (2x at window boundary)</td>
+</tr>
+<tr>
+<td><strong>Sliding Window</strong></td>
+<td>Weighted combination of current + previous window</td>
+<td><strong>Best accuracy</strong></td>
+<td>More memory</td>
+</tr>
+</tbody>
+</table>
+<p><strong>For GSTN API rate limiting:</strong> Sliding Window with Redis. During filing deadline, limit per-GSTIN requests to prevent abuse while allowing legitimate traffic.</p>
+<hr>
+<h3 id="q157-load-balancing-algorithms">Q157. Load Balancing algorithms?</h3>
+<p><strong>Answer:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Algorithm</th>
+<th>How</th>
+<th>Best For</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Round Robin</strong></td>
+<td>Sequential distribution</td>
+<td>Equal-capacity servers</td>
+</tr>
+<tr>
+<td><strong>Weighted Round Robin</strong></td>
+<td>Based on server capacity</td>
+<td>Mixed-capacity servers</td>
+</tr>
+<tr>
+<td><strong>Least Connections</strong></td>
+<td>Route to least busy server</td>
+<td>Varying request duration</td>
+</tr>
+<tr>
+<td><strong>IP Hash</strong></td>
+<td>Same client → same server</td>
+<td>Session affinity</td>
+</tr>
+<tr>
+<td><strong>Consistent Hashing</strong></td>
+<td>Minimal remapping on scale</td>
+<td>Dynamic server pool</td>
+</tr>
+</tbody>
+</table>
+<p><strong>GSTN:</strong> Kubernetes uses Round Robin by default via kube-proxy. For sticky sessions (if needed), IP Hash.</p>
+<hr>
+<h3 id="q158-back-pressure">Q158. Back-pressure?</h3>
+<p><strong>Answer:</strong></p>
+<p>When a consumer can't keep up with the producer, it signals the producer to slow down.</p>
+<p><strong>Strategies:</strong></p>
+<ol>
+<li><strong>Buffering</strong> — Queue messages (Kafka) → consumer processes at own pace</li>
+<li><strong>Dropping</strong> — Drop oldest/newest when buffer full</li>
+<li><strong>Blocking</strong> — Producer blocks until consumer catches up (Kafka: <code>max.block.ms</code>)</li>
+<li><strong>Scaling</strong> — Auto-scale consumers (K8s HPA based on consumer lag)</li>
+</ol>
+<p><strong>GSTN:</strong> During filing deadline, Kafka buffer handles traffic spikes. If consumer lag increases, we scale consumer instances.</p>
+<hr>
+<h3 id="q159-distributed-caching-challenges">Q159. Distributed caching challenges?</h3>
+<p><strong>Answer:</strong></p>
+<ol>
+<li><strong>Consistency</strong> — Cache might serve stale data after DB update → use TTL + event-driven invalidation</li>
+<li><strong>Cache crash</strong> — All requests hit DB (thundering herd) → use circuit breaker, graceful degradation</li>
+<li><strong>Hot keys</strong> — One GSTIN cached on one node, overwhelmed → use local cache + distributed cache</li>
+<li><strong>Serialization</strong> — Ensure serialization/deserialization is consistent across service versions</li>
+</ol>
+<hr>
+<h3 id="q160-distributed-lock-vs-database-lock">Q160. Distributed lock vs database lock?</h3>
+<p><strong>Answer:</strong></p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>Distributed Lock (Redis)</th>
+<th>Database Lock (SELECT FOR UPDATE)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Scope</td>
+<td>Across services/processes</td>
+<td>Within single DB connection</td>
+</tr>
+<tr>
+<td>Performance</td>
+<td><strong>Faster</strong> (in-memory)</td>
+<td>Slower (disk I/O)</td>
+</tr>
+<tr>
+<td>Failure mode</td>
+<td>Lock expires (TTL)</td>
+<td>Connection closes → lock released</td>
+</tr>
+<tr>
+<td>Use case</td>
+<td>Cross-service coordination</td>
+<td>Single-service data integrity</td>
+</tr>
+<tr>
+<td>Drawback</td>
+<td><strong>No fencing</strong> (default) — process can continue after lock expires</td>
+<td>Blocks DB connections</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h3 id="q161q165-bloom-filter-wal-gossip-split-brain-clock-skew">Q161–Q165. Bloom Filter, WAL, Gossip, Split Brain, Clock Skew</h3>
+<p><strong>Q161. Bloom Filter:</strong> Probabilistic data structure — &quot;definitely not in set&quot; or &quot;probably in set&quot;. Use case: check if GSTIN exists before expensive DB lookup. False positives possible, false negatives impossible.</p>
+<p><strong>Q162. Write-Ahead Log (WAL):</strong> Write operation to log BEFORE applying to data. If crash occurs, replay log for recovery. Used by: MySQL InnoDB (redo log), Kafka (commit log), PostgreSQL (WAL).</p>
+<p><strong>Q163. Gossip Protocol:</strong> Each node periodically exchanges state with random peers. Eventually, all nodes know the state of all others. Used by: Cassandra, Redis Cluster, Consul.</p>
+<p><strong>Q164. Split Brain:</strong> Network partition causes two groups to each think they're the leader. Prevention: quorum-based voting (majority must agree), fencing tokens, STONITH (Shoot The Other Node In The Head).</p>
+<p><strong>Q165. Clock Skew:</strong> Different machines have slightly different clocks. Solutions: NTP synchronization, Lamport timestamps (logical clocks), Vector clocks (causal ordering), Google TrueTime (bounded uncertainty). For GSTN: use server-generated timestamps, not client timestamps.</p>
+
+            
+            
+        </body>
+        </html>

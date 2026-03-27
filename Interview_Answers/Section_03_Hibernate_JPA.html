@@ -1,0 +1,890 @@
+<!DOCTYPE html>
+        <html>
+        <head>
+            <meta charset="UTF-8">
+            <title>SECTION 3&colon; HIBERNATE &sol; JPA &mdash; Interview Answers &lpar;Q76&ndash;Q90&rpar;</title>
+            <style>
+/* From extension vscode.github */
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+
+.vscode-dark img[src$=\#gh-light-mode-only],
+.vscode-light img[src$=\#gh-dark-mode-only],
+.vscode-high-contrast:not(.vscode-high-contrast-light) img[src$=\#gh-light-mode-only],
+.vscode-high-contrast-light img[src$=\#gh-dark-mode-only] {
+	display: none;
+}
+
+</style>
+            
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Microsoft/vscode/extensions/markdown-language-features/media/markdown.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Microsoft/vscode/extensions/markdown-language-features/media/highlight.css">
+<style>
+            body {
+                font-family: -apple-system, BlinkMacSystemFont, 'Segoe WPC', 'Segoe UI', system-ui, 'Ubuntu', 'Droid Sans', sans-serif;
+                font-size: 14px;
+                line-height: 1.6;
+            }
+        </style>
+        <style>
+.task-list-item {
+    list-style-type: none;
+}
+
+.task-list-item-checkbox {
+    margin-left: -20px;
+    vertical-align: middle;
+    pointer-events: none;
+}
+</style>
+<style>
+:root {
+  --color-note: #0969da;
+  --color-tip: #1a7f37;
+  --color-warning: #9a6700;
+  --color-severe: #bc4c00;
+  --color-caution: #d1242f;
+  --color-important: #8250df;
+}
+
+</style>
+<style>
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-note: #2f81f7;
+    --color-tip: #3fb950;
+    --color-warning: #d29922;
+    --color-severe: #db6d28;
+    --color-caution: #f85149;
+    --color-important: #a371f7;
+  }
+}
+
+</style>
+<style>
+.markdown-alert {
+  padding: 0.5rem 1rem;
+  margin-bottom: 16px;
+  color: inherit;
+  border-left: .25em solid #888;
+}
+
+.markdown-alert>:first-child {
+  margin-top: 0
+}
+
+.markdown-alert>:last-child {
+  margin-bottom: 0
+}
+
+.markdown-alert .markdown-alert-title {
+  display: flex;
+  font-weight: 500;
+  align-items: center;
+  line-height: 1
+}
+
+.markdown-alert .markdown-alert-title .octicon {
+  margin-right: 0.5rem;
+  display: inline-block;
+  overflow: visible !important;
+  vertical-align: text-bottom;
+  fill: currentColor;
+}
+
+.markdown-alert.markdown-alert-note {
+  border-left-color: var(--color-note);
+}
+
+.markdown-alert.markdown-alert-note .markdown-alert-title {
+  color: var(--color-note);
+}
+
+.markdown-alert.markdown-alert-important {
+  border-left-color: var(--color-important);
+}
+
+.markdown-alert.markdown-alert-important .markdown-alert-title {
+  color: var(--color-important);
+}
+
+.markdown-alert.markdown-alert-warning {
+  border-left-color: var(--color-warning);
+}
+
+.markdown-alert.markdown-alert-warning .markdown-alert-title {
+  color: var(--color-warning);
+}
+
+.markdown-alert.markdown-alert-tip {
+  border-left-color: var(--color-tip);
+}
+
+.markdown-alert.markdown-alert-tip .markdown-alert-title {
+  color: var(--color-tip);
+}
+
+.markdown-alert.markdown-alert-caution {
+  border-left-color: var(--color-caution);
+}
+
+.markdown-alert.markdown-alert-caution .markdown-alert-title {
+  color: var(--color-caution);
+}
+
+</style>
+        
+        </head>
+        <body class="vscode-body vscode-light">
+            <h1 id="section-3-hibernate--jpa--interview-answers-q76q90">SECTION 3: HIBERNATE / JPA — Interview Answers (Q76–Q90)</h1>
+<h2 id="with-gstn-codebase-references">With GSTN Codebase References</h2>
+<hr>
+<h3 id="q76-what-is-the-difference-between-jpa-hibernate-and-spring-data-jpa">Q76. What is the difference between JPA, Hibernate, and Spring Data JPA?</h3>
+<p><strong>Answer:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Layer</th>
+<th>What</th>
+<th>Role</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>JPA</strong> (Jakarta Persistence API)</td>
+<td><strong>Specification</strong> (interfaces + annotations)</td>
+<td>Defines WHAT ORM should do: <code>@Entity</code>, <code>@Table</code>, <code>EntityManager</code></td>
+</tr>
+<tr>
+<td><strong>Hibernate</strong></td>
+<td><strong>Implementation</strong> of JPA</td>
+<td>Provides HOW: caching, dirty checking, HQL, connection pooling</td>
+</tr>
+<tr>
+<td><strong>Spring Data JPA</strong></td>
+<td><strong>Abstraction</strong> above JPA/Hibernate</td>
+<td>Eliminates boilerplate: auto-generates queries from method names, <code>JpaRepository</code></td>
+</tr>
+</tbody>
+</table>
+<pre><code>Spring Data JPA (convenience layer)
+    ↓ uses
+JPA (specification — javax.persistence.*)
+    ↓ implemented by
+Hibernate (actual ORM engine)
+    ↓ uses
+JDBC (database communication)
+    ↓ connects to
+MySQL / PostgreSQL
+</code></pre>
+<p><strong>GSTN Stack:</strong> Hibernate 4.2.11 as the JPA implementation + Spring Data JPA for repositories + MySQL 8.0.19.</p>
+<pre><code class="language-java"><span class="hljs-comment">// JPA annotations (standard)</span>
+<span class="hljs-meta">@Entity</span>
+<span class="hljs-meta">@Table(name = &quot;WF_TASK&quot;)</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">WfTask</span> <span class="hljs-keyword">implements</span> <span class="hljs-title class_">Serializable</span> { ... }
+
+<span class="hljs-comment">// Spring Data JPA repository (convenience)</span>
+<span class="hljs-meta">@Repository</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">interface</span> <span class="hljs-title class_">GspAuthToknLogRepository</span> <span class="hljs-keyword">extends</span> <span class="hljs-title class_">JpaRepository</span>&lt;GspAuthTokenLog, Long&gt; {
+    <span class="hljs-comment">// Spring Data auto-generates implementation at runtime</span>
+}
+
+<span class="hljs-comment">// Hibernate-specific (non-JPA) features used in GSTN:</span>
+<span class="hljs-comment">// @BatchSize, StatelessSession, HQL-specific syntax</span>
+</code></pre>
+<hr>
+<h3 id="q77-entity-states--transient-persistent-detached-removed">Q77. Entity states — Transient, Persistent, Detached, Removed?</h3>
+<p><strong>Answer:</strong></p>
+<pre><code>                  new Entity()
+                      │
+                      ▼
+                 ┌──TRANSIENT──┐
+                 │  Not in PC  │
+                 │  Not in DB  │
+                 └──────┬──────┘
+                 persist() / save()
+                        │
+                        ▼
+                 ┌──PERSISTENT─┐
+                 │  In PC ✓    │ ← find() / get() / query results
+                 │  In DB ✓    │
+                 │  Auto dirty │ ← Changes auto-synced to DB on flush
+                 │  checking   │
+                 └──┬──────┬───┘
+           detach()/   │ remove()
+           clear()/    ▼
+           close()  ┌─REMOVED──┐
+              │     │ In PC    │
+              │     │ Deleted  │
+              │     │ from DB  │
+              ▼     └──────────┘
+          ┌─DETACHED──┐
+          │ Not in PC │
+          │ Still in  │
+          │ DB        │
+          └────┬──────┘
+          merge()
+              │
+              ▼
+          PERSISTENT (re-attached)
+</code></pre>
+<p><strong>Persistence Context (PC):</strong> A first-level cache that tracks entities. Managed by <code>EntityManager</code>. Flushed to DB on <code>commit()</code> or <code>flush()</code>.</p>
+<p><strong>GSTN Example:</strong></p>
+<pre><code class="language-java"><span class="hljs-meta">@Transactional</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">updateTask</span><span class="hljs-params">(<span class="hljs-type">int</span> taskId, String newStatus)</span> {
+    <span class="hljs-type">WfTask</span> <span class="hljs-variable">task</span> <span class="hljs-operator">=</span> entityManager.find(WfTask.class, taskId); <span class="hljs-comment">// PERSISTENT</span>
+    task.setTaskStatus(newStatus);  <span class="hljs-comment">// Dirty checking — NO explicit save needed!</span>
+    <span class="hljs-comment">// On transaction commit, Hibernate auto-detects change and issues UPDATE</span>
+}
+</code></pre>
+<hr>
+<h3 id="q78-relationship-mappings-lazy-vs-eager">Q78. Relationship mappings? LAZY vs EAGER?</h3>
+<p><strong>Answer:</strong></p>
+<p><strong>GSTN Entity Relationships:</strong></p>
+<pre><code class="language-java"><span class="hljs-comment">// @ManyToOne — Many WfTasks belong to one WfProcess</span>
+<span class="hljs-meta">@Entity</span>
+<span class="hljs-meta">@Table(name = &quot;WF_TASK&quot;)</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">WfTask</span> <span class="hljs-keyword">implements</span> <span class="hljs-title class_">Serializable</span> {
+    <span class="hljs-meta">@ManyToOne</span>  <span class="hljs-comment">// Default: EAGER for @ManyToOne</span>
+    <span class="hljs-meta">@JoinColumn(name = &quot;PROCESS_ID&quot;)</span>
+    <span class="hljs-keyword">private</span> WfProcess wfProcess;
+    
+    <span class="hljs-meta">@Id</span>
+    <span class="hljs-meta">@GeneratedValue(strategy = GenerationType.AUTO)</span>
+    <span class="hljs-meta">@Column(name = &quot;TASK_ID&quot;)</span>
+    <span class="hljs-keyword">private</span> <span class="hljs-type">int</span> taskId;
+    
+    <span class="hljs-meta">@Column(name = &quot;TASK_STATUS&quot;)</span>
+    <span class="hljs-keyword">private</span> String taskStatus;
+    
+    <span class="hljs-meta">@Temporal(TemporalType.DATE)</span>
+    <span class="hljs-meta">@Column(name = &quot;DUE_DT&quot;)</span>
+    <span class="hljs-keyword">private</span> Date dueDt;
+}
+
+<span class="hljs-comment">// @OneToMany — One WfProcess has many WfTasks</span>
+<span class="hljs-meta">@Entity</span>
+<span class="hljs-meta">@Table(name = &quot;WF_PROCESS&quot;)</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">WfProcess</span> <span class="hljs-keyword">implements</span> <span class="hljs-title class_">Serializable</span> {
+    <span class="hljs-meta">@Id</span>
+    <span class="hljs-meta">@GeneratedValue(strategy = GenerationType.AUTO)</span>
+    <span class="hljs-meta">@Column(name = &quot;PROCESS_ID&quot;)</span>
+    <span class="hljs-keyword">private</span> <span class="hljs-type">int</span> processId;
+    
+    <span class="hljs-meta">@OneToMany(mappedBy = &quot;wfProcess&quot;, cascade = {CascadeType.ALL})</span>  <span class="hljs-comment">// Default: LAZY</span>
+    <span class="hljs-keyword">private</span> Set&lt;WfTask&gt; wfTasks;
+}
+</code></pre>
+<p><strong>Fetch Types:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Annotation</th>
+<th>Default Fetch</th>
+<th>Recommendation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>@OneToOne</code></td>
+<td><strong>EAGER</strong></td>
+<td>Change to LAZY</td>
+</tr>
+<tr>
+<td><code>@ManyToOne</code></td>
+<td><strong>EAGER</strong></td>
+<td>Change to LAZY</td>
+</tr>
+<tr>
+<td><code>@OneToMany</code></td>
+<td><strong>LAZY</strong></td>
+<td>Keep LAZY</td>
+</tr>
+<tr>
+<td><code>@ManyToMany</code></td>
+<td><strong>LAZY</strong></td>
+<td>Keep LAZY</td>
+</tr>
+</tbody>
+</table>
+<pre><code class="language-java"><span class="hljs-comment">// Override default — ALWAYS use LAZY</span>
+<span class="hljs-meta">@ManyToOne(fetch = FetchType.LAZY)</span>
+<span class="hljs-meta">@JoinColumn(name = &quot;PROCESS_ID&quot;)</span>
+<span class="hljs-keyword">private</span> WfProcess wfProcess;
+</code></pre>
+<p><strong>Key rule:</strong> Default to LAZY everywhere, then use JOIN FETCH or @EntityGraph when you need related data.</p>
+<hr>
+<h3 id="q79-what-is-the-n1-query-problem-how-do-you-solve-it">Q79. What is the N+1 query problem? How do you solve it?</h3>
+<p><strong>Answer:</strong></p>
+<p><strong>N+1 Problem:</strong> 1 query to fetch parent entities + N queries to fetch each parent's children.</p>
+<pre><code class="language-java"><span class="hljs-comment">// This generates N+1 queries:</span>
+List&lt;WfProcess&gt; processes = processRepository.findAll(); <span class="hljs-comment">// 1 query: SELECT * FROM WF_PROCESS</span>
+<span class="hljs-keyword">for</span> (WfProcess p : processes) {
+    Set&lt;WfTask&gt; tasks = p.getWfTasks(); <span class="hljs-comment">// N queries: SELECT * FROM WF_TASK WHERE PROCESS_ID = ?</span>
+    <span class="hljs-comment">// Each access triggers a separate query!</span>
+}
+</code></pre>
+<p><strong>Solutions:</strong></p>
+<pre><code class="language-java"><span class="hljs-comment">// 1. JOIN FETCH (JPQL)</span>
+<span class="hljs-meta">@Query(&quot;SELECT p FROM WfProcess p JOIN FETCH p.wfTasks WHERE p.processId = :id&quot;)</span>
+WfProcess <span class="hljs-title function_">findByIdWithTasks</span><span class="hljs-params">(<span class="hljs-meta">@Param(&quot;id&quot;)</span> <span class="hljs-type">int</span> id)</span>;
+<span class="hljs-comment">// Result: 1 query with JOIN</span>
+
+<span class="hljs-comment">// 2. @EntityGraph</span>
+<span class="hljs-meta">@EntityGraph(attributePaths = {&quot;wfTasks&quot;})</span>
+List&lt;WfProcess&gt; <span class="hljs-title function_">findAll</span><span class="hljs-params">()</span>;
+<span class="hljs-comment">// Result: 1 query with LEFT JOIN</span>
+
+<span class="hljs-comment">// 3. @BatchSize (Hibernate-specific)</span>
+<span class="hljs-meta">@OneToMany(mappedBy = &quot;wfProcess&quot;)</span>
+<span class="hljs-meta">@BatchSize(size = 20)</span>  <span class="hljs-comment">// Fetch 20 parent&#x27;s children in one query</span>
+<span class="hljs-keyword">private</span> Set&lt;WfTask&gt; wfTasks;
+<span class="hljs-comment">// Result: 1 + ceil(N/20) queries instead of 1 + N</span>
+
+<span class="hljs-comment">// 4. Subselect fetch</span>
+<span class="hljs-meta">@OneToMany(mappedBy = &quot;wfProcess&quot;)</span>
+<span class="hljs-meta">@Fetch(FetchMode.SUBSELECT)</span>
+<span class="hljs-keyword">private</span> Set&lt;WfTask&gt; wfTasks;
+<span class="hljs-comment">// Result: 2 queries total (1 for parents, 1 subselect for all children)</span>
+</code></pre>
+<p><strong>GSTN Context:</strong> With large datasets (millions of records), N+1 can be devastating. Our approach: LAZY loading by default + JOIN FETCH in specific queries where we know we need related data.</p>
+<hr>
+<h3 id="q80-first-level-cache-vs-second-level-cache">Q80. First-level cache vs Second-level cache?</h3>
+<p><strong>Answer:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Feature</th>
+<th>First-Level (L1)</th>
+<th>Second-Level (L2)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Scope</td>
+<td><strong>Per EntityManager/Session</strong></td>
+<td><strong>Per SessionFactory</strong> (shared across sessions)</td>
+</tr>
+<tr>
+<td>Enabled</td>
+<td><strong>Always</strong> (can't disable)</td>
+<td><strong>Opt-in</strong> (must configure)</td>
+</tr>
+<tr>
+<td>Lifetime</td>
+<td>Transaction/session lifetime</td>
+<td>Application lifetime</td>
+</tr>
+<tr>
+<td>Shared</td>
+<td>No — each thread has its own</td>
+<td>Yes — all threads share</td>
+</tr>
+<tr>
+<td>Implementation</td>
+<td>Built into Hibernate</td>
+<td>EhCache, Infinispan, Redis</td>
+</tr>
+</tbody>
+</table>
+<pre><code class="language-java"><span class="hljs-comment">// L1 cache example — same session, same object</span>
+<span class="hljs-meta">@Transactional</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">demo</span><span class="hljs-params">()</span> {
+    <span class="hljs-type">WfTask</span> <span class="hljs-variable">task1</span> <span class="hljs-operator">=</span> em.find(WfTask.class, <span class="hljs-number">1</span>); <span class="hljs-comment">// DB query</span>
+    <span class="hljs-type">WfTask</span> <span class="hljs-variable">task2</span> <span class="hljs-operator">=</span> em.find(WfTask.class, <span class="hljs-number">1</span>); <span class="hljs-comment">// NO query — returns cached object</span>
+    <span class="hljs-type">assert</span> <span class="hljs-variable">task1</span> <span class="hljs-operator">=</span>= task2; <span class="hljs-comment">// Same Java object! (identity guarantee)</span>
+}
+
+<span class="hljs-comment">// L2 cache configuration</span>
+<span class="hljs-meta">@Entity</span>
+<span class="hljs-meta">@Cacheable</span>
+<span class="hljs-meta">@org</span>.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">StateMaster</span> {
+    <span class="hljs-comment">// Rarely changing reference data — perfect for L2 cache</span>
+}
+</code></pre>
+<p><strong>GSTN Caching:</strong> We use <code>DistCacheUtil</code> (Redis-based distributed cache) and <code>LocalCacheFwk</code> (in-memory local cache) for caching reference data. This is application-level caching, separate from Hibernate's L2 cache.</p>
+<pre><code class="language-java"><span class="hljs-comment">// GSTN&#x27;s approach — application-level caching with DistCacheUtil</span>
+<span class="hljs-keyword">public</span> GSTMaster <span class="hljs-title function_">getGstMstrDetails</span><span class="hljs-params">(String uid)</span> {
+    <span class="hljs-comment">// Check distributed cache (Redis) first</span>
+    <span class="hljs-comment">// If miss, query DB and cache result</span>
+}
+
+<span class="hljs-comment">// Local cache for reference data</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> Map <span class="hljs-title function_">getRefDetails</span><span class="hljs-params">(String type)</span> {
+    <span class="hljs-type">Map</span> <span class="hljs-variable">cacheMap</span> <span class="hljs-operator">=</span> getMasterCache().getFromCache(type);
+    <span class="hljs-keyword">if</span> (cacheMap == <span class="hljs-literal">null</span>) {
+        loadCacheMap = loadToCache(CacheConstants.MASTER_CACHE, type);
+    }
+    <span class="hljs-keyword">return</span> cacheMap;
+}
+</code></pre>
+<hr>
+<h3 id="q81-hql-vs-jpql-vs-native-sql-vs-criteria-api">Q81. HQL vs JPQL vs Native SQL vs Criteria API?</h3>
+<p><strong>Answer:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Query Type</th>
+<th>Standard</th>
+<th>Entity/Table</th>
+<th>Type-safe</th>
+<th>Use Case</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>JPQL</strong></td>
+<td>JPA standard</td>
+<td>Entity names</td>
+<td>No</td>
+<td>Most queries (portable)</td>
+</tr>
+<tr>
+<td><strong>HQL</strong></td>
+<td>Hibernate-specific</td>
+<td>Entity names</td>
+<td>No</td>
+<td>Hibernate-specific features</td>
+</tr>
+<tr>
+<td><strong>Native SQL</strong></td>
+<td>Database-specific</td>
+<td>Table names</td>
+<td>No</td>
+<td>Complex queries, DB-specific functions</td>
+</tr>
+<tr>
+<td><strong>Criteria API</strong></td>
+<td>JPA standard</td>
+<td>Programmatic</td>
+<td><strong>Yes</strong></td>
+<td>Dynamic queries (variable filters)</td>
+</tr>
+</tbody>
+</table>
+<p><strong>GSTN Examples:</strong></p>
+<pre><code class="language-java"><span class="hljs-comment">// JPQL via @Query (from GspAuthToknLogRepository)</span>
+<span class="hljs-meta">@Query(&quot;UPDATE GspAuthTokenLog e SET e.authStatus = &#x27;X&#x27; &quot; +
+       &quot;WHERE e.userName = :username AND e.clientId = :clientId&quot;)</span>
+<span class="hljs-keyword">void</span> <span class="hljs-title function_">markAuthTokenExpired</span><span class="hljs-params">(<span class="hljs-meta">@Param(&quot;username&quot;)</span> String username, 
+                         <span class="hljs-meta">@Param(&quot;clientId&quot;)</span> String clientId)</span>;
+
+<span class="hljs-comment">// Native SQL (for complex queries)</span>
+<span class="hljs-meta">@Query(value = &quot;SELECT * FROM GSP_AUTH_TOKEN_LOG WHERE AUTH_STATUS = &#x27;A&#x27; &quot; +
+               &quot;AND CREATED_DT &lt; DATE_SUB(NOW(), INTERVAL 24 HOUR)&quot;, 
+       nativeQuery = true)</span>
+List&lt;GspAuthTokenLog&gt; <span class="hljs-title function_">findExpiredTokens</span><span class="hljs-params">()</span>;
+
+<span class="hljs-comment">// Criteria API (for dynamic search filters)</span>
+<span class="hljs-type">CriteriaBuilder</span> <span class="hljs-variable">cb</span> <span class="hljs-operator">=</span> em.getCriteriaBuilder();
+CriteriaQuery&lt;WfTask&gt; query = cb.createQuery(WfTask.class);
+Root&lt;WfTask&gt; root = query.from(WfTask.class);
+List&lt;Predicate&gt; predicates = <span class="hljs-keyword">new</span> <span class="hljs-title class_">ArrayList</span>&lt;&gt;();
+<span class="hljs-keyword">if</span> (status != <span class="hljs-literal">null</span>) predicates.add(cb.equal(root.get(<span class="hljs-string">&quot;taskStatus&quot;</span>), status));
+<span class="hljs-keyword">if</span> (dueDate != <span class="hljs-literal">null</span>) predicates.add(cb.lessThan(root.get(<span class="hljs-string">&quot;dueDt&quot;</span>), dueDate));
+query.where(predicates.toArray(<span class="hljs-keyword">new</span> <span class="hljs-title class_">Predicate</span>[<span class="hljs-number">0</span>]));
+</code></pre>
+<hr>
+<h3 id="q82-optimistic-locking-vs-pessimistic-locking">Q82. Optimistic locking vs Pessimistic locking?</h3>
+<p><strong>Answer:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Aspect</th>
+<th>Optimistic (@Version)</th>
+<th>Pessimistic (@Lock)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Mechanism</td>
+<td>Version check at commit time</td>
+<td>Database lock on SELECT</td>
+</tr>
+<tr>
+<td>Conflicts</td>
+<td>Detected at update time</td>
+<td>Prevented upfront</td>
+</tr>
+<tr>
+<td>Performance</td>
+<td><strong>Better</strong> — no locks held</td>
+<td>Worse — locks block other transactions</td>
+</tr>
+<tr>
+<td>Concurrency</td>
+<td>High — no blocking</td>
+<td>Low — blocking</td>
+</tr>
+<tr>
+<td>Failure mode</td>
+<td><code>OptimisticLockException</code></td>
+<td>Deadlocks possible</td>
+</tr>
+<tr>
+<td>Best for</td>
+<td>Read-heavy, low contention</td>
+<td>Write-heavy, high contention</td>
+</tr>
+</tbody>
+</table>
+<pre><code class="language-java"><span class="hljs-comment">// OPTIMISTIC LOCKING — version-based</span>
+<span class="hljs-meta">@Entity</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">ReturnEntity</span> {
+    <span class="hljs-meta">@Id</span>
+    <span class="hljs-keyword">private</span> Long id;
+    
+    <span class="hljs-meta">@Version</span>  <span class="hljs-comment">// Hibernate auto-increments on update</span>
+    <span class="hljs-keyword">private</span> Integer version;
+    
+    <span class="hljs-keyword">private</span> String status;
+}
+<span class="hljs-comment">// UPDATE RETURN SET status=?, version=2 WHERE id=? AND version=1</span>
+<span class="hljs-comment">// If version changed → OptimisticLockException → retry</span>
+
+<span class="hljs-comment">// PESSIMISTIC LOCKING — database lock</span>
+<span class="hljs-meta">@Query(&quot;SELECT r FROM ReturnEntity r WHERE r.gstin = :gstin&quot;)</span>
+<span class="hljs-meta">@Lock(LockModeType.PESSIMISTIC_WRITE)</span> <span class="hljs-comment">// SELECT ... FOR UPDATE</span>
+ReturnEntity <span class="hljs-title function_">findByGstinForUpdate</span><span class="hljs-params">(<span class="hljs-meta">@Param(&quot;gstin&quot;)</span> String gstin)</span>;
+</code></pre>
+<p><strong>GSTN Use Cases:</strong></p>
+<ul>
+<li><strong>Optimistic</strong>: Return filing — multiple users rarely update same return simultaneously</li>
+<li><strong>Pessimistic</strong>: Ledger balance updates — prevent concurrent deductions from same balance</li>
+</ul>
+<pre><code class="language-java"><span class="hljs-meta">@Transactional(value = &quot;transactionManagerItcLedger&quot;, 
+              propagation = Propagation.REQUIRES_NEW)</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">updateLedgerBalance</span><span class="hljs-params">(LedgerVO ledger)</span> {
+    <span class="hljs-comment">// Use pessimistic lock on ledger row to prevent race conditions</span>
+}
+</code></pre>
+<hr>
+<h3 id="q83-database-migration--flyway-vs-liquibase">Q83. Database migration — Flyway vs Liquibase?</h3>
+<p><strong>Answer:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Feature</th>
+<th>Flyway</th>
+<th>Liquibase</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Format</td>
+<td><strong>SQL files</strong> (V1__create.sql)</td>
+<td>XML/YAML/JSON/SQL</td>
+</tr>
+<tr>
+<td>Naming</td>
+<td>Version-based (V1, V2...)</td>
+<td>Changeset-based</td>
+</tr>
+<tr>
+<td>Rollback</td>
+<td>Manual (undo migrations)</td>
+<td>Auto-rollback support</td>
+</tr>
+<tr>
+<td>Simplicity</td>
+<td><strong>Simpler</strong></td>
+<td>More features</td>
+</tr>
+<tr>
+<td>Schema diff</td>
+<td>No</td>
+<td>Yes (diff between envs)</td>
+</tr>
+</tbody>
+</table>
+<pre><code class="language-sql"><span class="hljs-comment">-- Flyway: V1__create_return_table.sql</span>
+<span class="hljs-keyword">CREATE</span> <span class="hljs-keyword">TABLE</span> GST_RETURN (
+    id <span class="hljs-type">BIGINT</span> <span class="hljs-keyword">PRIMARY</span> KEY AUTO_INCREMENT,
+    gstin <span class="hljs-type">VARCHAR</span>(<span class="hljs-number">15</span>) <span class="hljs-keyword">NOT</span> <span class="hljs-keyword">NULL</span>,
+    return_period <span class="hljs-type">VARCHAR</span>(<span class="hljs-number">6</span>) <span class="hljs-keyword">NOT</span> <span class="hljs-keyword">NULL</span>,
+    status <span class="hljs-type">VARCHAR</span>(<span class="hljs-number">20</span>),
+    filed_date DATETIME,
+    version <span class="hljs-type">INT</span> <span class="hljs-keyword">DEFAULT</span> <span class="hljs-number">0</span>
+);
+
+<span class="hljs-comment">-- V2__add_index.sql  </span>
+<span class="hljs-keyword">CREATE</span> INDEX idx_gstin_period <span class="hljs-keyword">ON</span> GST_RETURN(gstin, return_period);
+</code></pre>
+<p><strong>GSTN:</strong> Database schema changes are managed through controlled migration scripts deployed across environments (dev → QA → staging → prod).</p>
+<hr>
+<h3 id="q84-bulk-inserts-efficiently">Q84. Bulk inserts efficiently?</h3>
+<p><strong>Answer:</strong></p>
+<pre><code class="language-java"><span class="hljs-comment">// BAD — N separate INSERT statements</span>
+<span class="hljs-keyword">for</span> (ReturnItem item : items) {
+    repository.save(item); <span class="hljs-comment">// Each save = 1 INSERT</span>
+}
+
+<span class="hljs-comment">// GOOD — Batch inserts with batch_size</span>
+<span class="hljs-comment">// application.properties</span>
+spring.jpa.properties.hibernate.jdbc.batch_size=<span class="hljs-number">50</span>
+spring.jpa.properties.hibernate.order_inserts=<span class="hljs-literal">true</span>
+spring.jpa.properties.hibernate.order_updates=<span class="hljs-literal">true</span>
+
+<span class="hljs-comment">// Repository usage</span>
+repository.saveAll(items); <span class="hljs-comment">// Groups into batches of 50</span>
+
+<span class="hljs-comment">// BEST — StatelessSession for massive bulk operations</span>
+<span class="hljs-type">StatelessSession</span> <span class="hljs-variable">session</span> <span class="hljs-operator">=</span> sessionFactory.openStatelessSession();
+<span class="hljs-type">Transaction</span> <span class="hljs-variable">tx</span> <span class="hljs-operator">=</span> session.beginTransaction();
+<span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> <span class="hljs-variable">i</span> <span class="hljs-operator">=</span> <span class="hljs-number">0</span>; i &lt; items.size(); i++) {
+    session.insert(items.get(i));
+    <span class="hljs-keyword">if</span> (i % <span class="hljs-number">1000</span> == <span class="hljs-number">0</span>) {
+        <span class="hljs-comment">// StatelessSession doesn&#x27;t cache — no need to flush</span>
+    }
+}
+tx.commit();
+session.close();
+</code></pre>
+<p><strong>GSTN:</strong> During filing season, bulk operations (processing millions of return items) use batch processing with <code>GstBatchJobConfigurer</code> from the Spring Boot starter.</p>
+<hr>
+<h3 id="q85-dirty-checking-mechanism">Q85. Dirty Checking mechanism?</h3>
+<p><strong>Answer:</strong></p>
+<p>When an entity is <strong>persistent</strong> (managed by EntityManager), Hibernate keeps a <strong>snapshot</strong> of its original state. At flush time, it compares the current state with the snapshot → if different, generates UPDATE SQL.</p>
+<pre><code class="language-java"><span class="hljs-meta">@Transactional</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">updateTaskStatus</span><span class="hljs-params">(<span class="hljs-type">int</span> taskId, String newStatus)</span> {
+    <span class="hljs-type">WfTask</span> <span class="hljs-variable">task</span> <span class="hljs-operator">=</span> em.find(WfTask.class, taskId); <span class="hljs-comment">// Loads + takes snapshot</span>
+    task.setTaskStatus(newStatus);  <span class="hljs-comment">// Modifies in-memory object</span>
+    <span class="hljs-comment">// NO explicit save/update needed!</span>
+    <span class="hljs-comment">// At transaction commit → Hibernate compares current vs snapshot</span>
+    <span class="hljs-comment">// Detects change → generates: UPDATE WF_TASK SET TASK_STATUS=? WHERE TASK_ID=?</span>
+}
+</code></pre>
+<p><strong>Performance concern:</strong> For read-only queries, dirty checking wastes CPU. Use <code>@Transactional(readOnly = true)</code> to disable it.</p>
+<hr>
+<h3 id="q86-projection-queries--fetch-specific-columns">Q86. Projection queries — fetch specific columns?</h3>
+<p><strong>Answer:</strong></p>
+<pre><code class="language-java"><span class="hljs-comment">// Interface-based projection</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">interface</span> <span class="hljs-title class_">GstinProjection</span> {
+    String <span class="hljs-title function_">getGstin</span><span class="hljs-params">()</span>;
+    String <span class="hljs-title function_">getLegalName</span><span class="hljs-params">()</span>;
+}
+
+<span class="hljs-meta">@Query(&quot;SELECT r.gstin as gstin, r.legalName as legalName FROM Registration r WHERE r.stateCode = :state&quot;)</span>
+List&lt;GstinProjection&gt; <span class="hljs-title function_">findGstinsByState</span><span class="hljs-params">(<span class="hljs-meta">@Param(&quot;state&quot;)</span> String state)</span>;
+
+<span class="hljs-comment">// DTO-based projection (constructor expression)</span>
+<span class="hljs-meta">@Query(&quot;SELECT new org.gst.dto.GstinDTO(r.gstin, r.legalName) FROM Registration r&quot;)</span>
+List&lt;GstinDTO&gt; <span class="hljs-title function_">findGstinDTOs</span><span class="hljs-params">()</span>;
+
+<span class="hljs-comment">// Tuple projection</span>
+<span class="hljs-meta">@Query(&quot;SELECT r.gstin, r.legalName FROM Registration r&quot;)</span>
+List&lt;Object[]&gt; findGstinTuples();
+</code></pre>
+<p><strong>Why:</strong> Fetching only needed columns reduces memory usage and network transfer — crucial for GSTN's large tables.</p>
+<hr>
+<h3 id="q87-embeddable-and-embedded-composite-keys">Q87. @Embeddable and @Embedded? Composite keys?</h3>
+<p><strong>Answer:</strong></p>
+<p><strong>GSTN's composite key pattern:</strong></p>
+<pre><code class="language-java"><span class="hljs-comment">// Composite key class</span>
+<span class="hljs-meta">@Embeddable</span>
+<span class="hljs-meta">@EqualsAndHashCode</span>  <span class="hljs-comment">// MUST implement equals/hashCode for composite keys</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">ApplnPK</span> <span class="hljs-keyword">implements</span> <span class="hljs-title class_">Serializable</span> {
+    <span class="hljs-meta">@ManyToOne</span>
+    <span class="hljs-meta">@JoinColumn(name = &quot;APPLN_DETL_ID&quot;)</span>
+    <span class="hljs-keyword">private</span> ApplnDraftDetlEntity applnDrftDetl;
+    
+    <span class="hljs-meta">@Column(name = &quot;VER_ID&quot;)</span>
+    <span class="hljs-keyword">private</span> Integer versionId;
+}
+
+<span class="hljs-comment">// Entity using composite key</span>
+<span class="hljs-meta">@Entity</span>
+<span class="hljs-meta">@Table(name = &quot;APPLN_VER_DTLS&quot;)</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">ApplnVersionDetails</span> <span class="hljs-keyword">implements</span> <span class="hljs-title class_">Serializable</span> {
+    <span class="hljs-meta">@EmbeddedId</span>
+    <span class="hljs-keyword">private</span> ApplnPK id;  <span class="hljs-comment">// Composite primary key</span>
+    
+    <span class="hljs-meta">@Column(name = &quot;COMMENTS&quot;)</span>
+    <span class="hljs-keyword">private</span> String comments;
+}
+</code></pre>
+<p><strong>@Embedded for value objects:</strong></p>
+<pre><code class="language-java"><span class="hljs-meta">@Embeddable</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">Address</span> {
+    <span class="hljs-keyword">private</span> String street;
+    <span class="hljs-keyword">private</span> String city;
+    <span class="hljs-keyword">private</span> String stateCode;
+    <span class="hljs-keyword">private</span> String pinCode;
+}
+
+<span class="hljs-meta">@Entity</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">Registration</span> {
+    <span class="hljs-meta">@Id</span>
+    <span class="hljs-keyword">private</span> Long id;
+    
+    <span class="hljs-meta">@Embedded</span>
+    <span class="hljs-meta">@AttributeOverrides({
+        @AttributeOverride(name = &quot;street&quot;, column = @Column(name = &quot;BIZ_STREET&quot;)),
+        @AttributeOverride(name = &quot;city&quot;, column = @Column(name = &quot;BIZ_CITY&quot;))
+    })</span>
+    <span class="hljs-keyword">private</span> Address businessAddress;
+    
+    <span class="hljs-meta">@Embedded</span>
+    <span class="hljs-meta">@AttributeOverrides({
+        @AttributeOverride(name = &quot;street&quot;, column = @Column(name = &quot;CORR_STREET&quot;)),
+        @AttributeOverride(name = &quot;city&quot;, column = @Column(name = &quot;CORR_CITY&quot;))
+    })</span>
+    <span class="hljs-keyword">private</span> Address correspondenceAddress;
+}
+</code></pre>
+<hr>
+<h3 id="q88-spring-data-jpa--derived-queries-query-modifying-custom-repositories">Q88. Spring Data JPA — derived queries, @Query, @Modifying, custom repositories?</h3>
+<p><strong>Answer:</strong></p>
+<pre><code class="language-java"><span class="hljs-comment">// DERIVED QUERY METHODS — auto-generated from method name</span>
+<span class="hljs-meta">@Repository</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">interface</span> <span class="hljs-title class_">GspActiveAuthSessionRepository</span> <span class="hljs-keyword">extends</span> <span class="hljs-title class_">JpaRepository</span>&lt;GspActiveAuthSession, Long&gt; {
+    
+    List&lt;GspActiveAuthSession&gt; <span class="hljs-title function_">findByUserNameAndClientId</span><span class="hljs-params">(String userName, String clientId)</span>;
+    List&lt;GspActiveAuthSession&gt; <span class="hljs-title function_">findByAuthStatus</span><span class="hljs-params">(String status)</span>;
+    Optional&lt;GspActiveAuthSession&gt; <span class="hljs-title function_">findByAuthTokenAndUserName</span><span class="hljs-params">(String token, String userName)</span>;
+    
+    <span class="hljs-comment">// More complex derived methods</span>
+    List&lt;GspActiveAuthSession&gt; <span class="hljs-title function_">findByAuthStatusAndCreatedDateAfter</span><span class="hljs-params">(String status, Date date)</span>;
+    <span class="hljs-type">long</span> <span class="hljs-title function_">countByAuthStatus</span><span class="hljs-params">(String status)</span>;
+    <span class="hljs-keyword">void</span> <span class="hljs-title function_">deleteByAuthTokenAndUserName</span><span class="hljs-params">(String token, String userName)</span>;
+}
+
+<span class="hljs-comment">// @Query — custom JPQL</span>
+<span class="hljs-meta">@Query(&quot;UPDATE GspAuthTokenLog e SET e.authStatus = &#x27;X&#x27; &quot; +
+       &quot;WHERE e.userName = :username AND e.clientId = :clientId AND e.authToken = :authToken&quot;)</span>
+<span class="hljs-meta">@Modifying</span>  <span class="hljs-comment">// Required for UPDATE/DELETE queries</span>
+<span class="hljs-keyword">void</span> <span class="hljs-title function_">markAuthTokenExpired</span><span class="hljs-params">(<span class="hljs-meta">@Param(&quot;username&quot;)</span> String username,
+                         <span class="hljs-meta">@Param(&quot;clientId&quot;)</span> String clientId,
+                         <span class="hljs-meta">@Param(&quot;authToken&quot;)</span> String authToken)</span>;
+
+<span class="hljs-comment">// Custom repository implementation</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">interface</span> <span class="hljs-title class_">CustomReturnRepository</span> {
+    List&lt;ReturnEntity&gt; <span class="hljs-title function_">searchReturns</span><span class="hljs-params">(SearchCriteria criteria)</span>;
+}
+
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">CustomReturnRepositoryImpl</span> <span class="hljs-keyword">implements</span> <span class="hljs-title class_">CustomReturnRepository</span> {
+    <span class="hljs-meta">@PersistenceContext</span>
+    <span class="hljs-keyword">private</span> EntityManager em;
+    
+    <span class="hljs-meta">@Override</span>
+    <span class="hljs-keyword">public</span> List&lt;ReturnEntity&gt; <span class="hljs-title function_">searchReturns</span><span class="hljs-params">(SearchCriteria criteria)</span> {
+        <span class="hljs-type">CriteriaBuilder</span> <span class="hljs-variable">cb</span> <span class="hljs-operator">=</span> em.getCriteriaBuilder();
+        <span class="hljs-comment">// Dynamic query building...</span>
+    }
+}
+
+<span class="hljs-comment">// Combine Spring Data + custom</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">interface</span> <span class="hljs-title class_">ReturnRepository</span> <span class="hljs-keyword">extends</span> <span class="hljs-title class_">JpaRepository</span>&lt;ReturnEntity, Long&gt;, 
+                                         CustomReturnRepository {
+    <span class="hljs-comment">// Has both auto-generated AND custom methods</span>
+}
+</code></pre>
+<hr>
+<h3 id="q89-entity-auditing">Q89. Entity auditing?</h3>
+<p><strong>Answer:</strong></p>
+<pre><code class="language-java"><span class="hljs-meta">@Configuration</span>
+<span class="hljs-meta">@EnableJpaAuditing</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">AuditConfig</span> {
+    <span class="hljs-meta">@Bean</span>
+    <span class="hljs-keyword">public</span> AuditorAware&lt;String&gt; <span class="hljs-title function_">auditorProvider</span><span class="hljs-params">()</span> {
+        <span class="hljs-keyword">return</span> () -&gt; Optional.of(SecurityContextHolder.getContext()
+            .getAuthentication().getName());
+    }
+}
+
+<span class="hljs-meta">@MappedSuperclass</span>
+<span class="hljs-meta">@EntityListeners(AuditingEntityListener.class)</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">abstract</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">BaseEntity</span> {
+    <span class="hljs-meta">@CreatedDate</span>
+    <span class="hljs-meta">@Column(name = &quot;INSERT_TMSTMP&quot;, updatable = false)</span>
+    <span class="hljs-keyword">private</span> Date createdDate;
+    
+    <span class="hljs-meta">@LastModifiedDate</span>
+    <span class="hljs-meta">@Column(name = &quot;UPDATE_TMSTMP&quot;)</span>
+    <span class="hljs-keyword">private</span> Date updatedDate;
+    
+    <span class="hljs-meta">@CreatedBy</span>
+    <span class="hljs-meta">@Column(name = &quot;CREATED_BY&quot;, updatable = false)</span>
+    <span class="hljs-keyword">private</span> String createdBy;
+    
+    <span class="hljs-meta">@LastModifiedBy</span>
+    <span class="hljs-meta">@Column(name = &quot;MODIFIED_BY&quot;)</span>
+    <span class="hljs-keyword">private</span> String modifiedBy;
+}
+</code></pre>
+<p><strong>GSTN Pattern:</strong> Our entities use <code>@Temporal(TemporalType.TIMESTAMP)</code> for audit timestamps:</p>
+<pre><code class="language-java"><span class="hljs-meta">@Temporal(TemporalType.TIMESTAMP)</span>
+<span class="hljs-meta">@Column(name = &quot;INSERT_TMSTMP&quot;)</span>
+<span class="hljs-keyword">private</span> Date insertTmstmp;
+
+<span class="hljs-meta">@Temporal(TemporalType.TIMESTAMP)</span>
+<span class="hljs-meta">@Column(name = &quot;UPDATE_TMSTMP&quot;)</span>
+<span class="hljs-keyword">private</span> Date updateTmstmp;
+</code></pre>
+<hr>
+<h3 id="q90-save-vs-saveandflush-vs-persist">Q90. save() vs saveAndFlush() vs persist()?</h3>
+<p><strong>Answer:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th>Source</th>
+<th>Returns</th>
+<th>When SQL fires</th>
+<th>Detached entity?</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>save()</code></td>
+<td>Spring Data</td>
+<td>Saved entity</td>
+<td>At flush/commit</td>
+<td>Calls <code>merge()</code></td>
+</tr>
+<tr>
+<td><code>saveAndFlush()</code></td>
+<td>Spring Data</td>
+<td>Saved entity</td>
+<td><strong>Immediately</strong></td>
+<td>Calls <code>merge()</code></td>
+</tr>
+<tr>
+<td><code>persist()</code></td>
+<td>JPA EntityManager</td>
+<td>void</td>
+<td>At flush/commit</td>
+<td><strong>Exception</strong> if detached</td>
+</tr>
+</tbody>
+</table>
+<pre><code class="language-java"><span class="hljs-comment">// save() — defers SQL execution</span>
+<span class="hljs-type">ReturnEntity</span> <span class="hljs-variable">entity</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">ReturnEntity</span>();
+entity.setGstin(<span class="hljs-string">&quot;29AAACG1234A1ZD&quot;</span>);
+repository.save(entity);  <span class="hljs-comment">// INSERT may not fire yet</span>
+<span class="hljs-comment">// SQL fires at transaction commit or explicit flush</span>
+
+<span class="hljs-comment">// saveAndFlush() — immediate SQL execution</span>
+repository.saveAndFlush(entity);  <span class="hljs-comment">// INSERT fires NOW</span>
+<span class="hljs-comment">// Useful when you need the generated ID immediately</span>
+
+<span class="hljs-comment">// persist() — JPA standard</span>
+entityManager.persist(entity);  <span class="hljs-comment">// Schedules INSERT</span>
+<span class="hljs-comment">// Throws PersistenceException if entity is detached</span>
+</code></pre>
+<p><strong>GSTN Usage:</strong></p>
+<pre><code class="language-java"><span class="hljs-comment">// From UserMasterServiceImpl</span>
+<span class="hljs-meta">@Transactional(value = &quot;transactionManagerReturns&quot;, 
+              propagation = Propagation.REQUIRED, rollbackFor = Exception.class)</span>
+<span class="hljs-keyword">public</span> UserMaster <span class="hljs-title function_">updateUser</span><span class="hljs-params">(UserMaster user)</span> {
+    <span class="hljs-keyword">return</span> userMasterRepository.saveAndFlush(user);  <span class="hljs-comment">// Immediate flush for consistency</span>
+}
+</code></pre>
+
+            
+            
+        </body>
+        </html>

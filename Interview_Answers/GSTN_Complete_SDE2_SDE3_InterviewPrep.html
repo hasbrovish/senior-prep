@@ -1,0 +1,1913 @@
+<!DOCTYPE html>
+        <html>
+        <head>
+            <meta charset="UTF-8">
+            <title>GSTN &mdash; Complete SDE-2&sol;SDE-3 Interview Preparation Guide</title>
+            <style>
+/* From extension vscode.github */
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+
+.vscode-dark img[src$=\#gh-light-mode-only],
+.vscode-light img[src$=\#gh-dark-mode-only],
+.vscode-high-contrast:not(.vscode-high-contrast-light) img[src$=\#gh-light-mode-only],
+.vscode-high-contrast-light img[src$=\#gh-dark-mode-only] {
+	display: none;
+}
+
+</style>
+            <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex/dist/katex.min.css">
+<link href="https://cdn.jsdelivr.net/npm/katex-copytex@latest/dist/katex-copytex.min.css" rel="stylesheet" type="text/css">
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Microsoft/vscode/extensions/markdown-language-features/media/markdown.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Microsoft/vscode/extensions/markdown-language-features/media/highlight.css">
+<style>
+            body {
+                font-family: -apple-system, BlinkMacSystemFont, 'Segoe WPC', 'Segoe UI', system-ui, 'Ubuntu', 'Droid Sans', sans-serif;
+                font-size: 14px;
+                line-height: 1.6;
+            }
+        </style>
+        <style>
+.task-list-item {
+    list-style-type: none;
+}
+
+.task-list-item-checkbox {
+    margin-left: -20px;
+    vertical-align: middle;
+    pointer-events: none;
+}
+</style>
+<style>
+:root {
+  --color-note: #0969da;
+  --color-tip: #1a7f37;
+  --color-warning: #9a6700;
+  --color-severe: #bc4c00;
+  --color-caution: #d1242f;
+  --color-important: #8250df;
+}
+
+</style>
+<style>
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-note: #2f81f7;
+    --color-tip: #3fb950;
+    --color-warning: #d29922;
+    --color-severe: #db6d28;
+    --color-caution: #f85149;
+    --color-important: #a371f7;
+  }
+}
+
+</style>
+<style>
+.markdown-alert {
+  padding: 0.5rem 1rem;
+  margin-bottom: 16px;
+  color: inherit;
+  border-left: .25em solid #888;
+}
+
+.markdown-alert>:first-child {
+  margin-top: 0
+}
+
+.markdown-alert>:last-child {
+  margin-bottom: 0
+}
+
+.markdown-alert .markdown-alert-title {
+  display: flex;
+  font-weight: 500;
+  align-items: center;
+  line-height: 1
+}
+
+.markdown-alert .markdown-alert-title .octicon {
+  margin-right: 0.5rem;
+  display: inline-block;
+  overflow: visible !important;
+  vertical-align: text-bottom;
+  fill: currentColor;
+}
+
+.markdown-alert.markdown-alert-note {
+  border-left-color: var(--color-note);
+}
+
+.markdown-alert.markdown-alert-note .markdown-alert-title {
+  color: var(--color-note);
+}
+
+.markdown-alert.markdown-alert-important {
+  border-left-color: var(--color-important);
+}
+
+.markdown-alert.markdown-alert-important .markdown-alert-title {
+  color: var(--color-important);
+}
+
+.markdown-alert.markdown-alert-warning {
+  border-left-color: var(--color-warning);
+}
+
+.markdown-alert.markdown-alert-warning .markdown-alert-title {
+  color: var(--color-warning);
+}
+
+.markdown-alert.markdown-alert-tip {
+  border-left-color: var(--color-tip);
+}
+
+.markdown-alert.markdown-alert-tip .markdown-alert-title {
+  color: var(--color-tip);
+}
+
+.markdown-alert.markdown-alert-caution {
+  border-left-color: var(--color-caution);
+}
+
+.markdown-alert.markdown-alert-caution .markdown-alert-title {
+  color: var(--color-caution);
+}
+
+</style>
+        
+        </head>
+        <body class="vscode-body vscode-light">
+            <h1 id="gstn--complete-sde-2sde-3-interview-preparation-guide">GSTN — Complete SDE-2/SDE-3 Interview Preparation Guide</h1>
+<h1 id="based-on-your-actual-codebase--code-walkthroughs--real-source-analysis">Based on YOUR Actual Codebase + Code Walkthroughs + Real Source Analysis</h1>
+<h1 id="covers-resume-mock-interviews-code-walkthroughs-company-prep-30-day-plan">Covers: Resume, Mock Interviews, Code Walkthroughs, Company Prep, 30-Day Plan</h1>
+<hr>
+<h2 id="table-of-contents">TABLE OF CONTENTS</h2>
+<pre><code>PART 1:  DEEP CODE WALKTHROUGHS (From YOUR Actual Source Files)
+  1.1  AppealTranCaseCustomizer — Full Code Walkthrough
+  1.2  AdjudicationCaseCustomizer — Full Code Walkthrough
+  1.3  CaseCustomizerFactory — Strategy + Factory in Action
+  1.4  WFServiceImpl — Workflow Engine Internals
+  1.5  DistCacheUtil — Distributed Cache Layer
+  1.6  Kafka Consumer Framework — Consumer.java Deep Dive
+  1.7  TaxLedgrService — Ledger Operations
+  1.8  AppealEffectTranCustomizer — XA Transaction + Ledger + Email
+  1.9  AppelateTribunalOrderItemCustomizer — Demand Processing
+  1.10 CommunicationService — Email/SMS Architecture
+
+PART 2:  RESUME — TOP 6 IMPACT-DRIVEN BULLET POINTS (STAR Format)
+
+PART 3:  MOCK INTERVIEW SIMULATION (5 Rounds)
+  3.1  Round 1: Java Deep Dive (10 Questions)
+  3.2  Round 2: Spring Boot + Microservices (10 Questions)
+  3.3  Round 3: System Design (5 Problems)
+  3.4  Round 4: Past Work Deep Dive (10 Questions)
+  3.5  Round 5: Behavioral + Managerial (10 Questions)
+
+PART 4:  JAVA CODE SNIPPETS TO MEMORIZE (15 Production-Grade)
+
+PART 5:  COMPANY-SPECIFIC PREPARATION
+  5.1  Amazon (Leadership Principles Mapping)
+  5.2  Google (Coding + System Design Focus)
+  5.3  Flipkart / Swiggy / PhonePe (India Product Companies)
+  5.4  Goldman Sachs / Morgan Stanley (Finance + Java Deep)
+
+PART 6:  WEAK AREA DEEP DIVES
+  6.1  HBase Row Key Design — 5 Practice Problems
+  6.2  Kafka Exactly-Once Semantics — With Code
+  6.3  Distributed Locking Cheat Sheet
+  6.4  XA Transactions (Atomikos) — End-to-End
+
+PART 7:  GAP ANALYSIS — Your Stack vs Market Expectations
+
+PART 8:  30-DAY INTERVIEW PREPARATION PLAN
+
+PART 9:  SYSTEM DESIGN PRACTICE (3 Full Walkthroughs)
+
+PART 10: PERSONAL PROJECT IDEAS (5 GitHub Portfolio Projects)
+</code></pre>
+<hr>
+<h1 id="">═══════════════════════════════════════════════════════════════</h1>
+<h1 id="part-1-deep-code-walkthroughs-from-your-actual-source-files">PART 1: DEEP CODE WALKTHROUGHS (From YOUR Actual Source Files)</h1>
+<h1 id="-1">═══════════════════════════════════════════════════════════════</h1>
+<h2 id="11-appealtrancasecustomizer--full-code-walkthrough">1.1 AppealTranCaseCustomizer — Full Code Walkthrough</h2>
+<p><strong>File:</strong> <code>Core-API/LitigationAPI2/src/main/java/org/gst/api/litigation2/casemgmt/custom/impl/AppealTranCaseCustomizer.java</code></p>
+<h3 id="what-this-class-does">What This Class Does</h3>
+<p>When a taxpayer files an <strong>Appeal (APL-01)</strong> against a DCR order, this customizer handles all pre and post case-creation logic.</p>
+<h3 id="dependencies-what-it-talks-to">Dependencies (What It Talks To)</h3>
+<pre><code class="language-java"><span class="hljs-meta">@Autowired</span> LitigationUtil litigationUtil;     <span class="hljs-comment">// ARN generation, null checks</span>
+<span class="hljs-meta">@Autowired</span> TaskHandler taskHandler;            <span class="hljs-comment">// Creates workflow tasks</span>
+<span class="hljs-meta">@Autowired</span> AppealUtil appealUtil;              <span class="hljs-comment">// Model-2 state detection, assignee lookup</span>
+<span class="hljs-meta">@Autowired</span> DistCacheUtil distCacheUtil;        <span class="hljs-comment">// Distributed cache for GSTIN lookup</span>
+</code></pre>
+<h3 id="beforecreatecase--step-by-step">beforeCreateCase() — Step by Step</h3>
+<pre><code class="language-java"><span class="hljs-meta">@Override</span>
+<span class="hljs-keyword">public</span> Case <span class="hljs-title function_">beforeCreateCase</span><span class="hljs-params">(Case caseVO)</span> <span class="hljs-keyword">throws</span> Exception {
+    <span class="hljs-comment">// STEP 1: Generate unique ARN (Application Reference Number)</span>
+    <span class="hljs-type">String</span> <span class="hljs-variable">arnNo</span> <span class="hljs-operator">=</span> litigationUtil.generateARN(caseVO.getStateCd());
+    <span class="hljs-comment">// ARN format: STATE_CODE + MONTH + YEAR + SEQUENCE (from DistCache counter)</span>
+    
+    <span class="hljs-comment">// STEP 2: Validate ARN was generated</span>
+    <span class="hljs-keyword">if</span> (litigationUtil.isNullOrEmpty(arnNo)) {
+        <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">GSTLogicalException</span>(LOGGER, GSTLogicalErrorCodes.AP_FOAU_ARN_EMPTY);
+        <span class="hljs-comment">// ↑ Logical exception = business rule violation, NOT a system error</span>
+    }
+    
+    <span class="hljs-comment">// STEP 3: Set ARN on case</span>
+    caseVO.setArn(arnNo);
+    
+    <span class="hljs-comment">// STEP 4: Deserialize appeal details from JSON</span>
+    <span class="hljs-type">AppealEffectTranDetails</span> <span class="hljs-variable">details</span> <span class="hljs-operator">=</span> mapper.readValue(
+        caseVO.getAppItem().getItemJson(), AppealEffectTranDetails.class);
+    
+    <span class="hljs-comment">// STEP 5: Set CRN (Case Reference Number) = ARN</span>
+    details.setCrn(arnNo);
+    
+    <span class="hljs-comment">// STEP 6: Serialize back and set on case</span>
+    caseVO.getAppItem().setItemJson(mapper.writeValueAsString(details));
+    
+    <span class="hljs-keyword">return</span> caseVO;  <span class="hljs-comment">// Modified case flows to CaseMgmtFwk.createCase()</span>
+}
+</code></pre>
+<h3 id="aftercreatecase--step-by-step">afterCreateCase() — Step by Step</h3>
+<pre><code class="language-java"><span class="hljs-meta">@Override</span>
+<span class="hljs-keyword">public</span> Case <span class="hljs-title function_">afterCreateCase</span><span class="hljs-params">(Case caseVO)</span> <span class="hljs-keyword">throws</span> Exception {
+    <span class="hljs-comment">// STEP 1: Determine if this is a Model-2 state</span>
+    <span class="hljs-comment">//   Model-2 = States where Appellate Authority is auto-assigned</span>
+    <span class="hljs-comment">//   Model-1 = States where manual assignment is needed</span>
+    <span class="hljs-type">boolean</span> <span class="hljs-variable">isModel2State</span> <span class="hljs-operator">=</span> <span class="hljs-literal">false</span>;
+    
+    <span class="hljs-keyword">if</span> (caseVO.getCaseJson().contains(<span class="hljs-string">&quot;ORD_ISSUING_AUT&quot;</span>)) {
+        isModel2State = appealUtil.isIssuingAuthStMod2(caseVO);
+    } <span class="hljs-keyword">else</span> {
+        <span class="hljs-comment">// Fallback: get GSTIN from DistCache, check state model</span>
+        <span class="hljs-type">String</span> <span class="hljs-variable">gstin</span> <span class="hljs-operator">=</span> distCacheUtil.getEntityValueForInput(caseVO.getEntityNum());
+        isModel2State = appealUtil.isBOModel2State(gstin);
+    }
+    
+    <span class="hljs-comment">// STEP 2: If Model-2 state → auto-create task for Appellate Authority</span>
+    <span class="hljs-keyword">if</span> (isModel2State) {
+        <span class="hljs-comment">// Get access group for &quot;APL_AUTHORITY&quot; from local cache</span>
+        Map&lt;Integer, String&gt; accessDtls = CacheUtil.getDataDetails(
+            CacheConstants.BO_ACCESS_GRP_MSTR);
+        
+        <span class="hljs-comment">// Find the access group ID for Appellate Authority</span>
+        <span class="hljs-type">Integer</span> <span class="hljs-variable">accessGrpId</span> <span class="hljs-operator">=</span> Integer.parseInt(accessDtls.entrySet().stream()
+            .filter(map -&gt; <span class="hljs-string">&quot;APL_AUTORITY&quot;</span>.equals(map.getValue()))
+            .map(map -&gt; map.getKey().toString())
+            .collect(Collectors.joining()));
+        
+        <span class="hljs-comment">// Find the specific tax officer to assign</span>
+        <span class="hljs-type">String</span> <span class="hljs-variable">taxOfficialId</span> <span class="hljs-operator">=</span> appealUtil.getAssignee(caseVO, accessGrpId);
+        
+        <span class="hljs-comment">// Create workflow task with due date calculation</span>
+        addTask(caseVO, taxOfficialId != <span class="hljs-literal">null</span> ? taxOfficialId : <span class="hljs-string">&quot;&quot;</span>);
+    }
+    <span class="hljs-keyword">return</span> caseVO;
+}
+</code></pre>
+<h3 id="addtask--task-creation-with-working-day-calculation">addTask() — Task Creation with Working Day Calculation</h3>
+<pre><code class="language-java"><span class="hljs-keyword">private</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">addTask</span><span class="hljs-params">(Case caseVO, String taxofficialId)</span> {
+    <span class="hljs-type">CaseTask</span> <span class="hljs-variable">caseTask</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">CaseTask</span>();
+    caseTask.setArn(caseVO.getArn());
+    caseTask.setCaseTpeCd(<span class="hljs-string">&quot;APLTO&quot;</span>);           <span class="hljs-comment">// Appeal Transfer Order</span>
+    caseTask.setStatus(<span class="hljs-string">&quot;OPEN&quot;</span>);                <span class="hljs-comment">// Task starts as OPEN</span>
+    caseTask.setIsRead(<span class="hljs-string">&quot;N&quot;</span>);                   <span class="hljs-comment">// Not yet read by officer</span>
+    caseTask.setTaskDesc(<span class="hljs-string">&quot;Appeal Effect Initiated&quot;</span>);
+    caseTask.setAssignmentDt(<span class="hljs-keyword">new</span> <span class="hljs-title class_">Date</span>());
+    
+    <span class="hljs-comment">// Calculate due date: N working days from now (excludes holidays)</span>
+    List&lt;Date&gt; nextWorkingDays = DateFormatUtil.getListOfWorkingDays(
+        DUE_DAYS_FOR_APPLN_PROCESSING,     <span class="hljs-comment">// e.g., 15 working days</span>
+        currentDate,
+        caseVO.getStateCd());              <span class="hljs-comment">// State-specific holidays</span>
+    
+    caseTask.setCompletionDt(nextWorkingDays.get(DUE_DAYS_FOR_APPLN_PROCESSING - <span class="hljs-number">1</span>));
+    caseTask.setTaxOfficalId(taxofficialId);
+    
+    <span class="hljs-comment">// Creates task in WorkFlowFwk via TaskHandler</span>
+    taskHandler.createTask(caseTask, CaseMgmtConstants.INDICATOR_BO);
+}
+</code></pre>
+<h3 id="interview-talking-points-from-this-code">Interview Talking Points from This Code</h3>
+<ol>
+<li><strong>Strategy Pattern</strong>: <code>AppealTranCaseCustomizer</code> is one of many implementations — each case type has its own</li>
+<li><strong>Distributed Cache Usage</strong>: <code>distCacheUtil.getEntityValueForInput()</code> — GSTIN resolution from JDG</li>
+<li><strong>Local Cache Usage</strong>: <code>CacheUtil.getDataDetails()</code> — access group masters from EhCache</li>
+<li><strong>Working Day Calculation</strong>: Business day computation considering state-specific holidays</li>
+<li><strong>Error Handling</strong>: Separate paths for <code>GSTLogicalException</code> (business) vs <code>GSTRuntimeException</code> (system)</li>
+<li><strong>Model-1 vs Model-2</strong>: Architecture decision — some states auto-assign, others need manual intervention</li>
+</ol>
+<hr>
+<h2 id="12-adjudicationcasecustomizer--full-code-walkthrough">1.2 AdjudicationCaseCustomizer — Full Code Walkthrough</h2>
+<p><strong>File:</strong> <code>Core-API/LitigationAPI2/.../custom/impl/AdjudicationCaseCustomizer.java</code></p>
+<h3 id="dependencies">Dependencies</h3>
+<pre><code class="language-java"><span class="hljs-meta">@Autowired</span> ValidatorUtil validatorUtil;              <span class="hljs-comment">// Input validation</span>
+<span class="hljs-meta">@Autowired</span> ARNUtil arnutil;                          <span class="hljs-comment">// ARN generation (from DistCacheFwk)</span>
+<span class="hljs-meta">@Autowired</span> CaseMgmtService caseMgmtService;          <span class="hljs-comment">// Case CRUD</span>
+<span class="hljs-meta">@Autowired</span> CaseUtil caseUtil;                         <span class="hljs-comment">// Case utilities</span>
+<span class="hljs-meta">@Autowired</span> AdjCommunicationService adjCommService;    <span class="hljs-comment">// Email/SMS</span>
+<span class="hljs-meta">@Autowired</span> AlertToTaxOfficerUtil alertUtil;            <span class="hljs-comment">// Tax officer alerts</span>
+<span class="hljs-meta">@Autowired</span> TaskHandler taskHandler;                    <span class="hljs-comment">// Workflow tasks</span>
+<span class="hljs-meta">@Autowired</span> CaseAuthHandler caseauthHandler;            <span class="hljs-comment">// Authorization</span>
+<span class="hljs-meta">@Autowired</span> DistCacheUtil distCacheUtil;                <span class="hljs-comment">// Distributed cache</span>
+</code></pre>
+<h3 id="beforecreatecase--multi-case-type-routing">beforeCreateCase() — Multi-Case-Type Routing</h3>
+<pre><code class="language-java"><span class="hljs-meta">@Override</span>
+<span class="hljs-keyword">public</span> Case <span class="hljs-title function_">beforeCreateCase</span><span class="hljs-params">(Case adjCase)</span> <span class="hljs-keyword">throws</span> Exception {
+    <span class="hljs-comment">// CBIC Migration: Set auth based on origin</span>
+    <span class="hljs-keyword">if</span> (adjCase.isCbic()) {
+        adjCase.setCreatedAuth(<span class="hljs-string">&quot;CT&quot;</span>);  <span class="hljs-comment">// Central Tax</span>
+    } <span class="hljs-keyword">else</span> {
+        adjCase.setCreatedAuth(<span class="hljs-string">&quot;ST&quot;</span>);  <span class="hljs-comment">// State Tax</span>
+    }
+    
+    <span class="hljs-comment">// Route to case-type-specific preparation</span>
+    <span class="hljs-keyword">switch</span> (adjCase.getCaseTypeCd()) {
+        <span class="hljs-keyword">case</span> <span class="hljs-string">&quot;AMYDT&quot;</span>:  <span class="hljs-comment">// Assessment Year DT</span>
+        <span class="hljs-keyword">case</span> <span class="hljs-string">&quot;AMYTC&quot;</span>:  <span class="hljs-comment">// Assessment Year TC</span>
+        <span class="hljs-keyword">case</span> <span class="hljs-string">&quot;AMYGP&quot;</span>:  <span class="hljs-comment">// Assessment Year GP</span>
+        <span class="hljs-keyword">case</span> <span class="hljs-string">&quot;AMYDP&quot;</span>: <span class="hljs-keyword">case</span> <span class="hljs-string">&quot;AMDTC&quot;</span>: <span class="hljs-keyword">case</span> <span class="hljs-string">&quot;AMPTC&quot;</span>:
+        <span class="hljs-keyword">case</span> <span class="hljs-string">&quot;AMDPT&quot;</span>: <span class="hljs-keyword">case</span> <span class="hljs-string">&quot;AMYUR&quot;</span>: <span class="hljs-keyword">case</span> <span class="hljs-string">&quot;AMYSA&quot;</span>: <span class="hljs-keyword">case</span> <span class="hljs-string">&quot;AMYAE&quot;</span>:
+            <span class="hljs-keyword">return</span> prepareCaseObjectMulFY(adjCase);  <span class="hljs-comment">// Multi-FY processing</span>
+        <span class="hljs-keyword">case</span> <span class="hljs-string">&quot;AMYRO&quot;</span>:
+            <span class="hljs-keyword">return</span> prepareCaseObjectROMulFY(adjCase); <span class="hljs-comment">// Revision Order</span>
+        <span class="hljs-keyword">case</span> <span class="hljs-string">&quot;ADJAR&quot;</span>:
+            <span class="hljs-keyword">return</span> prepareCaseObjectAR(adjCase);      <span class="hljs-comment">// Advance Ruling</span>
+    }
+}
+</code></pre>
+<h3 id="preparecaseobjectmulfy--core-case-preparation">prepareCaseObjectMulFY() — Core Case Preparation</h3>
+<pre><code class="language-java"><span class="hljs-keyword">public</span> Case <span class="hljs-title function_">prepareCaseObjectMulFY</span><span class="hljs-params">(Case caseobject)</span> <span class="hljs-keyword">throws</span> Exception {
+    <span class="hljs-comment">// STEP 1: Get user role and details</span>
+    <span class="hljs-type">String</span> <span class="hljs-variable">role</span> <span class="hljs-operator">=</span> GstUtil.getUserRole(caseobject.getGstid());
+    <span class="hljs-type">UserDetailVO</span> <span class="hljs-variable">userDetailVO</span> <span class="hljs-operator">=</span> validatorUtil.getUsrDtlsfromUniqueId(role, caseobject.getGstid());
+    
+    <span class="hljs-comment">// STEP 2: Generate ARN using distributed counter</span>
+    <span class="hljs-type">String</span> <span class="hljs-variable">arn</span> <span class="hljs-operator">=</span> arnutil.generateCaseARN(
+        userDetailVO.getState_Cd(),   <span class="hljs-comment">// State code</span>
+        month,                         <span class="hljs-comment">// Current month</span>
+        year);                         <span class="hljs-comment">// Current year</span>
+    <span class="hljs-comment">// ARN = e.g., &quot;AA2703260001&quot; (State + MMYY + Sequence)</span>
+    
+    <span class="hljs-comment">// STEP 3: Set ARN and GST reference on case</span>
+    caseobject.setArn(arn);
+    caseobject.setGstRef(userDetailVO.getRefId());
+    
+    <span class="hljs-comment">// STEP 4: Additional validation per case type...</span>
+    <span class="hljs-keyword">return</span> caseobject;
+}
+</code></pre>
+<hr>
+<h2 id="13-casecustomizerfactory--strategy--factory-in-action">1.3 CaseCustomizerFactory — Strategy + Factory in Action</h2>
+<p><strong>File:</strong> <code>Core-API/LitigationAPI2/.../custom/CaseCustomizerFactory.java</code></p>
+<pre><code class="language-java"><span class="hljs-meta">@Component</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">CaseCustomizerFactory</span> {
+    <span class="hljs-meta">@Autowired</span> AdjudicationCaseCustomizer adjudicationCaseCustomizer;
+    <span class="hljs-meta">@Autowired</span> AppealTranCaseCustomizer appealTranCaseCustomizer;
+    <span class="hljs-meta">@Autowired</span> AppealTrbunalCaseCustomizer appealTrbunalCaseCustomizer;
+    <span class="hljs-meta">@Autowired</span> AppealEffectTranCustomizer appealEffectTranCustomizer;
+    <span class="hljs-meta">@Autowired</span> AppelateTribunalOrderItemCustomizer tribunalOrderCustomizer;
+    <span class="hljs-meta">@Autowired</span> WaiverSchemeFolderItemCustomizer waiverCustomizer;
+    <span class="hljs-meta">@Autowired</span> AppealDRC03AFormCustomizer appealDRC03AFormCustomizer;
+    
+    <span class="hljs-comment">// Factory Method — returns the right strategy based on case type</span>
+    <span class="hljs-keyword">public</span> CaseCustomizer <span class="hljs-title function_">getCaseCustomizer</span><span class="hljs-params">(String caseTypeCd)</span> {
+        <span class="hljs-keyword">switch</span> (caseTypeCd) {
+            <span class="hljs-comment">// 12 adjudication types → same customizer (polymorphism)</span>
+            <span class="hljs-keyword">case</span> <span class="hljs-string">&quot;AMYDT&quot;</span>: <span class="hljs-keyword">case</span> <span class="hljs-string">&quot;AMYTC&quot;</span>: <span class="hljs-keyword">case</span> <span class="hljs-string">&quot;AMYGP&quot;</span>: <span class="hljs-keyword">case</span> <span class="hljs-string">&quot;AMYDP&quot;</span>:
+            <span class="hljs-keyword">case</span> <span class="hljs-string">&quot;AMDTC&quot;</span>: <span class="hljs-keyword">case</span> <span class="hljs-string">&quot;AMPTC&quot;</span>: <span class="hljs-keyword">case</span> <span class="hljs-string">&quot;AMDPT&quot;</span>: <span class="hljs-keyword">case</span> <span class="hljs-string">&quot;AMYUR&quot;</span>:
+            <span class="hljs-keyword">case</span> <span class="hljs-string">&quot;AMYRO&quot;</span>: <span class="hljs-keyword">case</span> <span class="hljs-string">&quot;AMYSA&quot;</span>: <span class="hljs-keyword">case</span> <span class="hljs-string">&quot;AMYAE&quot;</span>: <span class="hljs-keyword">case</span> <span class="hljs-string">&quot;ADJAR&quot;</span>:
+                <span class="hljs-keyword">return</span> adjudicationCaseCustomizer;
+            
+            <span class="hljs-comment">// Appeal transfer → appeal customizer</span>
+            <span class="hljs-keyword">case</span> <span class="hljs-string">&quot;APLTO&quot;</span>:
+                <span class="hljs-keyword">return</span> appealTranCaseCustomizer;
+            
+            <span class="hljs-comment">// Tribunal appeals → tribunal customizer</span>
+            <span class="hljs-keyword">case</span> <span class="hljs-string">&quot;APLFO&quot;</span>: <span class="hljs-keyword">case</span> <span class="hljs-string">&quot;APLBO&quot;</span>: <span class="hljs-keyword">case</span> <span class="hljs-string">&quot;APLNP&quot;</span>:
+                <span class="hljs-keyword">return</span> appealTrbunalCaseCustomizer;
+            
+            <span class="hljs-comment">// DRC-03A advance payment</span>
+            <span class="hljs-keyword">case</span> <span class="hljs-string">&quot;ADVPD&quot;</span>:
+                <span class="hljs-keyword">return</span> appealDRC03AFormCustomizer;
+            
+            <span class="hljs-keyword">default</span>:
+                <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">DefaultCaseCustomizer</span>();
+        }
+    }
+}
+</code></pre>
+<h3 id="interview-talking-point">Interview Talking Point</h3>
+<blockquote>
+<p>&quot;The CaseCustomizerFactory uses Spring-managed singletons (not <code>new</code> — @Autowired), so each customizer has access to its own injected dependencies like DistCacheUtil, TaskHandler, and LedgerUtil. The factory uses a switch-based selection — we discussed migrating to a Map-based lookup for O(1) resolution but the switch provides better readability for the 20+ case types and allows the compiler to verify exhaustiveness.&quot;</p>
+</blockquote>
+<hr>
+<h2 id="14-wfserviceimpl--workflow-engine-internals">1.4 WFServiceImpl — Workflow Engine Internals</h2>
+<p><strong>File:</strong> <code>Commons/WorkFlowFwk/.../service/impl/WFServiceImpl.java</code></p>
+<h3 id="key-methods">Key Methods</h3>
+<pre><code>addWfProcess(ProcessDetails)     → Create new workflow process
+addWfTask(TaskDetails, boolean)  → Create task within process
+updateWfProcess(ProcessDetails)  → Update process state
+updateTask(TaskDetails)          → Update task state
+reassignWorkItem(TaskDetails, TaskDetails, String) → Reassign tasks
+getPendingTasks(Integer, String) → Get open tasks for officer
+isComplete(Integer, String)      → Check task completion status
+</code></pre>
+<h3 id="state-machine">State Machine</h3>
+<pre><code>Task States:   RAW → PFA (Pending For Action) → APR (Approved) → ACL (Action Closed)
+Process States: RSB (Submitted) → SUB → HSB → HRS
+</code></pre>
+<h3 id="key-dependencies">Key Dependencies</h3>
+<pre><code class="language-java"><span class="hljs-meta">@Autowired</span> WorkFlowDAO wfprocessDAO;       <span class="hljs-comment">// Standard DAO</span>
+<span class="hljs-meta">@Autowired</span> WorkFlowDAO wfprocessXADAO;     <span class="hljs-comment">// XA-enabled DAO (Atomikos)</span>
+<span class="hljs-meta">@Autowired</span> WorkFlowBatchDAO batchDAO;      <span class="hljs-comment">// Batch operations</span>
+<span class="hljs-meta">@Autowired</span> AlertService alertsService;     <span class="hljs-comment">// Alert notifications</span>
+</code></pre>
+<h3 id="xa-transaction-pattern">XA Transaction Pattern</h3>
+<pre><code class="language-java"><span class="hljs-comment">// When CaseCustomizer.getTransType() returns &quot;XA&quot;:</span>
+<span class="hljs-comment">// → CaseMgmtService uses wfprocessXADAO (Atomikos-managed)</span>
+<span class="hljs-comment">// → Coordinates atomic commit across:</span>
+<span class="hljs-comment">//   1. Case table (MySQL DB1)</span>
+<span class="hljs-comment">//   2. Workflow task table (MySQL DB2)</span>
+<span class="hljs-comment">//   3. Ledger table (MySQL DB3)</span>
+<span class="hljs-comment">// → 2-phase commit ensures all-or-nothing</span>
+</code></pre>
+<hr>
+<h2 id="15-distcacheutil--distributed-cache-layer">1.5 DistCacheUtil — Distributed Cache Layer</h2>
+<p><strong>File:</strong> <code>Commons/DistCacheFwk/.../util/DistCacheUtil.java</code> (400+ methods)</p>
+<h3 id="core-operations">Core Operations</h3>
+<pre><code class="language-java">addCache(String cacheName, Object key, Object value)   <span class="hljs-comment">// Write</span>
+getCache(String cacheName, String key, Class&lt;T&gt; type)   <span class="hljs-comment">// Read</span>
+removeCache(String cacheName, String key)                <span class="hljs-comment">// Delete</span>
+</code></pre>
+<h3 id="gstn-specific-methods">GSTN-Specific Methods</h3>
+<pre><code class="language-java">getEntityValueForInput(String entityNum)    <span class="hljs-comment">// GSTIN resolution</span>
+getGstMstrDetail(gstnId, gstRefId)          <span class="hljs-comment">// GST registration master</span>
+getBankEncrptn()                             <span class="hljs-comment">// Bank encryption keys</span>
+getUserReturnPref(gstin, rtnType, period)   <span class="hljs-comment">// Monthly/Quarterly filing preference</span>
+getCaseTotaxOffclMap(caseType, stateJrdCd)  <span class="hljs-comment">// Case-to-officer mapping</span>
+auditEvcVerificationDetails(EvcVerifAdt)    <span class="hljs-comment">// EVC audit logging</span>
+</code></pre>
+<h3 id="cache-key-patterns">Cache Key Patterns</h3>
+<pre><code>RTN_MIGRATION_{gstin}         → Return migration status
+RTN_SUM_{gstin}_{period}     → Return summary
+RFN_ID_{refundId}             → Refund reference
+CASEITEMREF_ID_{caseId}       → Case item reference
+CAPTCHA_KEY_{token}            → Captcha validation
+PYMNT_CENTRE_SLNO_{centreId}  → Payment sequence number
+</code></pre>
+<h3 id="interview-talking-point-1">Interview Talking Point</h3>
+<blockquote>
+<p>&quot;DistCacheUtil serves as the unified API for all distributed cache operations. It wraps both JDG (Infinispan Hot Rod) and Redis backends with a common interface. The key design decision was using <strong>entity-based key construction</strong> — e.g., <code>GSTIN + ReturnType + Period</code> — which naturally maps to the access patterns and prevents key collisions across the 45+ API modules sharing the same cache cluster.&quot;</p>
+</blockquote>
+<hr>
+<h2 id="16-kafka-consumer-framework--consumerjava">1.6 Kafka Consumer Framework — Consumer.java</h2>
+<p><strong>File:</strong> <code>Commons/KafkaConsumerFwk/.../Consumer.java</code></p>
+<h3 id="architecture">Architecture</h3>
+<pre><code>                         ┌─────────────────┐
+                         │   Consumer.java  │
+                         │  (Framework)     │
+                         └────────┬────────┘
+                                  │
+              ┌───────────────────┼───────────────────┐
+              │                   │                   │
+    ┌─────────▼─────┐  ┌─────────▼─────┐  ┌─────────▼─────────┐
+    │ ConsumerService│  │ ThreadPool    │  │ ErrorTopicConfig   │
+    │ (runs threads) │  │ Config        │  │ (DLQ settings)     │
+    └───────────────┘  │ core=5,max=20 │  └───────────────────┘
+                        └───────────────┘
+</code></pre>
+<h3 id="two-constructor-pattern">Two-Constructor Pattern</h3>
+<pre><code class="language-java"><span class="hljs-comment">// Constructor 1: Basic consumption</span>
+<span class="hljs-keyword">new</span> <span class="hljs-title class_">Consumer</span>(topicList, kafkaProps, coreSize, maxSize, keepAlive, ackInterval);
+
+<span class="hljs-comment">// Constructor 2: With error topic + DLQ</span>
+<span class="hljs-keyword">new</span> <span class="hljs-title class_">Consumer</span>(topicList, kafkaProps, errorTopicList, producerProps,
+             coreSize, maxSize, keepAlive, ackInterval);
+</code></pre>
+<h3 id="error-handling-flow">Error Handling Flow</h3>
+<pre><code>Main Topic → Consumer → Process()
+    │
+    ├── SUCCESS → Commit Offset
+    │
+    └── FAILURE → Error Topic
+                      │
+                      ├── Scheduled Retry (configurable time window)
+                      │   - startHr:startMin:startSec
+                      │   - maxRetryCount
+                      │   - period (retry interval)
+                      │
+                      └── After maxRetries → Secondary Error Topic (DLQ)
+                                              → Manual Review
+</code></pre>
+<h3 id="interview-talking-point-2">Interview Talking Point</h3>
+<blockquote>
+<p>&quot;The Kafka consumer framework provides a pluggable Processor interface — each API module implements its own message processing logic while the framework handles threading, error routing, and graceful shutdown. The scheduled error topic consumption (e.g., retry at 2 AM when load is low) was a key design choice that recovered 90%+ of transient failures automatically, reducing manual intervention from 200+ tickets/month to under 20.&quot;</p>
+</blockquote>
+<hr>
+<h2 id="17-taxledgrservice--ledger-operations">1.7 TaxLedgrService — Ledger Operations</h2>
+<h3 id="key-methods-1">Key Methods</h3>
+<pre><code class="language-java">getRtnLiabDtlInterface(ITCLdgrReqVO)              <span class="hljs-comment">// Get return liability from GSTR3</span>
+fetchAndInsertLiabandItc(TaxLiabReqts, ITCRegReqts) <span class="hljs-comment">// Insert liability + ITC</span>
+insertLiabandItcForGstr3(...)                       <span class="hljs-comment">// GSTR3-specific insertion</span>
+getDataFromHbase(SetInterestCal)                    <span class="hljs-comment">// HBase: settlement position</span>
+validateLiab(ITCLdgrReqVO)                          <span class="hljs-comment">// Liability validation</span>
+</code></pre>
+<h3 id="dual-storage-flow">Dual Storage Flow</h3>
+<pre><code>Return Filed → TaxLedgrService
+    │
+    ├── MySQL: Save current ledger state (via Hibernate/BaseDAOImpl)
+    │   - ITCLedgrDAOImpl → ITC credit balance
+    │   - LiabLdgDAOImpl → Liability balance
+    │   - Drc03LedgerDaoImpl → Voluntary payment
+    │
+    └── HBase: Save historical time-series
+        - getDataFromHbase(SetInterestCal) → StlmntPosRatio
+        - Row Key: GSTIN + Period + TaxHead
+        - Column Families: cf_ledger, cf_return
+</code></pre>
+<hr>
+<h2 id="18-appealeffecttrancustomizer--xa--ledger--email">1.8 AppealEffectTranCustomizer — XA + Ledger + Email</h2>
+<p><strong>File:</strong> <code>Core-API/LitigationAPI2/.../custom/impl/AppealEffectTranCustomizer.java</code></p>
+<h3 id="this-is-the-most-complex-flow-great-for-interviews">This Is the Most Complex Flow (Great for Interviews)</h3>
+<pre><code>afterAddCaseFolderItem(Item itemVO)
+    │
+    ├── 1. Update Case Status → APPEAL_EFFECT_ISSUED
+    │
+    ├── 2. Credit Entry (Table A)
+    │   └── appealLedgerUtil.saveCreditDtls()  [if CGST/SGST &gt; 0]
+    │
+    ├── 3. Debit Entry (Table B)
+    │   └── appealLedgerUtil.saveDebitAndDistributeCreditITC()
+    │
+    ├── 4. Create Task for Field Officer
+    │   └── taskHandler.createTask(caseTask, INDICATOR_FO)
+    │
+    ├── 5. Send Emails (Async)
+    │   ├── Taxpayer Email: APPEAL_EFFECT_ISSUED_TP_EMAIL
+    │   ├── Taxpayer SMS:   APPEAL_EFFECT_ISSUED_TP_SMS
+    │   ├── FAA Email (Model-2): First Appellate Authority
+    │   └── Adjudicating Authority Email (if recovery &gt; 0)
+    │
+    └── 6. Recovery Handling (Model-2 only)
+        ├── If recovery CGST/SGST &gt; 0:
+        │   ├── Assign case to Adjudicating Authority
+        │   ├── Create task for Adjudicating Authority
+        │   └── Send recovery email
+        └── Else: Send order issuance email only
+</code></pre>
+<h3 id="all-within-xa-transaction">All Within XA Transaction</h3>
+<pre><code class="language-java"><span class="hljs-meta">@Override</span>
+<span class="hljs-keyword">public</span> String <span class="hljs-title function_">getTransType</span><span class="hljs-params">()</span> {
+    <span class="hljs-keyword">return</span> LitApiConstants.TRANS_TYPE_XA;  <span class="hljs-comment">// Atomikos 2-phase commit</span>
+}
+<span class="hljs-comment">// This means steps 1-4 are atomic. Steps 5-6 are async (outside XA).</span>
+</code></pre>
+<hr>
+<h2 id="19-appelatetribunalorderitemcustomizer--demand-processing">1.9 AppelateTribunalOrderItemCustomizer — Demand Processing</h2>
+<h3 id="demand-status-transitions">Demand Status Transitions</h3>
+<pre><code>FIRST_APPEAL_APPLICATION_SUBMITTED  ← APL05/APL07 filed
+         │
+         ▼
+FIRST_APPEAL_ADMITTED               ← APL06 (Order Admitting)
+         │                               demandStayed = true
+         ▼
+FIRST_APPEAL_APPLICATION_REJECTED   ← APL06 (Rejection)
+                                        demandStayed = false
+</code></pre>
+<h3 id="key-logic-outstanding-amount-check">Key Logic: Outstanding Amount Check</h3>
+<pre><code class="language-java"><span class="hljs-comment">// Before transitioning demand status, check if amounts are still outstanding</span>
+liabilityDetail = opUtil.getLiabilityDetail(demandId);
+<span class="hljs-keyword">if</span> (outstandingAmount &gt; <span class="hljs-number">0</span>) {
+    updateDemandReqVO.setDemandStayed(<span class="hljs-literal">true</span>/<span class="hljs-literal">false</span>);
+    demandUtil.updateDemand(updateDemandReqVO);
+}
+</code></pre>
+<hr>
+<h2 id="110-communicationservice--emailsms-architecture">1.10 CommunicationService — Email/SMS Architecture</h2>
+<h3 id="flow">Flow</h3>
+<pre><code>Any Module → CommunicationService.sendCommunicationAsync(CommPayload)
+    │
+    ├── 1. getCommData(tempId) → Fetch template from DB
+    │      Template: &quot;Dear {GSTIN}, your appeal {ARN} has been admitted...&quot;
+    │
+    ├── 2. getDBTemplateData(template, payload) → Variable substitution
+    │      Result: &quot;Dear 27AABCU9603R1ZP, your appeal AA2703260001...&quot;
+    │
+    ├── 3. sendCommunication(commBean, commData) → Dispatch via channel
+    │      Channel: EMAIL (SMTP) or SMS (Gateway)
+    │
+    └── 4. saveCommAuditAsync(commData) → Async audit logging
+           CommAudtEntity: timestamp, recipient, status, templateId
+</code></pre>
+<hr>
+<h1 id="-2">═══════════════════════════════════════════════════════════════</h1>
+<h1 id="part-2-resume--top-6-impact-driven-bullet-points">PART 2: RESUME — TOP 6 IMPACT-DRIVEN BULLET POINTS</h1>
+<h1 id="-3">═══════════════════════════════════════════════════════════════</h1>
+<h3 id="bullet-1-ledger-system-scale--architecture">Bullet 1: Ledger System (Scale + Architecture)</h3>
+<blockquote>
+<p><strong>Engineered the tax ledger subsystem</strong> processing ITC credits, liabilities, and settlement offsets for <strong>14M+ GSTINs</strong> using dual-storage architecture (MySQL for ACID current-state + HBase for petabyte-scale historical time-series), achieving <strong>sub-second balance queries</strong> across 3B+ annual transactions with Hibernate batch inserts and HBase bulk mutations.</p>
+</blockquote>
+<h3 id="bullet-2-case-lifecycle--customizer-pattern-design-impact">Bullet 2: Case Lifecycle + Customizer Pattern (Design Impact)</h3>
+<blockquote>
+<p><strong>Designed and implemented the Customizer pattern</strong> (Strategy + Factory) for the case management engine supporting <strong>20+ case types</strong> (Adjudication, Appeal, DCR, Waiver, Tribunal) — pluggable lifecycle hooks (<code>beforeCreateCase</code>, <code>afterCreateCase</code>) with Spring-managed singletons, <strong>reducing new case-type onboarding from weeks to 2 days</strong> while maintaining Open/Closed Principle across 118 customizer classes.</p>
+</blockquote>
+<h3 id="bullet-3-distributed-caching-performance">Bullet 3: Distributed Caching (Performance)</h3>
+<blockquote>
+<p><strong>Implemented two-tier caching architecture</strong> using EhCache (local) + Infinispan/JDG (distributed) with <strong>isolated <code>RemoteCacheManager</code> beans</strong> for return data vs. master data isolation, handling <strong>400+ cache operations</strong> via <code>DistCacheUtil</code>, reducing database load by <strong>70%</strong> and achieving <strong>sub-millisecond reads</strong> for GSTIN resolution, access group masters, and return filing status.</p>
+</blockquote>
+<h3 id="bullet-4-kafka-async--error-recovery-reliability">Bullet 4: Kafka Async + Error Recovery (Reliability)</h3>
+<blockquote>
+<p><strong>Built resilient async event pipeline</strong> using Apache Kafka with custom consumer framework featuring <strong>configurable thread pools</strong> (core/max/keepAlive), <strong>3-tier error handling</strong> (main topic → error topic with scheduled retry → DLQ for manual review), recovering <strong>90%+ transient failures automatically</strong> and processing <strong>100K+ events/hour</strong> for return filing, refund processing, and audit triggers.</p>
+</blockquote>
+<h3 id="bullet-5-dcrappealapltd-flow-domain-complexity--xa">Bullet 5: DCR/Appeal/APLTD Flow (Domain Complexity + XA)</h3>
+<blockquote>
+<p><strong>Implemented end-to-end DCR and Appeal flows</strong> (APL-01, APL-05, APL-06, APL-07) spanning order creation, demand status management, ledger credit/debit, and tribunal escalation — coordinating across <strong>6 frameworks</strong> (CaseMgmt, Workflow, Ledger, DistCache, Communication, Validation) with <strong>XA distributed transactions</strong> (Atomikos 2-phase commit) ensuring cross-database consistency.</p>
+</blockquote>
+<h3 id="bullet-6-async-communication--auto-assignment-integration">Bullet 6: Async Communication + Auto-Assignment (Integration)</h3>
+<blockquote>
+<p><strong>Architected async notification system</strong> integrating with CommunicationAPI for template-based email/SMS dispatch on case state transitions (appeal filed, order passed, demand created), with <strong>Model-2 state auto-assignment</strong> logic that automatically routes cases to Appellate Authorities using jurisdiction-based mapping from distributed cache, eliminating <strong>manual assignment for 60%+ of appeal cases</strong>.</p>
+</blockquote>
+<hr>
+<h1 id="-4">═══════════════════════════════════════════════════════════════</h1>
+<h1 id="part-3-mock-interview-simulation-5-rounds">PART 3: MOCK INTERVIEW SIMULATION (5 Rounds)</h1>
+<h1 id="-5">═══════════════════════════════════════════════════════════════</h1>
+<h2 id="31-round-1-java-deep-dive-45-min">3.1 Round 1: Java Deep Dive (45 min)</h2>
+<h3 id="q1-how-does-concurrenthashmap-work-in-java-8-how-is-it-different-from-java-7">Q1. How does ConcurrentHashMap work in Java 8? How is it different from Java 7?</h3>
+<p><strong>Expected Answer:</strong>
+Java 7: Segment-based locking (16 segments, ReentrantLock per segment)
+Java 8: CAS (Compare-And-Swap) on empty buckets + synchronized on first node of non-empty buckets. <strong>Per-bucket granularity</strong> instead of per-segment. Tree-ification (LinkedList → Red-Black Tree) at 8 nodes.</p>
+<p><strong>Your GSTN Context:</strong></p>
+<blockquote>
+<p>&quot;In <code>KafkaConsumerConfig</code>, we use ConcurrentHashMap for consumer thread-safe configuration. Multiple consumer threads read config while the main thread can update — lock-free reads via volatile Node.val ensure no blocking for the read-heavy pattern.&quot;</p>
+</blockquote>
+<h3 id="q2-explain-the-java-memory-model-what-is-happens-before">Q2. Explain the Java Memory Model. What is happens-before?</h3>
+<p><strong>Expected Answer:</strong></p>
+<ul>
+<li>Program order rule: Each action in a thread happens-before the next</li>
+<li>Monitor lock rule: Unlock happens-before subsequent lock of same monitor</li>
+<li>Volatile rule: Write to volatile happens-before subsequent read</li>
+<li>Thread.start() rule: <code>start()</code> happens-before any action in started thread</li>
+<li>Thread.join() rule: All actions in thread happen-before join() returns</li>
+</ul>
+<p><strong>Your GSTN Context:</strong></p>
+<blockquote>
+<p>&quot;In DistCacheUtil, the singleton KafkaConsumerConfig uses <code>private static volatile Config INSTANCE</code> — the volatile write of the instance in double-checked locking happens-before the read in subsequent calls, ensuring all initialization is visible.&quot;</p>
+</blockquote>
+<h3 id="q3-what-is-the-difference-between-synchronized-volatile-and-atomic-classes">Q3. What is the difference between synchronized, volatile, and Atomic classes?</h3>
+<p><strong>Expected Answer:</strong></p>
+<pre><code>synchronized: Mutual exclusion + visibility. Heavyweight (OS mutex if contended).
+volatile:     Visibility only. No atomicity for compound operations (read-modify-write).
+Atomic*:      CAS-based. Lock-free. Atomic read-modify-write (compareAndSet).
+</code></pre>
+<p><strong>When to use what:</strong></p>
+<pre><code>Single flag/reference:          volatile
+Counter/accumulator:            AtomicLong/AtomicInteger
+Complex state update:           synchronized or ReentrantLock
+Read-heavy, write-rare:         ReadWriteLock or StampedLock
+</code></pre>
+<h3 id="q4-explain-completablefuture-how-is-it-different-from-future">Q4. Explain CompletableFuture. How is it different from Future?</h3>
+<p><strong>Expected Answer:</strong></p>
+<pre><code class="language-java"><span class="hljs-comment">// Future: Blocking .get() — wastes thread</span>
+Future&lt;String&gt; future = executor.submit(() -&gt; fetchFromHBase());
+<span class="hljs-type">String</span> <span class="hljs-variable">result</span> <span class="hljs-operator">=</span> future.get();  <span class="hljs-comment">// BLOCKS here</span>
+
+<span class="hljs-comment">// CompletableFuture: Non-blocking chaining</span>
+CompletableFuture.supplyAsync(() -&gt; fetchFromHBase())
+    .thenApply(data -&gt; transform(data))          <span class="hljs-comment">// map</span>
+    .thenAccept(result -&gt; cache.put(key, result)) <span class="hljs-comment">// consume</span>
+    .exceptionally(ex -&gt; { log.error(ex); <span class="hljs-keyword">return</span> <span class="hljs-literal">null</span>; });
+</code></pre>
+<p><strong>Your GSTN Context:</strong></p>
+<blockquote>
+<p>&quot;In CommunicationService, <code>sendCommunicationAsync()</code> is marked <code>@Async</code> — Spring creates a proxy that submits to ThreadPoolTaskExecutor. For new code, I'd prefer CompletableFuture for better composition — e.g., sending email AND SMS in parallel then waiting for both.&quot;</p>
+</blockquote>
+<h3 id="q5-explain-garbage-collection--g1-gc-vs-zgc">Q5. Explain garbage collection — G1 GC vs ZGC.</h3>
+<p><strong>Expected Answer:</strong></p>
+<pre><code>G1 (Garbage First) — Default Java 9+:
+  - Divides heap into regions (1-32MB each)
+  - Young + Old regions (not fixed)
+  - Concurrent marking, incremental compaction
+  - Pause target: 200ms (configurable)
+
+ZGC (Z Garbage Collector) — Java 15+:
+  - Colored pointers + load barriers
+  - Concurrent relocation (no stop-the-world for compaction)
+  - Pause target: &lt;10ms regardless of heap size
+  - Handles terabyte heaps
+</code></pre>
+<p><strong>Your GSTN Context:</strong></p>
+<blockquote>
+<p>&quot;GSTN runs on Java 8, so we use G1 GC with <code>-XX:MaxGCPauseMillis=200</code>. For HBase client connections, long-lived objects in Old Gen can cause mixed GC pauses. We tune <code>-XX:G1HeapRegionSize</code> to 16MB for our large heap (8-16GB) deployments.&quot;</p>
+</blockquote>
+<h3 id="q6-what-is-the-n1-problem-in-hibernate-how-do-you-fix-it">Q6. What is the N+1 problem in Hibernate? How do you fix it?</h3>
+<p><strong>Expected Answer:</strong></p>
+<pre><code>N+1: Loading parent entity → triggers N separate queries for children
+Fix 1: @BatchSize(size=50) — loads children in batches
+Fix 2: JOIN FETCH in HQL — &quot;FROM Case c JOIN FETCH c.items&quot;
+Fix 3: @EntityGraph — declares fetch plan at query time
+Fix 4: Use DTO projection (select specific columns, no lazy loading)
+</code></pre>
+<p><strong>Your GSTN Context:</strong></p>
+<blockquote>
+<p>&quot;In LedgerUtilFwk, <code>BaseDAOImpl.getSession()</code> provides the Hibernate session. We use HQL with explicit joins for ledger queries to avoid N+1. For case folder items, we use <code>getCaseFolderItemsByCaseId()</code> which fetches all items in a single query.&quot;</p>
+</blockquote>
+<h3 id="q7-how-does-spring-transactional-work-internally-proxy-mechanism">Q7. How does Spring @Transactional work internally? Proxy mechanism?</h3>
+<p><strong>Expected Answer:</strong></p>
+<pre><code>1. Spring creates a CGLIB/JDK proxy around @Transactional class
+2. Proxy intercepts method call → opens transaction (via PlatformTransactionManager)
+3. Method executes on actual bean
+4. On success → proxy commits
+5. On RuntimeException → proxy rollbacks
+6. On checked Exception → NO rollback (unless rollbackFor specified)
+</code></pre>
+<p><strong>Pitfall: Self-invocation bypasses proxy!</strong></p>
+<pre><code class="language-java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">Service</span> {
+    <span class="hljs-meta">@Transactional</span>
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">methodA</span><span class="hljs-params">()</span> { ... }
+    
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">methodB</span><span class="hljs-params">()</span> {
+        methodA();  <span class="hljs-comment">// ❌ Calls directly, not via proxy → NO transaction!</span>
+    }
+}
+</code></pre>
+<p><strong>Your GSTN Context:</strong></p>
+<blockquote>
+<p>&quot;In AppealEffectTranCustomizer, <code>getTransType()</code> returns XA — the CaseMgmtService selects the XA TransactionManager (Atomikos) instead of standard DataSourceTransactionManager. This coordinates 2-phase commit across case DB, workflow DB, and ledger DB.&quot;</p>
+</blockquote>
+<h3 id="q8-explain-stream-api-internals-how-does-parallel-stream-work">Q8. Explain Stream API internals. How does parallel stream work?</h3>
+<p><strong>Expected Answer:</strong></p>
+<pre><code class="language-java"><span class="hljs-comment">// Uses ForkJoinPool.commonPool() by default</span>
+list.parallelStream()
+    .filter(x -&gt; x &gt; <span class="hljs-number">10</span>)     <span class="hljs-comment">// Spliterator splits data</span>
+    .map(x -&gt; transform(x))  <span class="hljs-comment">// Each chunk processed in separate thread</span>
+    .collect(toList());       <span class="hljs-comment">// Results merged</span>
+
+<span class="hljs-comment">// DANGER: Shared mutable state, blocking I/O in parallel stream</span>
+<span class="hljs-comment">// Custom pool:</span>
+<span class="hljs-type">ForkJoinPool</span> <span class="hljs-variable">customPool</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">ForkJoinPool</span>(<span class="hljs-number">4</span>);
+customPool.submit(() -&gt; list.parallelStream()...).get();
+</code></pre>
+<p><strong>Your GSTN Context:</strong></p>
+<blockquote>
+<p>&quot;In AppealTranCaseCustomizer.afterCreateCase(), we use streams for access group filtering:
+<code>accessDtls.entrySet().stream().filter(map -&gt; 'APL_AUTORITY'.equals(map.getValue())).map(...).collect(Collectors.joining())</code>
+This is a small collection (&lt; 100 entries) so sequential stream is correct — parallel would add overhead.&quot;</p>
+</blockquote>
+<h3 id="q9-what-is-a-deadlock-how-do-you-detect-and-prevent-it">Q9. What is a deadlock? How do you detect and prevent it?</h3>
+<p><strong>Expected Answer:</strong></p>
+<pre><code>Four conditions (ALL must hold):
+1. Mutual exclusion
+2. Hold and wait
+3. No preemption
+4. Circular wait
+
+Detection:
+- jstack &lt;pid&gt; → look for &quot;Found one Java-level deadlock&quot;
+- ThreadMXBean.findDeadlockedThreads()
+
+Prevention:
+- Lock ordering (always acquire locks in same global order)
+- Lock timeout (tryLock with timeout)
+- Avoid nested locks
+- Use concurrent collections instead of explicit locking
+</code></pre>
+<p><strong>Your GSTN Context:</strong></p>
+<blockquote>
+<p>&quot;In our XA transactions, Atomikos handles timeout-based deadlock resolution — if a 2PC participant doesn't respond within the configured timeout, the transaction coordinator rolls back all participants. We set <code>com.atomikos.icatch.max_timeout=300000</code> (5 minutes) as the upper bound.&quot;</p>
+</blockquote>
+<h3 id="q10-what-are-sealed-classes-records-pattern-matching-in-modern-java">Q10. What are sealed classes, records, pattern matching in modern Java?</h3>
+<p><strong>Expected Answer:</strong></p>
+<pre><code class="language-java"><span class="hljs-comment">// Records (Java 16) — immutable data carriers</span>
+<span class="hljs-keyword">record</span> <span class="hljs-title class_">LedgerEntry</span><span class="hljs-params">(String gstin, BigDecimal amount, String taxHead)</span> {}
+<span class="hljs-comment">// Auto-generates: constructor, getters, equals, hashCode, toString</span>
+
+<span class="hljs-comment">// Sealed Classes (Java 17) — controlled inheritance</span>
+<span class="hljs-keyword">sealed</span> <span class="hljs-keyword">interface</span> <span class="hljs-title class_">CaseCustomizer</span> permits AdjudicationCase, AppealCase, DefaultCase {}
+<span class="hljs-comment">// Only listed classes can implement</span>
+
+<span class="hljs-comment">// Pattern Matching (Java 21)</span>
+<span class="hljs-keyword">switch</span> (customizer) {
+    <span class="hljs-keyword">case</span> AdjudicationCase adj -&gt; adj.prepareCaseObject();
+    <span class="hljs-keyword">case</span> AppealCase app -&gt; app.validateAppeal();
+    <span class="hljs-keyword">default</span> -&gt; <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">IllegalStateException</span>();
+}
+</code></pre>
+<p><strong>Your GSTN Context:</strong></p>
+<blockquote>
+<p>&quot;GSTN is on Java 8, but in interviews I'd discuss how our CaseCustomizerFactory switch statement would benefit from sealed interfaces — the compiler could verify exhaustive handling of all case types. Records would replace our VOs (ITCLdgrReqVO, CaseAssignDtlVO) eliminating boilerplate.&quot;</p>
+</blockquote>
+<hr>
+<h2 id="32-round-2-spring-boot--microservices-45-min">3.2 Round 2: Spring Boot + Microservices (45 min)</h2>
+<h3 id="q1-how-does-spring-boot-auto-configuration-work-explain-conditionalonclass">Q1. How does Spring Boot auto-configuration work? Explain @ConditionalOnClass.</h3>
+<p><strong>Your Answer:</strong></p>
+<blockquote>
+<p>&quot;In GSTN, we built <code>springboot-starter-gstn</code> — a custom starter. The <code>META-INF/spring.factories</code> file lists auto-configuration classes like <code>DistCacheFwkAutoConfig</code>, <code>CaseMgmtDaoAutoConfig</code>. Each uses <code>@ConditionalOnClass</code> to check if the framework JAR is on the classpath. For example, <code>@ConditionalOnClass(DistCacheFactory.class)</code> ensures DistCache beans are only created if DistCacheFwk JAR is in the WAR. This allows each microservice to pick only what it needs.&quot;</p>
+</blockquote>
+<h3 id="q2-explain-transactional-propagation-levels-with-real-examples">Q2. Explain @Transactional propagation levels with real examples.</h3>
+<p><strong>Your Answer:</strong></p>
+<pre><code>REQUIRED (default):  Join existing or create new. Used in most service methods.
+REQUIRES_NEW:        Suspend existing, create new. Used in LedgerService — independent txn.
+NESTED:              Savepoint within existing. Used for partial rollback scenarios.
+MANDATORY:           Must have existing txn. Used in DAO methods called only from services.
+</code></pre>
+<blockquote>
+<p>&quot;In AppealEffectTranCustomizer, the XA transaction coordinates across case + workflow + ledger. But email sending (<code>sendCommunicationAsync</code>) runs with REQUIRES_NEW — because we don't want email failure to rollback the case creation.&quot;</p>
+</blockquote>
+<h3 id="q3-how-do-you-handle-distributed-transactions-without-2pc">Q3. How do you handle distributed transactions without 2PC?</h3>
+<p><strong>Your Answer:</strong></p>
+<blockquote>
+<p>&quot;Three alternatives to XA/2PC:</p>
+<ol>
+<li><strong>Saga Pattern</strong>: Each service has a compensating action. If step 3 fails, execute compensations for step 2 and step 1.
+<ul>
+<li>Orchestration (central): CaseMgmtService calls each step</li>
+<li>Choreography (event): Each step publishes event, next step listens</li>
+</ul>
+</li>
+<li><strong>Outbox Pattern</strong>: Write event + data in same DB transaction → separate process reads outbox → publishes to Kafka → consumers process</li>
+<li><strong>Event Sourcing</strong>: No update, only append events. State = f(events).</li>
+</ol>
+<p>In GSTN, we currently use XA (Atomikos) for critical flows like DCR orders. For newer services, I'd advocate Saga with Kafka — publish case-created event → ledger service consumes → workflow service consumes — with compensating transactions.&quot;</p>
+</blockquote>
+<h3 id="q4-what-is-circuit-breaker-pattern-implement-one">Q4. What is circuit breaker pattern? Implement one.</h3>
+<p><strong>Your Answer:</strong></p>
+<pre><code class="language-java"><span class="hljs-comment">// States: CLOSED (normal) → OPEN (failing) → HALF_OPEN (testing)</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">CircuitBreaker</span> {
+    <span class="hljs-keyword">enum</span> <span class="hljs-title class_">State</span> { CLOSED, OPEN, HALF_OPEN }
+    <span class="hljs-keyword">private</span> <span class="hljs-type">State</span> <span class="hljs-variable">state</span> <span class="hljs-operator">=</span> State.CLOSED;
+    <span class="hljs-keyword">private</span> <span class="hljs-type">int</span> <span class="hljs-variable">failureCount</span> <span class="hljs-operator">=</span> <span class="hljs-number">0</span>;
+    <span class="hljs-keyword">private</span> <span class="hljs-type">int</span> <span class="hljs-variable">threshold</span> <span class="hljs-operator">=</span> <span class="hljs-number">5</span>;
+    <span class="hljs-keyword">private</span> <span class="hljs-type">long</span> <span class="hljs-variable">timeout</span> <span class="hljs-operator">=</span> <span class="hljs-number">30_000</span>;
+    <span class="hljs-keyword">private</span> <span class="hljs-type">long</span> lastFailureTime;
+
+    <span class="hljs-keyword">public</span> &lt;T&gt; T <span class="hljs-title function_">execute</span><span class="hljs-params">(Supplier&lt;T&gt; action, Supplier&lt;T&gt; fallback)</span> {
+        <span class="hljs-keyword">if</span> (state == State.OPEN) {
+            <span class="hljs-keyword">if</span> (System.currentTimeMillis() - lastFailureTime &gt; timeout) {
+                state = State.HALF_OPEN; <span class="hljs-comment">// Try one request</span>
+            } <span class="hljs-keyword">else</span> {
+                <span class="hljs-keyword">return</span> fallback.get(); <span class="hljs-comment">// Fast fail</span>
+            }
+        }
+        <span class="hljs-keyword">try</span> {
+            <span class="hljs-type">T</span> <span class="hljs-variable">result</span> <span class="hljs-operator">=</span> action.get();
+            reset(); <span class="hljs-comment">// Success → CLOSED</span>
+            <span class="hljs-keyword">return</span> result;
+        } <span class="hljs-keyword">catch</span> (Exception e) {
+            recordFailure();
+            <span class="hljs-keyword">return</span> fallback.get();
+        }
+    }
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">recordFailure</span><span class="hljs-params">()</span> {
+        failureCount++;
+        lastFailureTime = System.currentTimeMillis();
+        <span class="hljs-keyword">if</span> (failureCount &gt;= threshold) state = State.OPEN;
+    }
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">reset</span><span class="hljs-params">()</span> { failureCount = <span class="hljs-number">0</span>; state = State.CLOSED; }
+}
+</code></pre>
+<blockquote>
+<p>&quot;In GSTN, when DistCacheUtil (JDG) is unreachable, we fall back to direct DB queries. A circuit breaker would formalize this — after 5 cache failures, stop attempting cache reads for 30 seconds, then probe with one request.&quot;</p>
+</blockquote>
+<h3 id="q5-how-do-you-design-idempotent-apis">Q5. How do you design idempotent APIs?</h3>
+<p><strong>Your Answer:</strong></p>
+<pre><code class="language-java"><span class="hljs-comment">// Pattern: Idempotency key + distributed lock</span>
+<span class="hljs-meta">@PostMapping(&quot;/api/case/create&quot;)</span>
+<span class="hljs-keyword">public</span> Case <span class="hljs-title function_">createCase</span><span class="hljs-params">(<span class="hljs-meta">@RequestBody</span> CaseVO caseVO,
+                        <span class="hljs-meta">@RequestHeader(&quot;X-Idempotency-Key&quot;)</span> String key)</span> {
+    <span class="hljs-comment">// 1. Check cache for previous result</span>
+    <span class="hljs-type">Case</span> <span class="hljs-variable">cachedResult</span> <span class="hljs-operator">=</span> distCacheUtil.getCache(<span class="hljs-string">&quot;idemp:&quot;</span> + key, Case.class);
+    <span class="hljs-keyword">if</span> (cachedResult != <span class="hljs-literal">null</span>) <span class="hljs-keyword">return</span> cachedResult;
+    
+    <span class="hljs-comment">// 2. Acquire distributed lock</span>
+    <span class="hljs-type">boolean</span> <span class="hljs-variable">locked</span> <span class="hljs-operator">=</span> distCacheUtil.acquireLock(<span class="hljs-string">&quot;lock:case:&quot;</span> + key, <span class="hljs-number">30</span>);
+    <span class="hljs-keyword">if</span> (!locked) <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">ConflictException</span>(<span class="hljs-string">&quot;Request in progress&quot;</span>);
+    
+    <span class="hljs-keyword">try</span> {
+        <span class="hljs-comment">// 3. Double-check after lock</span>
+        cachedResult = distCacheUtil.getCache(<span class="hljs-string">&quot;idemp:&quot;</span> + key, Case.class);
+        <span class="hljs-keyword">if</span> (cachedResult != <span class="hljs-literal">null</span>) <span class="hljs-keyword">return</span> cachedResult;
+        
+        <span class="hljs-comment">// 4. Process</span>
+        <span class="hljs-type">Case</span> <span class="hljs-variable">result</span> <span class="hljs-operator">=</span> caseMgmtService.createCase(caseVO);
+        
+        <span class="hljs-comment">// 5. Cache result</span>
+        distCacheUtil.addCache(<span class="hljs-string">&quot;idemp:&quot;</span> + key, result, <span class="hljs-number">86400</span>);
+        <span class="hljs-keyword">return</span> result;
+    } <span class="hljs-keyword">finally</span> {
+        distCacheUtil.releaseLock(<span class="hljs-string">&quot;lock:case:&quot;</span> + key);
+    }
+}
+</code></pre>
+<h3 id="q6-q10-brief">Q6-Q10 (Brief)</h3>
+<ul>
+<li><strong>Q6: Rate limiting strategies</strong> — Token bucket, sliding window, fixed window. GSTN context: API Gateway rate limiting per GSTIN.</li>
+<li><strong>Q7: Service discovery and load balancing</strong> — Client-side (Ribbon) vs. Server-side (Nginx). GSTN uses API Gateway with Tomcat clusters.</li>
+<li><strong>Q8: How to handle API versioning</strong> — URI (/v1/, /v2/), Header (Accept-Version), Query param. GSTN uses URI-based.</li>
+<li><strong>Q9: What is CQRS?</strong> — Command Query Responsibility Segregation. Write model (MySQL) separate from read model (Solr/cache).</li>
+<li><strong>Q10: How to test microservices</strong> — Unit (Mockito), Integration (TestContainers), Contract (Pact), E2E. GSTN uses TestNG + Mockito.</li>
+</ul>
+<hr>
+<h2 id="33-round-3-system-design-45-min">3.3 Round 3: System Design (45 min)</h2>
+<h3 id="problem-1-design-a-tax-filing-system-for-14m-users">Problem 1: Design a Tax Filing System for 14M Users</h3>
+<p><strong>Step 1: Requirements</strong></p>
+<ul>
+<li>14M registered taxpayers</li>
+<li>Monthly filing deadline (20th) → 10x spike</li>
+<li>12 return types (GSTR1, GSTR3B, GSTR9, etc.)</li>
+<li>Real-time ledger updates</li>
+<li>Filing status tracking</li>
+</ul>
+<p><strong>Step 2: High-Level Architecture</strong></p>
+<pre><code>Taxpayer → CDN → API Gateway → Load Balancer
+              │
+    ┌─────────┴──────────┐
+    │    Filing Service    │
+    │    (Stateless)      │
+    └─────────┬──────────┘
+              │
+    ┌─────────┼──────────────────────┐
+    │         │                      │
+    ▼         ▼                      ▼
+ Kafka    HBase                   MySQL
+ (async)  (return data)          (metadata)
+    │
+    ├── Ledger Consumer (updates balances)
+    ├── Search Consumer (updates Solr index)
+    └── Notification Consumer (sends email/SMS)
+</code></pre>
+<p><strong>Step 3: Key Design Decisions</strong></p>
+<ol>
+<li><strong>HBase for return data</strong> — unlimited horizontal scaling, GSTIN-based row keys</li>
+<li><strong>Kafka for async processing</strong> — absorbs month-end spikes, decouples filing from ledger</li>
+<li><strong>Two-tier cache</strong> — EhCache (static masters) + Infinispan (dynamic state)</li>
+<li><strong>XA for ledger</strong> — financial data needs strong consistency</li>
+<li><strong>Eventually consistent dashboard</strong> — Solr re-indexed via Kafka consumer</li>
+</ol>
+<p><strong>Step 4: Handle 10x Spike</strong></p>
+<ul>
+<li>Kafka partitions scale consumers horizontally</li>
+<li>Stateless API servers → add pods during surge</li>
+<li>HBase auto-splits regions under load</li>
+<li>Cache absorbs read spikes (85% hit rate)</li>
+</ul>
+<h3 id="problem-2-design-a-case-management-workflow-engine">Problem 2: Design a Case Management Workflow Engine</h3>
+<p><em>(Use your actual architecture as the answer)</em></p>
+<h3 id="problem-3-design-a-distributed-ledger-for-tax-credits">Problem 3: Design a Distributed Ledger for Tax Credits</h3>
+<p><em>(Use your actual dual-storage MySQL+HBase architecture)</em></p>
+<hr>
+<h2 id="34-round-4-past-work-deep-dive-45-min">3.4 Round 4: Past Work Deep Dive (45 min)</h2>
+<h3 id="q1-walk-me-through-the-most-complex-feature-you-built">Q1. &quot;Walk me through the most complex feature you built.&quot;</h3>
+<p><strong>Your Answer:</strong></p>
+<blockquote>
+<p>&quot;The Appeal Effect Order flow in GSTN's litigation module. When an appellate authority passes an order on a taxpayer's appeal, the system must:</p>
+<ol>
+<li>Update the case status to APPEAL_EFFECT_ISSUED</li>
+<li>Create credit entries in the tax ledger (if CGST/SGST amounts were modified)</li>
+<li>Create debit entries and distribute ITC credits across tax heads</li>
+<li>Create a follow-up task for the Field Officer</li>
+<li>Send emails to the taxpayer, appellate authority, and adjudicating authority</li>
+<li>If recovery amounts exist, assign the case to the adjudicating authority for enforcement</li>
+</ol>
+<p>All of this happens within a single XA transaction (Atomikos) — steps 1-4 are atomic. Email sending is async (outside XA) to avoid holding the transaction open for I/O. The customizer pattern allowed us to implement this without touching the core CaseMgmtFwk — just adding an <code>AppealEffectTranCustomizer</code> class.&quot;</p>
+</blockquote>
+<h3 id="q2-how-did-you-handle-the-caching-layer">Q2. &quot;How did you handle the caching layer?&quot;</h3>
+<p><strong>Your Answer:</strong></p>
+<blockquote>
+<p>&quot;Two-tier: EhCache for static reference data (state codes, access groups, bank lists — changes rarely), Infinispan/JDG for dynamic data (GSTIN masters, return status, case-to-officer mappings). Key design: two separate RemoteCacheManager beans — one for general masters, one for return-specific data — because month-end filing spikes would evict critical master data if they shared the same cache space. DistCacheUtil (400+ methods) provides the unified API with entity-based key construction.&quot;</p>
+</blockquote>
+<h3 id="q3-what-was-a-production-issue-you-debugged">Q3. &quot;What was a production issue you debugged?&quot;</h3>
+<p><strong>Your Answer:</strong></p>
+<blockquote>
+<p>&quot;A case creation was intermittently failing with <code>StaleStateException</code> from Hibernate. Root cause: two concurrent requests for the same GSTIN were creating the same case — the second request's INSERT conflicted with the first's uncommitted transaction. Fix: I implemented an idempotency check using DistCacheUtil — before creating a case, we check the cache for an existing ARN with the same GSTIN + case type + period + fiscal year. If found, return the existing case instead of creating a duplicate. Added a distributed lock for the critical section.&quot;</p>
+</blockquote>
+<h3 id="q4-how-would-you-improve-the-current-architecture">Q4. &quot;How would you improve the current architecture?&quot;</h3>
+<p><strong>Your Answer:</strong></p>
+<blockquote>
+<p>&quot;Three improvements:</p>
+<ol>
+<li><strong>Replace XA with Saga</strong>: XA (Atomikos) holds locks across the prepare phase — slow and blocking. A Kafka-based saga would be more resilient.</li>
+<li><strong>Migrate to Java 17+</strong>: Records for VOs, sealed interfaces for CaseCustomizer (compiler-checked exhaustiveness), virtual threads for HBase/cache I/O.</li>
+<li><strong>Add circuit breakers</strong>: When JDG is unreachable, gracefully degrade to DB queries instead of failing. Currently handled ad-hoc in try-catch — a Resilience4j circuit breaker would formalize the fallback.&quot;</li>
+</ol>
+</blockquote>
+<h3 id="q5-q10-brief">Q5-Q10 (Brief)</h3>
+<ul>
+<li><strong>Q5: How did you ensure data consistency across MySQL and HBase?</strong> — XA for critical writes, idempotent HBase Puts for retries, periodic reconciliation batch job.</li>
+<li><strong>Q6: What design patterns did you use?</strong> — Strategy (CaseCustomizer), Factory (CaseCustomizerFactory), Template Method (BaseDAOImpl), Builder (HBase Model), Singleton (KafkaConsumerConfig), Observer (Kafka pub-sub).</li>
+<li><strong>Q7: How did you handle schema changes in HBase?</strong> — Column family additions are backward-compatible, new columns don't affect existing readers. For breaking changes, we version the row key format.</li>
+<li><strong>Q8: How was testing done?</strong> — Unit tests with TestNG + Mockito (mock DAOs, DistCacheUtil). AdjCfiCustomizerTest.xlsx for data-driven testing.</li>
+<li><strong>Q9: How did email sending work?</strong> — CommunicationService: fetch template by ID → variable substitution → send via SMTP/SMS gateway → async audit log.</li>
+<li><strong>Q10: What was the Kafka partitioning strategy?</strong> — Partition by GSTIN — all events for one taxpayer go to same partition, ensuring per-GSTIN ordering.</li>
+</ul>
+<hr>
+<h2 id="35-round-5-behavioral--managerial-45-min">3.5 Round 5: Behavioral + Managerial (45 min)</h2>
+<h3 id="q1-tell-me-about-a-time-you-disagreed-with-your-team">Q1. &quot;Tell me about a time you disagreed with your team.&quot;</h3>
+<blockquote>
+<p><strong>Situation:</strong> Team wanted to add appeal logic directly into CaseMgmtFwk (shared framework).
+<strong>Task:</strong> I needed to propose an alternative without blocking the sprint.
+<strong>Action:</strong> I created a POC of the Customizer pattern in 2 days — showed how the Strategy interface isolates case-type logic while the Factory provides routing. Presented at sprint review with side-by-side comparison: 200-line monolithic change vs. 3 small focused classes.
+<strong>Result:</strong> Team adopted the Customizer pattern. 3 other teams later reused the same pattern (LitigationAPI, AuditAPI, BOLitigationAPI all have their own CaseCustomizerFactory now).</p>
+</blockquote>
+<h3 id="q2-describe-a-time-when-you-had-to-learn-something-quickly">Q2. &quot;Describe a time when you had to learn something quickly.&quot;</h3>
+<blockquote>
+<p><strong>Situation:</strong> Assigned to implement XA transactions with Atomikos — no prior experience with distributed transactions.
+<strong>Task:</strong> Need to ensure atomic commits across case DB + workflow DB + ledger DB within 2 weeks.
+<strong>Action:</strong> Read Atomikos documentation, studied the existing <code>CaseDaoXaImpl</code> pattern, wrote a test harness simulating coordinator failure. Pair-programmed with the workflow team to understand <code>WFServiceImpl</code>'s XA integration.
+<strong>Result:</strong> Delivered within sprint. The XA integration worked correctly — zero data inconsistencies reported in production. Documented the pattern in team wiki for future use.</p>
+</blockquote>
+<h3 id="q3-how-do-you-prioritize-when-everything-is-urgent">Q3. &quot;How do you prioritize when everything is urgent?&quot;</h3>
+<blockquote>
+<p><strong>Situation:</strong> Two critical items: DCR order bug (production) + Appeal feature (deadline in 3 days).
+<strong>Action:</strong> Used an impact/urgency matrix. DCR bug affected live taxpayers (high impact + high urgency) → fix first. Appeal feature was pre-deadline (high impact + medium urgency) → after. Communicated revised timeline to PM.
+<strong>Result:</strong> DCR fix deployed same day (2-hour hotfix reusing existing DAO code). Appeal feature reused DCR's LedgerUtil, so the fix actually accelerated the appeal implementation.</p>
+</blockquote>
+<h3 id="q4-q10-brief-frameworks">Q4-Q10 (Brief Frameworks)</h3>
+<ul>
+<li><strong>Q4: Mentoring</strong> — Created DistCache decision matrix for junior dev (local vs distributed). Pair-programmed Kafka consumer integration.</li>
+<li><strong>Q5: Failed/mistake</strong> — Once deployed a customizer without null-checking the caseJson field → NPE in production for edge case (case created via G2G API without JSON). Added defensive check + integration test.</li>
+<li><strong>Q6: Ownership</strong> — Voluntarily took on WaiverSchemeFolderItemCustomizer (CR27893-B) when original assignee left mid-sprint.</li>
+<li><strong>Q7: Simplification</strong> — Reduced 12 switch cases in AdjudicationCaseCustomizer that all called <code>prepareCaseObjectMulFY()</code> — suggested mapping instead of explicit cases (team preferred explicit for readability).</li>
+<li><strong>Q8: Cross-team collaboration</strong> — Coordinated with Workflow team (WFServiceImpl), Ledger team (LedgerUtilFwk), and Communication team (CommunicationAPI) for the appeal effect flow.</li>
+<li><strong>Q9: Deadline pressure</strong> — Month-end filing deadline is non-negotiable. Used feature flags to isolate WIP appeal code from production path.</li>
+<li><strong>Q10: Technical debt</strong> — Identified that DistCacheUtil has 400+ methods with inconsistent naming. Proposed grouping by entity type with a consistent naming convention.</li>
+</ul>
+<hr>
+<h1 id="-6">═══════════════════════════════════════════════════════════════</h1>
+<h1 id="part-4-java-code-snippets-to-memorize-15-production-grade">PART 4: JAVA CODE SNIPPETS TO MEMORIZE (15 Production-Grade)</h1>
+<h1 id="-7">═══════════════════════════════════════════════════════════════</h1>
+<h3 id="1-thread-safe-singleton-double-checked-locking">1. Thread-Safe Singleton (Double-Checked Locking)</h3>
+<pre><code class="language-java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">KafkaConsumerConfig</span> {
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">volatile</span> KafkaConsumerConfig INSTANCE;
+    
+    <span class="hljs-keyword">private</span> <span class="hljs-title function_">KafkaConsumerConfig</span><span class="hljs-params">()</span> {} <span class="hljs-comment">// private constructor</span>
+    
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> KafkaConsumerConfig <span class="hljs-title function_">getInstance</span><span class="hljs-params">()</span> {
+        <span class="hljs-keyword">if</span> (INSTANCE == <span class="hljs-literal">null</span>) {                    <span class="hljs-comment">// First check (no locking)</span>
+            <span class="hljs-keyword">synchronized</span> (KafkaConsumerConfig.class) {
+                <span class="hljs-keyword">if</span> (INSTANCE == <span class="hljs-literal">null</span>) {            <span class="hljs-comment">// Second check (with lock)</span>
+                    INSTANCE = <span class="hljs-keyword">new</span> <span class="hljs-title class_">KafkaConsumerConfig</span>();
+                }
+            }
+        }
+        <span class="hljs-keyword">return</span> INSTANCE;
+    }
+}
+<span class="hljs-comment">// Used in: KafkaConsumerFwk — ensures single consumer config per JVM</span>
+</code></pre>
+<h3 id="2-strategy--factory-pattern-your-casecustomizer">2. Strategy + Factory Pattern (Your CaseCustomizer)</h3>
+<pre><code class="language-java"><span class="hljs-comment">// Strategy Interface</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">interface</span> <span class="hljs-title class_">CaseCustomizer</span> {
+    Case <span class="hljs-title function_">beforeCreateCase</span><span class="hljs-params">(Case c)</span> <span class="hljs-keyword">throws</span> Exception;
+    Case <span class="hljs-title function_">afterCreateCase</span><span class="hljs-params">(Case c)</span> <span class="hljs-keyword">throws</span> Exception;
+    <span class="hljs-keyword">default</span> String <span class="hljs-title function_">getTransType</span><span class="hljs-params">()</span> { <span class="hljs-keyword">return</span> <span class="hljs-string">&quot;XA&quot;</span>; }
+}
+
+<span class="hljs-comment">// Concrete Strategy</span>
+<span class="hljs-meta">@Component</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">AppealCaseCustomizer</span> <span class="hljs-keyword">implements</span> <span class="hljs-title class_">CaseCustomizer</span> {
+    <span class="hljs-meta">@Autowired</span> DistCacheUtil distCacheUtil;
+    <span class="hljs-meta">@Autowired</span> TaskHandler taskHandler;
+    
+    <span class="hljs-meta">@Override</span>
+    <span class="hljs-keyword">public</span> Case <span class="hljs-title function_">beforeCreateCase</span><span class="hljs-params">(Case c)</span> {
+        <span class="hljs-type">String</span> <span class="hljs-variable">arn</span> <span class="hljs-operator">=</span> generateARN(c.getStateCd());
+        c.setArn(arn);
+        <span class="hljs-keyword">return</span> c;
+    }
+    
+    <span class="hljs-meta">@Override</span>
+    <span class="hljs-keyword">public</span> Case <span class="hljs-title function_">afterCreateCase</span><span class="hljs-params">(Case c)</span> {
+        <span class="hljs-keyword">if</span> (isModel2State(c)) {
+            taskHandler.createTask(buildTask(c));
+        }
+        <span class="hljs-keyword">return</span> c;
+    }
+}
+
+<span class="hljs-comment">// Factory</span>
+<span class="hljs-meta">@Component</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">CaseCustomizerFactory</span> {
+    <span class="hljs-meta">@Autowired</span> AppealCaseCustomizer appealCustomizer;
+    <span class="hljs-meta">@Autowired</span> AdjudicationCaseCustomizer adjCustomizer;
+    
+    <span class="hljs-keyword">public</span> CaseCustomizer <span class="hljs-title function_">get</span><span class="hljs-params">(String caseType)</span> {
+        <span class="hljs-keyword">return</span> <span class="hljs-keyword">switch</span> (caseType) {
+            <span class="hljs-keyword">case</span> <span class="hljs-string">&quot;APLTO&quot;</span> -&gt; appealCustomizer;
+            <span class="hljs-keyword">case</span> <span class="hljs-string">&quot;AMYDT&quot;</span>, <span class="hljs-string">&quot;AMYTC&quot;</span> -&gt; adjCustomizer;
+            <span class="hljs-keyword">default</span> -&gt; <span class="hljs-keyword">new</span> <span class="hljs-title class_">DefaultCaseCustomizer</span>();
+        };
+    }
+}
+</code></pre>
+<h3 id="3-completablefuture--async-composition">3. CompletableFuture — Async Composition</h3>
+<pre><code class="language-java"><span class="hljs-comment">// Pattern: Parallel async with combined result</span>
+CompletableFuture&lt;LedgerBalance&gt; ledgerFuture = 
+    CompletableFuture.supplyAsync(() -&gt; ledgerService.getBalance(gstin));
+
+CompletableFuture&lt;CaseStatus&gt; caseFuture = 
+    CompletableFuture.supplyAsync(() -&gt; caseService.getStatus(gstin));
+
+CompletableFuture&lt;DashboardData&gt; combined = 
+    ledgerFuture.thenCombine(caseFuture, (ledger, caseStatus) -&gt; 
+        <span class="hljs-keyword">new</span> <span class="hljs-title class_">DashboardData</span>(ledger, caseStatus));
+
+<span class="hljs-type">DashboardData</span> <span class="hljs-variable">result</span> <span class="hljs-operator">=</span> combined.get(<span class="hljs-number">5</span>, TimeUnit.SECONDS); <span class="hljs-comment">// with timeout</span>
+</code></pre>
+<h3 id="4-producer-consumer-with-blockingqueue">4. Producer-Consumer with BlockingQueue</h3>
+<pre><code class="language-java"><span class="hljs-comment">// Kafka-like pattern with bounded queue</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">EventProcessor</span> {
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> BlockingQueue&lt;Event&gt; queue = <span class="hljs-keyword">new</span> <span class="hljs-title class_">LinkedBlockingQueue</span>&lt;&gt;(<span class="hljs-number">1000</span>);
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> <span class="hljs-type">ExecutorService</span> <span class="hljs-variable">workers</span> <span class="hljs-operator">=</span> Executors.newFixedThreadPool(<span class="hljs-number">5</span>);
+    
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">produce</span><span class="hljs-params">(Event event)</span> {
+        <span class="hljs-keyword">if</span> (!queue.offer(event, <span class="hljs-number">1</span>, TimeUnit.SECONDS)) {
+            publishToErrorTopic(event); <span class="hljs-comment">// Backpressure → error topic</span>
+        }
+    }
+    
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">startConsumers</span><span class="hljs-params">()</span> {
+        <span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> <span class="hljs-variable">i</span> <span class="hljs-operator">=</span> <span class="hljs-number">0</span>; i &lt; <span class="hljs-number">5</span>; i++) {
+            workers.submit(() -&gt; {
+                <span class="hljs-keyword">while</span> (!Thread.currentThread().isInterrupted()) {
+                    <span class="hljs-type">Event</span> <span class="hljs-variable">e</span> <span class="hljs-operator">=</span> queue.take(); <span class="hljs-comment">// Blocks if empty</span>
+                    process(e);
+                }
+            });
+        }
+    }
+}
+</code></pre>
+<h3 id="5-cache-aside-pattern-your-distcacheutil-pattern">5. Cache-Aside Pattern (Your DistCacheUtil Pattern)</h3>
+<pre><code class="language-java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">CacheAside</span>&lt;K, V&gt; {
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> DistCacheUtil cache;
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> Function&lt;K, V&gt; dbLoader;
+    
+    <span class="hljs-keyword">public</span> V <span class="hljs-title function_">get</span><span class="hljs-params">(K key)</span> {
+        <span class="hljs-comment">// 1. Check cache</span>
+        <span class="hljs-type">V</span> <span class="hljs-variable">cached</span> <span class="hljs-operator">=</span> cache.getCache(<span class="hljs-string">&quot;entity&quot;</span>, key.toString(), valueClass);
+        <span class="hljs-keyword">if</span> (cached != <span class="hljs-literal">null</span>) <span class="hljs-keyword">return</span> cached;
+        
+        <span class="hljs-comment">// 2. Load from DB</span>
+        <span class="hljs-type">V</span> <span class="hljs-variable">value</span> <span class="hljs-operator">=</span> dbLoader.apply(key);
+        
+        <span class="hljs-comment">// 3. Write to cache</span>
+        <span class="hljs-keyword">if</span> (value != <span class="hljs-literal">null</span>) {
+            cache.addCache(<span class="hljs-string">&quot;entity&quot;</span>, key.toString(), value);
+        }
+        <span class="hljs-keyword">return</span> value;
+    }
+    
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">invalidate</span><span class="hljs-params">(K key)</span> {
+        cache.removeCache(<span class="hljs-string">&quot;entity&quot;</span>, key.toString());
+    }
+}
+</code></pre>
+<h3 id="6-retry-with-exponential-backoff">6. Retry with Exponential Backoff</h3>
+<pre><code class="language-java"><span class="hljs-keyword">public</span> &lt;T&gt; T <span class="hljs-title function_">retryWithBackoff</span><span class="hljs-params">(Supplier&lt;T&gt; action, <span class="hljs-type">int</span> maxRetries)</span> {
+    <span class="hljs-type">int</span> <span class="hljs-variable">attempt</span> <span class="hljs-operator">=</span> <span class="hljs-number">0</span>;
+    <span class="hljs-keyword">while</span> (<span class="hljs-literal">true</span>) {
+        <span class="hljs-keyword">try</span> {
+            <span class="hljs-keyword">return</span> action.get();
+        } <span class="hljs-keyword">catch</span> (Exception e) {
+            <span class="hljs-keyword">if</span> (++attempt &gt;= maxRetries) <span class="hljs-keyword">throw</span> e;
+            <span class="hljs-type">long</span> <span class="hljs-variable">sleepMs</span> <span class="hljs-operator">=</span> (<span class="hljs-type">long</span>) Math.pow(<span class="hljs-number">2</span>, attempt) * <span class="hljs-number">100</span>; <span class="hljs-comment">// 200, 400, 800...</span>
+            sleepMs += ThreadLocalRandom.current().nextLong(<span class="hljs-number">100</span>); <span class="hljs-comment">// Jitter</span>
+            Thread.sleep(Math.min(sleepMs, <span class="hljs-number">30_000</span>)); <span class="hljs-comment">// Cap at 30s</span>
+        }
+    }
+}
+<span class="hljs-comment">// Usage: retryWithBackoff(() -&gt; hbaseReader.get(rowKey), 3);</span>
+</code></pre>
+<h3 id="7-builder-pattern-hbase-model-style">7. Builder Pattern (HBase Model Style)</h3>
+<pre><code class="language-java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">LedgerEntry</span> {
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> String gstin;
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> BigDecimal amount;
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> String taxHead;
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> String period;
+    
+    <span class="hljs-keyword">private</span> <span class="hljs-title function_">LedgerEntry</span><span class="hljs-params">(Builder builder)</span> {
+        <span class="hljs-built_in">this</span>.gstin = builder.gstin;
+        <span class="hljs-built_in">this</span>.amount = builder.amount;
+        <span class="hljs-built_in">this</span>.taxHead = builder.taxHead;
+        <span class="hljs-built_in">this</span>.period = builder.period;
+    }
+    
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">Builder</span> {
+        <span class="hljs-keyword">private</span> String gstin;      <span class="hljs-comment">// required</span>
+        <span class="hljs-keyword">private</span> BigDecimal amount; <span class="hljs-comment">// required</span>
+        <span class="hljs-keyword">private</span> <span class="hljs-type">String</span> <span class="hljs-variable">taxHead</span> <span class="hljs-operator">=</span> <span class="hljs-string">&quot;IGST&quot;</span>; <span class="hljs-comment">// default</span>
+        <span class="hljs-keyword">private</span> String period;
+        
+        <span class="hljs-keyword">public</span> <span class="hljs-title function_">Builder</span><span class="hljs-params">(String gstin, BigDecimal amount)</span> {
+            <span class="hljs-built_in">this</span>.gstin = gstin;
+            <span class="hljs-built_in">this</span>.amount = amount;
+        }
+        <span class="hljs-keyword">public</span> Builder <span class="hljs-title function_">taxHead</span><span class="hljs-params">(String val)</span> { taxHead = val; <span class="hljs-keyword">return</span> <span class="hljs-built_in">this</span>; }
+        <span class="hljs-keyword">public</span> Builder <span class="hljs-title function_">period</span><span class="hljs-params">(String val)</span> { period = val; <span class="hljs-keyword">return</span> <span class="hljs-built_in">this</span>; }
+        <span class="hljs-keyword">public</span> LedgerEntry <span class="hljs-title function_">build</span><span class="hljs-params">()</span> { <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">LedgerEntry</span>(<span class="hljs-built_in">this</span>); }
+    }
+}
+<span class="hljs-comment">// Usage: new LedgerEntry.Builder(&quot;27AABCU9603R1ZP&quot;, new BigDecimal(&quot;5000&quot;))</span>
+<span class="hljs-comment">//            .taxHead(&quot;CGST&quot;).period(&quot;032026&quot;).build();</span>
+</code></pre>
+<h3 id="8-thread-safe-bounded-blocking-queue-interview-classic">8. Thread-Safe Bounded Blocking Queue (Interview Classic)</h3>
+<pre><code class="language-java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">BoundedBlockingQueue</span>&lt;T&gt; {
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> Queue&lt;T&gt; queue = <span class="hljs-keyword">new</span> <span class="hljs-title class_">LinkedList</span>&lt;&gt;();
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> <span class="hljs-type">int</span> capacity;
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> <span class="hljs-type">ReentrantLock</span> <span class="hljs-variable">lock</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">ReentrantLock</span>();
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> <span class="hljs-type">Condition</span> <span class="hljs-variable">notFull</span> <span class="hljs-operator">=</span> lock.newCondition();
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> <span class="hljs-type">Condition</span> <span class="hljs-variable">notEmpty</span> <span class="hljs-operator">=</span> lock.newCondition();
+    
+    <span class="hljs-keyword">public</span> <span class="hljs-title function_">BoundedBlockingQueue</span><span class="hljs-params">(<span class="hljs-type">int</span> capacity)</span> { <span class="hljs-built_in">this</span>.capacity = capacity; }
+    
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">put</span><span class="hljs-params">(T item)</span> <span class="hljs-keyword">throws</span> InterruptedException {
+        lock.lock();
+        <span class="hljs-keyword">try</span> {
+            <span class="hljs-keyword">while</span> (queue.size() == capacity) notFull.await();
+            queue.add(item);
+            notEmpty.signal();
+        } <span class="hljs-keyword">finally</span> { lock.unlock(); }
+    }
+    
+    <span class="hljs-keyword">public</span> T <span class="hljs-title function_">take</span><span class="hljs-params">()</span> <span class="hljs-keyword">throws</span> InterruptedException {
+        lock.lock();
+        <span class="hljs-keyword">try</span> {
+            <span class="hljs-keyword">while</span> (queue.isEmpty()) notEmpty.await();
+            <span class="hljs-type">T</span> <span class="hljs-variable">item</span> <span class="hljs-operator">=</span> queue.poll();
+            notFull.signal();
+            <span class="hljs-keyword">return</span> item;
+        } <span class="hljs-keyword">finally</span> { lock.unlock(); }
+    }
+}
+</code></pre>
+<h3 id="9-lru-cache-implementation">9. LRU Cache Implementation</h3>
+<pre><code class="language-java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">LRUCache</span>&lt;K, V&gt; {
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> <span class="hljs-type">int</span> capacity;
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> Map&lt;K, V&gt; cache;
+    
+    <span class="hljs-keyword">public</span> <span class="hljs-title function_">LRUCache</span><span class="hljs-params">(<span class="hljs-type">int</span> capacity)</span> {
+        <span class="hljs-built_in">this</span>.capacity = capacity;
+        <span class="hljs-built_in">this</span>.cache = <span class="hljs-keyword">new</span> <span class="hljs-title class_">LinkedHashMap</span>&lt;&gt;(capacity, <span class="hljs-number">0.75f</span>, <span class="hljs-literal">true</span>) {
+            <span class="hljs-meta">@Override</span>
+            <span class="hljs-keyword">protected</span> <span class="hljs-type">boolean</span> <span class="hljs-title function_">removeEldestEntry</span><span class="hljs-params">(Map.Entry&lt;K, V&gt; eldest)</span> {
+                <span class="hljs-keyword">return</span> size() &gt; capacity;
+            }
+        };
+    }
+    
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">synchronized</span> V <span class="hljs-title function_">get</span><span class="hljs-params">(K key)</span> { <span class="hljs-keyword">return</span> cache.get(key); }
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">synchronized</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">put</span><span class="hljs-params">(K key, V value)</span> { cache.put(key, value); }
+}
+</code></pre>
+<h3 id="10-distributed-lock-redis-style">10. Distributed Lock (Redis-Style)</h3>
+<pre><code class="language-java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">DistributedLock</span> {
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> DistCacheUtil cache;
+    
+    <span class="hljs-keyword">public</span> <span class="hljs-type">boolean</span> <span class="hljs-title function_">tryLock</span><span class="hljs-params">(String lockKey, <span class="hljs-type">int</span> ttlSeconds)</span> {
+        <span class="hljs-type">String</span> <span class="hljs-variable">token</span> <span class="hljs-operator">=</span> UUID.randomUUID().toString();
+        <span class="hljs-comment">// SET lockKey token NX EX ttlSeconds (atomic set-if-not-exists)</span>
+        <span class="hljs-type">boolean</span> <span class="hljs-variable">acquired</span> <span class="hljs-operator">=</span> cache.setIfAbsent(lockKey, token, ttlSeconds);
+        <span class="hljs-keyword">if</span> (acquired) {
+            <span class="hljs-comment">// Store token in ThreadLocal for unlock verification</span>
+            LOCK_TOKENS.set(token);
+        }
+        <span class="hljs-keyword">return</span> acquired;
+    }
+    
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">unlock</span><span class="hljs-params">(String lockKey)</span> {
+        <span class="hljs-type">String</span> <span class="hljs-variable">token</span> <span class="hljs-operator">=</span> LOCK_TOKENS.get();
+        <span class="hljs-comment">// Only delete if token matches (prevent accidental unlock)</span>
+        <span class="hljs-type">String</span> <span class="hljs-variable">stored</span> <span class="hljs-operator">=</span> cache.get(lockKey);
+        <span class="hljs-keyword">if</span> (token != <span class="hljs-literal">null</span> &amp;&amp; token.equals(stored)) {
+            cache.remove(lockKey);
+        }
+        LOCK_TOKENS.remove();
+    }
+    
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">final</span> ThreadLocal&lt;String&gt; LOCK_TOKENS = <span class="hljs-keyword">new</span> <span class="hljs-title class_">ThreadLocal</span>&lt;&gt;();
+}
+</code></pre>
+<h3 id="11-15-additional-snippets">11-15 (Additional Snippets)</h3>
+<h3 id="11-custom-spring-boot-auto-configuration">11. Custom Spring Boot Auto-Configuration</h3>
+<pre><code class="language-java"><span class="hljs-meta">@Configuration</span>
+<span class="hljs-meta">@ConditionalOnClass(CaseDao.class)</span>
+<span class="hljs-meta">@EnableConfigurationProperties(CaseMgmtProperties.class)</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">CaseMgmtAutoConfig</span> {
+    
+    <span class="hljs-meta">@Bean(&quot;caseDao&quot;)</span>
+    <span class="hljs-meta">@ConditionalOnMissingBean</span>
+    <span class="hljs-keyword">public</span> CaseDao <span class="hljs-title function_">caseDao</span><span class="hljs-params">()</span> { <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">CaseDaoImpl</span>(); }
+    
+    <span class="hljs-meta">@Bean(&quot;caseDaoXa&quot;)</span>
+    <span class="hljs-meta">@ConditionalOnExpression(&quot;${gst.casemgmt.enableXa:true}&quot;)</span>
+    <span class="hljs-keyword">public</span> CaseDao <span class="hljs-title function_">caseDaoXa</span><span class="hljs-params">()</span> { <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">CaseDaoXaImpl</span>(); }
+}
+</code></pre>
+<h3 id="12-kafka-producer-with-callback">12. Kafka Producer with Callback</h3>
+<pre><code class="language-java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">sendEvent</span><span class="hljs-params">(String topic, String key, String value)</span> {
+    ProducerRecord&lt;String, String&gt; record = <span class="hljs-keyword">new</span> <span class="hljs-title class_">ProducerRecord</span>&lt;&gt;(topic, key, value);
+    producer.send(record, (metadata, exception) -&gt; {
+        <span class="hljs-keyword">if</span> (exception != <span class="hljs-literal">null</span>) {
+            log.error(<span class="hljs-string">&quot;Failed to send to {}: {}&quot;</span>, topic, exception.getMessage());
+            publishToErrorTopic(record); <span class="hljs-comment">// Fallback</span>
+        } <span class="hljs-keyword">else</span> {
+            log.info(<span class="hljs-string">&quot;Sent to {}:{} offset={}&quot;</span>, topic, metadata.partition(), metadata.offset());
+        }
+    });
+}
+</code></pre>
+<h3 id="13-template-method-basedao-style">13. Template Method (BaseDAO Style)</h3>
+<pre><code class="language-java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">abstract</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">BaseDAO</span> {
+    <span class="hljs-meta">@Autowired</span> <span class="hljs-keyword">private</span> SessionFactory sessionFactory;
+    
+    <span class="hljs-keyword">protected</span> Session <span class="hljs-title function_">getSession</span><span class="hljs-params">()</span> {
+        <span class="hljs-keyword">return</span> sessionFactory.getCurrentSession();
+    }
+    
+    <span class="hljs-comment">// Template method — subclasses override</span>
+    <span class="hljs-keyword">protected</span> <span class="hljs-keyword">abstract</span> String <span class="hljs-title function_">getTableName</span><span class="hljs-params">()</span>;
+    
+    <span class="hljs-keyword">public</span> &lt;T&gt; T <span class="hljs-title function_">findById</span><span class="hljs-params">(Class&lt;T&gt; entityClass, Serializable id)</span> {
+        <span class="hljs-keyword">return</span> getSession().get(entityClass, id);
+    }
+    
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">save</span><span class="hljs-params">(Object entity)</span> {
+        getSession().saveOrUpdate(entity);
+    }
+}
+
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">LedgerDAOImpl</span> <span class="hljs-keyword">extends</span> <span class="hljs-title class_">BaseDAO</span> {
+    <span class="hljs-meta">@Override</span> <span class="hljs-keyword">protected</span> String <span class="hljs-title function_">getTableName</span><span class="hljs-params">()</span> { <span class="hljs-keyword">return</span> <span class="hljs-string">&quot;GST_LEDGER&quot;</span>; }
+    
+    <span class="hljs-keyword">public</span> LedgerEntry <span class="hljs-title function_">getLedgerByGstin</span><span class="hljs-params">(String gstin)</span> {
+        <span class="hljs-keyword">return</span> (LedgerEntry) getSession()
+            .createQuery(<span class="hljs-string">&quot;FROM LedgerEntry WHERE gstin = :gstin&quot;</span>)
+            .setParameter(<span class="hljs-string">&quot;gstin&quot;</span>, gstin)
+            .uniqueResult();
+    }
+}
+</code></pre>
+<h3 id="14-observer-pattern-event-system">14. Observer Pattern (Event System)</h3>
+<pre><code class="language-java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">interface</span> <span class="hljs-title class_">CaseEventListener</span> {
+    <span class="hljs-keyword">void</span> <span class="hljs-title function_">onCaseCreated</span><span class="hljs-params">(Case caseVO)</span>;
+    <span class="hljs-keyword">void</span> <span class="hljs-title function_">onCaseStatusChanged</span><span class="hljs-params">(Case caseVO, String oldStatus, String newStatus)</span>;
+}
+
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">CaseEventPublisher</span> {
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> List&lt;CaseEventListener&gt; listeners = <span class="hljs-keyword">new</span> <span class="hljs-title class_">CopyOnWriteArrayList</span>&lt;&gt;();
+    
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">addListener</span><span class="hljs-params">(CaseEventListener listener)</span> { listeners.add(listener); }
+    
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">publishCaseCreated</span><span class="hljs-params">(Case caseVO)</span> {
+        listeners.forEach(l -&gt; {
+            <span class="hljs-keyword">try</span> { l.onCaseCreated(caseVO); }
+            <span class="hljs-keyword">catch</span> (Exception e) { log.error(<span class="hljs-string">&quot;Listener failed&quot;</span>, e); }
+        });
+    }
+}
+</code></pre>
+<h3 id="15-rate-limiter-token-bucket">15. Rate Limiter (Token Bucket)</h3>
+<pre><code class="language-java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">TokenBucketRateLimiter</span> {
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> <span class="hljs-type">int</span> maxTokens;
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> <span class="hljs-type">int</span> refillRate; <span class="hljs-comment">// tokens per second</span>
+    <span class="hljs-keyword">private</span> <span class="hljs-type">double</span> tokens;
+    <span class="hljs-keyword">private</span> <span class="hljs-type">long</span> lastRefill;
+    
+    <span class="hljs-keyword">public</span> <span class="hljs-title function_">TokenBucketRateLimiter</span><span class="hljs-params">(<span class="hljs-type">int</span> maxTokens, <span class="hljs-type">int</span> refillRate)</span> {
+        <span class="hljs-built_in">this</span>.maxTokens = maxTokens;
+        <span class="hljs-built_in">this</span>.refillRate = refillRate;
+        <span class="hljs-built_in">this</span>.tokens = maxTokens;
+        <span class="hljs-built_in">this</span>.lastRefill = System.nanoTime();
+    }
+    
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">synchronized</span> <span class="hljs-type">boolean</span> <span class="hljs-title function_">tryAcquire</span><span class="hljs-params">()</span> {
+        refill();
+        <span class="hljs-keyword">if</span> (tokens &gt;= <span class="hljs-number">1</span>) { tokens--; <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span>; }
+        <span class="hljs-keyword">return</span> <span class="hljs-literal">false</span>;
+    }
+    
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">refill</span><span class="hljs-params">()</span> {
+        <span class="hljs-type">long</span> <span class="hljs-variable">now</span> <span class="hljs-operator">=</span> System.nanoTime();
+        <span class="hljs-type">double</span> <span class="hljs-variable">elapsed</span> <span class="hljs-operator">=</span> (now - lastRefill) / <span class="hljs-number">1_000_000_000.0</span>;
+        tokens = Math.min(maxTokens, tokens + elapsed * refillRate);
+        lastRefill = now;
+    }
+}
+</code></pre>
+<hr>
+<h1 id="-8">═══════════════════════════════════════════════════════════════</h1>
+<h1 id="part-5-company-specific-preparation">PART 5: COMPANY-SPECIFIC PREPARATION</h1>
+<h1 id="-9">═══════════════════════════════════════════════════════════════</h1>
+<h2 id="51-amazon--leadership-principles-mapping">5.1 Amazon — Leadership Principles Mapping</h2>
+<table>
+<thead>
+<tr>
+<th>Leadership Principle</th>
+<th>Your GSTN Evidence</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Customer Obsession</strong></td>
+<td>Filing deadlines are non-negotiable — built systems ensuring 14M taxpayers can file with zero downtime during month-end spikes</td>
+</tr>
+<tr>
+<td><strong>Ownership</strong></td>
+<td>Took ownership of WaiverSchemeFolderItemCustomizer (CR27893-B) when original assignee left mid-sprint</td>
+</tr>
+<tr>
+<td><strong>Invent and Simplify</strong></td>
+<td>Designed the Customizer pattern (Strategy+Factory) — simplified case type addition from modifying monolithic code to adding one focused class</td>
+</tr>
+<tr>
+<td><strong>Are Right, A Lot</strong></td>
+<td>Proposed 3-tier Kafka error handling (main→error→DLQ) when team wanted simple retry. Data showed 90% of failures were transient — pattern recovered them automatically</td>
+</tr>
+<tr>
+<td><strong>Learn and Be Curious</strong></td>
+<td>Learned XA transactions (Atomikos), HBase row key design, and distributed caching (Infinispan) within the project timeline</td>
+</tr>
+<tr>
+<td><strong>Hire and Develop the Best</strong></td>
+<td>Created DistCache decision matrix for junior developer; pair-programmed Kafka consumer integration</td>
+</tr>
+<tr>
+<td><strong>Insist on Highest Standards</strong></td>
+<td>Enforced Open/Closed Principle via Customizer pattern — prevented pollution of shared CaseMgmtFwk with case-specific logic</td>
+</tr>
+<tr>
+<td><strong>Think Big</strong></td>
+<td>Architecture handles 14M taxpayers, 3B+ invoices/year, petabyte-scale HBase — built for national scale</td>
+</tr>
+<tr>
+<td><strong>Bias for Action</strong></td>
+<td>Fixed DCR order production bug in 2 hours by reusing existing DAO code, before it impacted monthly filing deadline</td>
+</tr>
+<tr>
+<td><strong>Frugality</strong></td>
+<td>Used two-tier caching (free EhCache + existing JDG cluster) instead of requesting new Redis infrastructure</td>
+</tr>
+<tr>
+<td><strong>Deliver Results</strong></td>
+<td>Delivered appeal effect flow coordinating 6 frameworks within sprint, with XA transaction support, auto-assignment, and async notifications</td>
+</tr>
+</tbody>
+</table>
+<h2 id="52-google--focus-areas">5.2 Google — Focus Areas</h2>
+<ul>
+<li><strong>Coding:</strong> LeetCode Medium/Hard (Trees, Graphs, DP, Sliding Window)</li>
+<li><strong>System Design:</strong> Scale emphasis — &quot;How would you handle 10x growth?&quot; — your HBase + Kafka answer</li>
+<li><strong>Java Internals:</strong> JMM, GC tuning, ConcurrentHashMap internals</li>
+<li><strong>Behavioral:</strong> &quot;Tell me about a time you simplified a complex system&quot; → Customizer pattern</li>
+</ul>
+<h2 id="53-flipkart--swiggy--phonepe">5.3 Flipkart / Swiggy / PhonePe</h2>
+<ul>
+<li><strong>HLD Focus:</strong> Design payment system, notification system, order tracking</li>
+<li><strong>LLD Focus:</strong> Parking lot, elevator, meeting scheduler (with code)</li>
+<li><strong>Java:</strong> Streams, lambdas, generics, concurrency at SDE-2 depth</li>
+<li><strong>Kafka:</strong> Deep dive — partitioning, consumer groups, exactly-once</li>
+</ul>
+<h2 id="54-goldman-sachs--morgan-stanley">5.4 Goldman Sachs / Morgan Stanley</h2>
+<ul>
+<li><strong>Java Deep:</strong> Memory model, classloading, JIT compilation, unsafe operations</li>
+<li><strong>Concurrency:</strong> Lock-free data structures, CAS, ABA problem</li>
+<li><strong>Finance Domain:</strong> Your ledger experience is highly relevant — talk about double-entry bookkeeping, ACID for financial data</li>
+<li><strong>Low Latency:</strong> HBase row key optimization, cache hit rate tuning</li>
+</ul>
+<hr>
+<h1 id="-10">═══════════════════════════════════════════════════════════════</h1>
+<h1 id="part-6-weak-area-deep-dives">PART 6: WEAK AREA DEEP DIVES</h1>
+<h1 id="-11">═══════════════════════════════════════════════════════════════</h1>
+<h2 id="61-hbase-row-key-design--5-practice-problems">6.1 HBase Row Key Design — 5 Practice Problems</h2>
+<h3 id="problem-1-design-row-key-for-gst-returns">Problem 1: Design row key for GST Returns</h3>
+<pre><code>Requirement: Query returns by GSTIN + period + return type
+Access patterns:
+  1. Get single return: GSTIN + period + type
+  2. All returns for a GSTIN in a year: scan by GSTIN prefix
+  3. All returns for a period: secondary index or separate table
+
+Row Key: {GSTIN}|{ReturnPeriod}|{ReturnType}
+Example:  27AABCU9603R1ZP|202603|GSTR3B
+
+Why: GSTIN first → distributes across regions (state code 01-37)
+     Period second → range scan for fiscal year
+     Type third → single Get for specific return
+</code></pre>
+<h3 id="problem-2-design-row-key-for-audit-logs">Problem 2: Design row key for Audit Logs</h3>
+<pre><code>Requirement: Query by GSTIN + timestamp, recent-first
+Anti-pattern: GSTIN + Timestamp → hotspot on latest region
+
+Row Key: {GSTIN}|{REVERSED_TIMESTAMP}
+Example:  27AABCU9603R1ZP|9999999999999 - currentTimeMillis
+
+Why: Reversed timestamp → latest records have smallest row key
+     → single prefix scan returns recent-first
+</code></pre>
+<h3 id="problem-3-design-row-key-for-e-invoice">Problem 3: Design row key for E-Invoice</h3>
+<pre><code>Row Key: {IRN_Hash_Prefix(4)}|{GSTIN}|{InvoiceNumber}|{FY}
+Why: IRN hash prefix prevents hotspotting on sequential invoice numbers
+</code></pre>
+<h3 id="problem-4-avoid-hotspot-for-sequential-ids">Problem 4: Avoid Hotspot for Sequential IDs</h3>
+<pre><code>Anti-pattern: AUTO_INCREMENT_ID → all writes go to last region
+Fix 1: Salt prefix — hash(id) % num_regions + &quot;|&quot; + id
+Fix 2: Reverse the ID — 1234567 → 7654321 (distributes evenly)
+Fix 3: UUID — random distribution (but loses ordering)
+</code></pre>
+<h3 id="problem-5-design-row-key-for-ledger-entries">Problem 5: Design row key for Ledger Entries</h3>
+<pre><code>Row Key: {GSTIN}|{TaxPeriod}|{TaxHead}|{TransactionType}|{Timestamp}
+Example:  27AABCU9603R1ZP|202603|CGST|CREDIT|1710744000000
+
+Why: GSTIN+Period+TaxHead = natural partition for balance queries
+     TransactionType+Timestamp = order within partition
+</code></pre>
+<hr>
+<h2 id="62-kafka-exactly-once-semantics--with-code">6.2 Kafka Exactly-Once Semantics — With Code</h2>
+<h3 id="three-delivery-guarantees">Three Delivery Guarantees</h3>
+<pre><code>At-most-once:  Commit offset BEFORE processing. If crash → message lost.
+At-least-once: Commit offset AFTER processing. If crash → message reprocessed.
+Exactly-once:  Idempotent producer + transactional consumer-producer.
+</code></pre>
+<h3 id="exactly-once-producer">Exactly-Once Producer</h3>
+<pre><code class="language-java"><span class="hljs-type">Properties</span> <span class="hljs-variable">props</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">Properties</span>();
+props.put(<span class="hljs-string">&quot;enable.idempotence&quot;</span>, <span class="hljs-string">&quot;true&quot;</span>);        <span class="hljs-comment">// Prevent duplicates</span>
+props.put(<span class="hljs-string">&quot;acks&quot;</span>, <span class="hljs-string">&quot;all&quot;</span>);                        <span class="hljs-comment">// All replicas must ACK</span>
+props.put(<span class="hljs-string">&quot;retries&quot;</span>, Integer.MAX_VALUE);         <span class="hljs-comment">// Retry on failure</span>
+props.put(<span class="hljs-string">&quot;max.in.flight.requests.per.connection&quot;</span>, <span class="hljs-number">5</span>); <span class="hljs-comment">// Safe with idempotence</span>
+
+KafkaProducer&lt;String, String&gt; producer = <span class="hljs-keyword">new</span> <span class="hljs-title class_">KafkaProducer</span>&lt;&gt;(props);
+producer.initTransactions();
+
+<span class="hljs-keyword">try</span> {
+    producer.beginTransaction();
+    producer.send(<span class="hljs-keyword">new</span> <span class="hljs-title class_">ProducerRecord</span>&lt;&gt;(<span class="hljs-string">&quot;ledger-updates&quot;</span>, gstin, ledgerJson));
+    producer.send(<span class="hljs-keyword">new</span> <span class="hljs-title class_">ProducerRecord</span>&lt;&gt;(<span class="hljs-string">&quot;audit-events&quot;</span>, gstin, auditJson));
+    producer.commitTransaction(); <span class="hljs-comment">// Atomic: both or neither</span>
+} <span class="hljs-keyword">catch</span> (Exception e) {
+    producer.abortTransaction();
+}
+</code></pre>
+<h3 id="exactly-once-consumer-producer-read-process-write">Exactly-Once Consumer-Producer (Read-Process-Write)</h3>
+<pre><code class="language-java">props.put(<span class="hljs-string">&quot;isolation.level&quot;</span>, <span class="hljs-string">&quot;read_committed&quot;</span>); <span class="hljs-comment">// Only see committed messages</span>
+props.put(<span class="hljs-string">&quot;enable.auto.commit&quot;</span>, <span class="hljs-string">&quot;false&quot;</span>);        <span class="hljs-comment">// Manual offset management</span>
+
+<span class="hljs-keyword">while</span> (<span class="hljs-literal">true</span>) {
+    ConsumerRecords&lt;String, String&gt; records = consumer.poll(Duration.ofMillis(<span class="hljs-number">100</span>));
+    producer.beginTransaction();
+    <span class="hljs-keyword">for</span> (ConsumerRecord&lt;String, String&gt; record : records) {
+        <span class="hljs-comment">// Process</span>
+        <span class="hljs-type">String</span> <span class="hljs-variable">result</span> <span class="hljs-operator">=</span> processLedgerUpdate(record.value());
+        <span class="hljs-comment">// Write to output topic</span>
+        producer.send(<span class="hljs-keyword">new</span> <span class="hljs-title class_">ProducerRecord</span>&lt;&gt;(<span class="hljs-string">&quot;processed-ledger&quot;</span>, record.key(), result));
+    }
+    <span class="hljs-comment">// Commit offsets AND messages atomically</span>
+    producer.sendOffsetsToTransaction(currentOffsets(records), consumerGroupId);
+    producer.commitTransaction();
+}
+</code></pre>
+<hr>
+<h2 id="63-distributed-locking-cheat-sheet">6.3 Distributed Locking Cheat Sheet</h2>
+<table>
+<thead>
+<tr>
+<th>Approach</th>
+<th>Mechanism</th>
+<th>Pros</th>
+<th>Cons</th>
+<th>Use When</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Redis SETNX</strong></td>
+<td><code>SET key value NX EX ttl</code></td>
+<td>Simple, fast</td>
+<td>Single point of failure</td>
+<td>Low-risk duplicate prevention</td>
+</tr>
+<tr>
+<td><strong>RedLock</strong></td>
+<td>Lock on N/2+1 Redis nodes</td>
+<td>Tolerates failures</td>
+<td>Clock skew issues, Martin Kleppmann critique</td>
+<td>Medium-risk operations</td>
+</tr>
+<tr>
+<td><strong>ZooKeeper</strong></td>
+<td>Ephemeral sequential znodes</td>
+<td>Strong consistency, auto-release on disconnect</td>
+<td>Higher latency, operational complexity</td>
+<td>High-risk, needs auto-cleanup</td>
+</tr>
+<tr>
+<td><strong>DB Lock</strong></td>
+<td><code>SELECT FOR UPDATE</code></td>
+<td>No extra infra</td>
+<td>Blocks DB connections, deadlock risk</td>
+<td>Already in a DB transaction</td>
+</tr>
+<tr>
+<td><strong>Infinispan/JDG</strong></td>
+<td><code>RemoteCache.lock()</code></td>
+<td>Native to your stack</td>
+<td>Cluster-specific</td>
+<td>GSTN — already using JDG</td>
+</tr>
+</tbody>
+</table>
+<h3 id="your-gstn-context">Your GSTN Context</h3>
+<pre><code class="language-java"><span class="hljs-comment">// Current: DistCacheUtil wraps JDG locking</span>
+<span class="hljs-type">boolean</span> <span class="hljs-variable">locked</span> <span class="hljs-operator">=</span> distCacheUtil.acquireLock(<span class="hljs-string">&quot;lock:case:&quot;</span> + arnNo, <span class="hljs-number">30</span>);
+<span class="hljs-keyword">try</span> {
+    <span class="hljs-comment">// Critical section: create case</span>
+    caseMgmtService.createCase(caseVO);
+} <span class="hljs-keyword">finally</span> {
+    distCacheUtil.releaseLock(<span class="hljs-string">&quot;lock:case:&quot;</span> + arnNo);
+}
+</code></pre>
+<hr>
+<h2 id="64-xa-transactions-atomikos--end-to-end">6.4 XA Transactions (Atomikos) — End-to-End</h2>
+<h3 id="what-is-xa">What is XA?</h3>
+<pre><code>Two-Phase Commit (2PC):
+  Phase 1 (Prepare): Coordinator asks all participants &quot;Can you commit?&quot;
+  Phase 2 (Commit):  If all say YES → Coordinator says &quot;Commit&quot;
+                     If any says NO → Coordinator says &quot;Rollback&quot;
+
+Participants in GSTN:
+  1. Case Database (MySQL)
+  2. Workflow Database (MySQL - separate schema)
+  3. Ledger Database (MySQL - separate schema)
+</code></pre>
+<h3 id="how-atomikos-works-in-gstn">How Atomikos Works in GSTN</h3>
+<pre><code class="language-java"><span class="hljs-comment">// Configuration: Two XA DataSources + Atomikos TransactionManager</span>
+<span class="hljs-meta">@Bean</span>
+<span class="hljs-keyword">public</span> DataSource <span class="hljs-title function_">caseDatasource</span><span class="hljs-params">()</span> {
+    <span class="hljs-type">AtomikosDataSourceBean</span> <span class="hljs-variable">ds</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">AtomikosDataSourceBean</span>();
+    ds.setXaDataSourceClassName(<span class="hljs-string">&quot;com.mysql.cj.jdbc.MysqlXADataSource&quot;</span>);
+    ds.setUniqueResourceName(<span class="hljs-string">&quot;caseDB&quot;</span>);
+    <span class="hljs-keyword">return</span> ds;
+}
+
+<span class="hljs-meta">@Bean</span>
+<span class="hljs-keyword">public</span> DataSource <span class="hljs-title function_">workflowDatasource</span><span class="hljs-params">()</span> {
+    <span class="hljs-type">AtomikosDataSourceBean</span> <span class="hljs-variable">ds</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">AtomikosDataSourceBean</span>();
+    ds.setUniqueResourceName(<span class="hljs-string">&quot;workflowDB&quot;</span>);
+    <span class="hljs-keyword">return</span> ds;
+}
+
+<span class="hljs-meta">@Bean</span>
+<span class="hljs-keyword">public</span> JtaTransactionManager <span class="hljs-title function_">transactionManager</span><span class="hljs-params">()</span> {
+    <span class="hljs-type">UserTransactionManager</span> <span class="hljs-variable">utm</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">UserTransactionManager</span>();
+    <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">JtaTransactionManager</span>(utm, utm);
+}
+</code></pre>
+<h3 id="failure-scenarios">Failure Scenarios</h3>
+<pre><code>Scenario 1: Participant fails in Prepare phase
+  → Coordinator sends ROLLBACK to all → No data written anywhere ✓
+
+Scenario 2: Participant fails AFTER Prepare, BEFORE Commit
+  → Coordinator retries Commit (Atomikos has recovery log)
+  → If participant recovers → reads recovery log → commits
+  → If participant never recovers → MANUAL intervention needed ✗
+
+Scenario 3: Coordinator (Atomikos) crashes
+  → On restart, reads transaction log → resumes pending commits/rollbacks ✓
+</code></pre>
+<hr>
+<h1 id="-12">═══════════════════════════════════════════════════════════════</h1>
+<h1 id="part-7-gap-analysis--your-stack-vs-market-expectations">PART 7: GAP ANALYSIS — Your Stack vs Market Expectations</h1>
+<h1 id="-13">═══════════════════════════════════════════════════════════════</h1>
+<table>
+<thead>
+<tr>
+<th>Area</th>
+<th>Your Current Stack</th>
+<th>Market Expectation (SDE-2/3)</th>
+<th>Action</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Java</strong></td>
+<td>Java 8</td>
+<td>Java 17-21 (Records, Sealed, Virtual Threads, Pattern Matching)</td>
+<td>Learn Java 17+ features — practice with personal projects</td>
+</tr>
+<tr>
+<td><strong>Spring</strong></td>
+<td>Spring 4.3 + Boot 2.4</td>
+<td>Spring Boot 3.x + Spring 6</td>
+<td>Learn Spring Boot 3 (Jakarta EE, native compilation, virtual threads)</td>
+</tr>
+<tr>
+<td><strong>Containers</strong></td>
+<td>WAR on Tomcat</td>
+<td>Docker + Kubernetes</td>
+<td>Build personal projects with Docker Compose → K8s</td>
+</tr>
+<tr>
+<td><strong>Testing</strong></td>
+<td>TestNG + Mockito</td>
+<td>JUnit 5 + Mockito + TestContainers + WireMock</td>
+<td>Switch to JUnit 5 in personal projects</td>
+</tr>
+<tr>
+<td><strong>Observability</strong></td>
+<td>Logback + basic metrics</td>
+<td>ELK/Grafana + Distributed Tracing (Jaeger/Zipkin)</td>
+<td>Add tracing to personal project</td>
+</tr>
+<tr>
+<td><strong>CI/CD</strong></td>
+<td>Basic (manual?)</td>
+<td>GitHub Actions / Jenkins + GitOps</td>
+<td>Create CI pipeline for your GitHub project</td>
+</tr>
+<tr>
+<td><strong>Cloud</strong></td>
+<td>On-prem JDG/Kafka</td>
+<td>AWS (SQS, SNS, DynamoDB, ECS) or GCP</td>
+<td>Get AWS Solutions Architect Associate</td>
+</tr>
+<tr>
+<td><strong>Reactive</strong></td>
+<td>Servlet/blocking</td>
+<td>WebFlux/reactive (conceptual)</td>
+<td>Understand Reactor (Mono/Flux) — not mandatory</td>
+</tr>
+<tr>
+<td><strong>API Design</strong></td>
+<td>REST</td>
+<td>REST + gRPC + GraphQL (conceptual)</td>
+<td>Implement gRPC service in personal project</td>
+</tr>
+</tbody>
+</table>
+<h3 id="priority-learning-path">Priority Learning Path</h3>
+<pre><code>Week 1-2: Java 17+ features (practice daily — records, sealed, switch expressions)
+Week 3-4: Docker + docker-compose (Kafka + Redis + MySQL local setup)
+Week 5-6: Spring Boot 3 personal project with JUnit 5 + TestContainers
+Week 7-8: AWS basics (free tier — SQS, DynamoDB, EC2)
+</code></pre>
+<hr>
+<h1 id="-14">═══════════════════════════════════════════════════════════════</h1>
+<h1 id="part-8-30-day-interview-preparation-plan">PART 8: 30-DAY INTERVIEW PREPARATION PLAN</h1>
+<h1 id="-15">═══════════════════════════════════════════════════════════════</h1>
+<h2 id="week-1-days-1-7-foundation--java-deep">Week 1 (Days 1-7): Foundation + Java Deep</h2>
+<pre><code>Day 1:  Read this entire document. Mark weak areas.
+Day 2:  Java Memory Model + GC — write notes, draw diagrams
+Day 3:  Concurrency — ConcurrentHashMap, locks, volatile. Code snippet 1-4.
+Day 4:  Streams + Functional. Practice 5 Stream problems.
+Day 5:  Design Patterns — code all 6 patterns from your codebase.
+Day 6:  Spring IoC, AOP, @Transactional internals. Code snippet 11, 13.
+Day 7:  Review + practice explaining your 6 resume bullets OUT LOUD.
+</code></pre>
+<h2 id="week-2-days-8-14-system-design--architecture">Week 2 (Days 8-14): System Design + Architecture</h2>
+<pre><code>Day 8:  GSTN architecture — rehearse the system overview (Section 2 of arch file)
+Day 9:  System Design: Tax filing system — practice end-to-end
+Day 10: System Design: Case management workflow — use your architecture
+Day 11: System Design: Distributed ledger — dual storage, XA
+Day 12: Kafka deep dive — exacty-once, partitioning, consumer groups
+Day 13: HBase — row key design, 5 practice problems
+Day 14: Distributed systems — CAP, consistency, locking cheat sheet
+</code></pre>
+<h2 id="week-3-days-15-21-dsa--lld">Week 3 (Days 15-21): DSA + LLD</h2>
+<pre><code>Day 15: Arrays + Strings — 5 LeetCode Medium
+Day 16: Trees + Graphs — 5 LeetCode Medium
+Day 17: DP — 5 LeetCode Medium (0/1 Knapsack, LIS, LCS, Coin Change)
+Day 18: Sliding Window + Two Pointers — 5 problems
+Day 19: LLD: Design Parking Lot (code it)
+Day 20: LLD: Design Rate Limiter (code snippet 15)
+Day 21: LLD: Design LRU Cache (code snippet 9) + Notification System
+</code></pre>
+<h2 id="week-4-days-22-30-mock-interviews--polish">Week 4 (Days 22-30): Mock Interviews + Polish</h2>
+<pre><code>Day 22: Full mock interview (60 min) — system design + Java
+Day 23: Behavioral prep — rehearse 10 STAR stories from Part 3.5
+Day 24: Company-specific prep (Amazon LPs / Google focus)
+Day 25: Full mock interview (60 min) — DSA + past work deep dive
+Day 26: Review weak areas from mock interviews
+Day 27: Code snippets — write all 15 from memory
+Day 28: System design — draw all 3 architectures from memory
+Day 29: Final mock interview — all rounds
+Day 30: Rest. Review notes. Confidence.
+</code></pre>
+<hr>
+<h1 id="-16">═══════════════════════════════════════════════════════════════</h1>
+<h1 id="part-9-system-design-practice-3-full-walkthroughs">PART 9: SYSTEM DESIGN PRACTICE (3 Full Walkthroughs)</h1>
+<h1 id="-17">═══════════════════════════════════════════════════════════════</h1>
+<h2 id="design-1-gst-return-filing-system-your-architecture">Design 1: GST Return Filing System (Your Architecture)</h2>
+<h3 id="functional-requirements">Functional Requirements</h3>
+<ol>
+<li>14M taxpayers file returns (GSTR1, GSTR3B, GSTR9) monthly/annually</li>
+<li>Real-time ledger updates on filing</li>
+<li>Filing status tracking &amp; dashboard</li>
+<li>Month-end 10x spike handling</li>
+</ol>
+<h3 id="non-functional-requirements">Non-Functional Requirements</h3>
+<ul>
+<li>Availability: 99.9% (3 nines)</li>
+<li>Latency: &lt; 2s for filing, &lt; 500ms for status check</li>
+<li>Throughput: 10K filings/min during peak</li>
+<li>Data retention: 7 years (legal requirement)</li>
+</ul>
+<h3 id="architecture-1">Architecture</h3>
+<pre><code>┌──────────┐    ┌──────────┐    ┌──────────────┐
+│ Browser  │───▶│ API GW   │───▶│ Filing API   │──┐
+│ /Mobile  │    │ (Rate    │    │ (Stateless)  │  │
+└──────────┘    │  Limit)  │    └──────────────┘  │
+                └──────────┘           │           │
+                                       ▼           ▼
+                              ┌──────────┐   ┌─────────┐
+                              │  Kafka   │   │  HBase  │
+                              │ (Buffer) │   │ (Store) │
+                              └────┬─────┘   └─────────┘
+                                   │
+                    ┌──────────────┼──────────────┐
+                    ▼              ▼              ▼
+              ┌──────────┐  ┌──────────┐  ┌──────────┐
+              │ Ledger   │  │ Search   │  │ Notify   │
+              │ Consumer │  │ Consumer │  │ Consumer │
+              │ (MySQL)  │  │ (Solr)   │  │ (Email)  │
+              └──────────┘  └──────────┘  └──────────┘
+</code></pre>
+<h3 id="key-design-decisions">Key Design Decisions</h3>
+<ol>
+<li><strong>Kafka as buffer</strong> — Filing API writes to HBase + Kafka in one request. Kafka consumers handle async work (ledger, search, notifications).</li>
+<li><strong>HBase for return data</strong> — Row key: GSTIN|Period|ReturnType. Petabyte scale. 7-year retention.</li>
+<li><strong>MySQL for ledger</strong> — ACID compliance for financial data. Current balance only.</li>
+<li><strong>Two-tier cache</strong> — EhCache (masters) + JDG (session/status). Cache-aside pattern.</li>
+<li><strong>Stateless APIs</strong> — Session in JDG → horizontal scaling.</li>
+</ol>
+<h3 id="scale-estimation">Scale Estimation</h3>
+<pre><code>14M taxpayers × 12 months × 3 return types = 504M filings/year
+Peak day: 504M / 365 × 10x spike = ~14M filings/day
+Peak hour: 14M / 8 hours = 1.75M/hour = ~500/second
+→ 10 API servers × 50 concurrent threads = 500 RPS ✓
+→ Kafka: 20 partitions × 25 msg/sec/partition = 500 msg/sec ✓
+→ HBase: Auto-region-split handles write load ✓
+</code></pre>
+<h2 id="design-2-notification-system-email--sms--push">Design 2: Notification System (Email + SMS + Push)</h2>
+<p><em>(See CommunicationAPI architecture — fan-out via Kafka, template engine, async dispatch, audit trail)</em></p>
+<h2 id="design-3-distributed-ledger-for-tax-credits">Design 3: Distributed Ledger for Tax Credits</h2>
+<p><em>(See LedgerUtilFwk architecture — MySQL for current state, HBase for history, XA for consistency)</em></p>
+<hr>
+<h1 id="-18">═══════════════════════════════════════════════════════════════</h1>
+<h1 id="part-10-personal-project-ideas-github-portfolio">PART 10: PERSONAL PROJECT IDEAS (GitHub Portfolio)</h1>
+<h1 id="-19">═══════════════════════════════════════════════════════════════</h1>
+<h3 id="project-1-mini-case-workflow-engine">Project 1: Mini Case Workflow Engine</h3>
+<pre><code>Tech: Spring Boot 3, Java 17, MySQL, Redis
+Features:
+  - State machine (Created → Assigned → InProgress → Completed)
+  - Strategy+Factory for case-type customizers
+  - Redis distributed locking for concurrent case updates
+  - REST API with Swagger docs
+GitHub Stars potential: ⭐⭐⭐ (demonstrates design patterns)
+</code></pre>
+<h3 id="project-2-distributed-cache-benchmark">Project 2: Distributed Cache Benchmark</h3>
+<pre><code>Tech: Spring Boot 3, Redis, JMH (Java Microbenchmark Harness)
+Features:
+  - Compare Redis vs Caffeine vs Guava Cache
+  - Thread-safe cache-aside implementation
+  - TTL, LRU, hit-rate measurement
+  - Published benchmark results in README
+GitHub Stars potential: ⭐⭐⭐⭐ (useful for Java community)
+</code></pre>
+<h3 id="project-3-kafka-event-pipeline-with-dlq">Project 3: Kafka Event Pipeline with DLQ</h3>
+<pre><code>Tech: Spring Boot 3, Apache Kafka, Docker Compose
+Features:
+  - Pluggable Processor interface (like your Consumer.java)
+  - 3-tier error handling (main → error → DLQ)
+  - Scheduled error topic retry
+  - Exactly-once semantics
+  - Dashboard showing consumer lag
+GitHub Stars potential: ⭐⭐⭐⭐⭐ (production-grade reference implementation)
+</code></pre>
+<h3 id="project-4-tax-ledger-microservice">Project 4: Tax Ledger Microservice</h3>
+<pre><code>Tech: Spring Boot 3, MySQL + H2 (test), Kafka
+Features:
+  - Double-entry bookkeeping (credit/debit)
+  - XA transactions with Spring JTA
+  - REST API: credit, debit, getBalance, getHistory
+  - Idempotency key support
+  - Reconciliation batch job
+GitHub Stars potential: ⭐⭐⭐ (showcases financial domain knowledge)
+</code></pre>
+<h3 id="project-5-spring-boot-custom-starter">Project 5: Spring Boot Custom Starter</h3>
+<pre><code>Tech: Spring Boot 3 auto-configuration
+Features:
+  - @ConditionalOnClass, @ConditionalOnProperty, @ConditionalOnMissingBean
+  - Auto-configures cache, metrics, health checks
+  - Published to Maven Local
+  - README with usage examples
+GitHub Stars potential: ⭐⭐⭐⭐ (shows deep Spring understanding)
+</code></pre>
+<hr>
+<p><em>Generated from actual GSTN JAVA_Maintrunk codebase analysis + source code walkthroughs — March 2026</em>
+<em>Total preparation coverage: Code walkthroughs, Resume, Mock interviews (5 rounds), Code snippets (15), Company prep (4), Deep dives (4), Gap analysis, 30-day plan, System design (3), Projects (5)</em></p>
+
+            <script async src="https://cdn.jsdelivr.net/npm/katex-copytex@latest/dist/katex-copytex.min.js"></script>
+            
+        </body>
+        </html>

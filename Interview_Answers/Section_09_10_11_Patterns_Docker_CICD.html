@@ -1,0 +1,905 @@
+<!DOCTYPE html>
+        <html>
+        <head>
+            <meta charset="UTF-8">
+            <title>SECTIONS 9-11&colon; DESIGN PATTERNS&comma; DOCKER&sol;K8S&comma; CI&sol;CD &mdash; Interview Answers &lpar;Q166&ndash;Q205&rpar;</title>
+            <style>
+/* From extension vscode.github */
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+
+.vscode-dark img[src$=\#gh-light-mode-only],
+.vscode-light img[src$=\#gh-dark-mode-only],
+.vscode-high-contrast:not(.vscode-high-contrast-light) img[src$=\#gh-light-mode-only],
+.vscode-high-contrast-light img[src$=\#gh-dark-mode-only] {
+	display: none;
+}
+
+</style>
+            
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Microsoft/vscode/extensions/markdown-language-features/media/markdown.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Microsoft/vscode/extensions/markdown-language-features/media/highlight.css">
+<style>
+            body {
+                font-family: -apple-system, BlinkMacSystemFont, 'Segoe WPC', 'Segoe UI', system-ui, 'Ubuntu', 'Droid Sans', sans-serif;
+                font-size: 14px;
+                line-height: 1.6;
+            }
+        </style>
+        <style>
+.task-list-item {
+    list-style-type: none;
+}
+
+.task-list-item-checkbox {
+    margin-left: -20px;
+    vertical-align: middle;
+    pointer-events: none;
+}
+</style>
+<style>
+:root {
+  --color-note: #0969da;
+  --color-tip: #1a7f37;
+  --color-warning: #9a6700;
+  --color-severe: #bc4c00;
+  --color-caution: #d1242f;
+  --color-important: #8250df;
+}
+
+</style>
+<style>
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-note: #2f81f7;
+    --color-tip: #3fb950;
+    --color-warning: #d29922;
+    --color-severe: #db6d28;
+    --color-caution: #f85149;
+    --color-important: #a371f7;
+  }
+}
+
+</style>
+<style>
+.markdown-alert {
+  padding: 0.5rem 1rem;
+  margin-bottom: 16px;
+  color: inherit;
+  border-left: .25em solid #888;
+}
+
+.markdown-alert>:first-child {
+  margin-top: 0
+}
+
+.markdown-alert>:last-child {
+  margin-bottom: 0
+}
+
+.markdown-alert .markdown-alert-title {
+  display: flex;
+  font-weight: 500;
+  align-items: center;
+  line-height: 1
+}
+
+.markdown-alert .markdown-alert-title .octicon {
+  margin-right: 0.5rem;
+  display: inline-block;
+  overflow: visible !important;
+  vertical-align: text-bottom;
+  fill: currentColor;
+}
+
+.markdown-alert.markdown-alert-note {
+  border-left-color: var(--color-note);
+}
+
+.markdown-alert.markdown-alert-note .markdown-alert-title {
+  color: var(--color-note);
+}
+
+.markdown-alert.markdown-alert-important {
+  border-left-color: var(--color-important);
+}
+
+.markdown-alert.markdown-alert-important .markdown-alert-title {
+  color: var(--color-important);
+}
+
+.markdown-alert.markdown-alert-warning {
+  border-left-color: var(--color-warning);
+}
+
+.markdown-alert.markdown-alert-warning .markdown-alert-title {
+  color: var(--color-warning);
+}
+
+.markdown-alert.markdown-alert-tip {
+  border-left-color: var(--color-tip);
+}
+
+.markdown-alert.markdown-alert-tip .markdown-alert-title {
+  color: var(--color-tip);
+}
+
+.markdown-alert.markdown-alert-caution {
+  border-left-color: var(--color-caution);
+}
+
+.markdown-alert.markdown-alert-caution .markdown-alert-title {
+  color: var(--color-caution);
+}
+
+</style>
+        
+        </head>
+        <body class="vscode-body vscode-light">
+            <h1 id="sections-9-11-design-patterns-dockerk8s-cicd--interview-answers-q166q205">SECTIONS 9-11: DESIGN PATTERNS, DOCKER/K8S, CI/CD — Interview Answers (Q166–Q205)</h1>
+<h2 id="with-gstn-codebase-references">With GSTN Codebase References</h2>
+<hr>
+<h1 id="section-9-design-patterns-q166q180">SECTION 9: DESIGN PATTERNS (Q166–Q180)</h1>
+<h3 id="q166-singleton--thread-safe-implementations">Q166. Singleton — thread-safe implementations?</h3>
+<p><strong>Answer:</strong></p>
+<p><strong>GSTN uses Singleton</strong> in KafkaConsumerConfig:</p>
+<pre><code class="language-java"><span class="hljs-comment">// From KafkaConsumerConfig.java — Eager initialization (simplest thread-safe)</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">KafkaConsumerConfig</span> {
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> <span class="hljs-type">KafkaConsumerConfig</span> <span class="hljs-variable">instance</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">KafkaConsumerConfig</span>(); <span class="hljs-comment">// Created at class loading</span>
+    
+    <span class="hljs-keyword">private</span> <span class="hljs-title function_">KafkaConsumerConfig</span><span class="hljs-params">()</span> {} <span class="hljs-comment">// Private constructor</span>
+    
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> KafkaConsumerConfig <span class="hljs-title function_">getInstance</span><span class="hljs-params">()</span> {
+        <span class="hljs-keyword">return</span> instance;
+    }
+}
+</code></pre>
+<p><strong>Thread-safe implementations:</strong></p>
+<pre><code class="language-java"><span class="hljs-comment">// 1. ENUM (recommended by Joshua Bloch) — simplest, serialization-safe</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">enum</span> <span class="hljs-title class_">KafkaConfig</span> {
+    INSTANCE;
+    <span class="hljs-keyword">private</span> <span class="hljs-type">Properties</span> <span class="hljs-variable">props</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">Properties</span>();
+    <span class="hljs-keyword">public</span> KafkaConsumer&lt;Long, String&gt; <span class="hljs-title function_">getNewConsumer</span><span class="hljs-params">()</span> { <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">KafkaConsumer</span>&lt;&gt;(props); }
+}
+
+<span class="hljs-comment">// 2. Bill Pugh (static inner class) — lazy + thread-safe</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">Singleton</span> {
+    <span class="hljs-keyword">private</span> <span class="hljs-title function_">Singleton</span><span class="hljs-params">()</span> {}
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">Holder</span> {
+        <span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">final</span> <span class="hljs-type">Singleton</span> <span class="hljs-variable">INSTANCE</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">Singleton</span>(); <span class="hljs-comment">// Loaded lazily</span>
+    }
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> Singleton <span class="hljs-title function_">getInstance</span><span class="hljs-params">()</span> { <span class="hljs-keyword">return</span> Holder.INSTANCE; }
+}
+
+<span class="hljs-comment">// 3. Double-checked locking (Java 5+ with volatile)</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">Singleton</span> {
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">volatile</span> Singleton instance;
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> Singleton <span class="hljs-title function_">getInstance</span><span class="hljs-params">()</span> {
+        <span class="hljs-keyword">if</span> (instance == <span class="hljs-literal">null</span>) {
+            <span class="hljs-keyword">synchronized</span> (Singleton.class) {
+                <span class="hljs-keyword">if</span> (instance == <span class="hljs-literal">null</span>) {
+                    instance = <span class="hljs-keyword">new</span> <span class="hljs-title class_">Singleton</span>();
+                }
+            }
+        }
+        <span class="hljs-keyword">return</span> instance;
+    }
+}
+</code></pre>
+<p><strong>In Spring:</strong> All <code>@Service</code>, <code>@Component</code> beans are singletons by default — Spring manages lifecycle.</p>
+<hr>
+<h3 id="q167-factory-method-vs-abstract-factory">Q167. Factory Method vs Abstract Factory?</h3>
+<p><strong>Answer:</strong></p>
+<p><strong>Factory Method:</strong> Single method to create objects based on type.</p>
+<pre><code class="language-java"><span class="hljs-comment">// GSTN: Create different validators based on return type</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">ValidatorFactory</span> {
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> Validator <span class="hljs-title function_">createValidator</span><span class="hljs-params">(String returnType)</span> {
+        <span class="hljs-keyword">switch</span> (returnType) {
+            <span class="hljs-keyword">case</span> <span class="hljs-string">&quot;GSTR1&quot;</span>: <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">GSTR1Validator</span>();
+            <span class="hljs-keyword">case</span> <span class="hljs-string">&quot;GSTR3B&quot;</span>: <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">GSTR3BValidator</span>();
+            <span class="hljs-keyword">case</span> <span class="hljs-string">&quot;GSTR9&quot;</span>: <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">GSTR9AnnualValidator</span>();
+            <span class="hljs-keyword">default</span>: <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">IllegalArgumentException</span>(<span class="hljs-string">&quot;Unknown return type&quot;</span>);
+        }
+    }
+}
+</code></pre>
+<p><strong>Abstract Factory:</strong> Factory of factories — creates families of related objects.</p>
+<pre><code class="language-java"><span class="hljs-comment">// GSTN: Different processing pipelines per environment</span>
+<span class="hljs-keyword">interface</span> <span class="hljs-title class_">GSTProcessingFactory</span> {
+    Validator <span class="hljs-title function_">createValidator</span><span class="hljs-params">()</span>;
+    Processor <span class="hljs-title function_">createProcessor</span><span class="hljs-params">()</span>;
+    Notifier <span class="hljs-title function_">createNotifier</span><span class="hljs-params">()</span>;
+}
+
+<span class="hljs-keyword">class</span> <span class="hljs-title class_">ProductionFactory</span> <span class="hljs-keyword">implements</span> <span class="hljs-title class_">GSTProcessingFactory</span> {
+    <span class="hljs-keyword">public</span> Validator <span class="hljs-title function_">createValidator</span><span class="hljs-params">()</span> { <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">StrictValidator</span>(); }
+    <span class="hljs-keyword">public</span> Processor <span class="hljs-title function_">createProcessor</span><span class="hljs-params">()</span> { <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">KafkaProcessor</span>(); }
+    <span class="hljs-keyword">public</span> Notifier <span class="hljs-title function_">createNotifier</span><span class="hljs-params">()</span> { <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">SMSNotifier</span>(); }
+}
+
+<span class="hljs-keyword">class</span> <span class="hljs-title class_">TestFactory</span> <span class="hljs-keyword">implements</span> <span class="hljs-title class_">GSTProcessingFactory</span> {
+    <span class="hljs-keyword">public</span> Validator <span class="hljs-title function_">createValidator</span><span class="hljs-params">()</span> { <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">MockValidator</span>(); }
+    <span class="hljs-keyword">public</span> Processor <span class="hljs-title function_">createProcessor</span><span class="hljs-params">()</span> { <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">InMemoryProcessor</span>(); }
+    <span class="hljs-keyword">public</span> Notifier <span class="hljs-title function_">createNotifier</span><span class="hljs-params">()</span> { <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">LogNotifier</span>(); }
+}
+</code></pre>
+<hr>
+<h3 id="q168-builder-pattern--lomboks-builder">Q168. Builder pattern — Lombok's @Builder?</h3>
+<p><strong>Answer:</strong></p>
+<pre><code class="language-java"><span class="hljs-comment">// GSTN uses Lombok @Builder extensively</span>
+<span class="hljs-meta">@Data</span>
+<span class="hljs-meta">@AllArgsConstructor</span>
+<span class="hljs-meta">@NoArgsConstructor</span>
+<span class="hljs-meta">@Builder</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">HSNResponseDetailsVo</span> {
+    <span class="hljs-keyword">private</span> String url;
+    <span class="hljs-keyword">private</span> String message;
+    <span class="hljs-keyword">private</span> String errorCode;
+    <span class="hljs-keyword">private</span> List&lt;HSNDetailsVo&gt; data;
+}
+
+<span class="hljs-comment">// Usage — fluent API</span>
+<span class="hljs-type">HSNResponseDetailsVo</span> <span class="hljs-variable">response</span> <span class="hljs-operator">=</span> HSNResponseDetailsVo.builder()
+    .url(<span class="hljs-string">&quot;/api/hsn/search&quot;</span>)
+    .message(<span class="hljs-string">&quot;Success&quot;</span>)
+    .errorCode(<span class="hljs-string">&quot;0&quot;</span>)
+    .data(hsnDetailsList)
+    .build();
+</code></pre>
+<p><strong>When Builder is useful:</strong></p>
+<ul>
+<li>Many constructor parameters (&gt; 4)</li>
+<li>Optional parameters (avoid telescoping constructors)</li>
+<li>Immutable objects</li>
+<li>Complex object construction with validation</li>
+</ul>
+<hr>
+<h3 id="q169-strategy-pattern--gstn-validation-strategies">Q169. Strategy pattern — GSTN validation strategies?</h3>
+<p><strong>Answer:</strong></p>
+<pre><code class="language-java"><span class="hljs-comment">// Strategy interface</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">interface</span> <span class="hljs-title class_">ReturnValidationStrategy</span> {
+    ValidationResult <span class="hljs-title function_">validate</span><span class="hljs-params">(ReturnVO returnVO)</span>;
+}
+
+<span class="hljs-comment">// Concrete strategies for different return types</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">GSTR1ValidationStrategy</span> <span class="hljs-keyword">implements</span> <span class="hljs-title class_">ReturnValidationStrategy</span> {
+    <span class="hljs-keyword">public</span> ValidationResult <span class="hljs-title function_">validate</span><span class="hljs-params">(ReturnVO vo)</span> {
+        <span class="hljs-comment">// Validate outward supplies, HSN codes, invoice details</span>
+    }
+}
+
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">GSTR3BValidationStrategy</span> <span class="hljs-keyword">implements</span> <span class="hljs-title class_">ReturnValidationStrategy</span> {
+    <span class="hljs-keyword">public</span> ValidationResult <span class="hljs-title function_">validate</span><span class="hljs-params">(ReturnVO vo)</span> {
+        <span class="hljs-comment">// Validate summary figures, ITC claims, tax liability</span>
+    }
+}
+
+<span class="hljs-comment">// Context — selects strategy at runtime</span>
+<span class="hljs-meta">@Service</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">ReturnProcessor</span> {
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> Map&lt;String, ReturnValidationStrategy&gt; strategies;
+    
+    <span class="hljs-keyword">public</span> <span class="hljs-title function_">ReturnProcessor</span><span class="hljs-params">(List&lt;ReturnValidationStrategy&gt; strategyList)</span> {
+        <span class="hljs-built_in">this</span>.strategies = strategyList.stream()
+            .collect(Collectors.toMap(s -&gt; s.getType(), Function.identity()));
+    }
+    
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">process</span><span class="hljs-params">(ReturnVO returnVO)</span> {
+        <span class="hljs-type">ReturnValidationStrategy</span> <span class="hljs-variable">strategy</span> <span class="hljs-operator">=</span> strategies.get(returnVO.getType());
+        <span class="hljs-type">ValidationResult</span> <span class="hljs-variable">result</span> <span class="hljs-operator">=</span> strategy.validate(returnVO);
+    }
+}
+</code></pre>
+<p><strong>GSTN's AOP-based validation is similar to Strategy:</strong></p>
+<pre><code class="language-java"><span class="hljs-meta">@Aspect</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">G2BApiValidator</span> {
+    <span class="hljs-meta">@Before(&quot;execution(* org.gst.masters.api.controller.G2BController.*(..))&quot;)</span>
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">validateRequest</span><span class="hljs-params">()</span> { <span class="hljs-comment">/* validate based on request type */</span> }
+}
+</code></pre>
+<hr>
+<h3 id="q170-observer-pattern--event-driven-and-kafka">Q170. Observer pattern — event-driven and Kafka?</h3>
+<p><strong>Answer:</strong></p>
+<p>Kafka is the <strong>Observer pattern at massive scale</strong>:</p>
+<ul>
+<li><strong>Subject (Producer)</strong>: Filing service produces &quot;RETURN_FILED&quot; events</li>
+<li><strong>Observers (Consumers)</strong>: Multiple services subscribe and react independently
+<ul>
+<li>Notification service → sends SMS/email</li>
+<li>Ledger service → updates ledger balance</li>
+<li>Dashboard service → updates statistics</li>
+<li>Audit service → records audit trail</li>
+</ul>
+</li>
+</ul>
+<pre><code class="language-java"><span class="hljs-comment">// Spring Events — Observer within one application</span>
+<span class="hljs-meta">@Component</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">ReturnFiledEventPublisher</span> {
+    <span class="hljs-meta">@Autowired</span> <span class="hljs-keyword">private</span> ApplicationEventPublisher publisher;
+    
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">publishFiledEvent</span><span class="hljs-params">(ReturnVO vo)</span> {
+        publisher.publishEvent(<span class="hljs-keyword">new</span> <span class="hljs-title class_">ReturnFiledEvent</span>(<span class="hljs-built_in">this</span>, vo));
+    }
+}
+
+<span class="hljs-meta">@Component</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">AuditListener</span> {
+    <span class="hljs-meta">@EventListener</span>
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">onReturnFiled</span><span class="hljs-params">(ReturnFiledEvent event)</span> {
+        auditService.recordAudit(event.getReturnVO());
+    }
+}
+</code></pre>
+<hr>
+<h3 id="q171-template-method-pattern-in-spring">Q171. Template Method pattern in Spring?</h3>
+<p><strong>Answer:</strong></p>
+<p><strong>Template Method</strong> defines the skeleton of an algorithm, with subclasses overriding specific steps.</p>
+<p>Spring uses this extensively:</p>
+<ul>
+<li><code>JdbcTemplate</code> — handles connection management, you provide SQL</li>
+<li><code>RestTemplate</code> — handles HTTP plumbing, you provide URL and type</li>
+<li><code>AbstractRoutingDataSource</code> — you override <code>determineCurrentLookupKey()</code></li>
+</ul>
+<p><strong>GSTN Example — RoutingDataSource:</strong></p>
+<pre><code class="language-java"><span class="hljs-comment">// Spring&#x27;s template method — you only override the &quot;variable&quot; step</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">GSTNRoutingDataSource</span> <span class="hljs-keyword">extends</span> <span class="hljs-title class_">AbstractRoutingDataSource</span> {
+    <span class="hljs-meta">@Override</span>
+    <span class="hljs-keyword">protected</span> Object <span class="hljs-title function_">determineCurrentLookupKey</span><span class="hljs-params">()</span> {
+        <span class="hljs-keyword">return</span> DbType.getCurrentDb(); <span class="hljs-comment">// GSTN overrides this one method</span>
+    }
+    <span class="hljs-comment">// AbstractRoutingDataSource.getConnection() uses this key to pick DataSource</span>
+}
+</code></pre>
+<hr>
+<h3 id="q172-proxy-pattern--spring-aop">Q172. Proxy pattern — Spring AOP?</h3>
+<p><strong>Answer:</strong></p>
+<p>Spring creates <strong>proxies</strong> around beans to add cross-cutting behavior (transactions, logging, security).</p>
+<p><strong>Two proxy types:</strong></p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>JDK Dynamic Proxy</th>
+<th>CGLIB Proxy</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Requires</td>
+<td>Interface</td>
+<td>No interface needed</td>
+</tr>
+<tr>
+<td>Method</td>
+<td><code>java.lang.reflect.Proxy</code></td>
+<td>Generates subclass at runtime</td>
+</tr>
+<tr>
+<td>Performance</td>
+<td>Slightly slower</td>
+<td>Slightly faster</td>
+</tr>
+<tr>
+<td>Spring default</td>
+<td>If bean implements interface</td>
+<td>If bean has no interface</td>
+</tr>
+</tbody>
+</table>
+<pre><code class="language-java"><span class="hljs-comment">// When @Transactional is added, Spring creates proxy:</span>
+<span class="hljs-comment">// Client → Proxy (begin TX) → Actual Bean Method → Proxy (commit/rollback)</span>
+
+<span class="hljs-meta">@Service</span>  <span class="hljs-comment">// Spring creates CGLIB proxy (no interface)</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">ReturnService</span> {
+    <span class="hljs-meta">@Transactional</span>  <span class="hljs-comment">// Proxy intercepts this method</span>
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">fileReturn</span><span class="hljs-params">(ReturnVO vo)</span> { ... }
+}
+</code></pre>
+<p><strong>GSTN AOP Logging uses JDK proxies:</strong></p>
+<pre><code class="language-java"><span class="hljs-meta">@Aspect</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">LoggingAspect</span> {
+    <span class="hljs-meta">@Before(&quot;execution(* org.gst..*(..))&quot;)</span>
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">logMethodEntry</span><span class="hljs-params">(JoinPoint joinPoint)</span> {
+        LOGGER.info(<span class="hljs-string">&quot;Entering: {}&quot;</span>, joinPoint.getSignature().getName());
+    }
+}
+</code></pre>
+<hr>
+<h3 id="q173q178-decorator-chain-of-responsibility-repository-circuit-breaker-adapter-facade">Q173–Q178. Decorator, Chain of Responsibility, Repository, Circuit Breaker, Adapter, Facade</h3>
+<p><strong>Q173. Decorator:</strong> Wraps object to add behavior. Java I/O: <code>new BufferedReader(new InputStreamReader(new FileInputStream(&quot;file&quot;)))</code>. Each layer adds capability.</p>
+<p><strong>Q174. Chain of Responsibility — Spring Security Filter Chain:</strong></p>
+<pre><code>Request → Filter1 (CORS) → Filter2 (Auth) → Filter3 (CSRF) → Controller
+// Each filter decides to process and pass along OR reject
+// GSTN's AuthorizationFilter is part of this chain
+</code></pre>
+<p><strong>Q175. Repository vs DAO:</strong></p>
+<ul>
+<li><strong>DAO</strong>: Encapsulates database access, returns entities. More tightly coupled to persistence.</li>
+<li><strong>Repository</strong>: Domain-driven, higher abstraction. Returns domain aggregates.</li>
+<li><code>JpaRepository</code> in Spring Data is actually a Repository pattern.</li>
+</ul>
+<p><strong>Q176. Circuit Breaker states:</strong> CLOSED → (failures exceed threshold) → OPEN → (wait duration) → HALF-OPEN → (test calls) → CLOSED/OPEN</p>
+<p><strong>Q177. Adapter:</strong> Convert one interface to another. GSTN example: Converting legacy XML-based return data to new JSON-based format.</p>
+<p><strong>Q178. Facade:</strong> Simplified interface to complex subsystem. GSTN's <code>DistCacheUtil</code> is a Facade — provides simple methods (<code>getGstMstrDetails()</code>, <code>addToEntityDetailsCache()</code>) hiding complex Redis operations.</p>
+<hr>
+<h3 id="q179-solid-principles">Q179. SOLID principles?</h3>
+<p><strong>Answer:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Principle</th>
+<th>Definition</th>
+<th>GSTN Example</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>S</strong>ingle Responsibility</td>
+<td>One class = one reason to change</td>
+<td><code>AuthorizationFilter</code> only handles auth, not business logic</td>
+</tr>
+<tr>
+<td><strong>O</strong>pen/Closed</td>
+<td>Open for extension, closed for modification</td>
+<td>Strategy pattern for validators — add new validator class, don't modify existing</td>
+</tr>
+<tr>
+<td><strong>L</strong>iskov Substitution</td>
+<td>Subtypes replaceable for parent types</td>
+<td><code>GSTLogicalException extends Exception</code> — anywhere Exception is caught, GSTLogicalException works</td>
+</tr>
+<tr>
+<td><strong>I</strong>nterface Segregation</td>
+<td>Many specific interfaces &gt; one fat interface</td>
+<td><code>WFXAService</code>, <code>Anx1aService</code> — each service has its own interface</td>
+</tr>
+<tr>
+<td><strong>D</strong>ependency Inversion</td>
+<td>Depend on abstractions, not concretions</td>
+<td>Service depends on <code>JpaRepository</code> interface, not specific implementation</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h3 id="q180-dry-kiss-yagni">Q180. DRY, KISS, YAGNI?</h3>
+<p><strong>Answer:</strong></p>
+<ul>
+<li><strong>DRY (Don't Repeat Yourself):</strong> GSTN's <code>Commons/</code> frameworks eliminate duplication — <code>GstExceptionFwk</code>, <code>DistCacheFwk</code>, <code>AuthenticationFwk</code> are shared across ALL services.</li>
+<li><strong>KISS (Keep It Simple, Stupid):</strong> Field injection with <code>@Autowired</code> is simpler than complex factory patterns — works for GSTN's scale.</li>
+<li><strong>YAGNI (You Ain't Gonna Need It):</strong> Don't build features until needed. Don't implement CQRS if simple queries work. Don't add WebFlux if MVC handles your load.</li>
+</ul>
+<hr>
+<h1 id="section-10-docker--kubernetes-q181q195">SECTION 10: DOCKER &amp; KUBERNETES (Q181–Q195)</h1>
+<h3 id="q181-docker--container-vs-vm">Q181. Docker — Container vs VM?</h3>
+<p><strong>Answer:</strong></p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>Container</th>
+<th>Virtual Machine</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Isolation</td>
+<td><strong>Process-level</strong> (shared kernel)</td>
+<td><strong>Hardware-level</strong> (own kernel)</td>
+</tr>
+<tr>
+<td>Size</td>
+<td><strong>MB</strong> (just app + deps)</td>
+<td><strong>GB</strong> (full OS)</td>
+</tr>
+<tr>
+<td>Startup</td>
+<td><strong>Seconds</strong></td>
+<td>Minutes</td>
+</tr>
+<tr>
+<td>Performance</td>
+<td><strong>Near-native</strong></td>
+<td>Overhead from hypervisor</td>
+</tr>
+<tr>
+<td>Density</td>
+<td><strong>100s per host</strong></td>
+<td>Tens per host</td>
+</tr>
+<tr>
+<td>Security</td>
+<td>Shared kernel risk</td>
+<td>Stronger isolation</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Why containers for microservices:</strong> Each GSTN service (ReturnAPI, LedgerAPI, etc.) packaged as a container. Lightweight, fast startup, consistent across environments (dev → prod).</p>
+<hr>
+<h3 id="q182-dockerfile-for-spring-boot">Q182. Dockerfile for Spring Boot?</h3>
+<p><strong>Answer:</strong></p>
+<pre><code class="language-dockerfile"><span class="hljs-comment"># Multi-stage build — smaller final image</span>
+<span class="hljs-comment"># Stage 1: Build</span>
+<span class="hljs-keyword">FROM</span> maven:<span class="hljs-number">3.8</span>-eclipse-temurin-<span class="hljs-number">17</span> AS builder
+<span class="hljs-keyword">WORKDIR</span><span class="language-bash"> /app</span>
+<span class="hljs-keyword">COPY</span><span class="language-bash"> pom.xml .</span>
+<span class="hljs-keyword">RUN</span><span class="language-bash"> mvn dependency:resolve  <span class="hljs-comment"># Cache dependencies layer</span></span>
+<span class="hljs-keyword">COPY</span><span class="language-bash"> src ./src</span>
+<span class="hljs-keyword">RUN</span><span class="language-bash"> mvn package -DskipTests</span>
+
+<span class="hljs-comment"># Stage 2: Runtime</span>
+<span class="hljs-keyword">FROM</span> eclipse-temurin:<span class="hljs-number">17</span>-jre-alpine
+<span class="hljs-keyword">RUN</span><span class="language-bash"> addgroup -S app &amp;&amp; adduser -S app -G app  <span class="hljs-comment"># Non-root user (security)</span></span>
+<span class="hljs-keyword">WORKDIR</span><span class="language-bash"> /app</span>
+<span class="hljs-keyword">COPY</span><span class="language-bash"> --from=builder /app/target/*.jar app.jar</span>
+<span class="hljs-keyword">USER</span> app  <span class="hljs-comment"># Run as non-root</span>
+<span class="hljs-keyword">EXPOSE</span> <span class="hljs-number">8080</span>
+<span class="hljs-keyword">ENTRYPOINT</span><span class="language-bash"> [<span class="hljs-string">&quot;java&quot;</span>, <span class="hljs-string">&quot;-XX:+UseG1GC&quot;</span>, <span class="hljs-string">&quot;-XX:MaxRAMPercentage=75&quot;</span>, <span class="hljs-string">&quot;-jar&quot;</span>, <span class="hljs-string">&quot;app.jar&quot;</span>]</span>
+</code></pre>
+<p><strong>Why multi-stage:</strong> Build stage has JDK + Maven (800MB+). Runtime only needs JRE (200MB). Final image is 4x smaller.</p>
+<hr>
+<h3 id="q183-docker-image-layers">Q183. Docker image layers?</h3>
+<p><strong>Answer:</strong></p>
+<p>Each Dockerfile instruction creates a <strong>layer</strong>. Layers are cached — unchanged layers aren't rebuilt.</p>
+<pre><code class="language-dockerfile"><span class="hljs-keyword">FROM</span> eclipse-temurin:<span class="hljs-number">17</span>-jre-alpine    <span class="hljs-comment"># Layer 1: Base image (cached)</span>
+<span class="hljs-keyword">COPY</span><span class="language-bash"> pom.xml .                         <span class="hljs-comment"># Layer 2: POM (cache if unchanged)</span></span>
+<span class="hljs-keyword">RUN</span><span class="language-bash"> mvn dependency:resolve             <span class="hljs-comment"># Layer 3: Dependencies (cached if POM unchanged)</span></span>
+<span class="hljs-keyword">COPY</span><span class="language-bash"> src ./src                         <span class="hljs-comment"># Layer 4: Source code (changes frequently)</span></span>
+<span class="hljs-keyword">RUN</span><span class="language-bash"> mvn package                        <span class="hljs-comment"># Layer 5: Build (rebuilds when src changes)</span></span>
+</code></pre>
+<p><strong>Minimize image size:</strong></p>
+<ol>
+<li>Use <strong>Alpine</strong> base images (5MB vs 200MB)</li>
+<li>Multi-stage builds — discard build tools</li>
+<li><strong>Order layers by change frequency</strong> — put rarely changing layers first</li>
+<li>Use <code>.dockerignore</code> to exclude unnecessary files</li>
+<li>Combine RUN commands to reduce layers</li>
+</ol>
+<hr>
+<h3 id="q184-docker-security--non-root-user">Q184. Docker security — non-root user?</h3>
+<p><strong>Answer:</strong></p>
+<p>By default, containers run as <strong>root</strong> — if container is compromised, attacker has root access to host kernel.</p>
+<pre><code class="language-dockerfile"><span class="hljs-comment"># Create non-root user</span>
+<span class="hljs-keyword">RUN</span><span class="language-bash"> addgroup -S appgroup &amp;&amp; adduser -S appuser -G appgroup</span>
+
+<span class="hljs-comment"># Set ownership</span>
+<span class="hljs-keyword">COPY</span><span class="language-bash"> --<span class="hljs-built_in">chown</span>=appuser:appgroup --from=builder /app/target/*.jar app.jar</span>
+
+<span class="hljs-comment"># Switch to non-root user</span>
+<span class="hljs-keyword">USER</span> appuser
+
+<span class="hljs-comment"># Now container process runs as &quot;appuser&quot; — limited privileges</span>
+</code></pre>
+<p><strong>Additional security:</strong></p>
+<ul>
+<li>Read-only filesystem: <code>docker run --read-only</code></li>
+<li>Drop capabilities: <code>--cap-drop ALL --cap-add NET_BIND_SERVICE</code></li>
+<li>No new privileges: <code>--security-opt=no-new-privileges</code></li>
+<li>Scan images for vulnerabilities: Trivy, Snyk</li>
+</ul>
+<hr>
+<h3 id="q185-q186-docker-compose-and-networking">Q185-Q186. Docker Compose and Networking</h3>
+<p><strong>Docker Compose for local development:</strong></p>
+<pre><code class="language-yaml"><span class="hljs-attr">version:</span> <span class="hljs-string">&#x27;3.8&#x27;</span>
+<span class="hljs-attr">services:</span>
+  <span class="hljs-attr">gstn-return-api:</span>
+    <span class="hljs-attr">build:</span> <span class="hljs-string">./Core-API/ReturnAPI</span>
+    <span class="hljs-attr">ports:</span> [<span class="hljs-string">&quot;8080:8080&quot;</span>]
+    <span class="hljs-attr">environment:</span>
+      <span class="hljs-bullet">-</span> <span class="hljs-string">SPRING_PROFILES_ACTIVE=local</span>
+      <span class="hljs-bullet">-</span> <span class="hljs-string">DB_HOST=mysql</span>
+      <span class="hljs-bullet">-</span> <span class="hljs-string">REDIS_HOST=redis</span>
+      <span class="hljs-bullet">-</span> <span class="hljs-string">KAFKA_BROKERS=kafka:9092</span>
+    <span class="hljs-attr">depends_on:</span> [<span class="hljs-string">mysql</span>, <span class="hljs-string">redis</span>, <span class="hljs-string">kafka</span>]
+
+  <span class="hljs-attr">mysql:</span>
+    <span class="hljs-attr">image:</span> <span class="hljs-string">mysql:8.0</span>
+    <span class="hljs-attr">environment:</span>
+      <span class="hljs-attr">MYSQL_ROOT_PASSWORD:</span> <span class="hljs-string">secret</span>
+      <span class="hljs-attr">MYSQL_DATABASE:</span> <span class="hljs-string">gstn</span>
+    <span class="hljs-attr">ports:</span> [<span class="hljs-string">&quot;3306:3306&quot;</span>]
+    <span class="hljs-attr">volumes:</span> [<span class="hljs-string">&quot;mysql-data:/var/lib/mysql&quot;</span>]
+
+  <span class="hljs-attr">redis:</span>
+    <span class="hljs-attr">image:</span> <span class="hljs-string">redis:7-alpine</span>
+    <span class="hljs-attr">ports:</span> [<span class="hljs-string">&quot;6379:6379&quot;</span>]
+
+  <span class="hljs-attr">kafka:</span>
+    <span class="hljs-attr">image:</span> <span class="hljs-string">confluentinc/cp-kafka:latest</span>
+    <span class="hljs-attr">ports:</span> [<span class="hljs-string">&quot;9092:9092&quot;</span>]
+
+<span class="hljs-attr">volumes:</span>
+  <span class="hljs-attr">mysql-data:</span>
+</code></pre>
+<p><strong>Networking:</strong> Bridge (default — containers on same bridge talk via container name), Host (share host network), Overlay (multi-host — Docker Swarm/K8s).</p>
+<hr>
+<h3 id="q187-kubernetes-architecture">Q187. Kubernetes architecture?</h3>
+<p><strong>Answer:</strong></p>
+<pre><code>Control Plane (Master):
+├── API Server        — REST API, entry point for all operations
+├── etcd              — Distributed key-value store (cluster state)
+├── Scheduler         — Assigns pods to nodes based on resources
+└── Controller Manager — Ensures desired state = actual state
+    ├── Deployment Controller
+    ├── ReplicaSet Controller
+    └── Service Controller
+
+Worker Nodes:
+├── kubelet           — Manages pods on the node
+├── kube-proxy        — Network proxy, service routing
+└── Container Runtime — Docker/containerd, runs containers
+</code></pre>
+<hr>
+<h3 id="q188-k8s-objects">Q188. K8s Objects?</h3>
+<p><strong>Answer:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Object</th>
+<th>Purpose</th>
+<th>GSTN Example</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Pod</strong></td>
+<td>Smallest unit, one or more containers</td>
+<td>Single ReturnAPI instance</td>
+</tr>
+<tr>
+<td><strong>Deployment</strong></td>
+<td>Manages ReplicaSet, rolling updates</td>
+<td><code>return-api-deployment</code> with 5 replicas</td>
+</tr>
+<tr>
+<td><strong>Service</strong></td>
+<td>Stable network endpoint</td>
+<td><code>return-api-svc</code> load-balances across pods</td>
+</tr>
+<tr>
+<td><strong>ConfigMap</strong></td>
+<td>Non-sensitive config</td>
+<td><code>gst.kafka.bootstrap-servers</code>, <code>gst.cache.ttl</code></td>
+</tr>
+<tr>
+<td><strong>Secret</strong></td>
+<td>Sensitive config (base64)</td>
+<td>DB passwords, JWT secrets</td>
+</tr>
+<tr>
+<td><strong>Ingress</strong></td>
+<td>External HTTP routing</td>
+<td>Route <code>api.gst.gov.in/returns/*</code> → return-api-svc</td>
+</tr>
+<tr>
+<td><strong>PVC</strong></td>
+<td>Persistent storage</td>
+<td>MySQL data volumes</td>
+</tr>
+<tr>
+<td><strong>HPA</strong></td>
+<td>Auto-scaling</td>
+<td>Scale pods 3→20 during filing deadline</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h3 id="q189-deployment-strategies">Q189. Deployment strategies?</h3>
+<p><strong>Answer:</strong></p>
+<p><strong>Rolling Update (default):</strong></p>
+<pre><code class="language-yaml"><span class="hljs-attr">spec:</span>
+  <span class="hljs-attr">strategy:</span>
+    <span class="hljs-attr">type:</span> <span class="hljs-string">RollingUpdate</span>
+    <span class="hljs-attr">rollingUpdate:</span>
+      <span class="hljs-attr">maxSurge:</span> <span class="hljs-number">25</span><span class="hljs-string">%</span>        <span class="hljs-comment"># Max 25% extra pods during update</span>
+      <span class="hljs-attr">maxUnavailable:</span> <span class="hljs-number">25</span><span class="hljs-string">%</span>   <span class="hljs-comment"># Max 25% pods down during update</span>
+</code></pre>
+<p>Gradually replaces old pods with new ones. Zero downtime. GSTN uses this for regular deployments.</p>
+<p><strong>Recreate:</strong></p>
+<pre><code class="language-yaml"><span class="hljs-attr">spec:</span>
+  <span class="hljs-attr">strategy:</span>
+    <span class="hljs-attr">type:</span> <span class="hljs-string">Recreate</span>  <span class="hljs-comment"># Kill all old pods, then create new</span>
+</code></pre>
+<p>Brief downtime. Used when old and new versions can't coexist (schema change).</p>
+<hr>
+<h3 id="q190-blue-green-vs-canary">Q190. Blue-green vs Canary?</h3>
+<p><strong>Answer:</strong></p>
+<p><strong>Blue-Green:</strong></p>
+<pre><code>Blue (current) → receiving all traffic
+Green (new)    → deployed, tested, ready
+Switch: Route ALL traffic to Green instantly
+Rollback: Route back to Blue
+</code></pre>
+<p><strong>Canary:</strong></p>
+<pre><code>Stable (v1) → 95% traffic
+Canary (v2) → 5% traffic → monitor metrics
+If healthy → gradually increase: 10%, 25%, 50%, 100%
+If unhealthy → route 100% back to v1
+</code></pre>
+<p><strong>GSTN:</strong> Canary is preferred for filing services — test with small traffic first, especially during critical periods.</p>
+<hr>
+<h3 id="q191-horizontal-pod-autoscaler-hpa">Q191. Horizontal Pod Autoscaler (HPA)?</h3>
+<p><strong>Answer:</strong></p>
+<pre><code class="language-yaml"><span class="hljs-attr">apiVersion:</span> <span class="hljs-string">autoscaling/v2</span>
+<span class="hljs-attr">kind:</span> <span class="hljs-string">HorizontalPodAutoscaler</span>
+<span class="hljs-attr">metadata:</span>
+  <span class="hljs-attr">name:</span> <span class="hljs-string">return-api-hpa</span>
+<span class="hljs-attr">spec:</span>
+  <span class="hljs-attr">scaleTargetRef:</span>
+    <span class="hljs-attr">apiVersion:</span> <span class="hljs-string">apps/v1</span>
+    <span class="hljs-attr">kind:</span> <span class="hljs-string">Deployment</span>
+    <span class="hljs-attr">name:</span> <span class="hljs-string">return-api</span>
+  <span class="hljs-attr">minReplicas:</span> <span class="hljs-number">3</span>
+  <span class="hljs-attr">maxReplicas:</span> <span class="hljs-number">50</span>  <span class="hljs-comment"># Scale up to 50 during deadline</span>
+  <span class="hljs-attr">metrics:</span>
+  <span class="hljs-bullet">-</span> <span class="hljs-attr">type:</span> <span class="hljs-string">Resource</span>
+    <span class="hljs-attr">resource:</span>
+      <span class="hljs-attr">name:</span> <span class="hljs-string">cpu</span>
+      <span class="hljs-attr">target:</span>
+        <span class="hljs-attr">type:</span> <span class="hljs-string">Utilization</span>
+        <span class="hljs-attr">averageUtilization:</span> <span class="hljs-number">70</span>  <span class="hljs-comment"># Scale when CPU &gt; 70%</span>
+  <span class="hljs-bullet">-</span> <span class="hljs-attr">type:</span> <span class="hljs-string">Resource</span>
+    <span class="hljs-attr">resource:</span>
+      <span class="hljs-attr">name:</span> <span class="hljs-string">memory</span>
+      <span class="hljs-attr">target:</span>
+        <span class="hljs-attr">type:</span> <span class="hljs-string">Utilization</span>
+        <span class="hljs-attr">averageUtilization:</span> <span class="hljs-number">80</span>
+</code></pre>
+<p><strong>GSTN filing deadline:</strong> Normal: 3 pods. Deadline day: HPA scales to 50 pods based on CPU utilization. Custom metrics: Kafka consumer lag can also trigger scaling.</p>
+<hr>
+<h3 id="q192-liveness-vs-readiness-probes">Q192. Liveness vs Readiness probes?</h3>
+<p><strong>Answer:</strong></p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>Liveness Probe</th>
+<th>Readiness Probe</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Purpose</td>
+<td>Is the pod <strong>alive</strong>?</td>
+<td>Is the pod <strong>ready to serve</strong>?</td>
+</tr>
+<tr>
+<td>Failure</td>
+<td>K8s <strong>restarts</strong> the pod</td>
+<td>K8s <strong>removes from service</strong> (no traffic)</td>
+</tr>
+<tr>
+<td>Use case</td>
+<td>Detect deadlocks, hung processes</td>
+<td>Warmup, dependency checks</td>
+</tr>
+<tr>
+<td>Endpoint</td>
+<td><code>/actuator/health/liveness</code></td>
+<td><code>/actuator/health/readiness</code></td>
+</tr>
+</tbody>
+</table>
+<pre><code class="language-yaml"><span class="hljs-attr">livenessProbe:</span>
+  <span class="hljs-attr">httpGet:</span>
+    <span class="hljs-attr">path:</span> <span class="hljs-string">/actuator/health/liveness</span>
+    <span class="hljs-attr">port:</span> <span class="hljs-number">8080</span>
+  <span class="hljs-attr">initialDelaySeconds:</span> <span class="hljs-number">30</span>
+  <span class="hljs-attr">periodSeconds:</span> <span class="hljs-number">10</span>
+  <span class="hljs-attr">failureThreshold:</span> <span class="hljs-number">3</span>  <span class="hljs-comment"># 3 failures → restart</span>
+
+<span class="hljs-attr">readinessProbe:</span>
+  <span class="hljs-attr">httpGet:</span>
+    <span class="hljs-attr">path:</span> <span class="hljs-string">/actuator/health/readiness</span>
+    <span class="hljs-attr">port:</span> <span class="hljs-number">8080</span>
+  <span class="hljs-attr">initialDelaySeconds:</span> <span class="hljs-number">10</span>
+  <span class="hljs-attr">periodSeconds:</span> <span class="hljs-number">5</span>
+  <span class="hljs-attr">failureThreshold:</span> <span class="hljs-number">3</span>  <span class="hljs-comment"># 3 failures → remove from service</span>
+</code></pre>
+<p><strong>GSTN:</strong> Readiness probe checks DB connection, Redis cache, Kafka broker connectivity. If any dependency is down, pod is removed from service → prevents errors from reaching users.</p>
+<hr>
+<h3 id="q193-q195-configmapssecrets-service-types-helm">Q193-Q195. ConfigMaps/Secrets, Service Types, Helm</h3>
+<p><strong>Q193. ConfigMaps &amp; Secrets:</strong></p>
+<pre><code class="language-yaml"><span class="hljs-comment"># ConfigMap — non-sensitive</span>
+<span class="hljs-attr">apiVersion:</span> <span class="hljs-string">v1</span>
+<span class="hljs-attr">kind:</span> <span class="hljs-string">ConfigMap</span>
+<span class="hljs-attr">metadata:</span> {<span class="hljs-attr">name:</span> <span class="hljs-string">gstn-config</span>}
+<span class="hljs-attr">data:</span>
+  <span class="hljs-attr">spring.profiles.active:</span> <span class="hljs-string">prod</span>
+  <span class="hljs-attr">gst.kafka.bootstrap-servers:</span> <span class="hljs-string">kafka:9092</span>
+
+<span class="hljs-comment"># Secret — sensitive (base64 encoded)</span>
+<span class="hljs-attr">apiVersion:</span> <span class="hljs-string">v1</span>
+<span class="hljs-attr">kind:</span> <span class="hljs-string">Secret</span>
+<span class="hljs-attr">metadata:</span> {<span class="hljs-attr">name:</span> <span class="hljs-string">gstn-secrets</span>}
+<span class="hljs-attr">data:</span>
+  <span class="hljs-attr">db-password:</span> <span class="hljs-string">cGFzc3dvcmQxMjM=</span>  <span class="hljs-comment"># base64</span>
+</code></pre>
+<p>Mounted as env vars or volume files.</p>
+<p><strong>Q194. Service Types:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Type</th>
+<th>Scope</th>
+<th>Use Case</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>ClusterIP</strong></td>
+<td>Internal only</td>
+<td>Service-to-service (default)</td>
+</tr>
+<tr>
+<td><strong>NodePort</strong></td>
+<td>External via node port</td>
+<td>Development/testing</td>
+</tr>
+<tr>
+<td><strong>LoadBalancer</strong></td>
+<td>Cloud LB (ELB/NLB)</td>
+<td>Production external access</td>
+</tr>
+<tr>
+<td><strong>ExternalName</strong></td>
+<td>DNS alias</td>
+<td>External service reference</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Q195. Helm Charts:</strong> Package K8s manifests into reusable, parameterized templates. <code>values.yaml</code> configures per environment. <code>helm install gstn-return-api ./charts/return-api -f prod-values.yaml</code></p>
+<hr>
+<h1 id="section-11-cicd-q196q205">SECTION 11: CI/CD (Q196–Q205)</h1>
+<h3 id="q196-cicd-pipeline">Q196. CI/CD pipeline?</h3>
+<p><strong>Answer:</strong></p>
+<pre><code>Code Commit (Git)
+    ↓
+Build (Maven: mvn clean package)
+    ↓
+Unit Tests (TestNG — GSTN uses TestNG 6.8.7)
+    ↓
+Code Quality (SonarQube — coverage, bugs, security)
+    ↓
+Docker Build (multi-stage Dockerfile)
+    ↓
+Push to Registry (Nexus/Docker Registry)
+    ↓
+Deploy to Dev/QA (K8s rolling update)
+    ↓
+Integration Tests (against real APIs/DB)
+    ↓
+Deploy to Staging
+    ↓
+Performance Tests
+    ↓
+Deploy to Production (Canary → Full rollout)
+</code></pre>
+<hr>
+<h3 id="q197q205-jenkins-sonarqube-secrets-iac-flyway-gitflow-rollback-artifacts-testing">Q197–Q205. Jenkins, SonarQube, Secrets, IaC, Flyway, GitFlow, Rollback, Artifacts, Testing</h3>
+<p><strong>Q197. Jenkins:</strong> GSTN likely uses Jenkins for CI/CD. Pipeline defined in <code>Jenkinsfile</code>. Stages: Build → Test → SonarQube → Docker → Deploy.</p>
+<p><strong>Q198. SonarQube:</strong> Enforces quality gates — minimum 80% code coverage, 0 critical bugs, 0 vulnerabilities. Blocks deployment if gates fail.</p>
+<p><strong>Q199. Secrets Management:</strong> K8s Secrets for runtime. HashiCorp Vault for centralized secret management. Never commit secrets to Git.</p>
+<p><strong>Q200. Infrastructure as Code:</strong> Terraform for provisioning AWS resources (EC2, RDS, EKS). Versioned in Git, reviewed like code.</p>
+<p><strong>Q201. DB Migrations in CI/CD:</strong> Flyway runs as part of application startup (<code>spring.flyway.enabled=true</code>). Migration scripts versioned in Git alongside code.</p>
+<p><strong>Q202. GitFlow:</strong></p>
+<pre><code>main    → production code
+develop → integration branch
+feature/* → feature development
+release/* → release preparation
+hotfix/*  → production bugfixes
+</code></pre>
+<p><strong>Q203. Rollbacks:</strong> K8s: <code>kubectl rollout undo deployment/return-api</code>. Automated: if health check fails after deploy → auto rollback. Feature flags: disable new feature without redeployment.</p>
+<p><strong>Q204. Artifact Versioning:</strong> Semantic versioning (MAJOR.MINOR.PATCH). Stored in Nexus/Artifactory. Maven version in pom.xml. Docker tags: <code>return-api:2.5.1</code>.</p>
+<p><strong>Q205. Test Types:</strong></p>
+<ul>
+<li><strong>Smoke test</strong>: Basic functionality check after deployment (can API respond?)</li>
+<li><strong>Regression test</strong>: Full test suite ensuring existing features work</li>
+<li><strong>Integration test</strong>: Tests with real DB/Kafka/Redis (TestContainers)</li>
+</ul>
+
+            
+            
+        </body>
+        </html>

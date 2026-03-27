@@ -15,7 +15,9 @@ COPY prep.py .
 COPY data/*.json ./data/
 # War plan docs, reference files + Alex Xu PDFs (knowledge base)
 COPY docs/ ./docs/
-# Note: Interview_Answers/ is in .gitignore (local only) — KB auto-discovers at runtime
+# Interview prep content — markdown + HTML files indexed by knowledge base
+COPY Interview_Answers/*.md ./Interview_Answers/
+COPY Interview_Answers/*.html ./Interview_Answers/
 # Note: trackers-docs/ is in .gitignore (local only) — not needed in container
 
 # Create logs directory

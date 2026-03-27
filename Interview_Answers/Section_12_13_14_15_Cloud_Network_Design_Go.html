@@ -1,0 +1,837 @@
+<!DOCTYPE html>
+        <html>
+        <head>
+            <meta charset="UTF-8">
+            <title>SECTIONS 12-15&colon; CLOUD&comma; NETWORKING&comma; SYSTEM DESIGN&comma; GOLANG &mdash; Interview Answers &lpar;Q206&ndash;Q248&rpar;</title>
+            <style>
+/* From extension vscode.github */
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+
+.vscode-dark img[src$=\#gh-light-mode-only],
+.vscode-light img[src$=\#gh-dark-mode-only],
+.vscode-high-contrast:not(.vscode-high-contrast-light) img[src$=\#gh-light-mode-only],
+.vscode-high-contrast-light img[src$=\#gh-dark-mode-only] {
+	display: none;
+}
+
+</style>
+            <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex/dist/katex.min.css">
+<link href="https://cdn.jsdelivr.net/npm/katex-copytex@latest/dist/katex-copytex.min.css" rel="stylesheet" type="text/css">
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Microsoft/vscode/extensions/markdown-language-features/media/markdown.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Microsoft/vscode/extensions/markdown-language-features/media/highlight.css">
+<style>
+            body {
+                font-family: -apple-system, BlinkMacSystemFont, 'Segoe WPC', 'Segoe UI', system-ui, 'Ubuntu', 'Droid Sans', sans-serif;
+                font-size: 14px;
+                line-height: 1.6;
+            }
+        </style>
+        <style>
+.task-list-item {
+    list-style-type: none;
+}
+
+.task-list-item-checkbox {
+    margin-left: -20px;
+    vertical-align: middle;
+    pointer-events: none;
+}
+</style>
+<style>
+:root {
+  --color-note: #0969da;
+  --color-tip: #1a7f37;
+  --color-warning: #9a6700;
+  --color-severe: #bc4c00;
+  --color-caution: #d1242f;
+  --color-important: #8250df;
+}
+
+</style>
+<style>
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-note: #2f81f7;
+    --color-tip: #3fb950;
+    --color-warning: #d29922;
+    --color-severe: #db6d28;
+    --color-caution: #f85149;
+    --color-important: #a371f7;
+  }
+}
+
+</style>
+<style>
+.markdown-alert {
+  padding: 0.5rem 1rem;
+  margin-bottom: 16px;
+  color: inherit;
+  border-left: .25em solid #888;
+}
+
+.markdown-alert>:first-child {
+  margin-top: 0
+}
+
+.markdown-alert>:last-child {
+  margin-bottom: 0
+}
+
+.markdown-alert .markdown-alert-title {
+  display: flex;
+  font-weight: 500;
+  align-items: center;
+  line-height: 1
+}
+
+.markdown-alert .markdown-alert-title .octicon {
+  margin-right: 0.5rem;
+  display: inline-block;
+  overflow: visible !important;
+  vertical-align: text-bottom;
+  fill: currentColor;
+}
+
+.markdown-alert.markdown-alert-note {
+  border-left-color: var(--color-note);
+}
+
+.markdown-alert.markdown-alert-note .markdown-alert-title {
+  color: var(--color-note);
+}
+
+.markdown-alert.markdown-alert-important {
+  border-left-color: var(--color-important);
+}
+
+.markdown-alert.markdown-alert-important .markdown-alert-title {
+  color: var(--color-important);
+}
+
+.markdown-alert.markdown-alert-warning {
+  border-left-color: var(--color-warning);
+}
+
+.markdown-alert.markdown-alert-warning .markdown-alert-title {
+  color: var(--color-warning);
+}
+
+.markdown-alert.markdown-alert-tip {
+  border-left-color: var(--color-tip);
+}
+
+.markdown-alert.markdown-alert-tip .markdown-alert-title {
+  color: var(--color-tip);
+}
+
+.markdown-alert.markdown-alert-caution {
+  border-left-color: var(--color-caution);
+}
+
+.markdown-alert.markdown-alert-caution .markdown-alert-title {
+  color: var(--color-caution);
+}
+
+</style>
+        
+        </head>
+        <body class="vscode-body vscode-light">
+            <h1 id="sections-12-15-cloud-networking-system-design-golang--interview-answers-q206q248">SECTIONS 12-15: CLOUD, NETWORKING, SYSTEM DESIGN, GOLANG — Interview Answers (Q206–Q248)</h1>
+<h2 id="with-gstn-codebase-references">With GSTN Codebase References</h2>
+<hr>
+<h1 id="section-12-cloud--aws-q206q220">SECTION 12: CLOUD / AWS (Q206–Q220)</h1>
+<h3 id="q206-aws-services-mapping-to-gstn">Q206. AWS services mapping to GSTN?</h3>
+<p><strong>Answer:</strong></p>
+<table>
+<thead>
+<tr>
+<th>AWS Service</th>
+<th>GSTN Usage</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>EC2</strong></td>
+<td>Application servers running Spring Boot services</td>
+</tr>
+<tr>
+<td><strong>EKS</strong></td>
+<td>Kubernetes cluster for containerized microservices</td>
+</tr>
+<tr>
+<td><strong>RDS (MySQL)</strong></td>
+<td>Primary database (multi-AZ, read replicas)</td>
+</tr>
+<tr>
+<td><strong>ElastiCache (Redis)</strong></td>
+<td>Distributed caching (session, reference data)</td>
+</tr>
+<tr>
+<td><strong>S3</strong></td>
+<td>Return document storage, backups, static content</td>
+</tr>
+<tr>
+<td><strong>SQS/SNS</strong></td>
+<td>Notification queuing (alternative to Kafka for specific flows)</td>
+</tr>
+<tr>
+<td><strong>CloudWatch</strong></td>
+<td>Monitoring, logging, alerting</td>
+</tr>
+<tr>
+<td><strong>IAM</strong></td>
+<td>Service roles, access policies</td>
+</tr>
+<tr>
+<td><strong>VPC</strong></td>
+<td>Network isolation (public/private subnets)</td>
+</tr>
+<tr>
+<td><strong>Lambda</strong></td>
+<td>Event-driven processing (lightweight tasks)</td>
+</tr>
+<tr>
+<td><strong>Route 53</strong></td>
+<td>DNS for <a href="http://api.gst.gov.in">api.gst.gov.in</a></td>
+</tr>
+<tr>
+<td><strong>CloudFront</strong></td>
+<td>CDN for taxpayer portal</td>
+</tr>
+<tr>
+<td><strong>KMS</strong></td>
+<td>Key management for encryption</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h3 id="q207-ec2-instance-types">Q207. EC2 instance types?</h3>
+<p><strong>Answer:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Family</th>
+<th>Optimized For</th>
+<th>GSTN Use</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>t3/t3a</strong></td>
+<td>General purpose (burstable)</td>
+<td>Dev/QA environments</td>
+</tr>
+<tr>
+<td><strong>m5/m6i</strong></td>
+<td>General purpose (balanced)</td>
+<td>Most API services</td>
+</tr>
+<tr>
+<td><strong>c5/c6i</strong></td>
+<td><strong>Compute optimized</strong></td>
+<td>Validation, calculation services</td>
+</tr>
+<tr>
+<td><strong>r5/r6i</strong></td>
+<td><strong>Memory optimized</strong></td>
+<td>Report generation, bulk processing</td>
+</tr>
+<tr>
+<td><strong>i3</strong></td>
+<td>Storage optimized</td>
+<td>Database servers</td>
+</tr>
+</tbody>
+</table>
+<p><strong>GSTN choice:</strong> <code>m5.xlarge</code> (4 vCPU, 16GB) for most services. <code>c5.2xlarge</code> for compute-heavy validation during filing. <code>r5.2xlarge</code> for MIS/reporting.</p>
+<hr>
+<h3 id="q208-s3--storage-classes-and-gstn-usage">Q208. S3 — storage classes and GSTN usage?</h3>
+<p><strong>Answer:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Storage Class</th>
+<th>Access</th>
+<th>Cost</th>
+<th>GSTN Use</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Standard</strong></td>
+<td>Frequent</td>
+<td>$$$</td>
+<td>Active return documents, recent filings</td>
+</tr>
+<tr>
+<td><strong>Standard-IA</strong></td>
+<td>Infrequent</td>
+<td>$$</td>
+<td>Returns older than 3 months</td>
+</tr>
+<tr>
+<td><strong>Glacier</strong></td>
+<td>Archive</td>
+<td>$</td>
+<td>Audit trail, returns older than 1 year</td>
+</tr>
+<tr>
+<td><strong>Glacier Deep</strong></td>
+<td>Rare access</td>
+<td>¢</td>
+<td>Legal records (7+ year retention)</td>
+</tr>
+</tbody>
+</table>
+<pre><code class="language-java"><span class="hljs-comment">// Presigned URLs for secure document download</span>
+<span class="hljs-comment">// Taxpayer downloads return acknowledgment via time-limited URL</span>
+<span class="hljs-type">URL</span> <span class="hljs-variable">presignedUrl</span> <span class="hljs-operator">=</span> s3Client.generatePresignedUrl(
+    <span class="hljs-string">&quot;gstn-returns-bucket&quot;</span>, 
+    <span class="hljs-string">&quot;returns/29AAACG1234A1ZD/GSTR1/042024.json&quot;</span>,
+    expiration  <span class="hljs-comment">// URL valid for 15 minutes</span>
+);
+</code></pre>
+<p><strong>Lifecycle policies:</strong> Automatically transition objects: Standard → IA (after 90 days) → Glacier (after 1 year) → delete (after 7 years per compliance).</p>
+<hr>
+<h3 id="q209-sqs-vs-sns-vs-kafka">Q209. SQS vs SNS vs Kafka?</h3>
+<p><strong>Answer:</strong></p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>SQS</th>
+<th>SNS</th>
+<th>Kafka</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Model</td>
+<td><strong>Queue</strong> (point-to-point)</td>
+<td><strong>Pub/Sub</strong> (fan-out)</td>
+<td><strong>Log</strong> (replay, consumer groups)</td>
+</tr>
+<tr>
+<td>Retention</td>
+<td>14 days max</td>
+<td>No retention</td>
+<td><strong>Configurable</strong> (days/weeks)</td>
+</tr>
+<tr>
+<td>Replay</td>
+<td>No</td>
+<td>No</td>
+<td><strong>Yes</strong></td>
+</tr>
+<tr>
+<td>Ordering</td>
+<td>FIFO queues</td>
+<td>No</td>
+<td><strong>Per-partition</strong></td>
+</tr>
+<tr>
+<td>Throughput</td>
+<td>Thousands/sec</td>
+<td>Millions/sec</td>
+<td><strong>Millions/sec</strong></td>
+</tr>
+<tr>
+<td>Use case</td>
+<td>Task queues, decoupling</td>
+<td>Notifications to multiple subscribers</td>
+<td><strong>Event streaming</strong> (GSTN)</td>
+</tr>
+</tbody>
+</table>
+<p><strong>GSTN uses Kafka</strong> for event processing because of replay capability, ordering guarantees, and high throughput during filing season.</p>
+<hr>
+<h3 id="q210-aws-lambda--serverless">Q210. AWS Lambda — serverless?</h3>
+<p><strong>Answer:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Aspect</th>
+<th>Detail</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Cold start</td>
+<td>100ms-5s (depends on language/size)</td>
+</tr>
+<tr>
+<td>Concurrency</td>
+<td>Default 1000/account, can request more</td>
+</tr>
+<tr>
+<td>Timeout</td>
+<td>Max 15 minutes</td>
+</tr>
+<tr>
+<td>Memory</td>
+<td>128MB - 10GB</td>
+</tr>
+</tbody>
+</table>
+<p><strong>When appropriate:</strong> Short-lived event processing, scheduled tasks, image resizing, API backends with variable traffic.</p>
+<p><strong>When NOT appropriate:</strong> Long-running processes, stateful applications, low-latency requirements, heavy compute.</p>
+<p><strong>GSTN:</strong> Lambda for lightweight processing (notification formatting, file format conversion). Core filing services need persistent connections (DB, Kafka) → better suited for EKS/EC2.</p>
+<hr>
+<h3 id="q211-q220-ecseks-cloudwatch-iam-vpc-rds-auto-scaling-elasticache-bedrock-cost-well-architected">Q211-Q220. ECS/EKS, CloudWatch, IAM, VPC, RDS, Auto Scaling, ElastiCache, Bedrock, Cost, Well-Architected</h3>
+<p><strong>Q211. ECS vs EKS:</strong> EKS preferred for GSTN — K8s ecosystem, portability across clouds, rich tooling. ECS is simpler but AWS-locked.</p>
+<p><strong>Q212. CloudWatch:</strong> Log groups per service. Alarms for: HTTP 5xx rate &gt; 1%, response time p99 &gt; 2s, CPU &gt; 80%. SNS notification to on-call team.</p>
+<p><strong>Q213. IAM Least Privilege:</strong> Each service has its own IAM role. ReturnAPI role: read/write to returns-bucket S3, read from RDS. It cannot access payment data. Service-to-service auth via IAM roles for service accounts (IRSA in EKS).</p>
+<p><strong>Q214. VPC Architecture:</strong></p>
+<pre><code>VPC (10.0.0.0/16)
+├── Public Subnets (10.0.1.0/24)  — ALB, NAT Gateway, Bastion
+├── Private Subnets (10.0.10.0/24) — Application pods (EKS)
+└── DB Subnets (10.0.20.0/24)     — RDS, ElastiCache
+Security Groups: App → DB (port 3306 only), ALB → App (port 8080)
+</code></pre>
+<p><strong>Q215. RDS:</strong> Multi-AZ for failover (automatic in &lt; 60s). Read replicas for dashboard/report queries. Automated daily backups with 7-day retention. MySQL 8.0 engine.</p>
+<p><strong>Q216. Auto Scaling:</strong> Target tracking policy — maintain CPU at 70%. During filing deadline: min 10, max 100 instances. Scheduled scaling — pre-scale before known peak hours.</p>
+<p><strong>Q217. ElastiCache (Redis):</strong> Cluster mode enabled for sharding. Multi-AZ with automatic failover. Used for session management, OTP caching, taxpayer data caching.</p>
+<p><strong>Q218. AWS Bedrock:</strong> POC for AI-powered features — intelligent form filling assistance, anomaly detection in filings, automated query responses for taxpayer support.</p>
+<p><strong>Q219. Cost Optimization:</strong></p>
+<ul>
+<li>Reserved Instances for baseline load (40-60% savings)</li>
+<li>Spot Instances for batch processing (up to 90% savings)</li>
+<li>Right-sizing based on CloudWatch metrics</li>
+<li>S3 lifecycle policies for cost-effective storage</li>
+<li>Cleanup unused EBS volumes, snapshots, old AMIs</li>
+</ul>
+<p><strong>Q220. Well-Architected (5 pillars):</strong></p>
+<ol>
+<li><strong>Operational Excellence</strong> — Automation, monitoring, runbooks</li>
+<li><strong>Security</strong> — IAM, encryption, compliance (most important for GSTN — government data)</li>
+<li><strong>Reliability</strong> — Multi-AZ, auto-scaling, disaster recovery</li>
+<li><strong>Performance Efficiency</strong> — Right instance types, caching, CDN</li>
+<li><strong>Cost Optimization</strong> — Reserved, Spot, right-sizing</li>
+</ol>
+<hr>
+<h1 id="section-13-networking--security-q221q230">SECTION 13: NETWORKING &amp; SECURITY (Q221–Q230)</h1>
+<h3 id="q221-http11-vs-http2-vs-http3">Q221. HTTP/1.1 vs HTTP/2 vs HTTP/3?</h3>
+<p><strong>Answer:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Feature</th>
+<th>HTTP/1.1</th>
+<th>HTTP/2</th>
+<th>HTTP/3</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Transport</td>
+<td>TCP</td>
+<td>TCP</td>
+<td><strong>QUIC (UDP-based)</strong></td>
+</tr>
+<tr>
+<td>Multiplexing</td>
+<td>No (one request per connection)</td>
+<td><strong>Yes</strong> (multiple streams)</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td>Header compression</td>
+<td>No</td>
+<td><strong>HPACK</strong></td>
+<td><strong>QPACK</strong></td>
+</tr>
+<tr>
+<td>Server push</td>
+<td>No</td>
+<td>Yes</td>
+<td>No</td>
+</tr>
+<tr>
+<td>Head-of-line blocking</td>
+<td>Yes (TCP level)</td>
+<td>Yes (TCP level)</td>
+<td><strong>No</strong> (per-stream)</td>
+</tr>
+<tr>
+<td>Connection setup</td>
+<td>TCP + TLS = 2-3 RTT</td>
+<td>TCP + TLS = 2-3 RTT</td>
+<td><strong>1 RTT</strong> (0-RTT resume)</td>
+</tr>
+</tbody>
+</table>
+<p><strong>GSTN:</strong> HTTP/2 between API Gateway and clients. HTTP/1.1 or gRPC between internal services.</p>
+<hr>
+<h3 id="q222-https--tls-handshake">Q222. HTTPS — TLS handshake?</h3>
+<p><strong>Answer:</strong></p>
+<pre><code>Client → Server: ClientHello (supported cipher suites, TLS version)
+Server → Client: ServerHello (chosen cipher), Server Certificate
+Client: Verify certificate (CA chain), generate pre-master secret
+Client → Server: Encrypted pre-master secret (using server's public key)
+Both: Derive session keys from pre-master secret
+Client → Server: Finished (encrypted with session key)
+Server → Client: Finished (encrypted with session key)
+--- Encrypted communication begins ---
+</code></pre>
+<p><strong>GSTN:</strong> All taxpayer-facing APIs use HTTPS. Internal services may use mTLS (mutual TLS) for service-to-service authentication. Certificates managed in <code>Commons/Certs/</code> directory (separate certs per environment: dev, sit, uat, prod).</p>
+<hr>
+<h3 id="q223-q225-tcpudp-dns-rest-vs-grpc-vs-graphql">Q223-Q225. TCP/UDP, DNS, REST vs gRPC vs GraphQL</h3>
+<p><strong>Q223. TCP vs UDP:</strong> TCP for HTTP/REST (reliable, ordered). UDP for real-time streaming, DNS queries. QUIC uses UDP with TCP-like reliability built on top.</p>
+<p><strong>Q224. DNS Resolution:</strong></p>
+<pre><code>Browser → DNS Resolver → Root NS → .in NS → gst.gov.in NS → IP
+    → Route 53 → CloudFront/ALB → K8s Ingress → Service → Pod
+</code></pre>
+<p><strong>Q225. REST vs gRPC vs GraphQL:</strong></p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>REST</th>
+<th>gRPC</th>
+<th>GraphQL</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Protocol</td>
+<td>HTTP/JSON</td>
+<td><strong>HTTP/2 + Protobuf</strong></td>
+<td>HTTP/JSON</td>
+</tr>
+<tr>
+<td>Speed</td>
+<td>Good</td>
+<td><strong>Fastest</strong> (binary, streaming)</td>
+<td>Varies</td>
+</tr>
+<tr>
+<td>Contract</td>
+<td>OpenAPI/Swagger</td>
+<td><strong>Strict .proto files</strong></td>
+<td>Schema</td>
+</tr>
+<tr>
+<td>Use case</td>
+<td>External APIs</td>
+<td><strong>Internal microservice</strong></td>
+<td>Frontend flexibility</td>
+</tr>
+</tbody>
+</table>
+<p>GSTN uses REST for external taxpayer APIs. gRPC could optimize internal service-to-service calls.</p>
+<hr>
+<h3 id="q226-oauth2-and-openid-connect">Q226. OAuth2 and OpenID Connect?</h3>
+<p><strong>Answer:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Grant Type</th>
+<th>Use Case</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Authorization Code</strong></td>
+<td>Web apps (GST portal — user login)</td>
+</tr>
+<tr>
+<td><strong>Client Credentials</strong></td>
+<td>Service-to-service (GSP ↔ GSTN)</td>
+</tr>
+<tr>
+<td><strong>PKCE</strong></td>
+<td>Mobile/SPA (GST mobile app)</td>
+</tr>
+</tbody>
+</table>
+<pre><code>GSP (GST Suvidha Provider) OAuth2 flow:
+1. GSP requests access_token using client_id + client_secret
+2. GSTN validates credentials → returns JWT access_token
+3. GSP includes JWT in API calls
+4. GSTN validates JWT → allows/denies access
+</code></pre>
+<p>GSTN's <code>GspSecurityAutoConfiguration</code> handles GSP OAuth2 integration.</p>
+<hr>
+<h3 id="q227-owasp-top-10-prevention">Q227. OWASP Top 10 Prevention?</h3>
+<p><strong>Answer:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Vulnerability</th>
+<th>Prevention in GSTN</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>SQL Injection</strong></td>
+<td>JPA parameterized queries (<code>@Param</code>), never concatenate user input into SQL</td>
+</tr>
+<tr>
+<td><strong>XSS</strong></td>
+<td>Input validation, output encoding, Content-Security-Policy header</td>
+</tr>
+<tr>
+<td><strong>CSRF</strong></td>
+<td>Disabled for stateless REST APIs (JWT-based, no cookies)</td>
+</tr>
+<tr>
+<td><strong>Broken Auth</strong></td>
+<td>JWT with expiry, token invalidation in <code>GspAuthToknLogRepository</code></td>
+</tr>
+<tr>
+<td><strong>Sensitive Data</strong></td>
+<td>HTTPS everywhere, encrypt at rest (KMS), mask GSTIN in logs</td>
+</tr>
+<tr>
+<td><strong>Broken Access Control</strong></td>
+<td>RBAC via <code>RoleAccessMapEntity</code>, per-GSTIN authorization</td>
+</tr>
+<tr>
+<td><strong>Security Misconfig</strong></td>
+<td>Disable Swagger in prod, restrict actuator endpoints</td>
+</tr>
+<tr>
+<td><strong>Vulnerable Components</strong></td>
+<td>Regular dependency scanning, update libraries</td>
+</tr>
+<tr>
+<td><strong>SSRF</strong></td>
+<td>Validate URLs, whitelist allowed domains for callbacks</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h3 id="q228-q230-api-security-encryption-load-balancing">Q228-Q230. API Security, Encryption, Load Balancing</h3>
+<p><strong>Q228. GSTN API Security layers:</strong></p>
+<ol>
+<li><strong>API Gateway</strong> — Rate limiting, IP whitelisting</li>
+<li><strong>JWT Authentication</strong> — Token validation</li>
+<li><strong>RBAC Authorization</strong> — Role-based access</li>
+<li><strong>Input Validation</strong> — AOP validators, @Valid</li>
+<li><strong>Encryption</strong> — TLS in transit, AES at rest</li>
+</ol>
+<p><strong>Q229. Encryption:</strong></p>
+<ul>
+<li>Symmetric (AES-256): Fast, for data at rest. Same key for encrypt/decrypt.</li>
+<li>Asymmetric (RSA): Slow, for key exchange and digital signatures. Public/private key pair.</li>
+<li>At rest: RDS encryption, S3 server-side encryption</li>
+<li>In transit: TLS 1.2/1.3</li>
+</ul>
+<p><strong>Q230. Load Balancing:</strong></p>
+<ul>
+<li><strong>L4</strong> (Transport): TCP/UDP level, fast, no content inspection. Network Load Balancer (NLB).</li>
+<li><strong>L7</strong> (Application): HTTP level, content-based routing, SSL termination. Application Load Balancer (ALB).</li>
+<li>GSTN: ALB for external traffic (path-based routing), kube-proxy for internal (Round Robin).</li>
+</ul>
+<hr>
+<h1 id="section-14-system-design-q231q240">SECTION 14: SYSTEM DESIGN (Q231–Q240)</h1>
+<h3 id="q231-design-a-tax-filing-system-gstn">Q231. Design a Tax Filing System (GSTN)?</h3>
+<p><strong>Answer:</strong></p>
+<pre><code>Architecture:
+┌─────────────┐     ┌──────────────┐     ┌─────────────────────────┐
+│ Taxpayer     │────→│ API Gateway  │────→│ Microservices           │
+│ Portal/App   │     │ (Rate limit, │     │ ├── Registration Service │
+└─────────────┘     │  Auth, Route)│     │ ├── Return Filing Svc    │
+                    └──────────────┘     │ ├── Payment Service       │
+┌─────────────┐           │              │ ├── Ledger Service        │
+│ GSP Partners│───────────┘              │ ├── Notification Service  │
+└─────────────┘                          │ └── Dashboard Service     │
+                                         └──────────┬────────────────┘
+                                                     │
+                    ┌────────────┐  ┌───────┐  ┌─────┴──────┐
+                    │ Kafka      │  │ Redis │  │ MySQL      │
+                    │ (Events)   │  │(Cache)│  │(Sharded    │
+                    └────────────┘  └───────┘  │by state)   │
+                                               └────────────┘
+Key Design Decisions:
+- API versioning: /v1.0/taxpayerapi/...
+- Sharding by state (2-digit GSTIN prefix)
+- Kafka for event-driven async processing
+- Redis for session + reference data caching
+- HPA for deadline traffic spikes (3x → 50x pods)
+- Read replicas for dashboard/MIS queries
+</code></pre>
+<p><strong>Scale numbers:</strong></p>
+<ul>
+<li>14M+ registered taxpayers</li>
+<li>1B+ invoices processed monthly</li>
+<li>30M+ returns filed per month</li>
+<li>Peak: 200K+ concurrent users during deadline</li>
+</ul>
+<hr>
+<h3 id="q232-q240-rate-limiter-notification-url-shortener-etc">Q232-Q240. Rate Limiter, Notification, URL Shortener, etc.</h3>
+<p><strong>Q232. Rate Limiter Design:</strong></p>
+<ul>
+<li>Redis Sorted Set with timestamp scoring</li>
+<li>Sliding window: count requests in last 60 seconds per GSTIN</li>
+<li>Distributed: all API instances share Redis counter</li>
+<li>Config: 100 requests/minute for taxpayers, 1000/minute for GSPs</li>
+</ul>
+<p><strong>Q233. Notification System:</strong></p>
+<pre><code>Filing Event → Kafka → Notification Consumer
+    → Priority Queue (deadline reminders = high priority)
+    → Template Engine (SMS/Email template)
+    → Delivery (SMS gateway / Email SMTP)
+    → Retry on failure (exponential backoff)
+    → DLQ for permanent failures
+    → Deduplication (Redis set of sent notification IDs)
+</code></pre>
+<p><strong>Q234. URL Shortener:</strong> Base62 encoding of auto-increment ID. Use cache for hot redirects. 301 (permanent) vs 302 (temporary) redirect.</p>
+<p><strong>Q235. Distributed Cache:</strong> Consistent hashing for key distribution. LRU eviction. Replication for HA. GSTN's <code>DistCacheFwk</code> abstracts Redis operations.</p>
+<p><strong>Q236. File Storage:</strong> Metadata in MySQL, files in S3. Chunked upload for large files. Presigned URLs for secure download.</p>
+<p><strong>Q237. Payment Processing:</strong></p>
+<ul>
+<li>Idempotency key per payment request (prevent double charge)</li>
+<li>Pessimistic locking on ledger balance</li>
+<li>Saga: debit ledger → create challan → generate receipt (compensate on failure)</li>
+<li>Reconciliation batch job (daily)</li>
+</ul>
+<p><strong>Q238. Logging/Monitoring:</strong></p>
+<pre><code>Application → SLF4J/Logback → Log files
+    → Filebeat/Fluentd → Elasticsearch → Kibana (search/visualization)
+    → Micrometer → Prometheus → Grafana (dashboards/alerts)
+    → Custom health indicators → K8s probes
+</code></pre>
+<p><strong>Q239. Auth System:</strong> JWT + Redis session store. Access token (15 min TTL) + Refresh token (7 days). RBAC with roles stored in DB. Token blacklisting in Redis on logout.</p>
+<p><strong>Q240. Search System:</strong> Inverted index (Elasticsearch/Solr). GSTN uses <code>SolrDIHFwk</code> for search. Index taxpayer data (GSTIN, name, state). TF-IDF for relevance scoring.</p>
+<hr>
+<h1 id="section-15-golang-q241q248">SECTION 15: GOLANG (Q241–Q248)</h1>
+<h3 id="q241-why-go-over-java">Q241. Why Go over Java?</h3>
+<p><strong>Answer:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Aspect</th>
+<th>Go</th>
+<th>Java</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Startup</td>
+<td><strong>&lt; 1 second</strong></td>
+<td>5-15 seconds (JVM warmup)</td>
+</tr>
+<tr>
+<td>Memory</td>
+<td><strong>10-50 MB</strong></td>
+<td>200-500 MB (JVM overhead)</td>
+</tr>
+<tr>
+<td>Binary</td>
+<td><strong>Single static binary</strong></td>
+<td>JAR + JVM</td>
+</tr>
+<tr>
+<td>Concurrency</td>
+<td><strong>Goroutines</strong> (lightweight, 2KB stack)</td>
+<td>Threads (heavy, 1MB stack)</td>
+</tr>
+<tr>
+<td>Deployment</td>
+<td>Copy binary, run</td>
+<td>Install JVM, configure classpath</td>
+</tr>
+<tr>
+<td>Best for</td>
+<td>CLI tools, high-concurrency services, proxies</td>
+<td>Enterprise apps, complex business logic</td>
+</tr>
+</tbody>
+</table>
+<p><strong>When I chose Go (Infosys MarketPlace):</strong> Needed a high-concurrency API gateway with minimal resource usage. Go's goroutines handled 100K+ concurrent connections efficiently.</p>
+<hr>
+<h3 id="q242-goroutines-vs-java-threads">Q242. Goroutines vs Java Threads?</h3>
+<p><strong>Answer:</strong></p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>Goroutine</th>
+<th>Java Thread</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Stack size</td>
+<td><strong>2KB</strong> (grows dynamically)</td>
+<td><strong>1MB</strong> (fixed)</td>
+</tr>
+<tr>
+<td>Creation cost</td>
+<td><strong>Microseconds</strong></td>
+<td>Milliseconds</td>
+</tr>
+<tr>
+<td>Context switch</td>
+<td><strong>User-space</strong> (Go scheduler)</td>
+<td><strong>Kernel-space</strong> (OS scheduler)</td>
+</tr>
+<tr>
+<td>Count</td>
+<td><strong>Millions</strong></td>
+<td>Thousands (before Virtual Threads)</td>
+</tr>
+<tr>
+<td>Scheduling</td>
+<td><strong>M:N</strong> (M goroutines on N OS threads)</td>
+<td>1:1 (one thread = one OS thread)</td>
+</tr>
+</tbody>
+</table>
+<pre><code class="language-go"><span class="hljs-comment">// Launch 100K goroutines — trivial in Go</span>
+<span class="hljs-keyword">for</span> i := <span class="hljs-number">0</span>; i &lt; <span class="hljs-number">100000</span>; i++ {
+    <span class="hljs-keyword">go</span> processRequest(i)  <span class="hljs-comment">// Each goroutine ~ 2KB</span>
+}
+<span class="hljs-comment">// Total memory: ~200MB. In Java threads: ~100GB</span>
+</code></pre>
+<p><strong>Java 21 Virtual Threads</strong> narrows this gap significantly.</p>
+<hr>
+<h3 id="q243-q248-channels-interfaces-error-handling-gc-mongodbgraphql-nethttp">Q243-Q248. Channels, Interfaces, Error Handling, GC, MongoDB+GraphQL, net/http</h3>
+<p><strong>Q243. Channels:</strong></p>
+<pre><code class="language-go"><span class="hljs-comment">// Unbuffered — synchronous (sender blocks until receiver ready)</span>
+ch := <span class="hljs-built_in">make</span>(<span class="hljs-keyword">chan</span> <span class="hljs-type">string</span>)
+
+<span class="hljs-comment">// Buffered — async up to capacity</span>
+ch := <span class="hljs-built_in">make</span>(<span class="hljs-keyword">chan</span> <span class="hljs-type">string</span>, <span class="hljs-number">100</span>)
+
+<span class="hljs-keyword">go</span> <span class="hljs-function"><span class="hljs-keyword">func</span><span class="hljs-params">()</span></span> { ch &lt;- <span class="hljs-string">&quot;message&quot;</span> }()  <span class="hljs-comment">// Send</span>
+msg := &lt;-ch                        <span class="hljs-comment">// Receive</span>
+</code></pre>
+<p><strong>Q244. Go Interfaces (Duck Typing):</strong></p>
+<pre><code class="language-go"><span class="hljs-keyword">type</span> Validator <span class="hljs-keyword">interface</span> {
+    Validate(data <span class="hljs-type">string</span>) <span class="hljs-type">error</span>
+}
+<span class="hljs-comment">// Any struct with Validate method implicitly implements Validator — no &quot;implements&quot; keyword</span>
+</code></pre>
+<p><strong>Q245. Error Handling:</strong></p>
+<pre><code class="language-go">result, err := processReturn(gstin)
+<span class="hljs-keyword">if</span> err != <span class="hljs-literal">nil</span> {
+    <span class="hljs-keyword">return</span> fmt.Errorf(<span class="hljs-string">&quot;failed to process return: %w&quot;</span>, err)  <span class="hljs-comment">// Wrap error</span>
+}
+</code></pre>
+<p>No exceptions — explicit error checking at every step. More verbose but no hidden errors.</p>
+<p><strong>Q246. Go GC:</strong> Concurrent, tri-color mark-and-sweep. Sub-millisecond pauses (typically &lt; 500μs). Simpler than JVM GC — no generational, no tuning needed.</p>
+<p><strong>Q247. MongoDB + GraphQL (Infosys MarketPlace):</strong></p>
+<ul>
+<li>MongoDB for flexible product schema (nested documents, no JOIN needed)</li>
+<li>GraphQL for frontend to request exactly what it needs (avoid over-fetching)</li>
+<li>Go server with <code>graphql-go</code> library resolving queries against MongoDB</li>
+</ul>
+<p><strong>Q248. Go net/http:</strong></p>
+<pre><code class="language-go">http.HandleFunc(<span class="hljs-string">&quot;/api/returns&quot;</span>, <span class="hljs-function"><span class="hljs-keyword">func</span><span class="hljs-params">(w http.ResponseWriter, r *http.Request)</span></span> {
+    gstin := r.URL.Query().Get(<span class="hljs-string">&quot;gstin&quot;</span>)
+    data := getReturnData(gstin)
+    json.NewEncoder(w).Encode(data)
+})
+http.ListenAndServe(<span class="hljs-string">&quot;:8080&quot;</span>, <span class="hljs-literal">nil</span>)
+</code></pre>
+<p>Go's standard library is production-ready — no framework needed for simple REST APIs.</p>
+
+            <script async src="https://cdn.jsdelivr.net/npm/katex-copytex@latest/dist/katex-copytex.min.js"></script>
+            
+        </body>
+        </html>
