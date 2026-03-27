@@ -90,7 +90,12 @@ async def get_drill_stats():
 async def list_drill_companies():
     try:
         from intel.drill import get_all_companies
-        return {"companies": get_all_companies()}
+        counts = get_all_companies()
+        # UI expects a list of names; counts map is useful for badges/tooltips
+        return {
+            "companies": sorted(counts.keys()),
+            "counts": counts,
+        }
     except Exception as e:
         raise HTTPException(500, str(e))
 

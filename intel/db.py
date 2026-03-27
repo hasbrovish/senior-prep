@@ -94,6 +94,7 @@ def init_db():
         skill_depth_required TEXT,                 -- JSON: {"Kafka": 9, "Java": 7}
         estimated_difficulty TEXT,                 -- junior, mid, senior, staff
         years_experience    INTEGER,
+        predicted_questions  TEXT,                 -- JSON: {system_design: [], behavioral: []}
         created_at          TEXT NOT NULL
     );
 
@@ -183,7 +184,22 @@ def init_db():
     CREATE INDEX IF NOT EXISTS idx_jd_skill_jd ON jd_skill_analysis(jd_id);
     """)
     conn.commit()
+
+    # Schema migrations (idempotent)
+    _run_migrations(conn)
     conn.close()
+
+
+def _run_migrations(conn) -> None:
+    """Apply schema migrations that can't be in CREATE TABLE IF NOT EXISTS."""
+    existing_cols = {
+        row[1] for row in conn.execute("PRAGMA table_info(jd_descriptions)").fetchall()
+    }
+    if "predicted_questions" not in existing_cols:
+        conn.execute(
+            "ALTER TABLE jd_descriptions ADD COLUMN predicted_questions TEXT"
+        )
+    conn.commit()
 
 
 # ─── Experience CRUD ──────────────────────────────────────────────────────────

@@ -73,6 +73,14 @@ export const api = {
   syncLeetCode: () => request('POST', '/api/progress/lc/sync'),
   setLcUsername: (username) => request('POST', '/api/progress/lc/username', { username }),
 
+  // JD Analysis (Phases 1–3)
+  uploadJd: (data) => request('POST', '/api/intel/jd/upload', data),
+  getJdAnalysis: (jdId) => request('GET', `/api/intel/jd/${jdId}`),
+  listJds: (company) => request('GET', company ? `/api/intel/jd?company=${encodeURIComponent(company)}` : '/api/intel/jd'),
+  analyzeJdGap: (jdId, userSkills) => request('POST', `/api/intel/jd/${jdId}/gap-analysis`, { user_skills: userSkills }),
+  generateJdRoadmap: (jdId, userSkills, weeks) => request('POST', `/api/intel/jd/${jdId}/roadmap`, { user_skills: userSkills, weeks }),
+  getBehavioralGuide: (company) => request('GET', `/api/intel/jd/behavioral/${encodeURIComponent(company)}`),
+
   getIntelStats: () => request('GET', '/api/intel/stats'),
   getExperiences: (params) => {
     const qs = new URLSearchParams(params).toString();

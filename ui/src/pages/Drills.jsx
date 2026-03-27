@@ -35,7 +35,12 @@ export default function Drills() {
   });
 
   const handleDone = (problem) => {
-    markDone.mutate({ lc_id: problem.lc_id, name: problem.name });
+    markDone.mutate({
+      problem_name: problem.name,
+      time_mins: 0,
+      struggled: false,
+      language: 'java',
+    });
     logActivity.mutate({
       activity_type: 'drill',
       title: problem.name,
@@ -46,6 +51,13 @@ export default function Drills() {
 
   const drillStats = stats?.stats || {};
   const problems = todayDrill?.problems || [];
+  // API returns companies as either string[] or { company: count } map
+  const rawCompanies = companies?.companies;
+  const companyList = Array.isArray(rawCompanies)
+    ? rawCompanies
+    : rawCompanies && typeof rawCompanies === 'object'
+      ? Object.keys(rawCompanies).sort((a, b) => a.localeCompare(b))
+      : [];
 
   return (
     <div className="page">
@@ -129,7 +141,7 @@ export default function Drills() {
       <div className="card">
         <div className="card-title">Company Problem Bank</div>
         <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginBottom: 16 }}>
-          {(companies?.companies || []).map(c => (
+          {companyList.map((c) => (
             <button key={c} className={`btn btn-sm ${selectedCompany === c ? 'btn-solid' : 'btn-gold'}`}
                     onClick={() => setSelectedCompany(selectedCompany === c ? null : c)}>
               {c}
