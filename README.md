@@ -27,6 +27,8 @@ A **personal, full-stack interview preparation system** — not just notes. Buil
 
 See [ARCHITECTURE.md](ARCHITECTURE.md) for system design deep-dive, data flow, DB schema, and interview talking points.
 
+**Recent improvements:** [IMPROVEMENTS.md](IMPROVEMENTS.md) — KB automation engine (2,061 chunks, 7 LLM flows), Interview_Answers now in git, logging system analysis & UI roadmap.
+
 ---
 
 ## Quick Start
@@ -92,8 +94,11 @@ senior-prep/
 ├── intel/                       ← Intelligence Engine
 │   ├── config.py                ← Models (claude-sonnet-4-5), profile, 14 companies
 │   ├── db.py                    ← SQLite schema + CRUD (9 tables)
+│   ├── knowledge_base.py        ← KB indexing + search (2,061 chunks, 3-tier scoring)
+│   ├── kb_automation.py         ← 7 LLM automation flows (enrich, fill, generate, etc)
+│   ├── feedback_engine.py       ← Activity log → adaptive plans
 │   ├── scraper.py               ← Orchestrates all sources
-│   ├── coach.py                 ← Claude API (JD analyze, evaluate, STAR, mock)
+│   ├── coach.py                 ← Claude API (JD analyze, evaluate, STAR, mock, KB)
 │   ├── analyzer.py              ← Trend analysis, gap analysis, readiness score
 │   ├── drill.py                 ← Java DSA drill (warplan-aligned per-week lists)
 │   ├── java_qa.py               ← 160 P0 Java/Spring/Concurrency Q&A
@@ -123,10 +128,18 @@ senior-prep/
 ├── logs/                        ← Runtime logs (git-ignored)
 │   └── progress.json            ← All tracker state (LC, SR, failures, offers)
 │
-├── docs/                        ← All documentation (git-ignored except tracked files)
+├── Interview_Answers/           ← Knowledge base content (35 files, 2MB)
+│   ├── Amazon_LP_STAR_Bank.md   ← 22 GSTN STAR stories (all 14 LPs)
+│   ├── SystemDesign_Interview_Cheatsheet.md ← 45-min interview map
+│   ├── GSTN_Complete_SDE2_SDE3_InterviewPrep.md
+│   ├── Section_*.md/.html       ← 20 sections (Java, Spring, Kafka, System Design, LLD, etc)
+│   └── (+ other content files)
+│
+├── docs/                        ← All documentation (git-tracked)
 │   ├── MASTER_16H_WARPLAN.md    ← 26-week war plan (read by prep.py)
 │   ├── GSTN_Interview_QuestionBank_296Q.md  ← 296-question bank (read by prep.py)
 │   ├── DEPLOY.md                ← Deployment guide
+│   ├── IMPROVEMENTS.md          ← Recent enhancements & architecture
 │   ├── COMPANY_ANALYSIS.md
 │   ├── CPP_to_Java_DSA_CheatSheet.md
 │   ├── DEEP_RESEARCH_INTERVIEW_PATTERNS_2025_2026.md
@@ -257,6 +270,18 @@ prep tc                         # TC overview for all 11 target companies
 prep tc google                  # Google TC (L4/L5) + negotiation playbook
 prep tc amazon                  # Amazon TC structure (RSU cliff, signing bonus)
 prep tc goldman                 # Goldman deferred comp structure
+```
+
+### Knowledge Base Automation (requires ANTHROPIC_API_KEY)
+```bash
+prep kb status                  # View KB health (2,061 chunks, 6 categories, file list)
+prep kb enrich                  # Analyze last 24h activity → generate Q&A for weak areas
+prep kb jd <jd.txt>            # Predict interview questions from job description
+prep kb fill                    # Identify coverage gaps → auto-generate missing content
+prep kb generate <topic>        # On-demand Q&A generation for specific topic
+prep kb digest <notes.md>       # Convert raw notes to interview Q&A format
+prep kb trending                # Generate Q&A for trending interview topics
+prep kb reindex                 # Force re-index all KB files (2,061 chunks)
 ```
 
 ### AI Coaching (requires ANTHROPIC_API_KEY)
