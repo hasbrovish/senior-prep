@@ -33,8 +33,20 @@ sys.path.insert(0, str(BASE))
 # ─── Config ───────────────────────────────────────────────────────────────────
 ANTHROPIC_KEY   = os.environ.get("ANTHROPIC_API_KEY", "")
 PORTAL_SECRET   = os.environ.get("PORTAL_SECRET", "")   # Optional: lock portal with a key
-ALLOWED_ORIGINS = os.environ.get("ALLOWED_ORIGINS", "http://localhost:5555,http://localhost:3000,http://localhost:5173").split(",")
 ENV             = os.environ.get("ENV", "development")
+
+# CORS: Allow portal on same domain + local dev URLs
+# On Railway: set ALLOWED_ORIGINS env var to: https://your-railway-url.up.railway.app
+_default_origins = [
+    "http://localhost:5555",      # Local FastAPI
+    "http://localhost:3000",      # Local React dev
+    "http://localhost:5173",      # Local Vite dev
+]
+# If ENV is production and ALLOWED_ORIGINS not set, allow same-origin
+if ENV == "production":
+    _default_origins = ["*"]  # Same-origin requests from Railway always work
+
+ALLOWED_ORIGINS = os.environ.get("ALLOWED_ORIGINS", ",".join(_default_origins)).split(",")
 
 
 # ─── Rate Limiting (simple in-memory) ─────────────────────────────────────────
@@ -195,16 +207,6 @@ if ASSETS_DIR.exists():
 async def health():
     return {"status": "ok", "time": str(datetime.now()), "env": ENV}
 
-# SPA catch-all: serve index.html for all non-API routes (React Router support)
-@app.get("/{path:path}")
-async def serve_portal(path: str = ""):
-    if path.startswith("api/") or path == "health" or path == "docs" or path == "openapi.json":
-        raise HTTPException(404)
-    index = PORTAL_DIR / "index.html"
-    if index.exists():
-        return HTMLResponse(index.read_text(encoding="utf-8"))
-    return HTMLResponse("<h1>PrepForge Portal — run 'cd ui && npm run build' first</h1>", status_code=404)
-
 
 @app.get("/api/hi-curriculum")
 async def hi_curriculum():
@@ -346,3 +348,14 @@ async def master_curriculum():
 
     items.sort(key=lambda x: (x["week_start"], x["source"], x["category"]))
     return {"items": items, "total": len(items)}
+
+
+# SPA catch-all MUST be last — serves index.html for React Router client-side routes
+@app.get("/{path:path}")
+async def serve_portal(path: str = ""):
+    if path.startswith("api/") or path == "health" or path == "docs" or path == "openapi.json":
+        raise HTTPException(404)
+    index = PORTAL_DIR / "index.html"
+    if index.exists():
+        return HTMLResponse(index.read_text(encoding="utf-8"))
+    return HTMLResponse("<h1>PrepForge Portal — run 'cd ui && npm run build' first</h1>", status_code=404)
