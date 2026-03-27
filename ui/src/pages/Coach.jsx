@@ -34,7 +34,7 @@ export default function Coach() {
 
     try {
       await api.streamCoach(
-        { message: text.trim(), history: newMessages.slice(-10) },
+        { messages: newMessages },
         (chunk) => {
           assistantMsg.content += chunk;
           setMessages([...newMessages, { ...assistantMsg }]);
@@ -42,7 +42,7 @@ export default function Coach() {
       );
     } catch (err) {
       try {
-        const res = await api.coach({ message: text.trim(), history: newMessages.slice(-10) });
+        const res = await api.coach({ messages: newMessages });
         assistantMsg.content = res?.text || 'No response received.';
         setMessages([...newMessages, { ...assistantMsg }]);
       } catch {
