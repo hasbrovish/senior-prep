@@ -239,3 +239,20 @@ class TestSRAdd:
         client.post("/api/progress/sr/add", json={"topic": "T2"})
         sr = read_progress()["spaced_repetition"]
         assert len(sr) == 2
+
+
+class TestLCUsername:
+    def test_set_username(self, client, read_progress):
+        r = client.post("/api/progress/lc/username", json={"username": "testuser123"})
+        assert r.status_code == 200
+        assert r.json()["username"] == "testuser123"
+        p = read_progress()
+        assert p["lc_sync"]["username"] == "testuser123"
+
+    def test_set_empty_username(self, client):
+        r = client.post("/api/progress/lc/username", json={"username": ""})
+        assert r.status_code == 400
+
+    def test_sync_without_username(self, client):
+        r = client.post("/api/progress/lc/sync")
+        assert r.status_code == 400

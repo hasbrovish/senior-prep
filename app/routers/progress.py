@@ -76,6 +76,98 @@ async def log_lc_problem(data: dict):
     _save_progress(p)
     return {"ok": True, "total": len(lc_done)}
 
+
+@router.post("/progress/lc/sync")
+async def sync_leetcode():
+    """Fetch latest LeetCode stats from the public GraphQL API."""
+    import urllib.request
+    p = _progress()
+    username = p.get("lc_sync", {}).get("username", "")
+    if not username:
+        raise HTTPException(400, "Set lc_sync.username first via POST /api/progress/lc/username")
+
+    payload = json.dumps({
+        "query": """
+        query getUserProfile($username: String!) {
+          matchedUser(username: $username) {
+            submitStatsGlobal {
+              acSubmissionNum { difficulty count }
+            }
+            languageProblemCount { languageName problemsSolved }
+            userCalendar { streak totalActiveDays }
+          }
+        }""",
+        "variables": {"username": username},
+    }).encode()
+    req = urllib.request.Request(
+        "https://leetcode.com/graphql",
+        data=payload,
+        headers={
+            "Content-Type": "application/json",
+            "Referer": "https://leetcode.com",
+            "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) "
+                          "AppleWebKit/537.36 (KHTML, like Gecko)",
+        },
+    )
+    try:
+        with urllib.request.urlopen(req, timeout=15) as resp:
+            raw = resp.read().decode()
+            if raw.strip().startswith("<"):
+                raise HTTPException(502, "LeetCode returned HTML (possible rate-limit/block)")
+            data = json.loads(raw)
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(502, f"LeetCode API error: {e}")
+
+    user = data.get("data", {}).get("matchedUser")
+    if not user:
+        raise HTTPException(404, f"LeetCode user '{username}' not found")
+
+    stats = user.get("submitStatsGlobal", {}).get("acSubmissionNum", [])
+    lang_stats = user.get("languageProblemCount", [])
+    cal = user.get("userCalendar", {})
+
+    counts = {s["difficulty"]: s["count"] for s in stats}
+    lang_map = {l["languageName"]: l["problemsSolved"] for l in lang_stats}
+    total = counts.get("All", 0)
+
+    prev_total = p.get("lc_sync", {}).get("total", 0)
+    p.setdefault("lc_sync", {}).update({
+        "username": username,
+        "total": total,
+        "easy": counts.get("Easy", 0),
+        "medium": counts.get("Medium", 0),
+        "hard": counts.get("Hard", 0),
+        "streak": cal.get("streak", 0),
+        "total_active_days": cal.get("totalActiveDays", 0),
+        "java_problems": lang_map.get("Java", 0),
+        "cpp_problems": lang_map.get("C++", 0),
+        "languages": lang_map,
+        "last_sync": str(date.today()),
+    })
+
+    if total > prev_total:
+        today = str(date.today())
+        p.setdefault("daily_logs", {}).setdefault(today, []).append(
+            f"[Sync] {total - prev_total} new LC problem(s) (total: {total})"
+        )
+
+    _save_progress(p)
+    return {"ok": True, "lc_sync": p["lc_sync"]}
+
+
+@router.post("/progress/lc/username")
+async def set_lc_username(data: dict):
+    """Set/update LeetCode username for sync."""
+    username = data.get("username", "").strip()
+    if not username:
+        raise HTTPException(400, "username is required")
+    p = _progress()
+    p.setdefault("lc_sync", {})["username"] = username
+    _save_progress(p)
+    return {"ok": True, "username": username}
+
 @router.post("/progress/apply")
 async def log_application(data: dict):
     p = _progress()

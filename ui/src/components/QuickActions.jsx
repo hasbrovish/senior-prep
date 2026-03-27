@@ -1,7 +1,7 @@
 import { useNavigate } from 'react-router-dom';
 import { Swords, Timer, Code2, Brain, Target, RefreshCw } from 'lucide-react';
 
-export default function QuickActions({ onSync }) {
+export default function QuickActions({ onSync, syncing, syncError }) {
   const nav = useNavigate();
 
   const actions = [
@@ -10,7 +10,7 @@ export default function QuickActions({ onSync }) {
     { icon: Code2, label: 'LLD Practice', color: 'var(--purple)', onClick: () => nav('/lld') },
     { icon: Brain, label: 'Behavioral', color: 'var(--pink)', onClick: () => nav('/behavioral') },
     { icon: Target, label: 'Log LeetCode', color: 'var(--cyan)', onClick: () => nav('/leetcode') },
-    { icon: RefreshCw, label: 'Sync LC', color: 'var(--gold)', onClick: onSync },
+    { icon: RefreshCw, label: syncing ? 'Syncing...' : 'Sync LC', color: 'var(--gold)', onClick: onSync, disabled: syncing },
   ];
 
   return (
@@ -21,19 +21,26 @@ export default function QuickActions({ onSync }) {
           <button
             key={a.label}
             onClick={a.onClick}
+            disabled={a.disabled}
             style={{
               display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6,
               padding: '12px 8px', background: 'var(--bg2)', borderRadius: 8,
-              border: '1px solid var(--bg4)', cursor: 'pointer', transition: 'all 0.15s',
+              border: '1px solid var(--bg4)', cursor: a.disabled ? 'wait' : 'pointer',
+              transition: 'all 0.15s', opacity: a.disabled ? 0.6 : 1,
             }}
-            onMouseOver={e => e.currentTarget.style.borderColor = a.color}
+            onMouseOver={e => { if (!a.disabled) e.currentTarget.style.borderColor = a.color; }}
             onMouseOut={e => e.currentTarget.style.borderColor = 'var(--bg4)'}
           >
-            <a.icon size={18} style={{ color: a.color }} />
+            <a.icon size={18} style={{ color: a.color, animation: a.disabled ? 'spin 1s linear infinite' : 'none' }} />
             <span style={{ fontSize: 9, color: 'var(--text3)', letterSpacing: 0.5 }}>{a.label}</span>
           </button>
         ))}
       </div>
+      {syncError && (
+        <div style={{ marginTop: 8, fontSize: 10, color: 'var(--red)' }}>
+          Sync failed: {syncError.includes('400') ? 'Set your LC username in Settings first' : syncError}
+        </div>
+      )}
     </div>
   );
 }

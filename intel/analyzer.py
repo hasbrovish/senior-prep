@@ -193,7 +193,7 @@ def get_trending_topics(company=None, days=30, top_n=15):
         "total_rounds": len(round_rows),
         "total_data_points": total_data_points,
         "round_types": dict(round_type_counts.most_common(10)),
-        "top_topics": dict(topic_counts.most_common(top_n)),
+        "top_topics": topic_counts.most_common(top_n),
         "difficulty_dist": dict(difficulty_counts),
         "sample_questions": {k: v[:5] for k, v in question_samples.items()},
         "hot_by_company": hot_by_company,

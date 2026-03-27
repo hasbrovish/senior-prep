@@ -6,7 +6,7 @@ import { Search, TrendingUp, Building2, Download, FileText, Upload } from 'lucid
 export default function Intelligence() {
   const [tab, setTab] = useState('overview');
   const [companySearch, setCompanySearch] = useState('');
-  const [importText, setImportText] = useState('');
+  const [importForm, setImportForm] = useState({ company: '', title: '', body: '', source: 'blind', role: 'SDE-2', result: 'unknown' });
 
   const { data: stats } = useQuery({
     queryKey: ['intelStats'], queryFn: api.getIntelStats, staleTime: 120000,
@@ -29,9 +29,12 @@ export default function Intelligence() {
   const importExp = useMutation({ mutationFn: api.importExperience });
 
   const handleImport = () => {
-    if (!importText.trim()) return;
-    importExp.mutate({ text: importText, source: 'manual' });
-    setImportText('');
+    if (!importForm.company.trim() || !importForm.body.trim()) return;
+    importExp.mutate({
+      ...importForm,
+      title: importForm.title || `${importForm.company} Interview Experience`,
+    });
+    setImportForm({ company: '', title: '', body: '', source: 'blind', role: 'SDE-2', result: 'unknown' });
   };
 
   return (
@@ -190,13 +193,37 @@ export default function Intelligence() {
           <div style={{ fontSize: 11, color: 'var(--text3)', marginBottom: 12 }}>
             Paste interview experience text from LeetCode Discuss, Blind, Reddit, etc.
           </div>
-          <textarea rows={10} placeholder="Paste interview experience here..."
-                    value={importText} onChange={e => setImportText(e.target.value)}
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 8, marginBottom: 8 }}>
+            <input placeholder="Company *" value={importForm.company}
+                   onChange={e => setImportForm(f => ({ ...f, company: e.target.value }))} />
+            <input placeholder="Role (e.g. SDE-2)" value={importForm.role}
+                   onChange={e => setImportForm(f => ({ ...f, role: e.target.value }))} />
+            <select value={importForm.source} onChange={e => setImportForm(f => ({ ...f, source: e.target.value }))}>
+              <option value="blind">Blind</option>
+              <option value="leetcode_discuss">LeetCode Discuss</option>
+              <option value="reddit">Reddit</option>
+              <option value="enginebogie">Enginebogie</option>
+              <option value="other">Other</option>
+            </select>
+          </div>
+          <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: 8, marginBottom: 8 }}>
+            <input placeholder="Title (optional)" value={importForm.title}
+                   onChange={e => setImportForm(f => ({ ...f, title: e.target.value }))} />
+            <select value={importForm.result} onChange={e => setImportForm(f => ({ ...f, result: e.target.value }))}>
+              <option value="unknown">Result: Unknown</option>
+              <option value="offer">Offer</option>
+              <option value="reject">Rejected</option>
+            </select>
+          </div>
+          <textarea rows={10} placeholder="Paste the full interview experience text here... *"
+                    value={importForm.body} onChange={e => setImportForm(f => ({ ...f, body: e.target.value }))}
                     style={{ marginBottom: 12 }} />
-          <button className="btn btn-solid" onClick={handleImport} disabled={importExp.isPending || !importText.trim()}>
+          <button className="btn btn-solid" onClick={handleImport}
+                  disabled={importExp.isPending || !importForm.company.trim() || !importForm.body.trim()}>
             <Upload size={14} /> Import
           </button>
           {importExp.isSuccess && <div style={{ marginTop: 8, fontSize: 11, color: 'var(--green)' }}>Imported successfully</div>}
+          {importExp.isError && <div style={{ marginTop: 8, fontSize: 11, color: 'var(--red)' }}>Import failed: {importExp.error?.message}</div>}
         </div>
       )}
     </div>

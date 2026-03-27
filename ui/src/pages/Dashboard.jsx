@@ -1,4 +1,6 @@
 import { useProgress, useGaps, useDailyPlan, usePlanStats, useTodayLog, useDrillStats, useMockTrend } from '../hooks/useProgress';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { api } from '../api';
 import ReadinessGauge from '../components/ReadinessGauge';
 import LCProgressChart from '../components/LCProgressChart';
 import GapRadar from '../components/GapRadar';
@@ -18,6 +20,11 @@ export default function Dashboard() {
   const { data: todayLog } = useTodayLog();
   const { data: drillStats } = useDrillStats();
   const { data: mockTrend } = useMockTrend();
+  const qc = useQueryClient();
+  const lcSyncMut = useMutation({
+    mutationFn: api.syncLeetCode,
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['progress'] }),
+  });
 
   if (pLoading) return <div className="page"><div className="loading">Loading dashboard...</div></div>;
 
@@ -42,7 +49,7 @@ export default function Dashboard() {
       {/* Row 2: Quick Actions + Today Plan */}
       <div className="grid grid-2 mb-24">
         <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-          <QuickActions onSync={() => window.location.reload()} />
+          <QuickActions onSync={() => lcSyncMut.mutate()} syncing={lcSyncMut.isPending} syncError={lcSyncMut.error?.message} />
           <DrillStatsCard stats={drillStats} />
         </div>
         <TodayPlan dailyPlan={dailyPlan} />

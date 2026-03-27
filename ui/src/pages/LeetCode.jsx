@@ -1,7 +1,9 @@
 import { useState } from 'react';
 import { useProgress, useSaveProgress } from '../hooks/useProgress';
 import { useLogActivity } from '../hooks/useProgress';
-import { Target, Plus, Flame, TrendingUp } from 'lucide-react';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { api } from '../api';
+import { Target, Plus, Flame, TrendingUp, RefreshCw, User } from 'lucide-react';
 import StreakHeatmap from '../components/StreakHeatmap';
 
 const PATTERNS = [
@@ -16,8 +18,19 @@ export default function LeetCode() {
   const { data: progress, isLoading } = useProgress();
   const saveProgress = useSaveProgress();
   const logActivity = useLogActivity();
+  const qc = useQueryClient();
   const [form, setForm] = useState({ name: '', pattern: '', difficulty: 'Medium', time: '', hard: false, notes: '' });
   const [filter, setFilter] = useState('');
+  const [usernameInput, setUsernameInput] = useState('');
+
+  const syncMut = useMutation({
+    mutationFn: api.syncLeetCode,
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['progress'] }),
+  });
+  const usernameMut = useMutation({
+    mutationFn: api.setLcUsername,
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['progress'] }),
+  });
 
   if (isLoading) return <div className="page"><div className="loading">Loading...</div></div>;
 
@@ -60,6 +73,42 @@ export default function LeetCode() {
       <div className="page-header">
         <h2>LeetCode Tracker</h2>
         <div className="sub">Log problems, track patterns, build your heatmap</div>
+      </div>
+
+      {/* Sync Bar */}
+      <div className="card mb-24" style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 16px' }}>
+        {lcSync.username ? (
+          <>
+            <User size={14} style={{ color: 'var(--text3)' }} />
+            <span style={{ fontSize: 12, color: 'var(--text2)' }}>{lcSync.username}</span>
+            <span style={{ fontSize: 10, color: 'var(--text3)' }}>
+              {lcSync.last_sync ? `Last sync: ${lcSync.last_sync}` : 'Never synced'}
+            </span>
+            <div style={{ flex: 1 }} />
+            <button className="btn btn-gold btn-sm" onClick={() => syncMut.mutate()} disabled={syncMut.isPending}>
+              <RefreshCw size={12} style={{ animation: syncMut.isPending ? 'spin 1s linear infinite' : 'none' }} />
+              {syncMut.isPending ? 'Syncing...' : 'Sync Now'}
+            </button>
+          </>
+        ) : (
+          <>
+            <User size={14} style={{ color: 'var(--gold)' }} />
+            <input
+              placeholder="LeetCode username"
+              value={usernameInput}
+              onChange={e => setUsernameInput(e.target.value)}
+              style={{ flex: 1 }}
+              onKeyDown={e => e.key === 'Enter' && usernameInput.trim() && usernameMut.mutate(usernameInput.trim())}
+            />
+            <button className="btn btn-solid btn-sm"
+              onClick={() => usernameInput.trim() && usernameMut.mutate(usernameInput.trim())}
+              disabled={usernameMut.isPending || !usernameInput.trim()}>
+              Connect
+            </button>
+          </>
+        )}
+        {syncMut.isError && <span style={{ fontSize: 10, color: 'var(--red)' }}>{syncMut.error?.message}</span>}
+        {usernameMut.isError && <span style={{ fontSize: 10, color: 'var(--red)' }}>Failed to set username</span>}
       </div>
 
       {/* Stats */}

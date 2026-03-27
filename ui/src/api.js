@@ -70,6 +70,9 @@ export const api = {
   getCurriculum: () => request('GET', '/api/curriculum'),
   getWarplan: (week) => request('GET', week ? `/api/warplan?week=${week}` : '/api/warplan'),
 
+  syncLeetCode: () => request('POST', '/api/progress/lc/sync'),
+  setLcUsername: (username) => request('POST', '/api/progress/lc/username', { username }),
+
   getIntelStats: () => request('GET', '/api/intel/stats'),
   getExperiences: (params) => {
     const qs = new URLSearchParams(params).toString();
