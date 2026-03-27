@@ -113,25 +113,83 @@ def _init_table(conn):
 
 # ─── Indexing ─────────────────────────────────────────────────────────────────
 
+# Domain-specific high-signal terms — boosted 5× during keyword extraction
+# so searches for these terms strongly prefer chunks that mention them
+_DOMAIN_BOOST = {
+    # System Design
+    "kafka","redis","sharding","replication","consistent","hashing","rate","limiter",
+    "circuit","breaker","saga","cqrs","event","sourcing","eventual","consistency",
+    "partition","tolerance","availability","latency","throughput","idempotent",
+    "distributed","microservice","load","balancer","caching","database","nosql",
+    "leader","election","consensus","raft","paxos","zookeeper","fanout","webhook",
+    "debounce","throttle","backpressure","dlq","deadletter","exactly","once",
+    "transaction","acid","base","cap","theorem","gossip","protocol","heartbeat",
+    "snapshot","checkpoint","wal","write","ahead","log","bloom","filter","lsm",
+    "btree","index","shard","replica","quorum","vector","clock","lamport",
+    # Java / Spring
+    "volatile","synchronized","reentrantlock","threadpool","executorservice",
+    "completablefuture","reactive","webflux","springboot","hibernate","jpa",
+    "transactional","autowired","dependency","injection","aop","aspect","bean",
+    "singleton","prototype","garbage","collection","jvm","heap","stack","classloader",
+    "concurrenthashmap","blockingqueue","semaphore","countdownlatch","cyclicbarrier",
+    "streamapi","optional","lambda","functional","interface","generics","reflection",
+    # DSA
+    "dynamic","programming","memoization","tabulation","backtracking","greedy",
+    "dijkstra","bellman","floyd","topological","sort","binary","search","trie",
+    "segment","tree","fenwick","union","find","sliding","window","two","pointer",
+    "monotonic","stack","bitmask","recursion","complexity",
+    # LLD
+    "design","pattern","factory","singleton","observer","strategy","decorator",
+    "adapter","facade","proxy","command","iterator","template","method","solid",
+    "srp","ocp","lsp","isp","dip","coupling","cohesion","inheritance","polymorphism",
+    # Behavioral
+    "leadership","principle","star","situation","task","action","result",
+    "ownership","bias","action","deliver","results","invent","simplify","hire",
+    "develop","best","frugal","learn","curious","disagree","commit","insist",
+}
+
+
 def _extract_keywords(text: str) -> str:
-    """Extract important keywords from a chunk for fast keyword search."""
-    # Remove markdown symbols
+    """
+    Extract keywords from a chunk with:
+    1. Bigram extraction — "consistent hashing", "rate limiter" stored as single tokens
+    2. Domain boost — technical terms appear multiple times to increase match score
+    3. Standard unigram frequency ranking
+    """
     clean = re.sub(r"[#*`_\[\]()>|]", " ", text)
-    words = re.findall(r"\b[a-zA-Z][a-zA-Z0-9]{3,}\b", clean)
-    # Count frequency
-    freq = {}
-    for w in words:
-        w = w.lower()
-        freq[w] = freq.get(w, 0) + 1
-    # Top 40 words by frequency, excluding stopwords
+    words = re.findall(r"\b[a-zA-Z][a-zA-Z0-9]{2,}\b", clean.lower())
+
     stops = {"that","this","with","from","have","will","been","they","were","your",
              "when","what","which","more","some","such","than","then","also","into",
              "only","each","both","over","here","time","very","well","just","like",
              "make","need","used","using","code","data","type","value","class","object",
-             "interface","return","method","function","public","private","static","void","string","list","array"}
-    ranked = sorted([(w, c) for w, c in freq.items() if w not in stops and len(w) > 3],
-                    key=lambda x: -x[1])
-    return " ".join(w for w, _ in ranked[:40])
+             "interface","return","method","public","private","static","void","string",
+             "list","array","true","false","null","example","above","below","following"}
+
+    # Unigram frequency with domain boost
+    freq = {}
+    for w in words:
+        if w in stops or len(w) < 3:
+            continue
+        boost = 5 if w in _DOMAIN_BOOST else 1
+        freq[w] = freq.get(w, 0) + boost
+
+    # Bigrams — extract meaningful two-word phrases
+    bigrams = []
+    for i in range(len(words) - 1):
+        a, b = words[i], words[i + 1]
+        if a not in stops and b not in stops and len(a) > 2 and len(b) > 2:
+            bigram = f"{a}_{b}"
+            # Only keep bigrams where at least one word is domain-specific
+            if a in _DOMAIN_BOOST or b in _DOMAIN_BOOST:
+                bigrams.append(bigram)
+
+    ranked = sorted(freq.items(), key=lambda x: -x[1])
+    top_unigrams = [w for w, _ in ranked[:35]]
+    # Deduplicate bigrams
+    top_bigrams = list(dict.fromkeys(bigrams))[:20]
+
+    return " ".join(top_unigrams + top_bigrams)
 
 
 def _chunk_text(text: str) -> list[tuple[int, str, str]]:
@@ -375,22 +433,27 @@ def search_kb(query: str,
               source_key: Optional[str] = None,
               limit: int = 6) -> list[dict]:
     """
-    Keyword-based search over kb_chunks.
-    Scores each chunk by how many query words appear in keywords + content.
+    Keyword search with 3-tier scoring:
+      +10 per word matched in heading  (strongest — heading = topic declaration)
+      +3  per word matched in keywords (strong — domain-boosted at index time)
+      +1  per word matched in content  (weak — broad match)
+    Also matches bigrams: "rate limiter" → checks for "rate_limiter" in keywords.
     """
     if not query:
         return []
 
-    # Normalize query → search terms
-    query_words = set(re.findall(r"\b[a-zA-Z][a-zA-Z0-9]{2,}\b", query.lower()))
     stops = {"the","and","for","that","this","with","from","have","will","been","what","when",
-             "how","can","are","not","its","use","get","set","run"}
-    query_words -= stops
+             "how","can","are","not","its","use","get","set","run","does","this","should","would"}
+
+    query_words = set(re.findall(r"\b[a-zA-Z][a-zA-Z0-9]{2,}\b", query.lower())) - stops
     if not query_words:
         return []
 
+    # Build bigrams from query for bigram matching
+    qwords_list = [w for w in re.findall(r"\b[a-zA-Z][a-zA-Z0-9]{2,}\b", query.lower()) if w not in stops]
+    query_bigrams = {f"{qwords_list[i]}_{qwords_list[i+1]}" for i in range(len(qwords_list)-1)}
+
     with _conn() as conn:
-        # First check table exists
         exists = conn.execute(
             "SELECT name FROM sqlite_master WHERE type='table' AND name='kb_chunks'"
         ).fetchone()
@@ -412,25 +475,33 @@ def search_kb(query: str,
             params
         ).fetchall()
 
-        # Score rows
         scored = []
         for row in rows:
-            kw_text = (row["keywords"] or "").lower()
-            content_lower = row["content"].lower()
-            score = 0
+            kw_text  = (row["keywords"] or "").lower()
+            heading  = (row["heading"]  or "").lower()
+            content  = row["content"].lower()
+            score    = 0
+
             for w in query_words:
+                if w in heading:
+                    score += 10   # heading match = this chunk IS about this topic
                 if w in kw_text:
-                    score += 3  # keyword match = strong signal
-                if w in content_lower:
-                    score += 1  # content match = weaker
+                    score += 3    # indexed keyword match
+                if w in content:
+                    score += 1    # broad content match
+
+            # Bigram bonus — "consistent hashing" beats chunks with only "consistent" or "hashing"
+            for bg in query_bigrams:
+                if bg in kw_text:
+                    score += 6
+
             if score > 0:
                 scored.append((score, row))
 
         scored.sort(key=lambda x: -x[0])
         out = []
         seen_keys = set()
-        for score, row in scored[:limit * 2]:
-            # Deduplicate consecutive chunks from same source
+        for score, row in scored[:limit * 3]:
             dedup_key = (row["source_key"], row["heading"])
             if dedup_key in seen_keys:
                 continue
