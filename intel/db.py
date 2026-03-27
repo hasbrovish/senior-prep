@@ -308,10 +308,10 @@ def get_overall_stats():
     stats = {}
     stats["total_experiences"] = conn.execute("SELECT COUNT(*) FROM experiences").fetchone()[0]
     stats["companies"] = conn.execute("SELECT COUNT(DISTINCT company) FROM experiences").fetchone()[0]
-    stats["sources"] = conn.execute("SELECT source, COUNT(*) as cnt FROM experiences GROUP BY source").fetchall()
-    stats["recent"] = conn.execute(
+    stats["sources"] = [dict(row) for row in conn.execute("SELECT source, COUNT(*) as cnt FROM experiences GROUP BY source").fetchall()]
+    stats["recent"] = [dict(row) for row in conn.execute(
         "SELECT company, role, overall_result, date_scraped FROM experiences ORDER BY date_scraped DESC LIMIT 5"
-    ).fetchall()
+    ).fetchall()]
     conn.close()
     return stats
 
