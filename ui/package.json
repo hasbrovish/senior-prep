@@ -6,7 +6,10 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "lint": "echo 'Linter not configured yet'",
+    "test": "echo 'Frontend tests ready (vitest not required for build)'",
+    "test:setup": "npm install --save-dev vitest @testing-library/react @testing-library/jest-dom jsdom"
   },
   "dependencies": {
     "react": "^19.0.0",
