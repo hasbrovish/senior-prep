@@ -25,8 +25,8 @@
     "easy": 62,
     "medium": 80,
     "hard": 16,
-    "streak": 2,
-    "total_active_days": 9,
+    "streak": 4,
+    "total_active_days": 17,
     "today_submissions": 7,
     "beats_easy": 81.4,
     "beats_medium": 82.0,
@@ -41,7 +41,7 @@
       "Go": 1,
       "Python3": 3
     },
-    "last_sync": "2026-03-25"
+    "last_sync": "2026-03-26"
   },
   "failures": [
     {
