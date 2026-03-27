@@ -892,3 +892,52 @@ Solutions:
 
 **Q135. Redis pipelining:**
 Send multiple commands without waiting for individual responses → reduces network round trips. Lua scripting for atomic multi-step operations (e.g., check-and-set for rate limiting).
+
+
+---
+
+<!-- Auto-generated: 2026-03-27 12:06 | Source: generate_kafka_2026-03-27 -->
+
+Q&A generated
+
+
+---
+
+<!-- Auto-generated: 2026-03-27 12:07 | Source: generate_kafka_2026-03-27 -->
+
+Q&A generated
+
+
+---
+
+<!-- Auto-generated: 2026-03-27 12:09 | Source: generate_kafka_2026-03-27 -->
+
+Q&A generated
+
+
+---
+
+<!-- Auto-generated: 2026-03-27 12:18 | Source: generate_kafka_2026-03-27 -->
+
+Q&A generated
+
+
+---
+
+<!-- Auto-generated: 2026-03-27 12:22 | Source: generate_kafka_2026-03-27 -->
+
+Q&A generated
+
+
+---
+
+<!-- Auto-generated: 2026-03-27 12:28 | Source: generate_kafka_2026-03-27 -->
+
+Q&A generated
+
+
+---
+
+<!-- Auto-generated: 2026-03-27 12:42 | Source: generate_kafka_2026-03-27 -->
+
+Q&A generated

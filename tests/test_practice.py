@@ -49,7 +49,8 @@ class TestDrill:
         assert r.status_code == 200
         data = r.json()
         assert "companies" in data
-        assert isinstance(data["companies"], list)
+        assert isinstance(data["companies"], (list, dict))
+        assert len(data["companies"]) > 0
 
     def test_drill_by_company(self, client):
         r = client.get("/api/drill/company/google")

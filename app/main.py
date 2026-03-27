@@ -64,13 +64,25 @@ def check_rate_limit(ip: str, limit: int = 20, window: int = 60) -> bool:
     return True
 
 
+_AI_PATHS = frozenset((
+    "/api/coach", "/api/coach/stream",
+    "/api/coach/kb/generate", "/api/coach/kb/jd", "/api/coach/kb/digest",
+    "/api/jd-analyze", "/api/evaluate", "/api/lld/evaluate",
+))
+
 class RateLimitMiddleware(BaseHTTPMiddleware):
     async def dispatch(self, request: Request, call_next):
-        ip = request.client.host if request.client else "unknown"
         path = request.url.path
-        # Stricter limits on AI endpoints (personal use — 30/min for coach, 120/min for others)
-        limit = 30 if "/api/coach" in path else 120
-        if not check_rate_limit(ip, limit=limit, window=60):
+        if not path.startswith("/api/"):
+            return await call_next(request)
+        ip = request.client.host if request.client else "unknown"
+        if path in _AI_PATHS:
+            key = f"ai:{ip}"
+            limit = 30   # Claude-calling endpoints: 30/min to control API costs
+        else:
+            key = f"std:{ip}"
+            limit = 300  # read/write endpoints: generous for UI
+        if not check_rate_limit(key, limit=limit, window=60):
             return JSONResponse({"error": "Rate limit exceeded. Please wait."}, status_code=429)
         return await call_next(request)
 
@@ -162,7 +174,7 @@ app.add_middleware(
     CORSMiddleware,
     allow_origins=ALLOWED_ORIGINS,
     allow_credentials=True,
-    allow_methods=["GET", "POST", "PUT", "OPTIONS"],
+    allow_methods=["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
     allow_headers=["Content-Type", "Authorization"],
 )
 app.add_middleware(RateLimitMiddleware)

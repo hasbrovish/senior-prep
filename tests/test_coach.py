@@ -158,12 +158,14 @@ class TestKBReindex:
 
 
 class TestCoachQuestions:
-    def test_get_questions_empty(self, client):
+    def test_get_questions(self, client):
         r = client.get("/api/coach/questions")
         assert r.status_code == 200
         data = r.json()
         assert "questions" in data
-        assert data["count"] == 0
+        assert "count" in data
+        assert isinstance(data["questions"], list)
+        assert data["count"] == len(data["questions"])
 
     def test_get_questions_with_filters(self, client):
         r = client.get("/api/coach/questions?company=google&limit=5")

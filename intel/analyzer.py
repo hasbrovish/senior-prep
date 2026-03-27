@@ -8,7 +8,7 @@ Analyzes aggregated interview data to surface:
   - Difficulty calibration
 """
 
-import json
+import json, re
 from datetime import date, timedelta
 from collections import Counter
 
@@ -16,60 +16,187 @@ from . import db
 from .config import PROFILE, TARGET_COMPANIES, LEVEL_EXPECTATIONS
 
 
+# ─── Topic Extraction (keyword-based) ────────────────────────────────────────
+
+_TOPIC_PATTERNS = {
+    "arrays/hashing":    r"\barray|hash\s*map|hash\s*set|hash\s*table|two.?sum|anagram|duplicate",
+    "two pointers":      r"\btwo.?pointer|three.?sum|container.?water|trapping.?rain",
+    "sliding window":    r"\bsliding.?window|substring|permutation.?in|minimum.?window",
+    "binary search":     r"\bbinary.?search|rotated.?sort|koko|search.?matrix|median.*sorted",
+    "linked list":       r"\blinked.?list|merge.*list|reverse.*list|cycle.*detect|lru",
+    "trees/bst":         r"\btree|bst|binary.?tree|inorder|preorder|postorder|trie|bfs|dfs",
+    "graphs":            r"\bgraph|topological|dijkstra|shortest.?path|union.?find|connected.?component|bfs|dfs",
+    "dynamic programming": r"\bdynamic.?prog|dp\b|knapsack|coin.?change|longest.?common|memoiz|tabulation|subsequence",
+    "stack/queue":       r"\bstack|queue|parenthes|bracket|monotonic|polish.?notation",
+    "heap/priority queue": r"\bheap|priority.?queue|k.?largest|k.?smallest|median.?stream|top.?k",
+    "backtracking":      r"\bbacktrack|permutation|combination|n.?queen|sudoku|subset",
+    "greedy":            r"\bgreedy|interval|scheduling|jump.?game|gas.?station",
+    "bit manipulation":  r"\bbit.?manip|xor|bitwise|hamming",
+    "system design":     r"\bsystem.?design|design.*system|scalab|load.?balanc|cach|rate.?limit|url.?short|message.?queue|distributed|microservice|api.?design|database.?design|sharding|replication|consistent.?hash",
+    "lld/oop":           r"\blow.?level.?design|lld|object.?orient|class.?design|parking.?lot|elevator|chess|solid|design.?pattern|factory|strategy|observer|singleton",
+    "concurrency":       r"\bconcurren|thread|mutex|semaphore|deadlock|race.?condition|goroutine|channel|synchroniz|lock|parallel",
+    "kafka/messaging":   r"\bkafka|rabbitmq|message.?queue|pub.?sub|event.?driven|stream.?process",
+    "database":          r"\bsql|mysql|postgres|mongodb|redis|nosql|database|index|query.?optimiz|transaction|acid|join",
+    "behavioral":        r"\bbehavior|leadership|conflict|tell.?me.*time|star\b|situation|why.*company|strength|weakness|teamwork",
+    "api/rest":          r"\bapi\b|rest|graphql|endpoint|http|webhook|grpc",
+}
+
+def _extract_topics(text):
+    """Extract interview topics from question/round text via keyword matching."""
+    if not text:
+        return []
+    text_lower = text.lower()
+    found = []
+    for topic, pattern in _TOPIC_PATTERNS.items():
+        if re.search(pattern, text_lower):
+            found.append(topic)
+    return found
+
+def _infer_difficulty(text):
+    """Infer problem difficulty from text cues."""
+    if not text:
+        return "unknown"
+    t = text.lower()
+    if re.search(r"\bhard\b|difficult|tricky|advanced|dp|graph.*shortest|n.?queen", t):
+        return "hard"
+    if re.search(r"\beasy\b|simple|basic|two.?sum|valid.*parenthes|palindrome", t):
+        return "easy"
+    if re.search(r"\bmedium\b|moderate|standard", t):
+        return "medium"
+    return "unknown"
+
+
 # ─── Trend Detection ─────────────────────────────────────────────────────────
 
-def get_trending_topics(company=None, days=30, top_n=10):
-    """Analyze DB for most frequently asked topics in recent experiences."""
+def get_trending_topics(company=None, days=30, top_n=15):
+    """Analyze DB for most frequently asked topics in recent experiences.
+
+    Combines two data sources:
+    1. Structured experience_rounds (when scrapers parsed rounds)
+    2. Raw body_raw text from experiences (keyword extraction fallback)
+    This ensures experiences without parsed rounds still contribute to trends.
+    """
     conn = db.get_conn()
     cutoff = str(date.today() - timedelta(days=days))
+    company_filter = f"%{company.lower()}%" if company else None
 
-    if company:
-        rows = conn.execute("""
+    # Source 1: structured rounds
+    if company_filter:
+        round_rows = conn.execute("""
             SELECT er.round_type, er.topics, er.question, er.difficulty, e.company
             FROM experience_rounds er
             JOIN experiences e ON er.experience_id = e.id
             WHERE LOWER(e.company) LIKE ? AND e.date_scraped >= ?
-        """, (f"%{company.lower()}%", cutoff)).fetchall()
+        """, (company_filter, cutoff)).fetchall()
     else:
-        rows = conn.execute("""
+        round_rows = conn.execute("""
             SELECT er.round_type, er.topics, er.question, er.difficulty, e.company
             FROM experience_rounds er
             JOIN experiences e ON er.experience_id = e.id
             WHERE e.date_scraped >= ?
         """, (cutoff,)).fetchall()
+
+    # Source 2: experiences without parsed rounds (or all for body-level topics)
+    if company_filter:
+        exp_rows = conn.execute("""
+            SELECT e.id, e.company, e.title, e.body_raw
+            FROM experiences e
+            LEFT JOIN experience_rounds er ON er.experience_id = e.id
+            WHERE er.id IS NULL AND e.date_scraped >= ? AND LOWER(e.company) LIKE ?
+        """, (cutoff, company_filter)).fetchall()
+    else:
+        exp_rows = conn.execute("""
+            SELECT e.id, e.company, e.title, e.body_raw
+            FROM experiences e
+            LEFT JOIN experience_rounds er ON er.experience_id = e.id
+            WHERE er.id IS NULL AND e.date_scraped >= ?
+        """, (cutoff,)).fetchall()
     conn.close()
 
-    # Aggregate
     round_type_counts = Counter()
     topic_counts = Counter()
     difficulty_counts = Counter()
-    question_samples = {}  # round_type -> [questions]
+    question_samples = {}
+    company_topics = {}
 
-    for row in rows:
+    # Process structured rounds
+    for row in round_rows:
         rt = row["round_type"] or "unknown"
         round_type_counts[rt] += 1
-        difficulty_counts[row["difficulty"] or "unknown"] += 1
 
-        # Parse topics JSON
         try:
             topics = json.loads(row["topics"]) if row["topics"] else []
         except json.JSONDecodeError:
             topics = []
+        if not topics:
+            topics = _extract_topics(row["question"])
+
         for t in topics:
             topic_counts[t.lower()] += 1
 
-        # Collect question samples
+        comp = (row["company"] or "unknown").lower()
+        if comp not in company_topics:
+            company_topics[comp] = Counter()
+        for t in topics:
+            company_topics[comp][t.lower()] += 1
+
+        diff = row["difficulty"] or _infer_difficulty(row["question"])
+        difficulty_counts[diff] += 1
+
         if row["question"]:
             question_samples.setdefault(rt, []).append(row["question"])
+
+    # Process unstructured experiences (extract topics from body_raw + title)
+    for row in exp_rows:
+        text = " ".join(filter(None, [row["title"], row["body_raw"]]))
+        topics = _extract_topics(text)
+        if not topics:
+            continue
+
+        comp = (row["company"] or "unknown").lower()
+        if comp not in company_topics:
+            company_topics[comp] = Counter()
+        for t in topics:
+            topic_counts[t.lower()] += 1
+            company_topics[comp][t.lower()] += 1
+
+        # Infer round types from topics
+        for t in topics:
+            if t in ("system design", "kafka/messaging", "database"):
+                round_type_counts["system_design"] += 1
+            elif t in ("lld/oop",):
+                round_type_counts["lld"] += 1
+            elif t == "behavioral":
+                round_type_counts["behavioral"] += 1
+            elif t in ("arrays/hashing", "two pointers", "sliding window",
+                        "binary search", "linked list", "trees/bst", "graphs",
+                        "dynamic programming", "stack/queue", "heap/priority queue",
+                        "backtracking", "greedy", "bit manipulation"):
+                round_type_counts["dsa"] += 1
+
+        diff = _infer_difficulty(text)
+        if diff != "unknown":
+            difficulty_counts[diff] += 1
+
+    total_data_points = len(round_rows) + sum(1 for r in exp_rows
+                                               if _extract_topics(" ".join(filter(None, [r["title"], r["body_raw"]]))))
+
+    # Build per-company hot topics (top 5 per company)
+    hot_by_company = {}
+    for comp, cnts in company_topics.items():
+        if cnts:
+            hot_by_company[comp] = dict(cnts.most_common(5))
 
     return {
         "period_days": days,
         "company": company or "ALL",
-        "total_rounds": len(rows),
+        "total_rounds": len(round_rows),
+        "total_data_points": total_data_points,
         "round_types": dict(round_type_counts.most_common(10)),
         "top_topics": dict(topic_counts.most_common(top_n)),
         "difficulty_dist": dict(difficulty_counts),
         "sample_questions": {k: v[:5] for k, v in question_samples.items()},
+        "hot_by_company": hot_by_company,
     }
 
 
@@ -184,8 +311,17 @@ def compute_gap_analysis(progress_data, target_level="sde2"):
             "priority": 3,
         })
 
+    # Normalize spaced_repetition: may be a list of dicts or a dict
+    sr_raw = progress_data.get("spaced_repetition", {})
+    if isinstance(sr_raw, list):
+        sr_keys = [item.get("topic", "").lower() for item in sr_raw]
+    elif isinstance(sr_raw, dict):
+        sr_keys = [k.lower() for k in sr_raw.keys()]
+    else:
+        sr_keys = []
+
     # System Design gaps (estimated from SR data)
-    sd_studied = sum(1 for k, v in progress_data.get("spaced_repetition", {}).items()
+    sd_studied = sum(1 for k in sr_keys
                      if "system" in k or "sd" in k or "distributed" in k)
     if sd_studied < exp_sd["count"]:
         gaps.append({
@@ -198,7 +334,7 @@ def compute_gap_analysis(progress_data, target_level="sde2"):
         })
 
     # LLD gaps
-    lld_studied = sum(1 for k, v in progress_data.get("spaced_repetition", {}).items()
+    lld_studied = sum(1 for k in sr_keys
                       if "lld" in k or "pattern" in k)
     if lld_studied < exp_lld["count"]:
         gaps.append({
@@ -211,7 +347,7 @@ def compute_gap_analysis(progress_data, target_level="sde2"):
         })
 
     # Behavioral gaps
-    beh_logs = sum(1 for k, v in progress_data.get("spaced_repetition", {}).items()
+    beh_logs = sum(1 for k in sr_keys
                    if "behav" in k or "star" in k or "behavioral" in k)
     if beh_logs < 3:
         gaps.append({
