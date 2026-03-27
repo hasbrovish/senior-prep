@@ -388,3 +388,86 @@ async def get_real_questions(company: Optional[str] = None,
         return {"questions": questions, "count": len(questions)}
     except Exception as e:
         raise HTTPException(500, str(e))
+
+
+# ─── KB Automation Endpoints ─────────────────────────────────────────────────
+
+@router.post("/coach/kb/enrich")
+async def kb_enrich_endpoint(background_tasks: BackgroundTasks, days: int = 1):
+    """Generate Q&A from recent activity logs. Runs in background."""
+    def _do():
+        try:
+            from intel.kb_automation import kb_enrich_from_logs
+            return kb_enrich_from_logs(days=days)
+        except Exception:
+            pass
+    background_tasks.add_task(_do)
+    return {"ok": True, "message": f"Enriching KB from last {days} day(s) of activity in background"}
+
+
+@router.post("/coach/kb/fill")
+async def kb_fill_endpoint(background_tasks: BackgroundTasks):
+    """Auto-fill detected knowledge gaps. Runs in background."""
+    def _do():
+        try:
+            from intel.kb_automation import kb_fill_gaps
+            return kb_fill_gaps()
+        except Exception:
+            pass
+    background_tasks.add_task(_do)
+    return {"ok": True, "message": "Filling KB gaps in background"}
+
+
+@router.post("/coach/kb/generate")
+async def kb_generate_endpoint(body: dict):
+    """Generate Q&A for a specific topic. Body: { "topic": "kafka", "num_questions": 3 }"""
+    try:
+        from intel.kb_automation import kb_generate_topic
+        topic = body.get("topic", "java")
+        num = body.get("num_questions", 3)
+        result = kb_generate_topic(topic, num_questions=num)
+        return result
+    except Exception as e:
+        raise HTTPException(500, str(e))
+
+
+@router.post("/coach/kb/jd")
+async def kb_jd_endpoint(body: dict):
+    """Generate company-targeted Q&A from a JD. Body: { "jd_text": "...", "company": "Google", "role": "SDE-3" }"""
+    try:
+        from intel.kb_automation import kb_generate_from_jd
+        result = kb_generate_from_jd(
+            jd_text=body.get("jd_text", ""),
+            company=body.get("company", ""),
+            role=body.get("role", ""),
+        )
+        return result
+    except Exception as e:
+        raise HTTPException(500, str(e))
+
+
+@router.post("/coach/kb/digest")
+async def kb_digest_endpoint(body: dict):
+    """Convert raw notes to KB Q&A. Body: { "notes": "...", "topic": "kafka" }"""
+    try:
+        from intel.kb_automation import kb_digest_notes
+        result = kb_digest_notes(
+            raw_notes=body.get("notes", ""),
+            topic=body.get("topic", "general"),
+        )
+        return result
+    except Exception as e:
+        raise HTTPException(500, str(e))
+
+
+@router.post("/coach/kb/trending")
+async def kb_trending_endpoint(background_tasks: BackgroundTasks):
+    """Generate Q&A from trending interview topics. Runs in background."""
+    def _do():
+        try:
+            from intel.kb_automation import kb_refresh_trending
+            return kb_refresh_trending()
+        except Exception:
+            pass
+    background_tasks.add_task(_do)
+    return {"ok": True, "message": "Generating trending topic Q&A in background"}

@@ -3268,9 +3268,160 @@ def cmd_help():
     echo 'alias prep="python3 /Users/jayanti/Documents/dev/senior-prep/prep.py"' >> ~/.zshrc
     source ~/.zshrc
 
+  KNOWLEDGE BASE AUTOMATION (requires ANTHROPIC_API_KEY):
+  prep kb                        → KB health check (coverage, freshness, gaps)
+  prep kb status                 → same as above
+  prep kb enrich                 → generate Q&A from today's activity logs
+  prep kb enrich 3               → enrich from last 3 days
+  prep kb fill                   → auto-fill detected knowledge gaps
+  prep kb generate kafka         → generate SDE-3 Q&A for a topic
+  prep kb jd "company"           → paste JD, get company-targeted Q&A
+  prep kb digest java            → paste notes, convert to KB Q&A format
+  prep kb reindex                → re-index all files into SQLite
+  prep kb trending               → generate Q&A from trending interview topics
+
   SETUP — Intelligence Engine (optional):
     export ANTHROPIC_API_KEY=sk-ant-...   # for AI features
     """)
+
+# ─── Knowledge Base Automation Commands ───────────────────────────────────────
+
+def cmd_kb(sub_args):
+    """Knowledge base automation — self-enriching interview prep KB."""
+    sub = sub_args[0].lower() if sub_args else "status"
+
+    try:
+        from intel.kb_automation import (
+            kb_status, kb_enrich_from_logs, kb_fill_gaps, kb_generate_topic,
+            kb_generate_from_jd, kb_digest_notes, kb_reindex, kb_refresh_trending,
+        )
+    except ImportError as e:
+        print(f"  {RED}❌ KB automation not available: {e}{RESET}")
+        return
+
+    if sub == "status":
+        result = kb_status()
+        total = result.get("total_chunks", 0)
+        cats = result.get("categories", {})
+        stale = result.get("stale_files", 0)
+        recs = result.get("recommendations", [])
+
+        print(f"\n  {BOLD}📚 Knowledge Base Status{RESET}")
+        print(f"  {'─' * 50}")
+        print(f"  Total chunks: {GREEN}{total}{RESET}")
+        print(f"\n  {BOLD}By Category:{RESET}")
+        for cat, count in sorted(cats.items(), key=lambda x: -x[1]):
+            bar = "█" * min(count // 5, 30)
+            print(f"    {cat:<20} {count:>4}  {CYAN}{bar}{RESET}")
+
+        if result.get("files"):
+            print(f"\n  {BOLD}Files ({len(result['files'])}):{RESET}")
+            for f in result["files"][:15]:
+                stale_tag = f" {RED}(stale){RESET}" if f["stale"] else ""
+                print(f"    {f['file']:<45} {f['lines']:>5} lines  {GREY}{f['last_modified']}{RESET}{stale_tag}")
+            if len(result["files"]) > 15:
+                print(f"    ... and {len(result['files']) - 15} more")
+
+        if stale:
+            print(f"\n  {YELLOW}⚠  {stale} file(s) not updated in 14+ days{RESET}")
+        if recs:
+            print(f"\n  {BOLD}Recommendations:{RESET}")
+            for r in recs:
+                print(f"    → {r}")
+        print()
+
+    elif sub == "enrich":
+        days = int(sub_args[1]) if len(sub_args) > 1 else 1
+        print(f"  🔄 Enriching KB from last {days} day(s) of activity...")
+        result = kb_enrich_from_logs(days=days)
+        if result["status"] == "success":
+            print(f"  {GREEN}✅ Generated Q&A → {result['file']}{RESET}")
+            print(f"  Activities processed: {result['activities_processed']}")
+            print(f"  Preview: {result['preview'][:150]}")
+        else:
+            print(f"  {YELLOW}{result['message']}{RESET}")
+
+    elif sub == "fill":
+        print("  🔄 Analyzing KB for gaps...")
+        result = kb_fill_gaps()
+        if result["status"] == "success":
+            print(f"  {GREEN}✅ Filled {result['gaps_found']} gap(s) → {result['file']}{RESET}")
+            if result.get("weak_categories"):
+                print(f"  Weak categories: {', '.join(result['weak_categories'])}")
+        else:
+            print(f"  {YELLOW}{result['message']}{RESET}")
+
+    elif sub == "generate":
+        topic = sub_args[1] if len(sub_args) > 1 else "java"
+        num = int(sub_args[2]) if len(sub_args) > 2 else 3
+        print(f"  🔄 Generating {num} SDE-3 Q&A for: {topic}...")
+        result = kb_generate_topic(topic, num_questions=num)
+        if result["status"] == "success":
+            print(f"  {GREEN}✅ {result['questions']} questions → {result['file']}{RESET}")
+        else:
+            print(f"  {RED}{result['message']}{RESET}")
+
+    elif sub == "jd":
+        company = " ".join(sub_args[1:]) if len(sub_args) > 1 else ""
+        print("  Paste the JD below (Ctrl+D when done):")
+        try:
+            jd_text = sys.stdin.read()
+        except EOFError:
+            jd_text = ""
+        if not jd_text.strip():
+            print(f"  {YELLOW}No JD provided.{RESET}")
+            return
+        print(f"  🔄 Generating company-targeted Q&A for {company or 'unknown'}...")
+        result = kb_generate_from_jd(jd_text, company=company)
+        if result["status"] == "success":
+            print(f"  {GREEN}✅ Questions → {result['file']}{RESET}")
+        else:
+            print(f"  {RED}{result['message']}{RESET}")
+
+    elif sub == "digest":
+        topic = sub_args[1] if len(sub_args) > 1 else "general"
+        print(f"  Paste your notes for [{topic}] (Ctrl+D when done):")
+        try:
+            notes = sys.stdin.read()
+        except EOFError:
+            notes = ""
+        if not notes.strip():
+            print(f"  {YELLOW}No notes provided.{RESET}")
+            return
+        print("  🔄 Converting notes to Q&A...")
+        result = kb_digest_notes(notes, topic=topic)
+        if result["status"] == "success":
+            print(f"  {GREEN}✅ Digested → {result['file']}{RESET}")
+        else:
+            print(f"  {RED}{result['message']}{RESET}")
+
+    elif sub == "reindex":
+        print("  🔄 Re-indexing all KB files...")
+        result = kb_reindex(force=True)
+        print(f"  {GREEN}✅ Done — {result}{RESET}")
+
+    elif sub == "trending":
+        print("  🔄 Generating Q&A from trending topics...")
+        result = kb_refresh_trending()
+        if result["status"] == "success":
+            print(f"  {GREEN}✅ {result['trending_topics']} topics → {result['file']}{RESET}")
+        else:
+            print(f"  {YELLOW}{result['message']}{RESET}")
+
+    else:
+        print(f"""
+  {BOLD}prep kb{RESET} — Knowledge Base Automation
+  {'─' * 40}
+  prep kb                → KB health check
+  prep kb enrich [days]  → generate Q&A from activity logs
+  prep kb fill           → auto-fill knowledge gaps
+  prep kb generate <topic> [n]  → generate n Q&A (default 3)
+  prep kb jd [company]   → paste JD, get targeted Q&A
+  prep kb digest [topic] → paste notes, convert to Q&A
+  prep kb reindex        → re-index all files
+  prep kb trending       → Q&A from trending topics
+""")
+
 
 # ─── Intelligence Engine Commands ─────────────────────────────────────────────
 
@@ -4333,6 +4484,8 @@ if __name__ == "__main__":
                 print(f"  View week: prep warplan <week_number>  (e.g. prep warplan 1)")
         else:
             print(f"  ❌ No war plan file found. Expected ULTIMATE_INTERVIEW_ASSAULT.md or MASTER_16H_WARPLAN.md")
+    elif cmd in ("kb", "knowledge-base", "knowledgebase"):
+        cmd_kb(args[1:])
     elif cmd in ("sources", "source-status", "ext-sources"):
         try:
             from intel.sources.blind_helloiv import source_status

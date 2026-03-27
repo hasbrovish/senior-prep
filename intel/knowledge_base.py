@@ -84,6 +84,33 @@ CHUNK_SIZE = 1200       # chars per chunk (≈300 tokens)
 CHUNK_OVERLAP = 150     # overlap chars between chunks
 
 
+def _discover_dynamic_sources():
+    """Auto-discover new .md files in Interview_Answers/ not in KNOWLEDGE_SOURCES.
+    Catches auto-generated Company_Questions_<CompanyName>.md files from kb_automation."""
+    known_files = {entry[1] for entry in KNOWLEDGE_SOURCES}
+    dynamic = []
+    ia_dir = BASE / "Interview_Answers"
+    if ia_dir.exists():
+        for f in ia_dir.glob("*.md"):
+            if f.name not in known_files:
+                name_lower = f.name.lower()
+                if "company" in name_lower or "jd" in name_lower:
+                    cat = "general"
+                elif "star" in name_lower or "behavioral" in name_lower:
+                    cat = "behavioral"
+                elif "dsa" in name_lower or "pattern" in name_lower:
+                    cat = "dsa"
+                elif "system" in name_lower or "design" in name_lower:
+                    cat = "system_design"
+                elif "lld" in name_lower:
+                    cat = "lld"
+                else:
+                    cat = "general"
+                source_key = "dynamic_" + re.sub(r"[^a-z0-9]", "_", f.stem.lower())[:30]
+                dynamic.append(("Interview_Answers", f.name, cat, source_key, 0))
+    return dynamic
+
+
 # ─── DB helpers ───────────────────────────────────────────────────────────────
 
 def _conn():
@@ -395,8 +422,9 @@ def init_kb(force: bool = False) -> dict:
 
         stats = {"indexed": 0, "skipped": 0, "missing": 0, "total_chunks": 0}
 
-        # ── Static file list ──────────────────────────────────────────────────
-        for entry in KNOWLEDGE_SOURCES:
+        # ── Static + dynamically discovered files ─────────────────────────────
+        all_sources = list(KNOWLEDGE_SOURCES) + _discover_dynamic_sources()
+        for entry in all_sources:
             folder, filename, category, source_key = entry[0], entry[1], entry[2], entry[3]
             max_pages = entry[4] if len(entry) > 4 else 0
             path = BASE / folder / filename
