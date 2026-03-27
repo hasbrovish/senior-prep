@@ -246,7 +246,8 @@ async def upload_jd(body: JDUploadRequest):
             role=body.role,
             level=body.level or "unknown",
             jd_text=body.jd_text,
-            extracted_data=skills_data
+            extracted_data=skills_data,
+            predicted_questions=questions_data,
         )
 
         if not store_result.get("success"):
@@ -292,3 +293,97 @@ async def list_jds(company: Optional[str] = None, limit: int = Query(default=20,
         return {"jds": jds, "count": len(jds)}
     except Exception as e:
         raise HTTPException(500, str(e))
+
+
+# ─── Phase 2: Skill Gap Analysis ──────────────────────────────────────────────
+
+
+class GapAnalysisRequest(BaseModel):
+    """User's self-assessed skill levels (1-10 scale)."""
+    user_skills: dict  # {"Kafka": 7, "Java": 8, "System Design": 5}
+
+
+@router.post("/jd/{jd_id}/gap-analysis")
+async def gap_analysis(jd_id: str, body: GapAnalysisRequest):
+    """
+    Compare user skill levels vs JD requirements.
+
+    Input: {"user_skills": {"Kafka": 7, "Java": 8, "System Design": 5}}
+
+    Returns:
+    - overall_readiness (0-100%)
+    - per-skill gap breakdown
+    - priority skills to focus on
+    - estimated total prep hours
+    - company-specific behavioral guide
+    """
+    from intel.jd_analyzer import analyze_skill_gap
+
+    try:
+        result = analyze_skill_gap(jd_id, body.user_skills)
+        if "error" in result:
+            raise HTTPException(404, result["error"])
+        return result
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(500, str(e))
+
+
+# ─── Phase 3: Roadmap Generation ──────────────────────────────────────────────
+
+
+class RoadmapRequest(BaseModel):
+    """Request for a personalized prep roadmap."""
+    user_skills: dict  # {"Kafka": 7, "Java": 8}
+    weeks: int = 4     # weeks available (2-8)
+
+
+@router.post("/jd/{jd_id}/roadmap")
+async def generate_roadmap(jd_id: str, body: RoadmapRequest):
+    """
+    Generate a week-by-week personalized prep roadmap.
+
+    Input: {"user_skills": {"Kafka": 7, "Java": 8}, "weeks": 4}
+
+    Returns weekly plans with:
+    - Theme and focus skill
+    - Daily targets and resources
+    - LeetCode problem targets
+    - Behavioral prep schedule
+    """
+    from intel.jd_analyzer import generate_prep_roadmap
+
+    weeks = max(2, min(8, body.weeks))
+    try:
+        result = generate_prep_roadmap(jd_id, body.user_skills, weeks)
+        if "error" in result:
+            raise HTTPException(404, result["error"])
+        return result
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(500, str(e))
+
+
+# ─── Behavioral Guide ─────────────────────────────────────────────────────────
+
+
+@router.get("/jd/behavioral/{company}")
+async def behavioral_guide(company: str):
+    """
+    Get company-specific behavioral interview framework.
+
+    Returns: framework name, key principles, top questions, tips, TC range.
+
+    Supports: Amazon, Google, Stripe, Flipkart, Razorpay, PhonePe, Swiggy,
+              CRED, DoorDash, Microsoft, Bloomberg
+    """
+    from intel.jd_analyzer import get_behavioral_guide
+
+    try:
+        return get_behavioral_guide(company)
+    except Exception as e:
+        raise HTTPException(500, str(e))
+
+
