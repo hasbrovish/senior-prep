@@ -1,9 +1,8 @@
 import { useState } from 'react';
-import { useProgress, useSaveProgress } from '../hooks/useProgress';
-import { useLogActivity } from '../hooks/useProgress';
+import { useProgress, useSaveProgress, useLogActivity } from '../hooks/useProgress';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { api } from '../api';
-import { Target, Plus, Flame, TrendingUp, RefreshCw, User } from 'lucide-react';
+import { Plus, RefreshCw, User } from 'lucide-react';
 import StreakHeatmap from '../components/StreakHeatmap';
 
 const PATTERNS = [

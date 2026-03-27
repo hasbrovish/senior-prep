@@ -1,6 +1,6 @@
 import { useState, useMemo } from 'react';
 import { useProgress, useSaveProgress } from '../hooks/useProgress';
-import { RotateCcw, Plus, Star, Clock, CheckCircle2 } from 'lucide-react';
+import { Plus, Clock, CheckCircle2 } from 'lucide-react';
 
 export default function SpacedRepetition() {
   const { data: progress, isLoading } = useProgress();

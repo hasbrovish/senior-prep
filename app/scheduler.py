@@ -78,12 +78,12 @@ def job_sync_leetcode():
         if not user:
             return
 
-        stats = user.get("submitStatsGlobal", {}).get("acSubmissionNum", [])
-        lang_stats = user.get("languageProblemCount", [])
-        cal = user.get("userCalendar", {})
+        stats = (user.get("submitStatsGlobal") or {}).get("acSubmissionNum") or []
+        lang_stats = user.get("languageProblemCount") or []
+        cal = user.get("userCalendar") or {}
 
-        counts = {s["difficulty"]: s["count"] for s in stats}
-        lang_map = {l["languageName"]: l["problemsSolved"] for l in lang_stats}
+        counts = {s["difficulty"]: s["count"] for s in stats if "difficulty" in s and "count" in s}
+        lang_map = {l["languageName"]: l["problemsSolved"] for l in lang_stats if "languageName" in l}
 
         total = counts.get("All", 0)
         prev_total = p.get("lc_sync", {}).get("total", 0)

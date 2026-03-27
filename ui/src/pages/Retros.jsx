@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useProgress, useSaveProgress } from '../hooks/useProgress';
-import { FileText, Plus, AlertTriangle, CheckCircle2, ArrowUpRight } from 'lucide-react';
+import { FileText, Plus, CheckCircle2, ArrowUpRight } from 'lucide-react';
 
 export default function Retros() {
   const { data: progress, isLoading } = useProgress();

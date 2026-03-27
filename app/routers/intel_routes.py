@@ -191,3 +191,104 @@ async def import_guide():
             "trigger": "POST /api/intel/scrape?source=leetcode_discuss",
         }
     }
+
+
+# ─── JD Analysis Endpoints ────────────────────────────────────────────────────
+
+
+class JDUploadRequest(BaseModel):
+    """Upload and analyze a job description."""
+    jd_text: str
+    company: str
+    role: str = "SDE"
+    level: Optional[str] = None
+
+
+@router.post("/jd/upload")
+async def upload_jd(body: JDUploadRequest):
+    """
+    Upload a JD and extract skills.
+
+    1. Calls Claude to extract skills from JD text
+    2. Predicts likely interview questions
+    3. Stores in database
+    4. Returns extracted skills with importance scores
+
+    Example:
+        POST /api/intel/jd/upload
+        {
+          "jd_text": "We are looking for SDE-2...",
+          "company": "Amazon",
+          "role": "Backend SDE-2",
+          "level": "senior"
+        }
+    """
+    import uuid
+    from intel.jd_analyzer import extract_skills_from_jd, predict_interview_questions, store_jd
+
+    try:
+        jd_id = f"{body.company.lower()}_{body.role.lower()}_{uuid.uuid4().hex[:8]}"
+
+        # Extract skills
+        skills_data = extract_skills_from_jd(
+            body.jd_text, body.company, body.role
+        )
+
+        # Predict questions
+        questions_data = predict_interview_questions(
+            body.jd_text, body.company, skills_data.get("required_skills", [])
+        )
+
+        # Store in DB
+        store_result = store_jd(
+            jd_id=jd_id,
+            company=body.company,
+            role=body.role,
+            level=body.level or "unknown",
+            jd_text=body.jd_text,
+            extracted_data=skills_data
+        )
+
+        if not store_result.get("success"):
+            raise HTTPException(500, f"Failed to store JD: {store_result.get('error')}")
+
+        return {
+            "jd_id": jd_id,
+            "company": body.company,
+            "role": body.role,
+            "extracted_skills": skills_data.get("required_skills", []),
+            "preferred_skills": skills_data.get("preferred_skills", []),
+            "key_technologies": skills_data.get("key_technologies", {}),
+            "estimated_difficulty": skills_data.get("estimated_difficulty", "unknown"),
+            "estimated_prep_hours": skills_data.get("estimated_prep_hours", 0),
+            "predicted_questions": questions_data,
+        }
+
+    except Exception as e:
+        raise HTTPException(500, f"Error analyzing JD: {str(e)}")
+
+
+@router.get("/jd/{jd_id}")
+async def get_jd_analysis(jd_id: str):
+    """Get stored JD analysis by ID."""
+    from intel.jd_analyzer import get_jd
+
+    try:
+        jd = get_jd(jd_id)
+        if not jd:
+            raise HTTPException(404, f"JD not found: {jd_id}")
+        return jd
+    except Exception as e:
+        raise HTTPException(500, str(e))
+
+
+@router.get("/jd")
+async def list_jds(company: Optional[str] = None, limit: int = Query(default=20, le=100)):
+    """List all analyzed JDs, optionally filtered by company."""
+    from intel.jd_analyzer import list_jds
+
+    try:
+        jds = list_jds(company=company, limit=limit)
+        return {"jds": jds, "count": len(jds)}
+    except Exception as e:
+        raise HTTPException(500, str(e))

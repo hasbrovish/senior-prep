@@ -186,13 +186,13 @@ def _build_context(period: str = "daily") -> str:
     try:
         mock_conn = _conn()
         mock_rows = mock_conn.execute(
-            """SELECT company, round_type, score, created_at
-               FROM mock_sessions ORDER BY created_at DESC LIMIT 10"""
+            """SELECT company, round_type, score, date_done
+               FROM mock_sessions ORDER BY date_done DESC LIMIT 10"""
         ).fetchall()
         if mock_rows:
             lines.append("\n## Recent Mock Scores")
             for r in mock_rows:
-                lines.append(f"  - {r['company']} {r['round_type']}: {r['score']}/10 ({r['created_at'][:10]})")
+                lines.append(f"  - {r['company']} {r['round_type']}: {r['score']}/10 ({r['date_done'][:10]})")
         mock_conn.close()
     except Exception:
         pass
@@ -201,13 +201,13 @@ def _build_context(period: str = "daily") -> str:
     try:
         intel_conn = _conn()
         trend_rows = intel_conn.execute(
-            """SELECT keyword, company, count FROM trending_topics
-               ORDER BY date DESC, count DESC LIMIT 20"""
+            """SELECT topic, company, frequency FROM trending_topics
+               ORDER BY date_logged DESC, frequency DESC LIMIT 20"""
         ).fetchall()
         if trend_rows:
             lines.append("\n## Trending Interview Topics (from scraped data)")
             for r in trend_rows:
-                lines.append(f"  - {r['keyword']} @ {r['company'] or 'all'} (seen {r['count']}x)")
+                lines.append(f"  - {r['topic']} @ {r['company'] or 'all'} (seen {r['frequency']}x)")
         intel_conn.close()
     except Exception:
         pass

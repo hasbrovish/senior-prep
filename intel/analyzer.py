@@ -411,7 +411,7 @@ def print_trending(company=None, days=30):
 
     if data["top_topics"]:
         print(f"\n  Hot Topics:")
-        for topic, cnt in data["top_topics"].items():
+        for topic, cnt in data["top_topics"]:
             bar_len = min(cnt * 2, 30)
             print(f"    {topic:<20} {'▓' * bar_len} {cnt}")
 

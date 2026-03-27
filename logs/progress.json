@@ -1,62 +1,77 @@
 {
   "lc_done": [
     {
-      "name": "Two Sum",
-      "date": "2026-03-19"
+      "name": "Two Sum"
+    },
+    {
+      "name": "3Sum",
+      "date": "2026-03-27",
+      "pattern": "two-pointers",
+      "time_mins": 25
     }
   ],
-  "applications": [],
-  "daily_logs": {
-    "2026-03-19": [
-      "[LeetCode sync] 154 new problem(s) solved (total: 154)"
-    ],
-    "2026-03-20": [
-      "[LeetCode sync] 1 new problem(s) solved (total: 155)"
-    ],
-    "2026-03-25": [
-      "[LeetCode sync] 3 new problem(s) solved (total: 158)"
-    ]
-  },
-  "topics_done": [],
-  "offers": [],
-  "lc_sync": {
-    "username": "hasbrovish95",
-    "total": 158,
-    "easy": 62,
-    "medium": 80,
-    "hard": 16,
-    "streak": 4,
-    "total_active_days": 17,
-    "today_submissions": 7,
-    "beats_easy": 81.4,
-    "beats_medium": 82.0,
-    "beats_hard": 73.1,
-    "java_problems": 9,
-    "cpp_problems": 151,
-    "python_problems": 3,
-    "go_problems": 1,
-    "languages": {
-      "C++": 151,
-      "Java": 9,
-      "Go": 1,
-      "Python3": 3
-    },
-    "last_sync": "2026-03-26"
-  },
+  "current_week": 2,
+  "applications": [
+    {
+      "id": 1774593903174,
+      "company": "Google",
+      "role": "SDE-3",
+      "link": "",
+      "stage": "Applied",
+      "date": "2026-03-27"
+    }
+  ],
+  "bug_journal": [
+    {
+      "id": 1774593903235,
+      "date": "2026-03-27",
+      "description": "Off-by-one",
+      "category": "dsa",
+      "context": ""
+    }
+  ],
+  "retros": [
+    {
+      "id": 1774593903298,
+      "date": "2026-03-27",
+      "what_went_well": "Good",
+      "what_to_improve": "Speed"
+    }
+  ],
   "failures": [
     {
-      "date": "2026-03-20",
-      "round": "DSA",
-      "description": "dew",
-      "week": 1
+      "id": 1774593903360,
+      "date": "2026-03-27",
+      "type": "mock",
+      "details": "Failed SD round"
     }
   ],
-  "question_scores": [
+  "spaced_repetition": [
     {
-      "date": "2026-03-24",
-      "q_num": 118,
-      "section": "KAFKA (15 Questions)",
-      "confidence": 3
+      "id": 1774593903422,
+      "topic": "Binary Search",
+      "category": "dsa",
+      "confidence": 0,
+      "reviews": 0,
+      "next_review": "2026-03-27",
+      "added": "2026-03-27"
     }
-  ]
+  ],
+  "java_qa": {
+    "studied": {
+      "oop": [
+        "J1",
+        "J2",
+        "J3",
+        "J4",
+        "J5",
+        "J6"
+      ],
+      "oop_date": "2026-03-27"
+    },
+    "scores": {}
+  },
+  "lc_sync": {
+    "username": "hasbrovish95"
+  }
 }

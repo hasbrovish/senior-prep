@@ -82,6 +82,32 @@ def init_db():
         examples    TEXT                    -- JSON array of question examples
     );
 
+    -- ─── JD Analysis ─────────────────────────────────────────────────────────
+    CREATE TABLE IF NOT EXISTS jd_descriptions (
+        id                  TEXT PRIMARY KEY,
+        company             TEXT NOT NULL,
+        role                TEXT NOT NULL,
+        level               TEXT,                   -- SDE-1, SDE-2, SDE-3, etc.
+        raw_jd              TEXT,
+        required_skills     TEXT,                  -- JSON: ["Kafka", "Java"]
+        preferred_skills    TEXT,                  -- JSON array
+        skill_depth_required TEXT,                 -- JSON: {"Kafka": 9, "Java": 7}
+        estimated_difficulty TEXT,                 -- junior, mid, senior, staff
+        years_experience    INTEGER,
+        created_at          TEXT NOT NULL
+    );
+
+    CREATE TABLE IF NOT EXISTS jd_skill_analysis (
+        id                  INTEGER PRIMARY KEY AUTOINCREMENT,
+        jd_id               TEXT NOT NULL REFERENCES jd_descriptions(id),
+        skill_name          TEXT NOT NULL,
+        importance_score    REAL,                  -- 1-10
+        frequency           INTEGER DEFAULT 1,    -- how many times mentioned
+        typical_questions   TEXT,                  -- JSON array of sample questions
+        depth_required      INTEGER,               -- 1-10 scale
+        created_at          TEXT NOT NULL
+    );
+
     CREATE TABLE IF NOT EXISTS jd_analyses (
         id          INTEGER PRIMARY KEY AUTOINCREMENT,
         date_done   TEXT NOT NULL,
@@ -152,6 +178,9 @@ def init_db():
     CREATE INDEX IF NOT EXISTS idx_rounds_topics ON experience_rounds(topics);
     CREATE INDEX IF NOT EXISTS idx_trending_date ON trending_topics(date_logged);
     CREATE INDEX IF NOT EXISTS idx_trending_company ON trending_topics(company);
+    CREATE INDEX IF NOT EXISTS idx_jd_company ON jd_descriptions(company);
+    CREATE INDEX IF NOT EXISTS idx_jd_skill ON jd_skill_analysis(skill_name);
+    CREATE INDEX IF NOT EXISTS idx_jd_skill_jd ON jd_skill_analysis(jd_id);
     """)
     conn.commit()
     conn.close()

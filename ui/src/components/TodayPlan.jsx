@@ -12,7 +12,7 @@ export default function TodayPlan({ dailyPlan = {} }) {
     onSuccess: () => qc.invalidateQueries({ queryKey: ['dailyPlan'] }),
   });
 
-  const plan = dailyPlan.plan || '';
+  const plan = typeof dailyPlan.plan === 'string' ? dailyPlan.plan : '';
   const cached = dailyPlan.cached;
   const lines = plan.split('\n').filter(Boolean);
   const preview = lines.slice(0, 6).join('\n');

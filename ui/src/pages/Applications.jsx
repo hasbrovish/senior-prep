@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useProgress, useSaveProgress } from '../hooks/useProgress';
-import { Plus, Building2, ArrowRight } from 'lucide-react';
+import { Plus, ArrowRight } from 'lucide-react';
 
 const STAGES = ['Applied', 'OA', 'Phone Screen', 'Onsite', 'Offer', 'Rejected'];
 const STAGE_COLORS = {

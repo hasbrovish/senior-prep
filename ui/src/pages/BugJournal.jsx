@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useProgress, useSaveProgress } from '../hooks/useProgress';
-import { Bug, Plus, Search } from 'lucide-react';
+import { Plus } from 'lucide-react';
 
 export default function BugJournal() {
   const { data: progress, isLoading } = useProgress();

@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { api } from '../api';
-import { Search, TrendingUp, Building2, Download, FileText, Upload } from 'lucide-react';
+import { Download, Upload } from 'lucide-react';
 
 export default function Intelligence() {
   const [tab, setTab] = useState('overview');

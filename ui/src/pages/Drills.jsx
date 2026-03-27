@@ -110,7 +110,7 @@ export default function Drills() {
                   )}
                 </div>
                 <div style={{ display: 'flex', gap: 6 }}>
-                  <a href={p.url || `https://leetcode.com/problems/${p.name.toLowerCase().replace(/\s+/g, '-')}`}
+                  <a href={p.url || `https://leetcode.com/problems/${(p.name || '').toLowerCase().replace(/\s+/g, '-')}`}
                      target="_blank" rel="noopener noreferrer"
                      className="btn btn-gold btn-sm">
                     <ExternalLink size={12} /> Solve

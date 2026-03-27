@@ -45,7 +45,7 @@ export default function MockInterview() {
     },
   });
 
-  const selectedRound = ROUND_TYPES.find(r => r.key === roundType);
+  const selectedRound = ROUND_TYPES.find(r => r.key === roundType) || ROUND_TYPES[0];
 
   const handleStart = () => setPhase('active');
 

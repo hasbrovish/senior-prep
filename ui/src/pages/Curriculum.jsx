@@ -39,9 +39,10 @@ export default function Curriculum() {
   }, [items, weekFilter, categoryFilter, sourceFilter]);
 
   const toggleDone = (id) => {
+    if (!progress) return;
     const newDone = done.has(id)
-      ? (progress?.curriculum_done || []).filter(d => d !== id)
-      : [...(progress?.curriculum_done || []), id];
+      ? (progress.curriculum_done || []).filter(d => d !== id)
+      : [...(progress.curriculum_done || []), id];
     saveProgress.mutate({ ...progress, curriculum_done: newDone });
   };
 

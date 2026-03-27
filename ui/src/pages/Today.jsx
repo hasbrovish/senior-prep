@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { useProgress, useGaps, useDailyPlan, useTodayLog, useLogActivity } from '../hooks/useProgress';
 import { Swords, Timer, Code2, Brain, Target, GraduationCap, BookOpen } from 'lucide-react';
 import PomodoroTimer from '../components/PomodoroTimer';
@@ -25,7 +24,6 @@ export default function Today() {
   const { data: dailyPlan } = useDailyPlan();
   const { data: todayLog } = useTodayLog();
   const logActivity = useLogActivity();
-  const nav = useNavigate();
 
   const lcSync = progress?.lc_sync || {};
   const readiness = gaps?.readiness || 0;
@@ -36,6 +34,7 @@ export default function Today() {
   };
 
   const handleCompleteSession = (elapsedMins) => {
+    if (!activeSession) return;
     logActivity.mutate({
       activity_type: activeSession.key,
       title: sessionTitle || `${activeSession.label} session`,

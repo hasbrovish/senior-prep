@@ -1,4 +1,4 @@
-import { Clock, CheckCircle2, XCircle, Minus } from 'lucide-react';
+import { CheckCircle2, XCircle, Minus } from 'lucide-react';
 
 const TYPE_COLORS = {
   lc: 'var(--green)', mock: 'var(--orange)', curriculum: 'var(--blue)',
