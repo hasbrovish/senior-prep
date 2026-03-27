@@ -45,8 +45,24 @@ export default function Coach() {
         const res = await api.coach({ messages: newMessages });
         assistantMsg.content = res?.text || 'No response received.';
         setMessages([...newMessages, { ...assistantMsg }]);
-      } catch {
-        assistantMsg.content = 'Error: Could not reach the AI coach. Is the server running?';
+      } catch (fallbackErr) {
+        // Provide specific error messages
+        let errorMsg = 'Error: Could not reach the AI coach. Is the server running?';
+
+        // Check for specific API errors
+        if (fallbackErr?.status === 400) {
+          errorMsg = '❌ ANTHROPIC_API_KEY not configured. Please set it in Railway environment variables.';
+        } else if (fallbackErr?.status === 401) {
+          errorMsg = '❌ Invalid ANTHROPIC_API_KEY. Please check your API key is correct.';
+        } else if (fallbackErr?.status === 429) {
+          errorMsg = '⏱️ Rate limited. Please wait a moment and try again.';
+        } else if (fallbackErr?.status === 500) {
+          errorMsg = `❌ Server error: ${fallbackErr?.detail || 'Internal server error'}`;
+        } else if (!navigator.onLine) {
+          errorMsg = '⚠️ No internet connection.';
+        }
+
+        assistantMsg.content = errorMsg;
         setMessages([...newMessages, { ...assistantMsg }]);
       }
     }

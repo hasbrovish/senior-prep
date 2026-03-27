@@ -9,7 +9,10 @@ async function request(method, path, body) {
   const res = await fetch(`${BASE}${path}`, opts);
   if (!res.ok) {
     const text = await res.text().catch(() => '');
-    throw new Error(`${res.status}: ${text}`);
+    const err = new Error(`${res.status}: ${text}`);
+    err.status = res.status;
+    err.detail = text;
+    throw err;
   }
   return res.json();
 }
