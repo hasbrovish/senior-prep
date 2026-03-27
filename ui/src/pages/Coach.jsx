@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { api } from '../api';
 import { Send, Sparkles, Trash2 } from 'lucide-react';
+import ReactMarkdown from 'react-markdown';
 
 const QUICK_PROMPTS = [
   'Review my DSA preparation gaps and suggest next steps',
@@ -125,13 +126,17 @@ export default function Coach() {
             maxWidth: '85%', padding: '10px 14px', borderRadius: 8,
             background: msg.role === 'user' ? 'var(--bg4)' : 'var(--bg3)',
             border: msg.role === 'user' ? '1px solid #2a2a32' : '1px solid rgba(232,200,122,0.08)',
-            fontSize: 12, lineHeight: 1.7, whiteSpace: 'pre-wrap',
+            fontSize: 12, lineHeight: 1.7,
           }}>
             <div style={{ fontSize: 9, letterSpacing: 1, textTransform: 'uppercase', marginBottom: 4,
                           color: msg.role === 'user' ? 'var(--text3)' : 'var(--gold)' }}>
               {msg.role}
             </div>
-            {msg.content || (streaming && i === messages.length - 1 ? <span className="loading">Thinking...</span> : '')}
+            {msg.content
+              ? msg.role === 'assistant'
+                ? <div className="markdown-content"><ReactMarkdown>{msg.content}</ReactMarkdown></div>
+                : <span style={{ whiteSpace: 'pre-wrap' }}>{msg.content}</span>
+              : (streaming && i === messages.length - 1 ? <span className="loading">Thinking...</span> : '')}
           </div>
         ))}
         <div ref={chatEndRef} />

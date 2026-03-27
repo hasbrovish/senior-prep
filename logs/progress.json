@@ -72,6 +72,26 @@
     "scores": {}
   },
   "lc_sync": {
-    "username": "hasbrovish95"
+    "username": "hasbrovish95",
+    "total": 158,
+    "easy": 62,
+    "medium": 80,
+    "hard": 16,
+    "streak": 4,
+    "total_active_days": 17,
+    "java_problems": 9,
+    "cpp_problems": 151,
+    "languages": {
+      "C++": 151,
+      "Java": 9,
+      "Go": 1,
+      "Python3": 3
+    },
+    "last_sync": "2026-03-27"
+  },
+  "daily_logs": {
+    "2026-03-27": [
+      "[Sync] 158 new LC problem(s) (total: 158)"
+    ]
   }
 }
