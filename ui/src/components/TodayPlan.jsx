@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { RefreshCw, ChevronDown, ChevronUp } from 'lucide-react';
+import ReactMarkdown from 'react-markdown';
 import { api } from '../api';
 
 export default function TodayPlan({ dailyPlan = {} }) {
@@ -34,8 +35,10 @@ export default function TodayPlan({ dailyPlan = {} }) {
         </div>
       </div>
       {plan ? (
-        <div style={{ fontSize: 12, lineHeight: 1.7, color: 'var(--text)', whiteSpace: 'pre-wrap' }}>
-          {expanded ? plan : preview}
+        <div>
+          <div style={{ fontSize: 12, lineHeight: 1.7, color: 'var(--text)' }} className="markdown-content">
+            <ReactMarkdown>{expanded ? plan : preview}</ReactMarkdown>
+          </div>
           {hasMore && (
             <button
               onClick={() => setExpanded(!expanded)}
