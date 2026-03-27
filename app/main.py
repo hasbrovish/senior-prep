@@ -102,11 +102,19 @@ async def lifespan(app: FastAPI):
     except Exception as e:
         print(f"  ⚠️  GitHub clone: {e}")
 
-    # Init knowledge base (pre-index docs for AI coach)
+    # Init knowledge base in background (non-blocking startup)
     try:
         from intel.knowledge_base import init_kb
-        init_kb()
-        print("  ✅ Knowledge base indexed")
+        import threading
+        def _init_kb_bg():
+            try:
+                init_kb()
+                print("  ✅ Knowledge base indexed (background)")
+            except Exception as e:
+                print(f"  ⚠️  KB background: {e}")
+        kb_thread = threading.Thread(target=_init_kb_bg, daemon=True)
+        kb_thread.start()
+        print("  ⏳ Knowledge base indexing (background)")
     except Exception as e:
         print(f"  ⚠️  Knowledge base: {e}")
 
