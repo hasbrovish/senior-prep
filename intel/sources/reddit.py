@@ -91,15 +91,58 @@ TARGET_SUBS_FOR_COMPANY = ["developersIndia", "leetcodedesi", "cscareerquestions
                             "leetcode", "IndiaTechies"]
 
 KNOWN_COMPANIES = [
+    # FAANG + Big Tech
     "google", "amazon", "microsoft", "meta", "facebook", "apple", "netflix",
-    "flipkart", "uber", "adobe", "goldman sachs", "walmart", "oracle",
-    "razorpay", "phonepe", "cred", "swiggy", "zomato", "paytm", "meesho",
-    "makemytrip", "juspay", "salesforce", "intuit", "atlassian",
-    "stripe", "coinbase", "airbnb", "bytedance", "doordash", "samsara",
-    "bloomberg", "deutsche bank", "nvidia", "tesla",
-    "zerodha", "ola", "dream11", "groww", "nykaa", "dunzo", "sharechat",
-    "infosys", "tcs", "wipro", "thoughtworks", "media.net", "samsung",
-    "lenskart", "udaan", "myntra",
+    "nvidia", "tesla", "uber", "airbnb", "linkedin", "twitter", "x",
+    "tiktok", "bytedance", "snap", "snapchat", "discord", "reddit",
+    "twitch", "youtube", "whatsapp", "instagram", "oculus",
+    # AI
+    "openai", "anthropic", "perplexity", "mistral", "cohere", "xai",
+    "deepmind", "google deepmind", "cognition", "elevenlabs", "harvey",
+    "midjourney", "cursor", "replit", "langchain", "scale ai",
+    # Top Indian product
+    "flipkart", "swiggy", "razorpay", "phonepe", "cred", "zomato",
+    "meesho", "dream11", "groww", "zerodha", "juspay", "paytm",
+    "navi", "slice", "jar", "jupiter", "mobikwik", "nykaa", "myntra",
+    "makemytrip", "ola", "dunzo", "sharechat", "truecaller", "freshworks",
+    "zoho", "browserstack", "hashedin", "media.net", "moengage", "clevertap",
+    "pubmatic", "inmobi", "reliance retail", "jio", "lenskart", "udaan",
+    "directi", "werise", "gameberry",
+    # Global high-paying tech
+    "stripe", "atlassian", "adobe", "salesforce", "intuit", "servicenow",
+    "databricks", "snowflake", "confluent", "twilio", "datadog", "splunk",
+    "crowdstrike", "palo alto networks", "sentinelone", "okta",
+    "figma", "canva", "notion", "vercel", "webflow", "airtable",
+    "asana", "monday", "slack", "zoom", "hubspot", "zendesk",
+    "intercom", "mixpanel", "amplitude", "braze",
+    "shopify", "etsy", "wayfair", "chewy", "instacart", "doordash",
+    "lyft", "grubhub", "deliveroo", "booking.com", "expedia", "agoda",
+    "opendoor", "redfin", "zillow",
+    "spotify", "duolingo", "coursera", "roblox", "unity",
+    "samsara", "waymo", "cruise", "nuro", "lucid",
+    "plaid", "brex", "robinhood", "chime", "affirm", "klarna",
+    "coinbase", "ripple", "opensea", "paxos",
+    "gitlab", "github", "hashicorp", "mongodb", "elastic",
+    "sentry", "launchdarkly", "retool", "rippling", "deel", "gusto",
+    "calendly", "loom", "grammarly", "docusign", "box", "dropbox",
+    "algolia", "fullstory",
+    # Finance
+    "goldman sachs", "goldman", "morgan stanley", "jp morgan", "jpmorgan",
+    "jp morgan chase", "barclays", "deutsche bank", "hsbc", "citi",
+    "bank of america", "wells fargo", "charles schwab", "blackrock",
+    "jane street", "citadel", "two sigma", "hudson river trading",
+    "capital one", "american express", "mastercard", "visa", "paypal",
+    "square", "block", "revolut", "wise", "nubank", "sofi",
+    # Enterprise / Cloud
+    "oracle", "ibm", "sap", "cisco", "qualcomm", "intel", "amd",
+    "samsung", "sony", "vmware", "workday", "walmart labs", "walmart",
+    "target", "ebay", "shopee", "aws",
+    # Others from levels.fyi list
+    "palantir", "anduril", "lockheed martin", "disney", "electronic arts",
+    "activision", "zynga", "quora", "pinterest", "tinder",
+    "deloitte", "accenture", "mckinsey", "bcg", "pwc",
+    "infosys", "tcs", "wipro", "cognizant", "epam", "thoughtworks",
+    "bloomberg", "lseg", "tekion", "samsara",
 ]
 
 # ── OAuth state ───────────────────────────────────────────────────────────────

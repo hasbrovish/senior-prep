@@ -298,23 +298,47 @@ def fix_unknown_companies():
     import re
 
     KNOWN = [
+        # FAANG + Big Tech
         "google", "amazon", "microsoft", "meta", "facebook", "apple", "netflix",
-        "flipkart", "uber", "adobe", "goldman sachs", "walmart", "oracle",
-        "razorpay", "phonepe", "phone pe", "cred", "swiggy", "zomato", "paytm",
-        "meesho", "makemytrip", "mmt", "juspay", "salesforce", "intuit",
-        "atlassian", "stripe", "coinbase", "airbnb", "bytedance", "doordash",
-        "bloomberg", "deutsche bank", "nvidia", "tesla", "directi",
-        "zerodha", "ola", "dream11", "groww", "nykaa", "dunzo", "sharechat",
-        "infosys", "tcs", "wipro", "thoughtworks", "samsung", "qualcomm",
-        "lenskart", "udaan", "myntra", "navi", "slice", "jar", "jupiter",
-        "confluent", "databricks", "snowflake", "twilio", "datadog", "splunk",
-        "linkedin", "twitter", "spotify", "booking", "expedia", "lyft",
-        "servicenow", "samsara", "figma", "canva", "notion", "vercel",
-        "hashedin", "deloitte", "browserstack", "freshworks", "zoho",
-        "media.net", "pubmatic", "inmobi", "moengage", "clevertap",
-        "jp morgan", "morgan stanley", "goldman", "barclays", "hsbc",
-        "walmart labs", "target", "chewy", "wayfair", "etsy", "shopify",
-        "epam", "lseg", "tekion", "wise", "plaid", "brex", "robinhood",
+        "nvidia", "tesla", "uber", "airbnb", "linkedin", "twitter", "x",
+        "tiktok", "bytedance", "snap", "discord", "reddit", "twitch",
+        # AI
+        "openai", "anthropic", "perplexity", "mistral", "xai", "deepmind",
+        "elevenlabs", "midjourney", "cursor", "replit", "scale ai",
+        # Indian product
+        "flipkart", "swiggy", "razorpay", "phonepe", "cred", "zomato",
+        "meesho", "dream11", "groww", "zerodha", "juspay", "paytm",
+        "navi", "slice", "mobikwik", "nykaa", "myntra", "makemytrip",
+        "ola", "dunzo", "sharechat", "truecaller", "freshworks", "zoho",
+        "browserstack", "hashedin", "media.net", "moengage", "clevertap",
+        "reliance retail", "jio", "lenskart", "udaan", "directi",
+        # Global high-paying
+        "stripe", "atlassian", "adobe", "salesforce", "intuit", "servicenow",
+        "databricks", "snowflake", "confluent", "twilio", "datadog", "splunk",
+        "crowdstrike", "palo alto networks", "sentinelone", "okta",
+        "figma", "canva", "notion", "vercel", "webflow", "airtable",
+        "asana", "monday", "slack", "zoom", "hubspot", "zendesk",
+        "shopify", "etsy", "wayfair", "chewy", "instacart", "doordash",
+        "lyft", "grubhub", "booking.com", "expedia", "agoda",
+        "spotify", "duolingo", "coursera", "roblox", "samsara", "waymo",
+        "plaid", "brex", "robinhood", "chime", "affirm", "klarna",
+        "coinbase", "gitlab", "github", "mongodb", "grammarly", "dropbox",
+        "rippling", "deel", "gusto", "calendly", "loom", "algolia",
+        # Finance
+        "goldman sachs", "goldman", "morgan stanley", "jp morgan", "jpmorgan",
+        "jp morgan chase", "barclays", "deutsche bank", "hsbc", "citi",
+        "bank of america", "wells fargo", "charles schwab", "blackrock",
+        "jane street", "citadel", "two sigma", "capital one",
+        "american express", "mastercard", "visa", "paypal", "block", "revolut",
+        "wise", "nubank", "sofi",
+        # Enterprise
+        "oracle", "ibm", "sap", "cisco", "qualcomm", "intel", "amd",
+        "samsung", "vmware", "workday", "walmart labs", "walmart", "ebay",
+        # Others
+        "palantir", "anduril", "disney", "electronic arts", "activision",
+        "deloitte", "accenture", "mckinsey", "pwc",
+        "infosys", "tcs", "wipro", "cognizant", "epam", "thoughtworks",
+        "bloomberg", "lseg", "tekion", "epam",
     ]
 
     conn = get_conn()

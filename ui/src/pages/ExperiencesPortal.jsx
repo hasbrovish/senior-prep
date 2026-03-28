@@ -10,14 +10,21 @@ import {
 // ─── Constants ───────────────────────────────────────────────────────────────
 
 const TARGET_COMPANIES = [
-  // FAANG / Big Tech
-  'Google', 'Amazon', 'Meta', 'Microsoft', 'Apple',
-  // Top Indian product (levels.fyi high paying)
+  // FAANG
+  'Google', 'Amazon', 'Meta', 'Microsoft', 'Apple', 'Netflix',
+  // AI
+  'OpenAI', 'Anthropic', 'Perplexity AI', 'Databricks', 'xAI',
+  // Top Indian product (levels.fyi)
   'Flipkart', 'Razorpay', 'PhonePe', 'CRED', 'Swiggy',
   'Zomato', 'Meesho', 'Dream11', 'Groww', 'Zerodha', 'Juspay',
   // Global high-paying
   'Stripe', 'Atlassian', 'Adobe', 'Uber', 'Goldman Sachs',
-  'Databricks', 'Confluent', 'LinkedIn', 'Walmart',
+  'Confluent', 'LinkedIn', 'Salesforce', 'Snowflake', 'Datadog',
+  // Finance
+  'JP Morgan', 'Morgan Stanley', 'Citadel', 'Jane Street', 'Revolut',
+  // Others
+  'Shopify', 'Canva', 'Figma', 'Palantir', 'Spotify',
+  'Coinbase', 'Robinhood', 'Airbnb', 'DoorDash', 'Lyft',
 ];
 
 const ROUND_TYPES = ['dsa', 'system_design', 'lld', 'behavioral', 'hr', 'machine_coding'];
