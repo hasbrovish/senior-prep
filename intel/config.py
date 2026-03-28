@@ -27,6 +27,21 @@ REDDIT_CLIENT_ID   = os.environ.get("REDDIT_CLIENT_ID", "")
 REDDIT_SECRET      = os.environ.get("REDDIT_CLIENT_SECRET", "")
 REDDIT_USER_AGENT  = "PrepForge/1.0 (SDE interview prep bot)"
 
+# ScrapeCreators API — used by last30days skill, works without Reddit OAuth
+# Reads from env var OR from ~/.config/last30days/.env (where last30days stores it)
+def _load_scrapecreators_key():
+    key = os.environ.get("SCRAPECREATORS_API_KEY", "")
+    if key:
+        return key
+    _env_path = Path.home() / ".config" / "last30days" / ".env"
+    if _env_path.exists():
+        for line in _env_path.read_text().splitlines():
+            if line.startswith("SCRAPECREATORS_API_KEY="):
+                return line.split("=", 1)[1].strip()
+    return ""
+
+SCRAPECREATORS_API_KEY = _load_scrapecreators_key()
+
 # ─── Claude API ───────────────────────────────────────────────────────────────
 CLAUDE_MODEL        = os.environ.get("CLAUDE_MODEL", "claude-sonnet-4-5")
 CLAUDE_MODEL_FAST   = os.environ.get("CLAUDE_MODEL_FAST", "claude-haiku-4-5")
