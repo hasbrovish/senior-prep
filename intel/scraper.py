@@ -12,12 +12,13 @@ import time
 from datetime import datetime
 
 from . import db
-from .sources import leetcode_discuss, reddit, enginebogie
+from .sources import leetcode_discuss, reddit, enginebogie, hackernews
 
 
 SCRAPERS = {
     "leetcode_discuss": {"fn": leetcode_discuss.scrape, "label": "LeetCode Discuss"},
-    "reddit":           {"fn": reddit.scrape,           "label": "Reddit (4 subs)"},
+    "reddit":           {"fn": reddit.scrape,           "label": "Reddit (6 subs + comments)"},
+    "hackernews":       {"fn": hackernews.scrape,       "label": "HackerNews (Algolia)"},
     "enginebogie":      {"fn": enginebogie.scrape,      "label": "enginebogie.com"},
 }
 

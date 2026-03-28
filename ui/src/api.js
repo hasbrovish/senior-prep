@@ -84,6 +84,7 @@ export const api = {
   generateJdRoadmap: (jdId, userSkills, weeks) => request('POST', `/api/intel/jd/${jdId}/roadmap`, { user_skills: userSkills, weeks }),
   getBehavioralGuide: (company) => request('GET', `/api/intel/jd/behavioral/${encodeURIComponent(company)}`),
 
+  getExperienceRounds: (expId) => request('GET', `/api/intel/experiences/${expId}/rounds`),
   getIntelStats: () => request('GET', '/api/intel/stats'),
   getExperiences: (params) => {
     const qs = new URLSearchParams(params).toString();
@@ -93,6 +94,26 @@ export const api = {
   getCompanyIntel: (c) => request('GET', `/api/intel/company/${c}`),
   triggerScrape: () => request('POST', '/api/intel/scrape'),
   importExperience: (data) => request('POST', '/api/intel/import', data),
+
+  // Experiences Portal
+  getPortalStats: () => request('GET', '/api/intel/portal/stats'),
+  getQuestionsBank: (params = {}) => {
+    const qs = Object.entries(params)
+      .filter(([, v]) => v !== undefined && v !== null && v !== '')
+      .map(([k, v]) => `${encodeURIComponent(k)}=${encodeURIComponent(v)}`)
+      .join('&');
+    return request('GET', `/api/intel/portal/questions${qs ? `?${qs}` : ''}`);
+  },
+  getCompanyPortal: (company) => request('GET', `/api/intel/portal/company/${encodeURIComponent(company)}`),
+  saveTip: (data) => request('POST', '/api/intel/portal/tips', data),
+  getTips: (company, round_type) => {
+    const params = [];
+    if (company) params.push(`company=${encodeURIComponent(company)}`);
+    if (round_type) params.push(`round_type=${encodeURIComponent(round_type)}`);
+    return request('GET', `/api/intel/portal/tips${params.length ? `?${params.join('&')}` : ''}`);
+  },
+  deleteTip: (tipId) => request('DELETE', `/api/intel/portal/tips/${tipId}`),
+  addToPractice: (roundId) => request('POST', `/api/intel/portal/questions/${roundId}/practice`),
 
   getCareerLadder: () => request('GET', '/api/career/ladder'),
   getSkillMap: () => request('GET', '/api/career/skill-map'),

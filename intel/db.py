@@ -167,6 +167,16 @@ def init_db():
         notes        TEXT
     );
 
+    -- User Tips
+    CREATE TABLE IF NOT EXISTS user_tips (
+        id          INTEGER PRIMARY KEY AUTOINCREMENT,
+        company     TEXT,
+        round_type  TEXT,
+        tip         TEXT NOT NULL,
+        author      TEXT DEFAULT 'me',
+        created_at  TEXT DEFAULT (datetime('now'))
+    );
+
     -- Indexes for fast queries
     CREATE INDEX IF NOT EXISTS idx_drill_date ON drill_sessions(date_done);
     CREATE INDEX IF NOT EXISTS idx_mock_company ON mock_sessions(company);
@@ -182,6 +192,7 @@ def init_db():
     CREATE INDEX IF NOT EXISTS idx_jd_company ON jd_descriptions(company);
     CREATE INDEX IF NOT EXISTS idx_jd_skill ON jd_skill_analysis(skill_name);
     CREATE INDEX IF NOT EXISTS idx_jd_skill_jd ON jd_skill_analysis(jd_id);
+    CREATE INDEX IF NOT EXISTS idx_tips_company ON user_tips(company);
     """)
     conn.commit()
 
@@ -250,7 +261,7 @@ def search_experiences(company=None, role=None, round_type=None,
                        source=None, limit=20, days=90):
     """Search interview experiences with filters."""
     conn = get_conn()
-    query = "SELECT * FROM experiences WHERE 1=1"
+    query = "SELECT * FROM experiences WHERE company IS NOT NULL AND LOWER(company) != 'unknown' AND company != ''"
     params = []
 
     if company:
@@ -381,6 +392,210 @@ def save_jd_analysis(company, role, jd_text, analysis):
     ))
     conn.commit()
     conn.close()
+
+
+# ─── Portal Functions ─────────────────────────────────────────────────────────
+
+def get_questions_bank(round_type=None, company=None, limit=100, min_length=20):
+    """Aggregate all real questions from experience_rounds, joined with experiences.
+    Returns list of dicts with: id, question, round_type, difficulty, company, role,
+    source, experience_id, frequency (count of how many times question appears).
+    """
+    conn = get_conn()
+    sql = """
+        SELECT
+            er.id,
+            er.question,
+            er.round_type,
+            er.difficulty,
+            e.company,
+            e.role,
+            e.source,
+            e.id       AS experience_id,
+            e.date_scraped,
+            COUNT(*)   AS frequency
+        FROM experience_rounds er
+        JOIN experiences e ON er.experience_id = e.id
+        WHERE LENGTH(COALESCE(er.question, '')) >= ?
+          AND e.company IS NOT NULL
+          AND LOWER(e.company) != 'unknown'
+          AND e.company != ''
+    """
+    params = [min_length]
+
+    if round_type:
+        sql += " AND er.round_type = ?"
+        params.append(round_type)
+    if company:
+        sql += " AND LOWER(e.company) LIKE ?"
+        params.append(f"%{company.lower()}%")
+
+    sql += " GROUP BY LOWER(TRIM(er.question)) ORDER BY frequency DESC, e.date_scraped DESC LIMIT ?"
+    params.append(limit)
+
+    rows = conn.execute(sql, params).fetchall()
+    conn.close()
+    return [dict(r) for r in rows]
+
+
+def get_company_profile(company):
+    """Get full company profile: experiences, rounds breakdown, top questions, tips."""
+    conn = get_conn()
+
+    exp_rows = conn.execute("""
+        SELECT id, title, overall_result, date_scraped, role, source, body_summary, tips, tc_offered, url
+        FROM experiences
+        WHERE LOWER(company) LIKE ?
+        ORDER BY date_scraped DESC
+        LIMIT 20
+    """, (f"%{company.lower()}%",)).fetchall()
+
+    exp_ids = [r["id"] for r in exp_rows]
+    experiences = [dict(r) for r in exp_rows]
+
+    rounds = []
+    round_type_counts = {}
+    top_questions = []
+    if exp_ids:
+        placeholders = ",".join("?" * len(exp_ids))
+        round_rows = conn.execute(f"""
+            SELECT round_type, question, difficulty, key_insights, outcome
+            FROM experience_rounds
+            WHERE experience_id IN ({placeholders})
+        """, exp_ids).fetchall()
+        rounds = [dict(r) for r in round_rows]
+        for r in rounds:
+            rt = r.get("round_type") or "unknown"
+            round_type_counts[rt] = round_type_counts.get(rt, 0) + 1
+        # Top questions: non-null, length > 20
+        seen = set()
+        for r in rounds:
+            q = (r.get("question") or "").strip()
+            if q and len(q) >= 20 and q.lower() not in seen:
+                seen.add(q.lower())
+                top_questions.append({
+                    "question": q,
+                    "round_type": r.get("round_type"),
+                    "difficulty": r.get("difficulty"),
+                })
+            if len(top_questions) >= 10:
+                break
+
+    # Tips from company_intel
+    intel_row = conn.execute(
+        "SELECT tips, dsa_difficulty, tc_range, process FROM company_intel WHERE LOWER(company) LIKE ?",
+        (f"%{company.lower()}%",)
+    ).fetchone()
+
+    conn.close()
+
+    return {
+        "company": company,
+        "experience_count": len(experiences),
+        "experiences": experiences,
+        "round_type_counts": round_type_counts,
+        "top_questions": top_questions,
+        "intel": dict(intel_row) if intel_row else {},
+    }
+
+
+def get_portal_stats():
+    """Master stats for the Experiences Portal."""
+    conn = get_conn()
+    total_experiences = conn.execute("SELECT COUNT(*) FROM experiences").fetchone()[0]
+    total_questions = conn.execute(
+        "SELECT COUNT(*) FROM experience_rounds WHERE LENGTH(COALESCE(question, '')) >= 20"
+    ).fetchone()[0]
+    companies_covered = conn.execute(
+        "SELECT COUNT(DISTINCT company) FROM experiences WHERE company IS NOT NULL AND LOWER(company) != 'unknown' AND company != ''"
+    ).fetchone()[0]
+    rounds_extracted = conn.execute("SELECT COUNT(*) FROM experience_rounds").fetchone()[0]
+    tips_shared = conn.execute("SELECT COUNT(*) FROM user_tips").fetchone()[0]
+
+    recent = [dict(r) for r in conn.execute("""
+        SELECT company, role, overall_result, date_scraped, source
+        FROM experiences
+        WHERE company IS NOT NULL AND LOWER(company) != 'unknown'
+        ORDER BY date_scraped DESC LIMIT 5
+    """).fetchall()]
+
+    # Top questions by frequency
+    hot_questions = [dict(r) for r in conn.execute("""
+        SELECT
+            er.id,
+            er.question,
+            er.round_type,
+            er.difficulty,
+            e.company,
+            e.date_scraped,
+            COUNT(*) AS frequency
+        FROM experience_rounds er
+        JOIN experiences e ON er.experience_id = e.id
+        WHERE LENGTH(COALESCE(er.question,'')) >= 20
+        GROUP BY LOWER(TRIM(er.question))
+        ORDER BY frequency DESC
+        LIMIT 6
+    """).fetchall()]
+
+    # Company heatmap: experience count + dominant round type
+    heatmap = [dict(r) for r in conn.execute("""
+        SELECT e.company, COUNT(DISTINCT e.id) AS exp_count
+        FROM experiences e
+        WHERE e.company IS NOT NULL AND LOWER(e.company) != 'unknown' AND e.company != ''
+        GROUP BY LOWER(e.company)
+        ORDER BY exp_count DESC
+        LIMIT 20
+    """).fetchall()]
+
+    conn.close()
+    return {
+        "total_experiences": total_experiences,
+        "total_questions": total_questions,
+        "companies_covered": companies_covered,
+        "rounds_extracted": rounds_extracted,
+        "tips_shared": tips_shared,
+        "recent_experiences": recent,
+        "hot_questions": hot_questions,
+        "company_heatmap": heatmap,
+    }
+
+
+def save_user_tip(company, round_type, tip_text, author="me"):
+    """Save a user-submitted tip to user_tips table."""
+    conn = get_conn()
+    cur = conn.execute("""
+        INSERT INTO user_tips (company, round_type, tip, author)
+        VALUES (?, ?, ?, ?)
+    """, (company, round_type, tip_text, author))
+    tip_id = cur.lastrowid
+    conn.commit()
+    conn.close()
+    return tip_id
+
+
+def delete_user_tip(tip_id):
+    """Delete a user tip by ID."""
+    conn = get_conn()
+    conn.execute("DELETE FROM user_tips WHERE id = ?", (tip_id,))
+    conn.commit()
+    conn.close()
+
+
+def get_user_tips(company=None, round_type=None):
+    """Retrieve user-submitted tips, optionally filtered."""
+    conn = get_conn()
+    sql = "SELECT * FROM user_tips WHERE 1=1"
+    params = []
+    if company:
+        sql += " AND LOWER(company) LIKE ?"
+        params.append(f"%{company.lower()}%")
+    if round_type:
+        sql += " AND round_type = ?"
+        params.append(round_type)
+    sql += " ORDER BY created_at DESC"
+    rows = conn.execute(sql, params).fetchall()
+    conn.close()
+    return [dict(r) for r in rows]
 
 
 # Initialize DB on import

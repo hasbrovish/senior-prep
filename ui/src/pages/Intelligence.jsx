@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { api } from '../api';
-import { Download, Upload, RefreshCw, Search, TrendingUp, Users, Database, Zap } from 'lucide-react';
+import { Download, Upload, RefreshCw, Search, TrendingUp, Users, Database, Zap, ChevronDown, ChevronRight } from 'lucide-react';
 
 const TARGET_COMPANIES = ['Google', 'Amazon', 'Meta', 'Flipkart', 'Razorpay', 'PhonePe', 'Stripe', 'CRED', 'Swiggy', 'Microsoft'];
 const SOURCE_LABELS = {
@@ -12,9 +12,108 @@ const SOURCE_LABELS = {
   reddit_leetcode: 'Reddit /lc',
   reddit_leetcodedesi: 'Reddit /lcdesi',
   reddit_ExperiencedDevs: 'Reddit /expd',
+  reddit_IndiaTechies: 'Reddit /IndiaTechies',
   hackernews: 'HackerNews',
   blind: 'Blind',
+  enginebogie: 'Enginebogie',
 };
+
+const ROUND_TYPE_COLORS = {
+  dsa: 'tag-blue', system_design: 'tag-purple', lld: 'tag-orange',
+  behavioral: 'tag-gold', hr: 'tag-green',
+};
+const DIFFICULTY_COLORS = { easy: 'tag-green', medium: 'tag-orange', hard: 'tag-red' };
+
+function ExperienceCard({ exp }) {
+  const [expanded, setExpanded] = useState(false);
+  const { data: roundsData, isLoading: roundsLoading } = useQuery({
+    queryKey: ['rounds', exp.id],
+    queryFn: () => api.getExperienceRounds(exp.id),
+    enabled: expanded,
+    staleTime: 300000,
+  });
+  const rounds = roundsData?.rounds || [];
+
+  return (
+    <div className="card" style={{ padding: '12px 16px' }}>
+      <div className="flex-between" style={{ cursor: 'pointer' }} onClick={() => setExpanded(e => !e)}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          {expanded ? <ChevronDown size={14} style={{ color: 'var(--text3)', flexShrink: 0 }} /> : <ChevronRight size={14} style={{ color: 'var(--text3)', flexShrink: 0 }} />}
+          <span style={{ fontWeight: 700, fontSize: 13 }}>{exp.company}</span>
+          {exp.role && <span className="tag tag-blue">{exp.role}</span>}
+          <span className="tag" style={{ fontSize: 9, color: 'var(--text4)' }}>{SOURCE_LABELS[exp.source] || exp.source}</span>
+        </div>
+        <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
+          {exp.overall_result && exp.overall_result !== 'unknown' && (
+            <span className={`tag ${exp.overall_result === 'offer' ? 'tag-green' : 'tag-red'}`}>
+              {exp.overall_result}
+            </span>
+          )}
+          <span style={{ fontSize: 9, color: 'var(--text4)' }}>{exp.date_scraped?.slice(0, 10)}</span>
+        </div>
+      </div>
+
+      {exp.title && (
+        <div style={{ fontSize: 11, color: 'var(--text2)', marginBottom: 4, marginLeft: 22 }}>{exp.title}</div>
+      )}
+
+      {expanded && (
+        <div style={{ marginTop: 10, marginLeft: 22 }}>
+          {roundsLoading ? (
+            <div style={{ fontSize: 11, color: 'var(--gold)' }}>Loading rounds...</div>
+          ) : rounds.length === 0 ? (
+            <div>
+              {exp.body_summary && exp.body_summary !== 'None' && (
+                <div style={{ fontSize: 11, color: 'var(--text3)', lineHeight: 1.6, marginBottom: 8 }}>
+                  {exp.body_summary}
+                </div>
+              )}
+              <div style={{ fontSize: 10, color: 'var(--text4)' }}>No rounds extracted yet. Set ANTHROPIC_API_KEY to enable auto-extraction.</div>
+            </div>
+          ) : (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+              {rounds.map((r, ri) => (
+                <div key={ri} style={{ background: 'var(--bg2)', borderRadius: 6, padding: '8px 12px', borderLeft: '3px solid var(--bg5)' }}>
+                  <div style={{ display: 'flex', gap: 6, alignItems: 'center', marginBottom: 4 }}>
+                    {r.round_num && <span style={{ fontSize: 9, color: 'var(--text4)' }}>Round {r.round_num}</span>}
+                    <span className={`tag ${ROUND_TYPE_COLORS[r.round_type] || 'tag-gold'}`}>{r.round_type?.replace('_', ' ') || 'dsa'}</span>
+                    {r.difficulty && <span className={`tag ${DIFFICULTY_COLORS[r.difficulty] || 'tag-gold'}`}>{r.difficulty}</span>}
+                    {r.duration_mins && <span style={{ fontSize: 9, color: 'var(--text4)' }}>{r.duration_mins}min</span>}
+                  </div>
+                  {r.question && (
+                    <div style={{ fontSize: 12, color: 'var(--text)', lineHeight: 1.5, fontWeight: 500 }}>
+                      {r.question}
+                    </div>
+                  )}
+                  {r.key_insights && (
+                    <div style={{ marginTop: 4, fontSize: 11, color: 'var(--green)', lineHeight: 1.4 }}>
+                      💡 {r.key_insights}
+                    </div>
+                  )}
+                  {r.outcome && (
+                    <div style={{ marginTop: 2, fontSize: 10, color: 'var(--text3)' }}>Outcome: {r.outcome}</div>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
+          {exp.tips && (
+            <div style={{ marginTop: 8, fontSize: 11, color: 'var(--green)' }}>💡 {exp.tips}</div>
+          )}
+          {exp.tc_offered && (
+            <div style={{ marginTop: 4, fontSize: 10, color: 'var(--gold)' }}>💰 TC: {exp.tc_offered}</div>
+          )}
+          {exp.url && (
+            <a href={exp.url} target="_blank" rel="noopener noreferrer"
+              style={{ fontSize: 10, color: 'var(--cyan)', marginTop: 6, display: 'inline-block' }}>
+              View original →
+            </a>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
 
 export default function Intelligence() {
   const [tab, setTab] = useState('overview');
@@ -163,11 +262,13 @@ export default function Intelligence() {
                 display: 'flex', alignItems: 'center', justifyContent: 'space-between',
                 padding: '6px 0', borderBottom: '1px solid var(--bg4)', fontSize: 11,
               }}>
-                <span style={{ fontWeight: 600 }}>{e.company || 'Unknown'}</span>
+                <span style={{ fontWeight: 600 }}>{e.company || '—'}</span>
                 <span style={{ color: 'var(--text3)' }}>{e.role}</span>
-                <span className={`tag ${e.overall_result === 'offer' ? 'tag-green' : e.overall_result === 'reject' ? 'tag-red' : 'tag-gold'}`}>
-                  {e.overall_result || 'unknown'}
-                </span>
+                {e.overall_result && e.overall_result !== 'unknown' && (
+                  <span className={`tag ${e.overall_result === 'offer' ? 'tag-green' : e.overall_result === 'reject' ? 'tag-red' : 'tag-gold'}`}>
+                    {e.overall_result}
+                  </span>
+                )}
                 <span style={{ color: 'var(--text4)', fontSize: 10 }}>{e.date_scraped?.slice(0, 10)}</span>
               </div>
             ))}
@@ -281,47 +382,7 @@ export default function Intelligence() {
           ) : (
             <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
               {(experiences?.experiences || []).map((exp, i) => (
-                <div key={i} className="card" style={{ padding: '12px 16px' }}>
-                  <div className="flex-between mb-6">
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                      <span style={{ fontWeight: 700, fontSize: 13 }}>{exp.company}</span>
-                      {exp.role && <span className="tag tag-blue">{exp.role}</span>}
-                      <span className="tag" style={{ fontSize: 9, color: 'var(--text4)' }}>{SOURCE_LABELS[exp.source] || exp.source}</span>
-                    </div>
-                    <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
-                      {exp.overall_result && exp.overall_result !== 'unknown' && (
-                        <span className={`tag ${exp.overall_result === 'offer' ? 'tag-green' : 'tag-red'}`}>
-                          {exp.overall_result}
-                        </span>
-                      )}
-                      <span style={{ fontSize: 9, color: 'var(--text4)' }}>{exp.date_scraped?.slice(0, 10)}</span>
-                    </div>
-                  </div>
-                  {exp.title && (
-                    <div style={{ fontSize: 11, color: 'var(--text2)', marginBottom: 4 }}>{exp.title}</div>
-                  )}
-                  {exp.body_summary && exp.body_summary !== 'None' && (
-                    <div style={{ fontSize: 11, color: 'var(--text3)', lineHeight: 1.5 }}>
-                      {exp.body_summary}
-                    </div>
-                  )}
-                  {exp.tips && (
-                    <div style={{ marginTop: 6, fontSize: 11, color: 'var(--green)' }}>
-                      💡 {exp.tips}
-                    </div>
-                  )}
-                  {exp.tc_offered && (
-                    <div style={{ marginTop: 4, fontSize: 10, color: 'var(--gold)' }}>
-                      💰 TC: {exp.tc_offered}
-                    </div>
-                  )}
-                  {exp.url && (
-                    <a href={exp.url} target="_blank" rel="noopener noreferrer"
-                      style={{ fontSize: 10, color: 'var(--cyan)', marginTop: 4, display: 'inline-block' }}>
-                      View original →
-                    </a>
-                  )}
-                </div>
+                <ExperienceCard key={exp.id || i} exp={exp} />
               ))}
             </div>
           )}

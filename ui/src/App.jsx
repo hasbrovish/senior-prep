@@ -2,7 +2,7 @@ import { Routes, Route, NavLink, Navigate } from 'react-router-dom';
 import {
   LayoutDashboard, CalendarCheck, Swords, Target, Brain, Code2,
   BookOpen, MessageSquare, Search, BarChart3, FileText, Settings,
-  Bug, RotateCcw, GraduationCap, BriefcaseBusiness, Timer, Telescope
+  Bug, RotateCcw, GraduationCap, BriefcaseBusiness, Timer, Telescope, Layers
 } from 'lucide-react';
 import Dashboard from './pages/Dashboard';
 import Today from './pages/Today';
@@ -17,6 +17,7 @@ import SpacedRepetition from './pages/SpacedRepetition';
 import Curriculum from './pages/Curriculum';
 import Coach from './pages/Coach';
 import Intelligence from './pages/Intelligence';
+import ExperiencesPortal from './pages/ExperiencesPortal';
 import JobAnalysis from './pages/JobAnalysis';
 import BugJournal from './pages/BugJournal';
 import Retros from './pages/Retros';
@@ -45,6 +46,7 @@ const NAV = [
     { to: '/curriculum', icon: BookOpen, label: 'Curriculum' },
     { to: '/coach', icon: MessageSquare, label: 'AI Coach' },
     { to: '/intel', icon: Search, label: 'Intelligence' },
+    { to: '/experiences', icon: Layers, label: 'Exp Portal' },
     { to: '/jobs', icon: Telescope, label: 'Job Analysis' },
   ]},
   { section: 'System', items: [
@@ -94,6 +96,7 @@ export default function App() {
           <Route path="/curriculum" element={<Curriculum />} />
           <Route path="/coach" element={<Coach />} />
           <Route path="/intel" element={<Intelligence />} />
+          <Route path="/experiences" element={<ExperiencesPortal />} />
           <Route path="/jobs" element={<JobAnalysis />} />
           <Route path="/settings" element={<SettingsPage />} />
           <Route path="*" element={<Navigate to="/" replace />} />
