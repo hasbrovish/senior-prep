@@ -4,7 +4,7 @@ encoded.txt
 
 # Intelligence Engine
 # data/ — ignore runtime/personal files but keep static curriculum JSONs
-data/*.db
+# Note: interviews.db IS committed so Railway deploys with scraped data
 data/*.db-shm
 data/*.db-wal
 data/cache/

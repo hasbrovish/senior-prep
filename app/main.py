@@ -142,6 +142,24 @@ async def lifespan(app: FastAPI):
     except Exception as e:
         print(f"  ⚠️  Knowledge base: {e}")
 
+    # Auto-scrape on startup if DB is empty (Railway fresh deploy)
+    try:
+        from intel.db import get_overall_stats
+        stats = get_overall_stats()
+        if stats.get("total_experiences", 0) < 10:
+            import threading
+            def _auto_scrape():
+                try:
+                    from intel.scraper import run_scraper
+                    run_scraper(source_name="leetcode_discuss", verbose=False)
+                    print("  ✅ Auto-scrape (startup): LeetCode Discuss done")
+                except Exception as e:
+                    print(f"  ⚠️  Auto-scrape failed: {e}")
+            threading.Thread(target=_auto_scrape, daemon=True).start()
+            print("  ⏳ DB empty — auto-scraping LeetCode Discuss in background")
+    except Exception as e:
+        print(f"  ⚠️  Auto-scrape check: {e}")
+
     # Start background scheduler
     try:
         from app.scheduler import start_scheduler
