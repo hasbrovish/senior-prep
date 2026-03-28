@@ -29,7 +29,18 @@ def _save_progress(data):
 
 @router.get("/progress")
 async def get_progress():
-    return _load(PROG_FILE, {})
+    p = _load(PROG_FILE, {})
+    # Seed default username from config if not set (survives Railway deploys)
+    if not p.get("lc_sync", {}).get("username"):
+        try:
+            from intel.config import PROFILE
+            lc_user = PROFILE.get("lc_user", "")
+            if lc_user:
+                p.setdefault("lc_sync", {})["username"] = lc_user
+                _save_progress(p)
+        except Exception:
+            pass
+    return p
 
 @router.post("/progress")
 async def save_progress(request_data: dict):

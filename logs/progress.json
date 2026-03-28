@@ -77,17 +77,23 @@
     "easy": 62,
     "medium": 80,
     "hard": 16,
-    "streak": 4,
-    "total_active_days": 17,
+    "streak": 2,
+    "total_active_days": 9,
+    "today_submissions": 0,
+    "beats_easy": 81.4,
+    "beats_medium": 82.0,
+    "beats_hard": 73.1,
     "java_problems": 9,
     "cpp_problems": 151,
+    "python_problems": 3,
+    "go_problems": 1,
     "languages": {
       "C++": 151,
       "Java": 9,
       "Go": 1,
       "Python3": 3
     },
-    "last_sync": "2026-03-27"
+    "last_sync": "2026-03-28"
   },
   "daily_logs": {
     "2026-03-27": [
