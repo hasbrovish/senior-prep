@@ -158,7 +158,7 @@ def search_hackernews(query, days_back=90, limit=20):
     data = _fetch_json(HN_SEARCH_BY_DATE_URL, params={
         "query": query,
         "tags": "story",
-        "numericFilters": f"created_at_i>{from_ts},points>2",
+        "numericFilters": f"created_at_i>{from_ts}",
         "hitsPerPage": limit,
     })
     if not data:
@@ -224,7 +224,7 @@ def _normalize(story):
     }
 
 
-def scrape(days_back=90, max_per_query=15):
+def scrape(days_back=365, max_per_query=15):
     """
     Main scraper: search HN for interview experiences and normalize results.
     No API key needed — uses public Algolia HN Search API.

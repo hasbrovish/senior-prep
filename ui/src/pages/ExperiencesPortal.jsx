@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { api } from '../api';
 import {
@@ -1009,6 +1009,32 @@ const TABS = [
 export default function ExperiencesPortal() {
   const [tab, setTab] = useState('dashboard');
   const [expCompanyFilter, setExpCompanyFilter] = useState('');
+  const qc = useQueryClient();
+
+  const [scrapeRunning, setScrapeRunning] = useState(false);
+
+  const { data: scrapeStatusData } = useQuery({
+    queryKey: ['scrapeStatus'],
+    queryFn: api.getScrapeStatus,
+    refetchInterval: scrapeRunning ? 3000 : false,
+    staleTime: 0,
+  });
+
+  useEffect(() => {
+    if (scrapeStatusData) {
+      if (!scrapeStatusData.running && scrapeRunning) {
+        setScrapeRunning(false);
+        qc.invalidateQueries({ queryKey: ['portalStats'] });
+        qc.invalidateQueries({ queryKey: ['portalQuestions'] });
+        qc.invalidateQueries({ queryKey: ['portalExperiences'] });
+      }
+    }
+  }, [scrapeStatusData, scrapeRunning, qc]);
+
+  const scrape = useMutation({
+    mutationFn: api.triggerScrape,
+    onSuccess: () => setScrapeRunning(true),
+  });
 
   const handleSetTabWithFilter = (newTab) => {
     setTab(newTab);
@@ -1024,7 +1050,40 @@ export default function ExperiencesPortal() {
               Real interview questions, company profiles, and aggregated insights from the community
             </div>
           </div>
+          <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+            {scrapeStatusData?.last_run && !scrapeRunning && (
+              <span style={{ fontSize: 9, color: 'var(--text4)' }}>
+                Last: {scrapeStatusData.last_run.slice(0, 16).replace('T', ' ')}
+              </span>
+            )}
+            <button
+              className="btn btn-gold btn-sm"
+              onClick={() => scrape.mutate()}
+              disabled={scrape.isPending || scrapeRunning}
+            >
+              <RefreshCw size={12} className={(scrape.isPending || scrapeRunning) ? 'spin' : ''} />
+              {scrapeRunning ? 'Scraping…' : scrape.isPending ? 'Starting…' : 'Scrape Now'}
+            </button>
+          </div>
         </div>
+        {scrapeRunning && (
+          <div style={{ marginTop: 6, fontSize: 11, color: 'var(--cyan)' }}>
+            ⏳ Scraping LeetCode Discuss + Reddit + HackerNews — takes ~45s, page auto-refreshes when done
+          </div>
+        )}
+        {scrape.isSuccess && !scrapeRunning && scrapeStatusData?.last_result && (
+          <div style={{ marginTop: 6, fontSize: 11, color: 'var(--green)' }}>
+            ✅ Done — {Object.entries(scrapeStatusData.last_result)
+              .filter(([k]) => k !== 'question_extraction')
+              .map(([k, v]) => `${k}: +${v?.inserted ?? 0}`)
+              .join(', ')} new experiences
+          </div>
+        )}
+        {scrape.isError && (
+          <div style={{ marginTop: 6, fontSize: 11, color: 'var(--red)' }}>
+            ❌ Scrape failed: {scrape.error?.message}
+          </div>
+        )}
       </div>
 
       {/* Tab Bar */}

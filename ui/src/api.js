@@ -93,6 +93,7 @@ export const api = {
   getTrending: () => request('GET', '/api/intel/trending'),
   getCompanyIntel: (c) => request('GET', `/api/intel/company/${c}`),
   triggerScrape: () => request('POST', '/api/intel/scrape'),
+  getScrapeStatus: () => request('GET', '/api/intel/scrape/status'),
   importExperience: (data) => request('POST', '/api/intel/import', data),
 
   // Experiences Portal

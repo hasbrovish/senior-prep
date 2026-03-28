@@ -80,15 +80,21 @@ async def company_profile(company_name: str):
         return {"error": str(e)}
 
 
+_scrape_status = {"running": False, "last_run": None, "last_result": None}
+
+
 def _run_scrape(source: Optional[str]):
     """Background job: run scraper, then auto-extract questions from new posts."""
+    global _scrape_status
+    _scrape_status["running"] = True
     try:
         from intel.scraper import run_scraper
         stats = run_scraper(source_name=source, verbose=False)
     except Exception as e:
-        return {"error": str(e)}
+        _scrape_status["running"] = False
+        _scrape_status["last_result"] = {"error": str(e)}
+        return
 
-    # Auto-run question extraction on any newly scraped raw posts
     try:
         from intel.question_extractor import bulk_extract_from_db
         extract_stats = bulk_extract_from_db(limit=500)
@@ -98,7 +104,10 @@ def _run_scrape(source: Optional[str]):
         if isinstance(stats, dict):
             stats["question_extraction_error"] = str(e)
 
-    return stats
+    from datetime import datetime
+    _scrape_status["running"] = False
+    _scrape_status["last_run"] = datetime.now().isoformat()
+    _scrape_status["last_result"] = stats
 
 
 @router.post("/scrape")
@@ -106,6 +115,21 @@ async def trigger_scrape(background_tasks: BackgroundTasks, source: Optional[str
     """Trigger scraping in background — returns immediately."""
     background_tasks.add_task(_run_scrape, source)
     return {"ok": True, "message": f"Scraping {'all sources' if not source else source} in background"}
+
+
+@router.get("/scrape/status")
+async def scrape_status():
+    """Check if scraping is running and when it last completed."""
+    try:
+        from intel.db import get_overall_stats
+        db_stats = get_overall_stats()
+        return {
+            **_scrape_status,
+            "total_experiences": db_stats.get("total_experiences", 0),
+            "total_companies": db_stats.get("companies", 0),
+        }
+    except Exception as e:
+        return {**_scrape_status, "error": str(e)}
 
 
 # ─── Manual Import (Blind / enginebogie paste) ───────────────────────────────

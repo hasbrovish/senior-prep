@@ -417,6 +417,8 @@ def get_questions_bank(round_type=None, company=None, limit=100, min_length=20):
         FROM experience_rounds er
         JOIN experiences e ON er.experience_id = e.id
         WHERE LENGTH(COALESCE(er.question, '')) >= ?
+          AND LENGTH(COALESCE(er.question, '')) <= 500
+          AND er.question NOT LIKE '[%'
           AND e.company IS NOT NULL
           AND LOWER(e.company) != 'unknown'
           AND e.company != ''
