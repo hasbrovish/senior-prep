@@ -86,10 +86,12 @@ export const api = {
 
   getExperienceRounds: (expId) => request('GET', `/api/intel/experiences/${expId}/rounds`),
   getIntelStats: () => request('GET', '/api/intel/stats'),
-  getExperiences: (params) => {
-    const qs = new URLSearchParams(params).toString();
-    return request('GET', `/api/intel/experiences?${qs}`);
+  getExperiences: (params = {}) => {
+    const clean = Object.fromEntries(Object.entries(params).filter(([, v]) => v !== undefined && v !== null && v !== ''));
+    const qs = new URLSearchParams(clean).toString();
+    return request('GET', `/api/intel/experiences${qs ? `?${qs}` : ''}`);
   },
+  fixCompanies: () => request('POST', '/api/intel/fix-companies'),
   getTrending: () => request('GET', '/api/intel/trending'),
   getCompanyIntel: (c) => request('GET', `/api/intel/company/${c}`),
   triggerScrape: () => request('POST', '/api/intel/scrape'),

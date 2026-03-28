@@ -25,19 +25,39 @@ async def intel_stats():
 async def get_experiences(
     company: Optional[str] = None,
     role: Optional[str] = None,
+    source: Optional[str] = None,
+    days: Optional[int] = Query(default=None, description="Filter last N days, None = all time"),
     limit: int = Query(default=20, le=100),
+    offset: int = Query(default=0, ge=0),
 ):
     try:
         from intel.db import search_experiences
-        results = search_experiences(company=company, role=role, limit=limit)
-        # Scrub sensitive fields before returning
-        clean = []
-        for r in results:
-            r.pop("body_raw", None)   # Don't expose full scraped text
-            clean.append(r)
-        return {"experiences": clean, "count": len(clean)}
+        result = search_experiences(
+            company=company, role=role, source=source,
+            limit=limit, offset=offset, days=days
+        )
+        for r in result["items"]:
+            r.pop("body_raw", None)
+        return {
+            "experiences": result["items"],
+            "count": len(result["items"]),
+            "total": result["total"],
+            "offset": offset,
+            "limit": limit,
+            "has_more": offset + limit < result["total"],
+        }
     except Exception as e:
-        return {"experiences": [], "error": str(e)}
+        return {"experiences": [], "total": 0, "error": str(e)}
+
+
+@router.post("/fix-companies")
+async def fix_unknown_companies():
+    """Re-extract company names from experiences stored as Unknown."""
+    try:
+        from intel.db import fix_unknown_companies as _fix
+        return _fix()
+    except Exception as e:
+        return {"error": str(e)}
 
 
 @router.get("/experiences/{exp_id}/rounds")

@@ -258,33 +258,93 @@ def insert_experience(data: dict) -> int:
 
 
 def search_experiences(company=None, role=None, round_type=None,
-                       source=None, limit=20, days=90):
-    """Search interview experiences with filters."""
+                       source=None, limit=20, offset=0, days=None,
+                       include_unknown=False):
+    """Search interview experiences with filters. Supports pagination via offset."""
     conn = get_conn()
-    query = "SELECT * FROM experiences WHERE company IS NOT NULL AND LOWER(company) != 'unknown' AND company != ''"
+
+    base = "FROM experiences WHERE 1=1"
     params = []
 
+    if not include_unknown:
+        base += " AND company IS NOT NULL AND LOWER(TRIM(company)) NOT IN ('unknown','') AND company != ''"
+
     if company:
-        query += " AND LOWER(company) LIKE ?"
+        base += " AND LOWER(company) LIKE ?"
         params.append(f"%{company.lower()}%")
     if role:
-        query += " AND LOWER(role) LIKE ?"
+        base += " AND LOWER(role) LIKE ?"
         params.append(f"%{role.lower()}%")
     if source:
-        query += " AND source = ?"
+        base += " AND source = ?"
         params.append(source)
     if days:
         from datetime import timedelta
         cutoff = str(date.today() - timedelta(days=days))
-        query += " AND date_scraped >= ?"
+        base += " AND date_scraped >= ?"
         params.append(cutoff)
 
-    query += " ORDER BY date_scraped DESC LIMIT ?"
-    params.append(limit)
-
-    rows = conn.execute(query, params).fetchall()
+    total = conn.execute(f"SELECT COUNT(*) {base}", params).fetchone()[0]
+    rows = conn.execute(
+        f"SELECT * {base} ORDER BY date_scraped DESC LIMIT ? OFFSET ?",
+        params + [limit, offset]
+    ).fetchall()
     conn.close()
-    return [dict(r) for r in rows]
+    return {"items": [dict(r) for r in rows], "total": total, "offset": offset, "limit": limit}
+
+
+def fix_unknown_companies():
+    """Re-run company extraction on experiences stored as Unknown."""
+    import re
+
+    KNOWN = [
+        "google", "amazon", "microsoft", "meta", "facebook", "apple", "netflix",
+        "flipkart", "uber", "adobe", "goldman sachs", "walmart", "oracle",
+        "razorpay", "phonepe", "phone pe", "cred", "swiggy", "zomato", "paytm",
+        "meesho", "makemytrip", "mmt", "juspay", "salesforce", "intuit",
+        "atlassian", "stripe", "coinbase", "airbnb", "bytedance", "doordash",
+        "bloomberg", "deutsche bank", "nvidia", "tesla", "directi",
+        "zerodha", "ola", "dream11", "groww", "nykaa", "dunzo", "sharechat",
+        "infosys", "tcs", "wipro", "thoughtworks", "samsung", "qualcomm",
+        "lenskart", "udaan", "myntra", "navi", "slice", "jar", "jupiter",
+        "confluent", "databricks", "snowflake", "twilio", "datadog", "splunk",
+        "linkedin", "twitter", "spotify", "booking", "expedia", "lyft",
+        "servicenow", "samsara", "figma", "canva", "notion", "vercel",
+        "hashedin", "deloitte", "browserstack", "freshworks", "zoho",
+        "media.net", "pubmatic", "inmobi", "moengage", "clevertap",
+        "jp morgan", "morgan stanley", "goldman", "barclays", "hsbc",
+        "walmart labs", "target", "chewy", "wayfair", "etsy", "shopify",
+        "epam", "lseg", "tekion", "wise", "plaid", "brex", "robinhood",
+    ]
+
+    conn = get_conn()
+    rows = conn.execute(
+        "SELECT id, title, body_raw FROM experiences WHERE LOWER(TRIM(company)) IN ('unknown', '') OR company IS NULL"
+    ).fetchall()
+
+    updated = 0
+    for row in rows:
+        text = ((row["title"] or "") + " " + (row["body_raw"] or "")[:500]).lower()
+        found = None
+        for c in KNOWN:
+            if c in text:
+                found = c.title().replace("Jp Morgan", "JP Morgan").replace("Tcs", "TCS").replace("Mmt", "MMT")
+                break
+        if not found:
+            m = re.search(
+                r'(?:at|@|joined|offer from|interviewing at|interview(?:ed)? at|round at)\s+'
+                r'([A-Z][a-zA-Z]+(?:\s[A-Z][a-zA-Z]+)?)',
+                (row["title"] or "") + " " + (row["body_raw"] or "")[:500]
+            )
+            if m:
+                found = m.group(1)
+        if found:
+            conn.execute("UPDATE experiences SET company = ? WHERE id = ?", (found, row["id"]))
+            updated += 1
+
+    conn.commit()
+    conn.close()
+    return {"fixed": updated, "total_unknown": len(rows)}
 
 
 def get_rounds_for_experience(exp_id):
