@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(sqlite3 /Users/jayanti/Documents/dev/senior-prep/data/interviews.db \".schema\")",
+      "Bash(curl -s -X POST http://localhost:5555/api/intel/scrape)",
+      "Bash(curl -s \"http://localhost:5555/api/intel/portal/stats\")",
+      "Bash(sqlite3 /Users/jayanti/Documents/dev/senior-prep/data/interviews.db \":*)",
+      "Bash(sqlite3 /Users/jayanti/Documents/dev/senior-prep/data/interviews.db \"SELECT COUNT\\(*\\) as total, MIN\\(date_scraped\\), MAX\\(date_scraped\\) FROM experiences;\")",
+      "Bash(sqlite3 /Users/jayanti/Documents/dev/senior-prep/data/interviews.db \"SELECT company, COUNT\\(*\\) cnt FROM experiences WHERE company IS NOT NULL AND company != '''' GROUP BY company ORDER BY cnt DESC LIMIT 20;\")",
+      "Bash(head -20 echo \"---\" grep -n \"lc_sync\\\\|lc/username\\\\|username\" /Users/jayanti/Documents/dev/senior-prep/app/routers/progress.py)"
+    ]
+  }
+}

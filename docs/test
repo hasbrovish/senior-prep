@@ -1,0 +1,426 @@
+AirTALK — Complete Technical System Design for 1-to-1 Calls
+Here is a detailed breakdown of how AirTALK's 1-to-1 voice calls work, based on live analysis of the running application, its JavaScript bundle, network traffic, and intercepted WebRTC/WebSocket activity.
+
+1. Frontend Stack
+The client is a Angular 14 Single Page Application (SPA). The main bundle is ~1 MB (main.aa0a442305171a54.js). It uses RxJS Observables and subjects for reactive state management across the call lifecycle (connected, disconnected, incoming message bus). No third-party calling SDK (Agora, Twilio, Daily, etc.) is used — everything is built in-house on top of raw browser WebRTC APIs.
+
+2. Backend Services (Discovered Endpoints)
+ServiceEndpointPurposeSignaling Server (WebSocket)wss://api.airtalk.live/signalingAll real-time messaging (matchmaking, SDP exchange, ICE candidates)REST APIhttps://api.airtalk.live/Auth tokens, user managementAI Moderationhttps://ai.airtalk.live/analyzeAnalyzes audio for content moderationVoice Moderationhttps://voice-mod.airtalk.live/moderationStreams collected audio samples for moderation
+
+3. WebSocket Signaling Protocol
+The entire call lifecycle flows through a single persistent WebSocket connection to wss://api.airtalk.live/signaling. Messages are plain JSON objects with a messageType field. The full list of message types discovered:
+Server → Client:
+
+AUTH — server requests authentication (client responds with token via sendAuth())
+ONLINE_MEMBERS — broadcasts current number of online users (shown as "1,421 Online" in the UI)
+CALL_REQUEST — an incoming call request from a matched stranger (includes clientId, countryCode)
+CALL_RESPONSE — response to a call request (accepted/declined)
+INIT — initiates the WebRTC handshake (server tells clients who is the offer-maker)
+SDP — carries the WebRTC SDP offer or answer
+CANDIDATE — carries ICE candidates
+HANG_UP — signals the call ended
+USER_QUERY_RESPONSE — response to user queries (friend lookup, etc.)
+USER_STATUS — user online/offline status updates
+CONFIG_UPDATE — server pushes configuration changes dynamically
+FRIEND / FRIEND_LOGIN — friend system events
+PING — keepalive heartbeat
+PAGE_REFRESH — server can force a client page reload
+RECONNECT — instructs client to reconnect
+
+Client → Server:
+
+CALL_REQUEST → {messageType:"CALL_REQUEST", clientId, friend:false} — user taps Call, enters matchmaking queue
+CALL_RESPONSE → {messageType:"CALL_RESPONSE", ...} — accept/decline/ignore/block an incoming call
+SDP → {messageType:"SDP", sdpType:"OFFER"|"ANSWER", content:sdpObject} — WebRTC SDP exchange
+CANDIDATE → ICE candidate relay
+STATUS_UPDATE → user status changes
+FILTER_UPDATE → user updates their call filters
+REPORT → user reports a partner
+USER_QUERY_REQUEST → look up another user
+ESTABLISHED / RECONNECT / CLIENT_ERROR → lifecycle events
+
+
+4. Authentication Flow
+Upon WebSocket connection, the server sends an AUTH message, and the client responds by calling sendAuth(), which sends the user's JWT access token (stored locally) over the socket. The server also issues a refreshToken and accessToken on login (via wsLogin() function), and there's a /renew REST endpoint for token refresh. The auth includes: clientId, email, acl (access control level/premium tier), loggedIn flag.
+
+5. Matchmaking
+When a user taps Call, the client sends a CALL_REQUEST over WebSocket with no specific partner clientId — the server handles matching. The server runs a global matchmaking queue (confirmed by the minified text: "users are dynamically prioritized in the global matchmaking queue... faster connections, reduced waiting times"). Premium/paid users get priority in the queue. Filters (gender, country) are sent to the server via a FILTER_UPDATE message. The server then pushes a CALL_REQUEST message to both matched clients with each other's clientId and countryCode. One client will receive an INIT message instructing it to begin the WebRTC handshake as the offerer.
+
+6. WebRTC Call Setup (Peer-to-Peer Audio)
+Once matched, the signaling server acts as a relay to set up the direct WebRTC peer connection between the two clients. The sequence is:
+Client A (Offerer)                  Signaling Server              Client B (Answerer)
+     |                                     |                              |
+     |------ CALL_REQUEST ---------------->|                              |
+     |                                     |------- CALL_REQUEST -------->|
+     |<------ INIT (you are offerer) ------|                              |
+     |                                     |<------ CALL_RESPONSE --------|
+     | createOffer()                       |                              |
+     | setLocalDescription(offer)          |                              |
+     |------ SDP {sdpType:"OFFER"} ------->|                              |
+     |                                     |------- SDP (OFFER) --------->|
+     |                                     |                 setRemoteDescription(offer)
+     |                                     |                 createAnswer()
+     |                                     |                 setLocalDescription(answer)
+     |                                     |<------ SDP {sdpType:"ANSWER"}|
+     |<------ SDP (ANSWER) ----------------|                              |
+     | setRemoteDescription(answer)        |                              |
+     |                                     |                              |
+     |------ CANDIDATE (ICE) ------------>|------- CANDIDATE ----------->|
+     |<------ CANDIDATE (ICE) ------------|<------ CANDIDATE ------------|
+     |                                     |                              |
+     |============== Direct P2P Audio Stream (WebRTC) ==================>|
+
+7. ICE / STUN / TURN Infrastructure
+Two RTCPeerConnection configurations were observed live:
+Primary (with TURN fallback):
+json{
+  "iceServers": [
+    {"urls": "stun:stun.l.google.com:19302"},
+    {"urls": "stun:stun1.l.google.com:19302"},
+    {"urls": "stun:stun2.l.google.com:19302"},
+    {"urls": "turn:[AirTALK's own TURN server]:3478", "username": "[time-limited]", "credential": "[HMAC-based]"}
+  ],
+  "iceTransportPolicy": "all"
+}
+```
+
+**Secondary (STUN-only, no TURN):**  
+Used as a fallback or for a secondary connection attempt.
+
+Key observations: The TURN server runs on **IP 5.75.164.144 port 3478** (a Hetzner Cloud server in Germany). The TURN credentials are **time-limited** — the username is a Unix timestamp, and the credential is an HMAC signature, which is the standard coturn time-limited credential scheme. This means the server generates fresh credentials per session.
+
+---
+
+## 8. Audio Moderation Pipeline
+
+The app runs an active **audio moderation system** in parallel with the call:
+
+1. **Microphone audio is captured** via `getUserMedia` with audio constraints.
+2. An `AudioContext` and `AudioWorklet` (or `ScriptProcessor`) **samples the audio stream** in chunks.
+3. Samples are **collected in a buffer** (`collectedAudioData`, `collectedSamples`).
+4. When the buffer is ready (`beingSent` flag), the audio data is **POSTed to `https://voice-mod.airtalk.live/moderation`** for server-side moderation.
+5. Separately, there is also `https://ai.airtalk.live/analyze` — presumably for AI-based content analysis.
+
+This gives AirTALK the ability to detect policy-violating audio in real time.
+
+---
+
+## 9. Call Termination
+
+Either party can hang up, sending a `HANG_UP` WebSocket message. The `CallStatusService` then emits a `disconnected` state event, which tears down the `RTCPeerConnection` and returns the UI to the idle state. The server also maintains state (via `ESTABLISHED` message) to track active calls.
+
+---
+
+## 10. Architecture Summary Diagram
+```
+┌──────────────────────────────────────────────────────────────────┐
+│                        AirTALK Architecture                       │
+│                                                                    │
+│   Browser (Angular 14 SPA)                                        │
+│   ┌─────────────────────────────┐                                 │
+│   │  ServerEventService          │◄──── WebSocket ────────────►  │
+│   │  (WS message bus/router)     │     wss://api.airtalk.live     │
+│   │                              │         /signaling             │
+│   │  CallbackService             │                                │
+│   │  (matchmaking state)         │◄──── REST API ──────────────►  │
+│   │                              │     https://api.airtalk.live   │
+│   │  WebRtcCallService           │       /renew, /voice-chat etc  │
+│   │  (peer connection mgr)       │                                │
+│   │                              │                                │
+│   │  MicrophoneBroadcastService  │──── Audio POST ─────────────►  │
+│   │  (audio capture + sampling)  │   voice-mod.airtalk.live       │
+│   │                              │   ai.airtalk.live/analyze      │
+│   └─────────────────────────────┘                                 │
+│              │                                                     │
+│              │ RTCPeerConnection                                   │
+│              │ (STUN: Google public)                               │
+│              │ (TURN: 5.75.164.144:3478 — Hetzner/coturn)         │
+│              ▼                                                     │
+│   ◄═══════ Direct P2P Audio Stream ══════════════════════════►    │
+│           (media bypasses server once connected)                   │
+└──────────────────────────────────────────────────────────────────┘
+
+Key Design Decisions
+No third-party SDK: AirTALK uses raw browser WebRTC APIs, keeping full control and avoiding per-minute SDK costs.
+WebSocket as signaling backbone: A single persistent WS connection handles everything — auth, matchmaking, SDP relay, ICE relay, presence, and system messages. This is efficient and avoids REST polling.
+P2P media flow: Once the WebRTC connection is established, voice audio flows directly between the two browsers (peer-to-peer), not through AirTALK's servers — this dramatically reduces server bandwidth costs and latency.
+TURN for NAT traversal: The self-hosted TURN server (coturn on Hetzner) handles cases where direct P2P fails due to symmetric NATs or firewalls. Time-limited HMAC credentials prevent credential abuse.
+Server-side audio moderation: Audio samples are sent to the server in parallel — this is an important safety/compliance layer for a stranger-calling platform.save into doc48 steps48 stepssave the cpnvo into google dpc this design75 steps75 stepscan you give me .md file for the techincal desing1 step1 stepHere is the complete .md file content for the AirTALK technical design. You can copy this and save it as airtalk-technical-design.md:
+markdown# AirTALK — Technical System Design for 1-to-1 Calls
+
+> **Analyzed:** March 30, 2026  
+> **Source:** Live inspection of `app.airtalk.live` — JS bundle analysis, WebSocket interception, RTCPeerConnection interception, network traffic monitoring.
+
+---
+
+## 1. Frontend Stack
+
+- **Framework:** Angular 14 (SPA)
+- **Bundle size:** ~1 MB (`main.aa0a442305171a54.js`)
+- **Reactive layer:** RxJS Observables & Subjects manage the full call lifecycle state (`connected`, `disconnected`, incoming message bus)
+- **No third-party calling SDK** (no Agora, Twilio, Daily, etc.) — built entirely on raw browser WebRTC APIs
+- **Offline support:** `offline.min.js` loaded for graceful offline detection
+
+---
+
+## 2. Backend Services
+
+| Service | Endpoint | Purpose |
+|---|---|---|
+| Signaling Server | `wss://api.airtalk.live/signaling` | All real-time messaging: matchmaking, SDP, ICE |
+| REST API | `https://api.airtalk.live/` | Auth, user mgmt, token renewal |
+| AI Moderation | `https://ai.airtalk.live/analyze` | AI-based audio content analysis |
+| Voice Moderation | `https://voice-mod.airtalk.live/moderation` | Real-time audio sample moderation |
+
+### REST API Endpoints (discovered)
+- `POST /renew` — JWT token renewal
+- `POST /voice-chat` — voice chat session management
+- `POST /cancel` — cancel a pending call
+- `POST /friend-request` — send friend request
+- `POST /accept` — accept friend request
+- `POST /decline` — decline friend request
+- `GET /rename` — rename user
+- `/tos`, `/policy` — terms and policy
+
+---
+
+## 3. WebSocket Signaling Protocol
+
+A **single persistent WebSocket** connection to `wss://api.airtalk.live/signaling` carries the entire call lifecycle. All messages are plain **JSON objects** with a `messageType` field.
+
+### Server → Client Message Types
+
+| messageType | Description |
+|---|---|
+| `AUTH` | Server requests authentication; client responds via `sendAuth()` with JWT |
+| `ONLINE_MEMBERS` | Broadcasts current online user count (`count` field) |
+| `CALL_REQUEST` | Incoming matched call (`clientId`, `countryCode`) |
+| `CALL_RESPONSE` | Response to an outgoing call request |
+| `INIT` | Starts the WebRTC handshake; designates which client is the offerer |
+| `SDP` | Carries WebRTC SDP offer or answer |
+| `CANDIDATE` | Carries ICE candidates for NAT traversal |
+| `HANG_UP` | Signals the remote party hung up |
+| `USER_QUERY_RESPONSE` | Response to a user lookup |
+| `USER_STATUS` | User online/offline status update |
+| `CONFIG_UPDATE` | Server pushes dynamic config to client |
+| `FRIEND` | Friend system event |
+| `FRIEND_LOGIN` | Friend came online |
+| `PING` | Keepalive heartbeat |
+| `PAGE_REFRESH` | Server forces a client page reload |
+| `RECONNECT` | Server instructs client to reconnect |
+
+### Client → Server Message Types
+
+| messageType | Payload / Description |
+|---|---|
+| `CALL_REQUEST` | `{messageType:"CALL_REQUEST", clientId, friend:false}` — enters matchmaking queue |
+| `CALL_RESPONSE` | Accept / decline / ignore / block incoming call |
+| `SDP` | `{messageType:"SDP", sdpType:"OFFER"\|"ANSWER", content: sdpObject}` |
+| `CANDIDATE` | ICE candidate relay |
+| `STATUS_UPDATE` | User status change |
+| `FILTER_UPDATE` | Call preferences update (gender, country filters) |
+| `REPORT` | Report current partner |
+| `USER_QUERY_REQUEST` | Look up a user by ID |
+| `ESTABLISHED` | Call successfully established |
+| `RECONNECT` | Client requests reconnect |
+| `CLIENT_ERROR` | Client-side error report |
+
+---
+
+## 4. Authentication Flow
+```
+1. Client opens WebSocket to wss://api.airtalk.live/signaling
+2. Server sends: { messageType: "AUTH" }
+3. Client responds via sendAuth() with stored JWT accessToken
+4. Server validates and responds with:
+   { clientId, email, acl, loggedIn, accessToken, refreshToken }
+5. wsLogin() stores tokens locally
+6. Token renewal: POST https://api.airtalk.live/renew
+```
+
+- `acl` field controls premium tier and feature access
+- Anonymous users are assigned a guest `clientId`
+
+---
+
+## 5. Matchmaking
+```
+User taps "Call"
+    → Client sends CALL_REQUEST (no target clientId — server decides)
+    → Server places both users in global matchmaking queue
+    → Premium users get priority in queue
+    → Filters (gender, country) previously sent via FILTER_UPDATE
+    → Server matches two compatible users
+    → Server sends CALL_REQUEST to both with each other's clientId + countryCode
+    → Server sends INIT to one client (designating it the WebRTC offerer)
+```
+
+**Key facts:**
+- Matchmaking is fully server-side
+- Premium members get prioritized queue position
+- Country/gender filters applied server-side at match time
+
+---
+
+## 6. WebRTC Call Setup (1-to-1 Peer-to-Peer Audio)
+```
+Client A (Offerer)           Signaling Server          Client B (Answerer)
+      |                             |                          |
+      |── CALL_REQUEST ────────────►|                          |
+      |                             |── CALL_REQUEST ─────────►|
+      |◄── INIT (you are offerer) ──|                          |
+      |                             |◄── CALL_RESPONSE ────────|
+      |                             |    (accepted)            |
+      | createOffer()               |                          |
+      | setLocalDescription(offer)  |                          |
+      |── SDP {sdpType:"OFFER"} ───►|── SDP (OFFER) ─────────►|
+      |                             |          setRemoteDescription(offer)
+      |                             |          createAnswer()
+      |                             |          setLocalDescription(answer)
+      |                             |◄── SDP {sdpType:"ANSWER"}|
+      |◄── SDP (ANSWER) ────────────|                          |
+      | setRemoteDescription(answer)|                          |
+      |── CANDIDATE ───────────────►|── CANDIDATE ────────────►|
+      |◄── CANDIDATE ───────────────|◄── CANDIDATE ────────────|
+      |                             |                          |
+      |══════════ Direct P2P Audio Stream (WebRTC) ═══════════►|
+      |        (media bypasses the signaling server)           |
+```
+
+---
+
+## 7. ICE / STUN / TURN Infrastructure
+
+### Primary Configuration (with TURN fallback)
+```json
+{
+  "iceServers": [
+    { "urls": "stun:stun.l.google.com:19302" },
+    { "urls": "stun:stun1.l.google.com:19302" },
+    { "urls": "stun:stun2.l.google.com:19302" },
+    {
+      "urls": "turn:5.75.164.144:3478",
+      "username": "",
+      "credential": ""
+    }
+  ],
+  "iceTransportPolicy": "all"
+}
+```
+
+### Secondary Configuration (STUN-only)
+Used as fallback or for a secondary connection attempt when TURN is unavailable.
+
+### TURN Server Details
+- **Host:** `5.75.164.144:3478` — Hetzner Cloud, Germany
+- **Software:** Self-hosted **coturn**
+- **Auth scheme:** Time-limited HMAC credentials
+  - `username` = Unix timestamp (TTL-based expiry)
+  - `credential` = HMAC-SHA1 signature of the timestamp
+  - Fresh credentials generated server-side per session
+- **Purpose:** Handles NAT traversal for clients behind symmetric NATs or strict firewalls
+
+---
+
+## 8. Audio Moderation Pipeline
+
+Running **in parallel** with every active call:
+```
+Microphone (getUserMedia)
+    ↓
+AudioContext (samples audio stream in chunks)
+    ↓
+Buffer: collectedAudioData[] / collectedSamples counter
+    ↓ (when buffer ready, beingSent flag = true)
+POST https://voice-mod.airtalk.live/moderation
+    → Server-side moderation for policy violations
+
+Simultaneously:
+POST https://ai.airtalk.live/analyze
+    → AI model content analysis
+```
+
+- Designed to detect explicit/harmful audio in real time
+- Audio is **not stored** for calls — only sampled for moderation
+- `VOICE_MOD_URL` constant is hardcoded in the Angular service
+
+---
+
+## 9. Call Termination
+```
+Either party clicks "Hang Up"
+    → Client sends: { messageType: "HANG_UP" }
+    → Remote client receives HANG_UP via WebSocket
+    → Both: CallStatusService.emitDisconnected()
+    → Both: RTCPeerConnection torn down
+    → Both: _isInCall = false
+    → UI returns to idle state ("Tap the Call button...")
+    → Server clears the active call session
+```
+
+- Server can also force a disconnect via `HANG_UP` from its side
+- Reconnection logic triggered via `RECONNECT` message
+- Connection health monitored via `setupConnectionChecker()`
+
+---
+
+## 10. Architecture Diagram
+```
+┌─────────────────────────── Browser (Angular 14 SPA) ──────────────────────────┐
+│                                                                                 │
+│  ┌─────────────────────────────────────────────────────────────────────────┐  │
+│  │  ServerEventService  (WebSocket message bus & router)                    │  │
+│  │  ─────────────────────────────────────────────────────────────────────  │  │
+│  │  Handles: AUTH, PING, ONLINE_MEMBERS, CONFIG_UPDATE, PAGE_REFRESH       │  │
+│  │  Routes to: signalingMessages$ | callRequestMessages$ | friendEvents$   │  │
+│  └──────────────────────────────┬──────────────────────────────────────────┘  │
+│                                  │ wss://api.airtalk.live/signaling             │
+│                                  ▼                                              │
+│  ┌──────────────────────┐  ┌────────────────────────────────────────────────┐ │
+│  │  CallbackService     │  │  WebRtcCallService                              │ │
+│  │  ────────────────    │  │  ─────────────────────────────────────────────  │ │
+│  │  Matchmaking state   │  │  Manages RTCPeerConnection lifecycle            │ │
+│  │  CALL_REQUEST/RESP   │  │  createOffer / createAnswer / ICE exchange      │ │
+│  │  Incoming call UI    │  │  STUN: Google public (stun.l.google.com)        │ │
+│  └──────────────────────┘  │  TURN: 5.75.164.144:3478 (Hetzner/coturn)      │ │
+│                             └────────────────────────────────────────────────┘ │
+│                                                                                 │
+│  ┌──────────────────────────────────────────────────────────────────────────┐  │
+│  │  MicrophoneBroadcastService  (audio capture + moderation pipeline)       │  │
+│  │  POST ──► https://voice-mod.airtalk.live/moderation                      │  │
+│  │  POST ──► https://ai.airtalk.live/analyze                                │  │
+│  └──────────────────────────────────────────────────────────────────────────┘  │
+│                                                                                 │
+│  HTTP Client ──► https://api.airtalk.live/  (REST: auth, /renew, /cancel...)  │
+└─────────────────────────────────────────────────────────────────────────────────┘
+                              │
+              ┌───────────────┘  WebRTC P2P
+              ▼
+Client A ◄════════════ Direct Audio Stream (WebRTC) ════════════► Client B
+              (bypasses all servers after handshake)
+```
+
+---
+
+## 11. Key Design Decisions
+
+| Decision | Rationale |
+|---|---|
+| **No third-party SDK** | Raw WebRTC APIs give full control; avoids per-minute Agora/Twilio costs |
+| **Single WebSocket for everything** | Auth, matchmaking, signaling, presence, system msgs — no REST polling needed |
+| **P2P media flow** | Voice goes browser-to-browser after handshake; dramatically reduces server bandwidth and latency |
+| **Self-hosted TURN** | coturn on Hetzner — cost-effective; time-limited HMAC prevents credential abuse |
+| **Server-side audio moderation** | Safety/compliance for a stranger-calling platform without storing full recordings |
+| **Premium queue priority** | Monetization lever; faster matches for paying users incentivizes upgrades |
+| **Angular 14 + RxJS** | Observable streams cleanly model the async, event-driven nature of WebRTC calls |
+
+---
+
+## 12. Message Flow Summary
+```
+IDLE ──[Call tapped]──► CALL_REQUEST sent
+    ──[INIT received]──► WebRTC OFFER created & sent
+    ──[ANSWER received]──► ICE exchange begins
+    ──[ICE connected]──► P2P audio stream live  ← CALL ACTIVE
+    ──[HANG_UP received/sent]──► teardown ──► IDLE
+```

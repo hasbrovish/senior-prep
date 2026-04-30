@@ -1,0 +1,197 @@
+%-------------------------
+% Jake's Resume Template — Adapted for Jayanti Vishnoi
+%-------------------------
+\documentclass[letterpaper,11pt]{article}
+
+\usepackage{latexsym}
+\usepackage[empty]{fullpage}
+\usepackage{titlesec}
+\usepackage{marvosym}
+\usepackage[usenames,dvipsnames]{color}
+\usepackage{verbatim}
+\usepackage{enumitem}
+\usepackage[hidelinks]{hyperref}
+\usepackage{fancyhdr}
+\usepackage[english]{babel}
+\usepackage{tabularx}
+\usepackage{multicol}
+\input{glyphtounicode}
+
+\pagestyle{fancy}
+\fancyhf{}
+\fancyfoot{}
+\renewcommand{\headrulewidth}{0pt}
+\renewcommand{\footrulewidth}{0pt}
+
+\addtolength{\oddsidemargin}{-0.5in}
+\addtolength{\evensidemargin}{-0.5in}
+\addtolength{\textwidth}{1in}
+\addtolength{\topmargin}{-.5in}
+\addtolength{\textheight}{1.0in}
+
+\urlstyle{same}
+\raggedbottom
+\raggedright
+\setlength{\tabcolsep}{0in}
+
+% Sections formatting
+\titleformat{\section}{
+  \vspace{-4pt}\scshape\raggedright\large
+}{}{0em}{}[\color{black}\titlerule \vspace{-5pt}]
+
+\pdfgentounicode=1
+
+%-------------------------
+% Custom commands
+\newcommand{\resumeItem}[1]{
+  \item\small{#1 \vspace{-2pt}}
+}
+
+\newcommand{\resumeSubheading}[4]{
+  \vspace{-2pt}\item
+    \begin{tabular*}{0.97\textwidth}[t]{l@{\extracolsep{\fill}}r}
+      \textbf{#1} & #2 \\
+      \textit{\small#3} & \textit{\small #4} \\
+    \end{tabular*}\vspace{-7pt}
+}
+
+\newcommand{\resumeSubSubheading}[2]{
+    \item
+    \begin{tabular*}{0.97\textwidth}{l@{\extracolsep{\fill}}r}
+      \textit{\small#1} & \textit{\small #2} \\
+    \end{tabular*}\vspace{-7pt}
+}
+
+\newcommand{\resumeProjectHeading}[2]{
+    \item
+    \begin{tabular*}{0.97\textwidth}{l@{\extracolsep{\fill}}r}
+      \small#1 & #2 \\
+    \end{tabular*}\vspace{-7pt}
+}
+
+\newcommand{\resumeSubItem}[1]{\resumeItem{#1}\vspace{-4pt}}
+\renewcommand\labelitemii{$\vcenter{\hbox{\tiny$\bullet$}}$}
+\newcommand{\resumeSubHeadingListStart}{\begin{itemize}[leftmargin=0.15in, label={}]}
+\newcommand{\resumeSubHeadingListEnd}{\end{itemize}}
+\newcommand{\resumeItemListStart}{\begin{itemize}}
+\newcommand{\resumeItemListEnd}{\end{itemize}\vspace{-5pt}}
+
+%-------------------------------------------
+\begin{document}
+
+%----------HEADING----------
+\begin{center}
+    \textbf{\Huge \scshape Jayanti Vishnoi} \\ \vspace{4pt}
+    \small +91 8077640410 $|$
+    \href{mailto:jayantivishnoi@gmail.com}{\underline{jayantivishnoi@gmail.com}} $|$
+    \href{https://linkedin.com/in/jayantivishnoi}{\underline{linkedin.com/in/jayantivishnoi}} $|$
+    \href{https://github.com/jayantivishnoi}{\underline{github.com/jayantivishnoi}} $|$
+    Bengaluru, India
+\end{center}
+
+%-----------SUMMARY-----------
+\section{Professional Summary}
+\small{
+Backend-heavy full-stack engineer with 5.6 years specializing in distributed systems, financial state machines, and microservice architecture — building India's national tax compliance platform (GSTN) serving 15.2 million taxpayers across 28 state jurisdictions. Deep expertise in Java, Spring Boot, XA transactions, Redis, Kafka, and multi-tenant database design across 5 microservice modules. Mentors 13 engineers, drives cross-team technical decisions, and owns production reliability for back-office platform.
+}
+
+%-----------SKILLS-----------
+\section{Technical Skills}
+\begin{itemize}[leftmargin=0.15in, label={}]
+    \small{\item{
+     \textbf{Languages:} Java, TypeScript, JavaScript (ES6+), Golang, SQL, C++ \\
+     \textbf{Backend:} Spring Boot, Spring MVC, JPA/Hibernate, REST APIs, Kafka, Redis, Atomikos (XA 2PC), Maven, GraphQL \\
+     \textbf{Frontend:} Angular (10/12/14+), AngularJS 1.x, RxJS, PrimeNG, ngx-bootstrap, ExcelJS, Nx Monorepo \\
+     \textbf{Databases:} Oracle, PostgreSQL, MySQL (sharded), MongoDB, HBase, ElasticSearch \\
+     \textbf{Architecture:} Microservices, Distributed Systems, Multi-tenant Sharding, Event Sourcing, Design Patterns (Strategy, Factory, Facade, Strangler Fig) \\
+     \textbf{Tools:} Docker, Kubernetes, Git, Jenkins, SonarQube, JIRA \\
+    }}
+\end{itemize}
+
+%-----------EXPERIENCE-----------
+\section{Professional Experience}
+  \resumeSubHeadingListStart
+
+    %--- GSTN ---
+    \resumeSubheading
+      {Infosys Limited}{Bengaluru, India}
+      {Specialist Programmer L2 (SDE-2)}{June 2023 -- Present}
+
+    \vspace{2pt}
+    \small{
+      \textbf{Project:} GSTN (Goods \& Services Tax Network) — Government of India National Tax Platform \\
+      \textbf{Tech:} Java 8+, Spring Boot, JPA/Hibernate, Oracle, PostgreSQL, Redis, Kafka, Atomikos (XA), Angular, AngularJS, TypeScript, RxJS, Maven, Git \\
+      \textbf{Scale:} 15.2M taxpayers $|$ 28 jurisdictions $|$ 5 microservice modules $|$ 70K+ LOC frontend $|$ 21 Angular micro-libraries
+    }
+    \vspace{2pt}
+
+      \resumeItemListStart
+
+        \resumeItem{Designed and implemented a \textbf{12-scenario financial order-processing state machine} using Java, Spring Boot, and JPA/Hibernate — handling multi-tier demand chains (original demand, first-appeal order, subsequent order) with conditional demand creation, inter-account balance transfers, dispute reversals, and refund triggers; each scenario generates immutable double-entry ledger transactions across 3 databases, impacting \textbf{75+ Java classes across 5 microservice modules} serving 15.2M taxpayer accounts.}
+
+        \resumeItem{Engineered \textbf{defense-in-depth concurrency control} for adjudication order issuance — implemented Redis SETNX distributed locks at the API boundary, JPA @Version optimistic locking at the persistence layer, and XA/Atomikos 2-phase commit across case management, ledger, and workflow databases; \textbf{eliminated race conditions} in concurrent multi-officer order issuance ensuring zero duplicate financial entries.}
+
+        \resumeItem{Built an \textbf{end-to-end GST waiver compliance lifecycle spanning 7 order types} (SPL01--SPL07: application, payment confirmation, approval, void, rejection, appeal integration, DRC-03 reconciliation) — implemented approval flows with ledger credit entries, void orders with compensating debit reversals, and cross-module appeal integration; enabled processing of \textbf{4.8 lakh backlogged waiver applications} under Section 128A with automated status transitions and email/SMS notifications.}
+
+        \resumeItem{Architected \textbf{multi-tenant database routing across 28 jurisdictions} using Spring AbstractRoutingDataSource with ThreadLocal context propagation, paired with a \textbf{two-tier caching strategy} — JVM in-process cache for 100+ reference data types via @PostConstruct, and Redis distributed cache for 40+ shared types with TTL-based eviction; built aggregation counter APIs for officer dashboards computing real-time case counts per jurisdiction without redundant DB lookups.}
+
+        \resumeItem{Designed a \textbf{plugin-based case lifecycle framework} using Strategy and Factory patterns supporting \textbf{20+ legally distinct proceeding types} — each proceeding registers a CaseCustomizer with pre/post lifecycle hooks and configurable transaction modes (XA vs non-XA); built reusable cross-cutting validation for jurisdiction eligibility, officer role authorization, simultaneous appeal detection, and financial consistency — onboarded entire waiver scheme (SPL01--SPL07) with \textbf{zero changes to framework code}.}
+
+        \resumeItem{Drove \textbf{incremental migration of 70,000+ LOC AngularJS to Angular/TypeScript} using the Strangler Fig pattern — architected 21 standalone micro-libraries in an Nx monorepo with module federation, enabling parallel team delivery and \textbf{zero downtime} for 15.2M users; built Angular RBAC micro-library with RxJS BehaviorSubject state management and HTTP interceptor centralizing auth across all 21 modules.}
+
+        \resumeItem{Built a \textbf{session-isolated case-graph traversal engine} in JavaScript/AngularJS with composite-key caching (SessionId + ScopeId + ResourceId) using ES6 Set for O(1) deduplication — reduced duplicate API calls from 5--6 per operation to zero, \textbf{page load time by 60\%}, and system error rate from 12\% to 0.2\%.}
+
+        \resumeItem{\textbf{Mentored 13 junior engineers (LEs)} on technical design, code reviews, and career growth; drove \textbf{cross-team technical collaboration across 3+ product teams} on appeal integration and cross-domain feature design; owned production reliability for 5 microservice modules — led P0/P1 incident response with root-cause analysis and post-mortems.}
+
+      \resumeItemListEnd
+
+    %--- Marketplace ---
+    \resumeSubheading
+      {Infosys Limited}{Bengaluru, India}
+      {Specialist Programmer L1}{August 2020 -- May 2023}
+
+    \vspace{2pt}
+    \small{
+      \textbf{Project:} Infosys Marketplace \& Codestore — Enterprise Developer Platform \\
+      \textbf{Tech:} Golang, Java, MongoDB, GraphQL, Angular 10/14+, TypeScript, RxJS, Redis, Node.js, ElasticSearch, Docker, Kubernetes \\
+      \textbf{Scale:} 5,000+ internal developers $|$ 200+ enterprise clients
+    }
+    \vspace{2pt}
+
+      \resumeItemListStart
+
+        \resumeItem{Architected an \textbf{event-sourced asset download tracking system} using finite state machine design (6 states: initial $\rightarrow$ pending $\rightarrow$ approved/rejected/cancelled/nonproj, 14 transitions as transition function maps eliminating nested conditionals) with MongoDB append-only event log; built \textbf{PM approval workflow} with state-based access control, automated email notifications on every state transition to assigned Independent Programmer (IP), and intent-based segregation — achieved \textbf{70\% reduction in tracking errors} and 95\% faster approval processing across 5,000+ monthly downloads.}
+
+        \resumeItem{Pioneered \textbf{cross-Micro-Frontend tour orchestration} across 6 Angular MFEs (Module Federation) using a custom event bus (pub/sub pattern) and MutationObserver-based async rendering detection with exponential backoff retry — improved guided tour success rate to \textbf{98.5\%} and increased first-time user activation from 35\% to 65\%.}
+
+        \resumeItem{Enhanced \textbf{universal search} using weighted multi-field ElasticSearch queries (asset name: 12x, tags: 4x, description: 3x) with contributor metadata search — improved search relevance by \textbf{35\%} and reduced zero-result queries by 50\% across 500K+ monthly search events.}
+
+        \resumeItem{Developed \textbf{GraphQL CRUD APIs in Golang with MongoDB} maintaining 90\% unit test coverage; implemented streaming ZIP generation with chunked file reading (10MB chunks) preventing memory overflow for 2GB+ software packages.}
+
+      \resumeItemListEnd
+
+  \resumeSubHeadingListEnd
+
+%-----------EDUCATION-----------
+\section{Education}
+  \resumeSubHeadingListStart
+    \resumeSubheading
+      {ABES Engineering College}{Ghaziabad, U.P.}
+      {B.Tech in Computer Science}{2016 -- 2020}
+    \resumeItemListStart
+      \resumeItem{CGPA: 8.7/10}
+    \resumeItemListEnd
+  \resumeSubHeadingListEnd
+
+%-----------ACHIEVEMENTS-----------
+\section{Achievements}
+  \resumeSubHeadingListStart
+    \resumeSubItem{\textbf{Infosys Certified Software Programmer} — 91st Percentile}
+    \resumeSubItem{\textbf{CodeChef 4-Star} (Rating: 1859) — Competitive Programming}
+    \resumeSubItem{\textbf{Google Women's Code Jam I/O 2019} — Global Rank 317 / 4,000+ participants}
+    \resumeSubItem{\textbf{TCS CodeVita 2019} (Zone 2) — Global Rank 400 / 50,000+ contestants}
+    \resumeSubItem{\textbf{Google Kickstart Round A 2020} — Global Rank 1,577 / 13,700+ participants}
+  \resumeSubHeadingListEnd
+
+%-------------------------------------------
+\end{document}

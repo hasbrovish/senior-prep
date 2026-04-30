@@ -1,0 +1,60 @@
+\cvsection{Work Experience}
+
+\begin{cventries}
+
+%----- Topaz Fabric (Agentic AI) -----
+\cventry
+  {Specialist Programmer L2 --- Agentic AI R\&D}
+  {Infosys Limited --- Topaz Fabric (Enterprise Composable AI Platform)}
+  {Bengaluru, India (Hybrid)}
+  {April 2026 -- Present}
+  {
+    \begin{cvitems}
+      \item {\textbf{Tech:} Agentic AI, Generative AI, LLM Evaluation, Prompt Engineering, Context Engineering, Apache JMeter, Kubernetes, AWS Bedrock}
+      \item {Contributing to R\&D on \textbf{Infosys Topaz Fabric} --- enterprise composable AI platform powering \textbf{50+ purpose-built agents} across IT operations and agentic workflows.}
+      \item {Designing \textbf{JMeter-based load test plans} targeting context engineering components of AI agent pipelines --- simulating realistic concurrent agent invocation patterns to surface latency bottlenecks and failure modes.}
+      \item {Orchestrating \textbf{distributed performance tests via Kubernetes-scaled JMeter clusters} for high-concurrency agent workflow simulation beyond single-node limits.}
+      \item {Exploring \textbf{LLM evaluation frameworks} assessing agentic systems across response quality, hallucination rate, latency SLAs, and behavioral consistency --- building depth in agent lifecycle evaluation.}
+    \end{cvitems}
+  }
+
+%----- GSTN -----
+\cventry
+  {Specialist Programmer L2 (SDE-2)}
+  {Infosys Limited --- GSTN (Goods \& Services Tax Network), Government of India}
+  {Bengaluru, India}
+  {June 2023 -- Present}
+  {
+    \begin{cvitems}
+      \item {\textbf{Tech:} Java 8+, Spring Boot, JPA/Hibernate, Oracle, PostgreSQL, Redis, Kafka, Atomikos (XA), Angular, AngularJS, TypeScript, RxJS, Maven, Git}
+      \item {\textbf{Scale:} 15.2M taxpayers \textbar{} 28 jurisdictions \textbar{} 5 microservice modules \textbar{} 70K+ LOC frontend \textbar{} 21 Angular micro-libraries}
+      \item {Designed \textbf{12-scenario financial state machine} (Java/Spring Boot/JPA) handling multi-tier demand chains with conditional demand creation, balance transfers, and refund triggers across 3 databases --- impacting \textbf{75+ classes across 5 microservices} for 15.2M taxpayer accounts with high-throughput, fault-tolerant processing.}
+      \item {Engineered \textbf{defense-in-depth concurrency control} --- Redis SETNX distributed locks, JPA @Version optimistic locking, and XA/Atomikos 2PC across case management, ledger, and workflow databases; eliminated race conditions in concurrent multi-officer order issuance ensuring \textbf{zero duplicate financial entries}.}
+      \item {Built \textbf{GST waiver lifecycle (7 order types, SPL01--SPL07)} --- processed \textbf{4.8 lakh backlogged applications} under Section 128A with double-entry ledger integration and compensating debit reversals on void orders.}
+      \item {\textbf{Kafka-driven async notifications} across 15.2M accounts with automated state transitions and email/SMS alerts --- zero fund misappropriation on void orders, 100\% audit compliance.}
+      \item {Architected \textbf{multi-tenant DB routing (28 jurisdictions)} via Spring AbstractRoutingDataSource + ThreadLocal, paired with two-tier cache (JVM: 100+ types, Redis: 40+ types with TTL) --- eliminated redundant DB lookups delivering \textbf{low-latency, scalable} officer dashboard APIs.}
+      \item {Designed \textbf{plugin-based case lifecycle framework} (Strategy + Factory) supporting \textbf{20+ proceeding types} with configurable XA/non-XA transaction modes --- onboarded SPL01--SPL07 waiver scheme with \textbf{zero framework code changes}.}
+      \item {Drove \textbf{AngularJS $\rightarrow$ Angular migration} (70K+ LOC, Strangler Fig) --- 21 Nx monorepo micro-libraries enabling parallel team delivery and \textbf{zero downtime} for 15.2M users; built RBAC micro-library with RxJS BehaviorSubject and centralized HTTP interceptor.}
+      \item {Built \textbf{session-isolated case-graph traversal engine} (ES6 Set, O(1) dedup, 10+ rule compliance engine) --- eliminated 5--6 duplicate API calls, \textbf{page load $\downarrow$60\%}, system error rate 12\% $\rightarrow$ 0.2\%.}
+      \item {\textbf{Mentored 13 junior engineers} --- reduced code review cycle from 3 days to 1 day; 3 engineers onboarded to production ownership within 60 days; drove cross-team collaboration across 3+ teams on appeal integration and P0/P1 incident response.}
+    \end{cvitems}
+  }
+
+%----- Marketplace -----
+\cventry
+  {Specialist Programmer L1}
+  {Infosys Limited --- Marketplace \& Codestore, Enterprise Developer Platform}
+  {Bengaluru, India}
+  {August 2020 -- May 2023}
+  {
+    \begin{cvitems}
+      \item {\textbf{Tech:} Golang, Java, MongoDB, GraphQL, Angular 10/14+, TypeScript, RxJS, Redis, Node.js, ElasticSearch, Docker, Kubernetes, AWS}
+      \item {\textbf{Scale:} 5,000+ internal developers \textbar{} 200+ enterprise clients}
+      \item {Architected \textbf{event-sourced download tracking system} using FSM (6 states, 14 transitions as function maps) with MongoDB append-only event log; built \textbf{PM approval workflow} with state-based access control and email notifications on every state transition to assigned IP --- \textbf{70\% fewer tracking errors}, 95\% faster approvals.}
+      \item {Pioneered \textbf{cross-MFE tour orchestration} across 6 Angular MFEs (Module Federation) via custom pub/sub event bus and MutationObserver async detection with exponential backoff --- tour success rate \textbf{98.5\%}, user activation \textbf{35\% $\rightarrow$ 65\%}.}
+      \item {Enhanced \textbf{universal search} using weighted ElasticSearch queries (asset name: 12x, tags: 4x, description: 3x) --- \textbf{35\% relevance improvement}, 50\% fewer zero-result queries across 500K+ monthly search events.}
+      \item {Developed \textbf{GraphQL CRUD APIs in Golang/MongoDB} at 90\% unit test coverage; streaming ZIP with 10MB chunked reads preventing memory overflow for 2GB+ packages.}
+    \end{cvitems}
+  }
+
+\end{cventries}

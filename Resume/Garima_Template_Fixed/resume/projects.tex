@@ -1,0 +1,110 @@
+%-------------------------------------------------------------------------------
+%	SECTION TITLE
+%-------------------------------------------------------------------------------
+\newcommand{\ExternalLink}{%
+    \tikz[x=1.2ex, y=1.2ex, baseline=-0.05ex]{% 
+        \begin{scope}[x=1ex, y=1ex]
+            \clip (-0.1,-0.1) 
+                --++ (-0, 1.2) 
+                --++ (0.6, 0) 
+                --++ (0, -0.6) 
+                --++ (0.6, 0) 
+                --++ (0, -1);
+            \path[draw, 
+                line width = 0.5, 
+                rounded corners=0.5] 
+                (0,0) rectangle (1,1);
+        \end{scope}
+        \path[draw, line width = 0.5] (0.5, 0.5) 
+            -- (1, 1);
+        \path[draw, line width = 0.5] (0.6, 1) 
+            -- (1, 1) -- (1, 0.6);
+        }
+}
+
+
+\cvsection{Projects}
+%-------------------------------------------------------------------------------
+%	CONTENT
+%-------------------------------------------------------------------------------
+\begin{cventries}
+%---------------------------------------------------------
+    \cventry
+        {M.Tech. Project} % Job title
+        {Multilingual Signboard Reading} % Organization
+        {Prof. Chetan Arora, IIT Delhi} % Location
+        {January 2019 - December 2019} % Date(s)
+        {
+            \begin{cvitems} % Description(s) of tasks/responsibilities
+                \item Built a system for reading text from signboards present inside IIT Campus.
+                \item Required annotating the IIT Delhi signboard dataset, comparison of various scene text view recognition techniques.
+                \item The project comes under the MAVI(Mobility Assistance for visually impaired) group in IIT Delhi.
+            \end{cvitems}
+        }
+        
+     \cventry
+        {Course Project, Advanced Distributed Systems} % Job title
+        {\href{https://github.com/gprateek93/Sikka--A-Simple-Bitcoin-Implementation}{Sikka- A Simple Bitcoin Implementation \ExternalLink}} % Organization
+        {Prof. SR Sarangi, IIT Delhi} % Location
+        {May 2020 - July 2020} % Date(s)
+        {
+            \begin{cvitems} % Description(s) of tasks/responsibilities
+                \item Created a simple implementation of bitcoin system from scratch
+                \item Implemented the blockchain architecture for the same.
+            \end{cvitems}
+        }
+    
+        
+    \cventry
+        {Course Project, Computer Vision} % Job title
+        {\href{https://github.com/gprateek93/Basic-Camera-Based-Music-Player-Controller}{Basic Camera Based Music Player Controller \ExternalLink}} % Organization
+        {Prof. Chetan Arora, IIT Delhi} % Location
+        {October 2019 - November 2019} % Date(s)
+        {
+            \begin{cvitems} % Description(s) of tasks/responsibilities
+                \item Designed an application which could identify the direction of the gesture made by a user in front of the camera.
+                \item It involved making a dataset of different gestures for a music player viz. next, previous and stop.
+                \item Used basic CNN for the classification.
+            \end{cvitems}
+        }
+        
+        
+    \cventry
+        {Course Project, Reinforcement Learning} % Job title
+        {\href{https://github.com/gprateek93/COL870-Reinforcement_Learning}{Achieve 31 - A game of Blackjack \ExternalLink}} % Organization
+        {Prof. Parag Singla, IIT Delhi} % Location
+        {September 2019 - October 2019} % Date(s)
+        {
+            \begin{cvitems} % Description(s) of tasks/responsibilities
+                \item Designed a decision engine for the classical game blackjack.
+                \item Used various reinforcement learning algorithms to design the decision algorithm.
+            \end{cvitems}
+        }
+    
+    \cventry
+        {Course Project, Machine Learning} % Job title
+        {\href{https://github.com/gprateek93/Machine-Learning-COL-774/tree/master/Assignment-3}{Generic Neural Network Library \ExternalLink}} % Organization
+        {Prof. Parag Singla, IIT Delhi} % Location
+        {March 2019 - April 2019} % Date(s)
+        {
+            \begin{cvitems} % Description(s) of tasks/responsibilities
+                \item Built a generic Neural Network Library in python capable of creating arbitrary Dense Networks
+                \item Implemented Vectorized Backpropagation, and added options for different activation functions
+            \end{cvitems}
+        }
+        
+    
+    \cventry
+        {Course Project, Software Systems Lab} % Job title
+        {\href{https://github.com/gprateek93/LaTeX_to_HTML}{LaTeX to HTML converter \ExternalLink}} % Organization
+        {Prof. SR Sarangi, IIT Delhi} % Location
+        {July 2018 - August 2018} % Date(s)
+        {
+            \begin{cvitems} % Description(s) of tasks/responsibilities
+                \item Implemented a system to convert a given LaTeX file into HTML file. 
+                \item It involved making modules for lexical analysis, parsing, generating AST, and conversion using flex and bison utilities of C++.
+            \end{cvitems}
+        }
+    
+    
+\end{cventries}
