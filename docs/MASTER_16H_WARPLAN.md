@@ -1,6 +1,10 @@
 # MASTER 16-HOUR WAR PLAN — SDE-2/SDE-3 ASSAULT
 **Jayanti Vishnoi | 5.5 YOE | GSTN Scale | Start: Mar 24, 2026**
 
+> ⚠️ **UPDATED PLAN:** A complete 90-day plan starting April 30, 2026 has been created at:
+> `90_DAY_COMPLETE_WARPLAN_APR30_JUL28.md` (project root)
+> That file is now the SINGLE SOURCE OF TRUTH. This file is kept for historical reference.
+
 > **Mission:** Phase 1 (Mar–Jun 2026) = First offer 30-40 LPA at Razorpay/CRED/PhonePe/Juspay.
 > **Mission:** Phase 2 (Jun–Sep 2026) = Dream offer 45-75 LPA at Amazon/Flipkart/Goldman/Google/Swiggy.
 
